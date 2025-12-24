@@ -76,24 +76,24 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
 
         {/* Content */}
         <Container className="relative z-10 py-16 w-full">
-          <div className="text-center space-y-8 max-w-5xl mx-auto px-4 animate-in fade-in slide-in-from-bottom duration-1000">
+          <div className="text-center space-y-6 max-w-5xl mx-auto px-4 animate-in fade-in slide-in-from-bottom duration-1000">
           {/* Main Title */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-primary leading-[1.15] font-bristone animate-in fade-in slide-in-from-bottom duration-700 delay-200">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-primary leading-[1.2] font-bristone animate-in fade-in slide-in-from-bottom duration-700 delay-200">
             {title}
           </h1>
 
           {/* Subtitle */}
-          <p className="text-xl sm:text-2xl md:text-3xl text-accent font-medium leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-300">
+          <p className="text-lg sm:text-xl md:text-2xl text-accent font-medium leading-relaxed max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom duration-700 delay-300">
             {subtitle}
           </p>
 
           {/* Description */}
-          <p className="text-base sm:text-lg md:text-xl text-accent/90 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-400">
+          <p className="text-sm sm:text-base md:text-lg text-accent/90 max-w-xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-400">
             تجربة استثنائية مع <span className="text-primary font-semibold">برامج تدريبية احترافية</span>
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center pt-4 animate-in fade-in slide-in-from-bottom duration-700 delay-500">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-2 animate-in fade-in slide-in-from-bottom duration-700 delay-500">
             {/* Primary Button - اكتشف العقارات */}
             <Button
               variant="primary"
@@ -120,86 +120,71 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
           </div>
 
           {/* Stats - مربعات شفافة مع تأثير لمعان */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 md:gap-6 pt-12 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom duration-700 delay-700">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5 pt-8 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom duration-700 delay-700">
             {/* Stat Card 1 - عقار متميز */}
-            <div className="group relative overflow-hidden rounded-2xl">
+            <div className="group relative overflow-hidden rounded-xl">
               {/* Background with glass effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent backdrop-blur-sm border-2 border-primary/30 rounded-2xl transition-all duration-500 group-hover:border-primary/60 group-hover:shadow-2xl group-hover:shadow-primary/20" />
-              
-              {/* Shine effect on hover */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-2xl">
-                <div className="absolute inset-0 translate-x-[100%] group-hover:translate-x-[-100%] transition-transform duration-1000 bg-gradient-to-l from-transparent via-primary/20 to-transparent skew-x-12" />
-              </div>
+              <div className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10" />
               
               {/* Content */}
-              <div className="relative text-center space-y-2.5 p-5 md:p-7 transform transition-transform duration-500 group-hover:scale-105">
+              <div className="relative text-center space-y-2 p-4 md:p-5 transform transition-transform duration-500 group-hover:scale-105">
                 {/* Icon */}
-                <div className="flex justify-center mb-1.5">
-                  <div className="p-2.5 bg-primary/10 border-2 border-primary/30 rounded-xl transition-all duration-500 group-hover:bg-primary/15 group-hover:border-primary/40 group-hover:shadow-md group-hover:shadow-primary/20">
-                    <Building2 className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500 group-hover:scale-110" />
+                <div className="flex justify-center mb-1">
+                  <div className="p-2 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30">
+                    <Building2 className="w-6 h-6 md:w-7 md:h-7 text-primary transition-all duration-500 group-hover:scale-110" />
                   </div>
                 </div>
                 
-                <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary font-bristone transition-all duration-500 group-hover:drop-shadow-[0_0_6px_rgba(212,175,55,0.25)]">
+                <div className="text-2xl md:text-3xl font-bold text-primary font-bristone">
                   500+
                 </div>
-                <div className="text-sm md:text-base text-accent font-semibold transition-colors duration-500 group-hover:text-primary/90">
+                <div className="text-xs md:text-sm text-accent font-semibold">
                   عقار متميز
                 </div>
               </div>
             </div>
 
             {/* Stat Card 2 - عميل راضٍ */}
-            <div className="group relative overflow-hidden rounded-2xl">
+            <div className="group relative overflow-hidden rounded-xl">
               {/* Background with glass effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent backdrop-blur-sm border-2 border-primary/30 rounded-2xl transition-all duration-500 group-hover:border-primary/60 group-hover:shadow-2xl group-hover:shadow-primary/20" />
-              
-              {/* Shine effect on hover */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-2xl">
-                <div className="absolute inset-0 translate-x-[100%] group-hover:translate-x-[-100%] transition-transform duration-1000 bg-gradient-to-l from-transparent via-primary/20 to-transparent skew-x-12" />
-              </div>
+              <div className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10" />
               
               {/* Content */}
-              <div className="relative text-center space-y-2.5 p-5 md:p-7 transform transition-transform duration-500 group-hover:scale-105">
+              <div className="relative text-center space-y-2 p-4 md:p-5 transform transition-transform duration-500 group-hover:scale-105">
                 {/* Icon */}
-                <div className="flex justify-center mb-1.5">
-                  <div className="p-2.5 bg-primary/10 border-2 border-primary/30 rounded-xl transition-all duration-500 group-hover:bg-primary/15 group-hover:border-primary/40 group-hover:shadow-md group-hover:shadow-primary/20">
-                    <Users className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500 group-hover:scale-110" />
+                <div className="flex justify-center mb-1">
+                  <div className="p-2 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30">
+                    <Users className="w-6 h-6 md:w-7 md:h-7 text-primary transition-all duration-500 group-hover:scale-110" />
                   </div>
                 </div>
                 
-                <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary font-bristone transition-all duration-500 group-hover:drop-shadow-[0_0_6px_rgba(212,175,55,0.25)]">
+                <div className="text-2xl md:text-3xl font-bold text-primary font-bristone">
                   1200+
                 </div>
-                <div className="text-sm md:text-base text-accent font-semibold transition-colors duration-500 group-hover:text-primary/90">
+                <div className="text-xs md:text-sm text-accent font-semibold">
                   عميل راضٍ
                 </div>
               </div>
             </div>
 
             {/* Stat Card 3 - سنة خبرة */}
-            <div className="group relative overflow-hidden rounded-2xl">
+            <div className="group relative overflow-hidden rounded-xl">
               {/* Background with glass effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent backdrop-blur-sm border-2 border-primary/30 rounded-2xl transition-all duration-500 group-hover:border-primary/60 group-hover:shadow-2xl group-hover:shadow-primary/20" />
-              
-              {/* Shine effect on hover */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-2xl">
-                <div className="absolute inset-0 translate-x-[100%] group-hover:translate-x-[-100%] transition-transform duration-1000 bg-gradient-to-l from-transparent via-primary/20 to-transparent skew-x-12" />
-              </div>
+              <div className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10" />
               
               {/* Content */}
-              <div className="relative text-center space-y-2.5 p-5 md:p-7 transform transition-transform duration-500 group-hover:scale-105">
+              <div className="relative text-center space-y-2 p-4 md:p-5 transform transition-transform duration-500 group-hover:scale-105">
                 {/* Icon */}
-                <div className="flex justify-center mb-1.5">
-                  <div className="p-2.5 bg-primary/10 border-2 border-primary/30 rounded-xl transition-all duration-500 group-hover:bg-primary/15 group-hover:border-primary/40 group-hover:shadow-md group-hover:shadow-primary/20">
-                    <Award className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500 group-hover:scale-110" />
+                <div className="flex justify-center mb-1">
+                  <div className="p-2 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30">
+                    <Award className="w-6 h-6 md:w-7 md:h-7 text-primary transition-all duration-500 group-hover:scale-110" />
                   </div>
                 </div>
                 
-                <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary font-bristone transition-all duration-500 group-hover:drop-shadow-[0_0_6px_rgba(212,175,55,0.25)]">
+                <div className="text-2xl md:text-3xl font-bold text-primary font-bristone">
                   15+
                 </div>
-                <div className="text-sm md:text-base text-accent font-semibold transition-colors duration-500 group-hover:text-primary/90">
+                <div className="text-xs md:text-sm text-accent font-semibold">
                   سنة خبرة
                 </div>
               </div>
@@ -209,15 +194,15 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
 
         {/* Scroll Indicator - Inside Background */}
         <button
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-primary cursor-pointer z-20 hover:scale-110 active:scale-90 transition-transform"
+          className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-primary cursor-pointer z-20 hover:scale-110 active:scale-90 transition-transform"
           onClick={scrollToNext}
           aria-label="انتقل إلى القسم التالي"
           type="button"
         >
-          <div className="flex flex-col items-center gap-2">
-            <span className="text-sm text-accent/80">اكتشف المزيد</span>
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-xs text-accent/80">اكتشف المزيد</span>
             <ChevronDown 
-              size={32} 
+              size={28} 
               className="text-primary animate-[bounce_2s_ease-in-out_infinite]" 
               aria-hidden="true" 
             />
