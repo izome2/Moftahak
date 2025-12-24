@@ -1,4 +1,4 @@
-// Brand Colors
+// Simplified constants - keep essential branding only
 export const colors = {
   primary: {
     DEFAULT: '#edbf8c',
@@ -17,23 +17,12 @@ export const colors = {
   },
 } as const;
 
-// Logo paths
 export const logos = {
+  main: '/logos/logo-white.png',
   white: '/logos/logo-white.png',
   dark: '/logos/logo-dark.png',
-  whiteIcon: '/logos/logo-white-icon.png',
-  darkIcon: '/logos/logo-dark-icon.png',
 } as const;
 
-// Pattern paths
-export const patterns = {
-  verticalWhite: '/patterns/pattern-vertical-white.png',
-  verticalDark: '/patterns/pattern-vertical-dark.png',
-  horizontalWhite: '/patterns/pattern-horizontal-white.png',
-  horizontalDark: '/patterns/pattern-horizontal-dark.png',
-} as const;
-
-// Font families
 export const fonts = {
   arabic: 'var(--font-dubai)',
   english: 'var(--font-bristone)',

@@ -21,6 +21,9 @@ export const bristone = localFont({
   ],
   variable: '--font-bristone',
   display: 'swap',
+  preload: true,
+  fallback: ['Arial', 'sans-serif'],
+  adjustFontFallback: 'Arial',
 });
 
 // Dubai Arabic Font
@@ -44,4 +47,7 @@ export const dubai = localFont({
   ],
   variable: '--font-dubai',
   display: 'swap',
+  preload: true,
+  fallback: ['Tahoma', 'Arial', 'sans-serif'],
+  adjustFontFallback: 'Arial',
 });

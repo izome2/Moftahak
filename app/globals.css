@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #10302b;
+  --background: #ead3b9;  /* لون فاتح (بيج فاتح) للخلفية */
+  --foreground: #10302b;  /* لون غامق للنصوص */
   
   /* Moftahak Brand Colors */
-  --primary: #edbf8c;
+  --primary: #edbf8c;     /* ذهبي فاتح */
   --primary-rgb: 237, 191, 140;
-  --secondary: #10302b;
+  --secondary: #10302b;   /* أخضر داكن - للأزرار */
   --secondary-rgb: 16, 48, 43;
-  --accent: #ead3b9;
+  --accent: #ead3b9;      /* بيج فاتح - للخلفية */
   --accent-rgb: 234, 211, 185;
 }
 
