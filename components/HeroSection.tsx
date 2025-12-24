@@ -1,29 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ChevronDown, Building2, Users, Award, Play, Phone } from 'lucide-react';
-
-// Simple Button component
-const Button = ({ children, onClick, variant = 'primary', size = 'lg', leftIcon, className = '' }: any) => {
-  const baseStyles = 'inline-flex items-center justify-center gap-2 px-6 py-3 font-bold transition-all duration-300 rounded-lg';
-  const variantStyles = variant === 'primary' 
-    ? 'bg-primary text-secondary hover:bg-primary/90 shadow-lg hover:shadow-xl' 
-    : 'border-2 border-primary text-primary hover:bg-primary hover:text-secondary';
-  
-  return (
-    <button onClick={onClick} className={`${baseStyles} ${variantStyles} ${className}`}>
-      {leftIcon}
-      {children}
-    </button>
-  );
-};
-
-// Simple Container component
-const Container = ({ children, className = '' }: any) => (
-  <div className={`container mx-auto px-4 ${className}`}>
-    {children}
-  </div>
-);
+import { ChevronDown, Building2, Users, Award, Phone } from 'lucide-react';
+import Button from './ui/Button';
+import Container from './ui/Container';
 
 interface HeroSectionProps {
   title?: string;
@@ -36,12 +16,12 @@ interface HeroSectionProps {
  * - Full height (100vh)
  * - Dynamic pattern background
  * - Bold typography with animations
- * - CTA buttons with parallelogram shape
+ * - CTA buttons
+ * - Stats cards
  * - Scroll indicator
- * - Memoized for performance
  */
 const HeroSectionComponent: React.FC<HeroSectionProps> = ({
-  title = 'مُفتاحك للاستثمار العقاري الفاخر',
+  title = 'مُفتاحك للاستثمار العقاري',
   subtitle = 'وجهتك الأولى للعقارات الراقية والشقق الفندقية',
 }) => {
   const [showFloatingButton, setShowFloatingButton] = useState(true);
@@ -57,7 +37,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   }, []);
 
   const scrollToNext = () => {
-    const nextSection = document.getElementById('properties');
+    const nextSection = document.getElementById('features');
     if (nextSection) {
       nextSection.scrollIntoView({ behavior: 'smooth' });
     }
@@ -66,90 +46,81 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 px-4 sm:px-6 lg:px-8 bg-white"
       aria-label="قسم البطل الرئيسي"
-      style={{
-        backgroundImage: `url('/images/hero/hero-bg.jpg')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
     >
-      {/* Pattern Overlay - مرئي من الجانبين فقط */}
+      {/* Background Container with Border Radius */}
       <div 
-        className="absolute inset-0 opacity-50"
+        className="absolute inset-12 sm:inset-16 lg:inset-20 xl:inset-24 rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center"
         style={{
-          backgroundImage: 'url(/patterns/pattern-vertical-white.png)',
+          backgroundImage: `url('/images/hero/hero-bg.jpg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          maskImage: 'linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 70%, rgba(0,0,0,1) 100%)',
-          WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 70%, rgba(0,0,0,1) 100%)',
+          backgroundRepeat: 'no-repeat',
         }}
-      />
-      
-      {/* Gradient Overlay - تقليل الشفافية */}
-      <div className="absolute inset-0 bg-gradient-to-b from-secondary/90 via-secondary/85 to-secondary/80" />
+      >
+        {/* Pattern Overlay */}
+        <div 
+          className="absolute inset-0 opacity-40"
+          style={{
+            backgroundImage: 'url(/patterns/pattern-vertical-white.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            maskImage: 'linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,1) 100%)',
+            WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 75%, rgba(0,0,0,1) 100%)',
+          }}
+        />
+        
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-secondary/85 via-secondary/80 to-secondary/75" />
 
-      {/* Content */}
-      <Container className="relative z-10 py-20">
-        <div className="text-center space-y-6 max-w-5xl mx-auto px-4 animate-in fade-in slide-in-from-bottom duration-1000">
+        {/* Content */}
+        <Container className="relative z-10 py-16 w-full">
+          <div className="text-center space-y-8 max-w-5xl mx-auto px-4 animate-in fade-in slide-in-from-bottom duration-1000">
           {/* Main Title */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-primary leading-[1.1] font-bristone animate-in fade-in slide-in-from-bottom duration-700 delay-200">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-primary leading-[1.15] font-bristone animate-in fade-in slide-in-from-bottom duration-700 delay-200">
             {title}
           </h1>
 
           {/* Subtitle */}
-          <p className="text-xl sm:text-2xl md:text-3xl text-accent font-medium leading-snug animate-in fade-in slide-in-from-bottom duration-700 delay-300">
+          <p className="text-xl sm:text-2xl md:text-3xl text-accent font-medium leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-300">
             {subtitle}
           </p>
 
           {/* Description */}
-          <p className="text-base sm:text-lg md:text-xl text-accent/90 max-w-xl mx-auto leading-snug animate-in fade-in slide-in-from-bottom duration-700 delay-400">
+          <p className="text-base sm:text-lg md:text-xl text-accent/90 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-400">
             تجربة استثنائية مع <span className="text-primary font-semibold">برامج تدريبية احترافية</span>
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-6 animate-in fade-in slide-in-from-bottom duration-700 delay-500">
+          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center pt-4 animate-in fade-in slide-in-from-bottom duration-700 delay-500">
             {/* Primary Button - اكتشف العقارات */}
             <Button
               variant="primary"
               size="lg"
               onClick={() => {
-                const section = document.getElementById('properties');
+                const section = document.getElementById('services');
                 section?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="group"
             >
-              اكتشف العقارات
+              اكتشف الخدمات
             </Button>
 
-            {/* Secondary Button - شاهد الفيديو التعريفي */}
+            {/* Secondary Button - تواصل معي */}
             <Button
               variant="outline"
               size="lg"
-              leftIcon={
-                <svg 
-                  width="20" 
-                  height="20" 
-                  viewBox="0 0 24 24" 
-                  fill="currentColor"
-                  className="transition-transform duration-300 group-hover:scale-110"
-                >
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              }
               onClick={() => {
-                // TODO: Add video modal or link
-                console.log('Open intro video');
+                const section = document.getElementById('contact');
+                section?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="group"
             >
-              شاهد الفيديو التعريفي
+              تواصل معي
             </Button>
           </div>
 
           {/* Stats - مربعات شفافة مع تأثير لمعان */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 pt-10 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom duration-700 delay-700">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 md:gap-6 pt-12 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom duration-700 delay-700">
             {/* Stat Card 1 - عقار متميز */}
             <div className="group relative overflow-hidden rounded-2xl">
               {/* Background with glass effect */}
@@ -235,16 +206,34 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Scroll Indicator - Inside Background */}
+        <button
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-primary cursor-pointer z-20 hover:scale-110 active:scale-90 transition-transform"
+          onClick={scrollToNext}
+          aria-label="انتقل إلى القسم التالي"
+          type="button"
+        >
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-sm text-accent/80">اكتشف المزيد</span>
+            <ChevronDown 
+              size={32} 
+              className="text-primary animate-[bounce_2s_ease-in-out_infinite]" 
+              aria-hidden="true" 
+            />
+          </div>
+        </button>
       </Container>
+      </div>
 
       {/* Floating Button - احجز استشارة مجانية */}
       {showFloatingButton && (
         <button
           onClick={() => {
-            const section = document.getElementById('contact');
+            const section = document.getElementById('cta');
             section?.scrollIntoView({ behavior: 'smooth' });
           }}
-          className="fixed bottom-8 right-8 z-50 group bg-primary hover:bg-primary/90 text-secondary px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom"
+          className="fixed bottom-8 right-12 sm:right-16 lg:right-20 xl:right-24 z-50 group bg-primary hover:bg-primary/90 text-secondary px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom"
           aria-label="احجز استشارة مجانية"
           type="button"
         >
@@ -255,23 +244,6 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
           <span className="font-semibold text-sm">احجز استشارة مجانية</span>
         </button>
       )}
-
-      {/* Scroll Indicator */}
-      <button
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-primary cursor-pointer z-20 hover:scale-110 active:scale-90 transition-transform"
-        onClick={scrollToNext}
-        aria-label="انتقل إلى القسم التالي"
-        type="button"
-      >
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-sm text-accent/80">اكتشف المزيد</span>
-          <ChevronDown 
-            size={32} 
-            className="text-primary animate-[bounce_2s_ease-in-out_infinite]" 
-            aria-hidden="true" 
-          />
-        </div>
-      </button>
     </section>
   );
 };
