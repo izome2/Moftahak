@@ -79,9 +79,6 @@ const TestimonialsSection: React.FC = () => {
       <Container>
         {/* Section Header */}
         <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom duration-700">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
-            <Quote className="text-primary" size={32} />
-          </div>
           <h2 className="text-4xl md:text-5xl font-bold text-secondary mb-4 font-bristone">
             آراء العملاء
           </h2>

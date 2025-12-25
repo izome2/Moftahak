@@ -216,3 +216,34 @@ html {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Scroll Down Icon Animations */
+@keyframes float-down {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(2px); }
+}
+
+@keyframes float-frame {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(0.5px); }
+}
+
+.animate-float-delay-0 {
+  animation: float-down 2s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.animate-float-delay-1 {
+  animation: float-down 2s ease-in-out infinite;
+  animation-delay: 0.1s;
+}
+
+.animate-float-delay-2 {
+  animation: float-down 2s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+
+.animate-float-reverse {
+  animation: float-frame 2s ease-in-out infinite;
+  animation-delay: 0.3s;
+}

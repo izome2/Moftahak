@@ -23,20 +23,12 @@ const AboutSection: React.FC = () => {
           <div className="order-2 lg:order-1 animate-in fade-in slide-in-from-right duration-700">
             <div className="relative">
               {/* Main Image */}
-              <div className="relative h-[500px] md:h-[600px] rounded-3xl overflow-hidden shadow-2xl">
+              <div className="relative h-125 md:h-150 rounded-3xl overflow-hidden shadow-2xl">
                 <Image
                   src="/images/hero/abdullah-profile.jpg"
                   alt="عبد الله الخضر"
                   fill
                   className="object-cover"
-                />
-                {/* Pattern Overlay */}
-                <div 
-                  className="absolute inset-0 opacity-10"
-                  style={{
-                    backgroundImage: 'url(/patterns/pattern-vertical-white.png)',
-                    backgroundSize: 'cover',
-                  }}
                 />
               </div>
 

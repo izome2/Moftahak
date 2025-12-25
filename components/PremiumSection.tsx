@@ -51,10 +51,9 @@ const PremiumSection: React.FC = () => {
         'تقرير أداء شهري',
       ],
       price: '8,000 جنيه',
-      priceNote: 'ابتداءً من',
+      priceNote: 'ابتداءًا من',
       buttonText: 'ابدأ الآن',
       bgColor: 'bg-white',
-      gradient: 'from-secondary via-secondary/90 to-primary',
     },
   ];
 
@@ -63,9 +62,6 @@ const PremiumSection: React.FC = () => {
       <Container>
         {/* Section Header */}
         <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom duration-700">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-6">
-            <Sparkles className="text-primary" size={32} />
-          </div>
           <h2 className="text-4xl md:text-5xl font-bold text-secondary mb-4 font-bristone">
             خدمات للمستثمرين ومالكي العقارات
           </h2>
@@ -139,7 +135,7 @@ const PremiumSection: React.FC = () => {
                 {/* Button */}
                 <button className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-semibold text-secondary border-2 border-secondary rounded-xl transition-all duration-300 hover:bg-secondary hover:text-[#ead3b9] group/btn">
                   <span>{pkg.buttonText}</span>
-                  <ArrowLeft size={18} className="transition-transform duration-300 group-hover/btn:translate-x-[-4px]" />
+                  <ArrowLeft size={18} className="transition-transform duration-300 group-hover/btn:-translate-x-1" />
                 </button>
               </div>
 

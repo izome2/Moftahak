@@ -35,7 +35,7 @@ const CTASection: React.FC = () => {
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
       {/* Hexagon Shape (Optional decorative element) */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-5">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 opacity-5">
         <svg viewBox="0 0 100 100" className="w-full h-full">
           <polygon
             points="50 1 95 25 95 75 50 99 5 75 5 25"
