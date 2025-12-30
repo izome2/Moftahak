@@ -1,18 +1,54 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Mail, ArrowLeft, Sparkles, TrendingUp, CheckCircle2, User, MessageSquare } from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { Mail, ArrowLeft, Sparkles, TrendingUp, CheckCircle2, User, MessageSquare, Facebook, Instagram, Youtube, Linkedin, Twitter, Phone, MapPin } from 'lucide-react';
 import Container from './ui/Container';
 import Input from './ui/Input';
 import Button from './ui/Button';
 
 const CTASection: React.FC = () => {
+  const currentYear = new Date().getFullYear();
+  
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     message: '',
   });
+
+  const footerLinks = {
+    quick: [
+      { label: 'الرئيسية', href: '#home' },
+      { label: 'من أنا', href: '#about' },
+      { label: 'الخدمات', href: '#services' },
+      { label: 'المحتوى', href: '#content' },
+      { label: 'تواصل معي', href: '#contact' },
+    ],
+    services: [
+      { label: 'استشارات فردية', href: '#services' },
+      { label: 'برامج تدريبية', href: '#services' },
+      { label: 'إدارة كاملة', href: '#services' },
+      { label: 'محتوى تعليمي', href: '#content' },
+      { label: 'شراكات', href: '#contact' },
+    ],
+  };
+
+  const socialLinks = [
+    { icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
+    { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
+    { icon: Youtube, href: 'https://youtube.com', label: 'YouTube' },
+    { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
+    { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
+  ];
+
+  const scrollToSection = (href: string) => {
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,44 +64,58 @@ const CTASection: React.FC = () => {
   };
 
   return (
-    <section className="pt-24 pb-8 relative overflow-visible bg-gradient-to-b from-[#fffcf9] via-[#f5e6d3] to-[#f0dcc4]" id="cta">
+    <section className="pt-24 relative overflow-visible bg-gradient-to-b from-[#fdf6ee] via-[#f5e6d3] to-[#f0dcc4]" id="cta">
       {/* Background Pattern - extends to bottom of page */}
-      <div className="absolute inset-0" style={{ bottom: '-400px' }}>
+      <div className="absolute inset-0" style={{ bottom: '0' }}>
         <div className="absolute inset-0" style={{
-          backgroundImage: 'url(/patterns/pattern-horizontal-white.png)',
+          backgroundImage: 'url(/patterns/pattern-vertical-white.png)',
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
-          opacity: 0.2,
+          opacity: 0.4,
           maskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 70%, black 100%)',
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 70%, black 100%)'
         }} />
       </div>
 
       {/* Background color extends to page bottom */}
-      <div className="absolute inset-x-0 top-0" style={{ bottom: '-400px', background: 'linear-gradient(to bottom, white 0%, #f5e6d3 40%, #f0dcc4 70%, #f0dcc4 100%)', zIndex: -1 }} />
+      <div className="absolute inset-x-0 top-0" style={{ bottom: '0', background: 'linear-gradient(to bottom, white 0%, #f5e6d3 40%, #f0dcc4 70%, #f0dcc4 100%)', zIndex: -1 }} />
 
-      <Container className="relative z-10">
+      <Container className="relative z-10 pb-8">
         <div className="max-w-7xl mx-auto relative">
-          {/* Background SVG Shape */}
-          <div className="absolute -inset-8 md:-inset-16">
-            <img src="/images/contact.svg" alt="" className="w-full h-full" style={{ objectFit: 'fill' }} />
+          {/* SVG Shape on top right - outside the box */}
+          <div className="absolute top-0 right-0 w-67 h-33 z-20" style={{ transform: 'translateY(-70%)' }}>
+            <img src="/images/contact.svg" alt="" className="w-full h-full" />
           </div>
           
-          {/* Content on top of SVG */}
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-7 gap-8 px-8 md:px-12 lg:px-16 py-24 md:py-28 lg:py-32">
+          {/* Title on top of SVG */}
+          <div className="absolute top-0 right-6 md:right-8 z-30 flex items-center gap-2" style={{ transform: 'translateY(-80%)' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-secondary">
+              <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <h3 className="text-3xl md:text-3xl font-bold text-secondary">
+              تواصل معي
+            </h3>
+          </div>
+          
+          <div className="lg:overflow-hidden lg:border-2 lg:border-[#e8cebc] lg:rounded-[1.5rem_0_1.5rem_1.5rem] lg:shadow-[0_0_40px_rgba(212,165,116,0.5)]">
+            <style jsx>{`
+              @media (min-width: 1024px) {
+                .contact-card-wrapper {
+                  box-shadow: none !important;
+                }
+              }
+            `}</style>
+            <div className="contact-card-wrapper grid grid-cols-1 lg:grid-cols-7 gap-6 lg:gap-0">
             {/* Right Side - Form */}
-            <div className="lg:col-span-4">
-              <div className="mb-6">
-                <h3 className="text-2xl md:text-3xl font-bold text-secondary mb-2">
-                  تواصل معي
-                </h3>
+            <div className="lg:col-span-4 p-5 md:p-6 lg:p-8 border-2 border-[#e8cebc] lg:border-0 rounded-bl-2xl rounded-br-2xl rounded-tl-2xl lg:rounded-none shadow-[0_0_40px_rgba(212,165,116,0.5)] lg:shadow-none" style={{ background: 'linear-gradient(45deg, #f8f0ea, #faeee6)' }}>
+              <div className="mb-2">
                 <p className="text-secondary/60">
                   املأ النموذج وسنتواصل معك قريباً
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
                     type="text"
@@ -107,8 +157,8 @@ const CTASection: React.FC = () => {
                     placeholder="رسالتك"
                     value={formData.message}
                     onChange={handleInputChange}
-                    rows={4}
-                    className="w-full pr-10 pl-4 py-3 bg-[#ffffffc7] border-2 border-primary/20 focus:border-primary rounded-xl text-secondary placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                    rows={6}
+                    className="w-full pr-10 pl-4 py-3 bg-[#fdf6ee] border-2 border-primary/20 focus:border-primary rounded-xl text-secondary placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                     required
                   />
                 </div>
@@ -132,36 +182,36 @@ const CTASection: React.FC = () => {
             </div>
 
             {/* Left Side - Content */}
-            <div className="lg:col-span-3 flex flex-col justify-center items-center text-center space-y-12 pt-16">
+            <div className="lg:col-span-3 flex flex-col justify-center items-center text-center space-y-8 p-5 md:p-6 lg:p-8 border-2 border-[#e8cebc] lg:border-0 rounded-2xl lg:rounded-none shadow-[0_0_40px_rgba(212,165,116,0.5)] lg:shadow-none" style={{ background: 'linear-gradient(125deg, #f9f1ea, #fcf7f2)' }}>
               <div>
                 {/* Title */}
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-secondary mb-3 leading-tight">
                   هل أنت مستعد لتطوير
                   <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-l from-primary via-[#d4a574] to-primary">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-l from-[#c98f4d] via-[#c59766] to-[#c98f4d]">
                     مشروعك اليوم؟
                   </span>
                 </h2>
 
                 {/* Subtitle */}
-                <p className="text-base md:text-lg text-secondary/70 leading-relaxed">
+                <p className="hidden lg:block text-base md:text-lg text-secondary/70 leading-relaxed">
                   انضم إلى مالكي العقارات الذين حولوا وحداتهم إلى استثمارات مربحة
                 </p>
               </div>
 
               {/* Benefits Grid */}
-              <div className="grid grid-cols-3 gap-2">
-                <div className="flex items-center gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-2 border border-primary/20">
-                  <CheckCircle2 className="text-primary flex-shrink-0" size={18} />
-                  <span className="text-secondary font-medium text-xs">استشارة مجانية</span>
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-2 w-full">
+                <div className="flex items-center gap-3 lg:gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
+                  <CheckCircle2 className="text-primary flex-shrink-0" size={24} />
+                  <span className="text-secondary font-medium text-base lg:text-xs">استشارة مجانية</span>
                 </div>
-                <div className="flex items-center gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-2 border border-primary/20">
-                  <TrendingUp className="text-primary flex-shrink-0" size={18} />
-                  <span className="text-secondary font-medium text-xs">خطة عمل مخصصة</span>
+                <div className="flex items-center gap-3 lg:gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
+                  <TrendingUp className="text-primary flex-shrink-0" size={24} />
+                  <span className="text-secondary font-medium text-base lg:text-xs">خطة عمل مخصصة</span>
                 </div>
-                <div className="flex items-center gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-2 border border-primary/20">
-                  <Sparkles className="text-primary flex-shrink-0" size={18} />
-                  <span className="text-secondary font-medium text-xs">متابعة مستمرة</span>
+                <div className="flex items-center gap-3 lg:gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
+                  <Sparkles className="text-primary flex-shrink-0" size={24} />
+                  <span className="text-secondary font-medium text-base lg:text-xs">متابعة مستمرة</span>
                 </div>
               </div>
 
@@ -184,6 +234,141 @@ const CTASection: React.FC = () => {
                     4.9/5
                   </div>
                   <div className="text-secondary/70 text-sm font-medium">التقييم</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+
+        {/* Footer Content */}
+        <div className="mt-32 max-w-7xl mx-auto">
+          <div className="bg-secondary text-white rounded-2xl relative overflow-hidden" style={{ boxShadow: '0 6px 50px rgba(16, 48, 43, 0.5)' }}>
+            <div className="relative z-10">
+              {/* Main Footer Content */}
+              <div className="py-12 px-8 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {/* Column 1: About & Logo */}
+                <div className="space-y-4">
+                  <Link href="/" className="inline-block">
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-10 h-10">
+                        <Image
+                          src="/logos/logo-white.png"
+                          alt="مفتاحك"
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <span className="text-xl font-bold text-primary font-bristone">
+                        مفتاحك
+                      </span>
+                    </div>
+                  </Link>
+                  <p className="text-white/70 leading-relaxed text-sm">
+                    عبد الله الخضر - مستشارك في مجال الإيجارات قصيرة المدى والشقق الفندقية
+                  </p>
+                  {/* Social Media Icons */}
+                  <div className="flex items-center gap-2">
+                    {socialLinks.map((social) => (
+                      <a
+                        key={social.label}
+                        href={social.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-primary hover:text-secondary transition-all duration-300 hover:scale-110"
+                        aria-label={social.label}
+                      >
+                        <social.icon size={16} />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Column 2: Quick Links */}
+                <div>
+                  <h3 className="text-lg font-bold mb-4 text-primary">روابط سريعة</h3>
+                  <ul className="space-y-2">
+                    {footerLinks.quick.map((link) => (
+                      <li key={link.label}>
+                        <button
+                          onClick={() => scrollToSection(link.href)}
+                          className="text-white/70 hover:text-primary transition-colors duration-300 text-right text-sm"
+                        >
+                          {link.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Column 3: Services */}
+                <div>
+                  <h3 className="text-lg font-bold mb-4 text-primary">الخدمات</h3>
+                  <ul className="space-y-2">
+                    {footerLinks.services.map((link) => (
+                      <li key={link.label}>
+                        <button
+                          onClick={() => scrollToSection(link.href)}
+                          className="text-white/70 hover:text-primary transition-colors duration-300 text-right text-sm"
+                        >
+                          {link.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Column 4: Contact Info */}
+                <div>
+                  <h3 className="text-lg font-bold mb-4 text-primary">تواصل معنا</h3>
+                  <ul className="space-y-3">
+                    <li className="flex items-start gap-2">
+                      <Mail size={18} className="text-primary shrink-0 mt-1" />
+                      <a 
+                        href="mailto:info@abdallahalkhedr.com"
+                        className="text-white/70 hover:text-primary transition-colors duration-300 text-sm"
+                      >
+                        info@abdallahalkhedr.com
+                      </a>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Phone size={18} className="text-primary shrink-0 mt-1" />
+                      <a 
+                        href="tel:+20123456789"
+                        className="text-white/70 hover:text-primary transition-colors duration-300 text-sm"
+                        dir="ltr"
+                      >
+                        +20 123 456 789
+                      </a>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <MapPin size={18} className="text-primary shrink-0 mt-1" />
+                      <span className="text-white/70 text-sm">القاهرة، مصر</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Bottom Bar */}
+              <div className="py-4 px-8 md:px-12 border-t border-white/10">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+                  <p className="text-white/60 text-xs">
+                    © {currentYear} عبد الله الخضر - مفتاحك. جميع الحقوق محفوظة
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <Link 
+                      href="/privacy" 
+                      className="text-white/60 hover:text-primary text-xs transition-colors duration-300"
+                    >
+                      سياسة الخصوصية
+                    </Link>
+                    <Link 
+                      href="/terms" 
+                      className="text-white/60 hover:text-primary text-xs transition-colors duration-300"
+                    >
+                      الشروط والأحكام
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

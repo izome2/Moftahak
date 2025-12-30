@@ -113,8 +113,8 @@ const TestimonialsSection: React.FC = () => {
         {/* Scrolling Testimonials */}
         <div className="relative">
           {/* Gradient Overlays */}
-          <div className="absolute left-0 top-0 bottom-0 w-32 bg-linear-to-r from-[#fffcf9] to-transparent z-10 pointer-events-none"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-[#fffcf9] to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute left-0 top-0 bottom-0 w-32 bg-linear-to-r from-[#fdf6ee] to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-[#fdf6ee] to-transparent z-10 pointer-events-none"></div>
           
           {/* First Row - Scrolling Left to Right */}
           <div className="overflow-hidden mb-6">

@@ -7,7 +7,6 @@ import AboutSection from '@/components/AboutSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import ContentSection from '@/components/ContentSection';
 import CTASection from '@/components/CTASection';
-import Footer from '@/components/Footer';
 
 export default function HomePage() {
   return (
@@ -15,15 +14,14 @@ export default function HomePage() {
       <Navbar />
       <main>
         <HeroSection />
+        <AboutSection />
         <FeaturesSection />
         <ServicesSection />
         <PremiumSection />
-        <AboutSection />
         <TestimonialsSection />
         <ContentSection />
         <CTASection />
       </main>
-      <Footer />
     </>
   );
 }

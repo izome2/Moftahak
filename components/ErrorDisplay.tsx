@@ -30,7 +30,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
       role="alert"
       aria-live="assertive"
     >
-      <div className="bg-red-50 border-4 border-red-500/20 rounded-xl p-8 md:p-12 max-w-2xl">
+      <div className="bg-red-50 border-4 rounded-xl p-8 md:p-12 max-w-2xl">
         <AlertCircle
           className="w-16 h-16 text-red-500 mx-auto mb-4"
           aria-hidden="true"

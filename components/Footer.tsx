@@ -51,7 +51,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="pb-8 relative">
+    <footer className="pb-8 pt-36 relative">
       <div className="mx-auto px-3 max-w-7xl">
         <div className="bg-secondary text-white rounded-2xl shadow-2xl relative overflow-hidden">
 

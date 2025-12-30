@@ -46,11 +46,11 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-visible pt-16 pb-6 px-2 sm:px-4 lg:px-6 bg-white"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16 pb-20 md:pb-6 px-4 sm:px-6 lg:px-8 bg-white"
       aria-label="قسم البطل الرئيسي"
     >
-      {/* SVG Clip Path Definition */}
-      <svg width="0" height="0" className="absolute">
+      {/* SVG Clip Path Definition - Hidden on mobile */}
+      <svg width="0" height="0" className="absolute hidden md:block">
         <defs>
           <clipPath id="heroClip" clipPathUnits="objectBoundingBox">
             <path
@@ -62,17 +62,16 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
 
       {/* Shadow wrapper - Outside clipped area */}
       <div 
-        className="absolute top-20 left-12 right-12 sm:left-16 sm:right-16 lg:left-20 lg:right-20 xl:left-24 xl:right-24"
+        className="absolute inset-4 md:top-20 md:left-12 md:right-12 lg:left-16 lg:right-16 xl:left-20 xl:right-20 md:bottom-12"
         style={{ 
-          bottom: '3rem',
           filter: 'drop-shadow(0px 10px 25px rgba(0, 0, 0, 0.35))',
         }}
       >
         {/* Background Container with Custom Shape */}
         <div 
-          className="w-full h-full bg-secondary"
+          className="w-full h-full bg-secondary rounded-2xl md:rounded-none"
           style={{ 
-            clipPath: 'url(#heroClip)',
+            clipPath: 'var(--hero-clip-path, none)',
           }}
         >
         {/* Background Image with Overlay */}
@@ -98,21 +97,21 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
         />
 
         {/* Content */}
-        <div className="relative z-10 h-full flex flex-col items-center justify-center py-12 px-6">
+        <div className="relative z-10 h-full flex flex-col items-center justify-center py-8 md:py-12 px-4 md:px-6">
           {/* Main Content */}
-          <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6 max-w-4xl mx-auto w-full animate-in fade-in slide-in-from-bottom duration-1000">
+          <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4 md:space-y-6 max-w-4xl mx-auto w-full animate-in fade-in slide-in-from-bottom duration-1000">
             {/* Main Title */}
-            <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-primary leading-[1.15] font-bristone animate-in fade-in slide-in-from-bottom duration-700 delay-200">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary leading-[1.15] font-bristone animate-in fade-in slide-in-from-bottom duration-700 delay-200">
               {title}
             </h1>
 
             {/* Subtitle */}
-            <p className="text-xl sm:text-2xl md:text-3xl text-accent font-medium leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-300">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-accent font-medium leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-300 px-2">
               {subtitle}
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 animate-in fade-in slide-in-from-bottom duration-700 delay-500">
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center pt-2 md:pt-4 animate-in fade-in slide-in-from-bottom duration-700 delay-500 w-full px-4">
               <Button
                 variant="primary"
                 size="md"
@@ -120,6 +119,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                   const section = document.getElementById('services');
                   section?.scrollIntoView({ behavior: 'smooth' });
                 }}
+                className="w-full sm:w-auto"
               >
                 اكتشف الخدمات
               </Button>
@@ -131,29 +131,30 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                   const section = document.getElementById('contact');
                   section?.scrollIntoView({ behavior: 'smooth' });
                 }}
+                className="w-full sm:w-auto"
               >
                 تواصل معي
               </Button>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-12 max-w-3xl w-full animate-in fade-in slide-in-from-bottom duration-700 delay-700">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5 pt-6 md:pt-12 max-w-3xl w-full animate-in fade-in slide-in-from-bottom duration-700 delay-700">
               {/* Stat Card 1 */}
               <div className="group relative overflow-hidden rounded-xl">
                 <div className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10" />
                 
-                <div className="relative text-center space-y-4 px-6 pt-6 pb-8 transform transition-transform duration-500 group-hover:scale-105">
-                  <div className="flex justify-center mb-4">
-                    <div className="p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30">
-                      <Moon className="w-7 h-7 text-primary transition-all duration-500 group-hover:scale-110" />
+                <div className="relative text-center space-y-2 md:space-y-4 px-4 md:px-6 pt-4 md:pt-6 pb-6 md:pb-8 transform transition-transform duration-500 group-hover:scale-105">
+                  <div className="flex justify-center mb-2 md:mb-4">
+                    <div className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30">
+                      <Moon className="w-5 h-5 md:w-7 md:h-7 text-primary transition-all duration-500 group-hover:scale-110" />
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-center gap-2 pt-3">
-                    <div className="text-2xl md:text-3xl font-bold text-primary font-bristone">
-                      +3000
+                  <div className="flex items-center justify-center gap-1.5 md:gap-2 pt-1 md:pt-3">
+                    <div className="text-xl md:text-2xl lg:text-3xl font-bold text-primary font-bristone">
+                      3000
                     </div>
-                    <div className="text-base md:text-lg text-accent font-semibold">
+                    <div className="text-sm md:text-base lg:text-lg text-accent font-semibold">
                       ليلة
                     </div>
                   </div>
@@ -164,19 +165,19 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
               <div className="group relative overflow-hidden rounded-xl">
                 <div className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10" />
                 
-                <div className="relative text-center space-y-4 px-6 pt-6 pb-8 transform transition-transform duration-500 group-hover:scale-105">
-                  <div className="flex justify-center mb-4">
-                    <div className="p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30">
-                      <Users className="w-7 h-7 text-primary transition-all duration-500 group-hover:scale-110" />
+                <div className="relative text-center space-y-2 md:space-y-4 px-4 md:px-6 pt-4 md:pt-6 pb-6 md:pb-8 transform transition-transform duration-500 group-hover:scale-105">
+                  <div className="flex justify-center mb-2 md:mb-4">
+                    <div className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30">
+                      <Users className="w-5 h-5 md:w-7 md:h-7 text-primary transition-all duration-500 group-hover:scale-110" />
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-center gap-2 pt-3">
-                    <div className="text-2xl md:text-3xl font-bold text-primary font-bristone">
-                      +1200
+                  <div className="flex items-center justify-center gap-1.5 md:gap-2 pt-1 md:pt-3">
+                    <div className="text-xl md:text-2xl lg:text-3xl font-bold text-primary font-bristone">
+                      1200
                     </div>
-                    <div className="text-base md:text-lg text-accent font-semibold">
-                      عميل راضٍ
+                    <div className="text-sm md:text-base lg:text-lg text-accent font-semibold">
+                      عميل راضي
                     </div>
                   </div>
                 </div>
@@ -186,19 +187,19 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
               <div className="group relative overflow-hidden rounded-xl">
                 <div className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10" />
                 
-                <div className="relative text-center space-y-4 px-6 pt-6 pb-8 transform transition-transform duration-500 group-hover:scale-105">
-                  <div className="flex justify-center mb-4">
-                    <div className="p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30">
-                      <Award className="w-7 h-7 text-primary transition-all duration-500 group-hover:scale-110" />
+                <div className="relative text-center space-y-2 md:space-y-4 px-4 md:px-6 pt-4 md:pt-6 pb-6 md:pb-8 transform transition-transform duration-500 group-hover:scale-105">
+                  <div className="flex justify-center mb-2 md:mb-4">
+                    <div className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30">
+                      <Award className="w-5 h-5 md:w-7 md:h-7 text-primary transition-all duration-500 group-hover:scale-110" />
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-center gap-2 pt-3">
-                    <div className="text-2xl md:text-3xl font-bold text-primary font-bristone">
-                      +15
+                  <div className="flex items-center justify-center gap-1.5 md:gap-2 pt-1 md:pt-3">
+                    <div className="text-xl md:text-2xl lg:text-3xl font-bold text-primary font-bristone">
+                      5
                     </div>
-                    <div className="text-base md:text-lg text-accent font-semibold">
-                      سنة خبرة
+                    <div className="text-sm md:text-base lg:text-lg text-accent font-semibold">
+                      سنين خبرة
                     </div>
                   </div>
                 </div>
@@ -209,9 +210,9 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
       </div>
       </div>
 
-      {/* Scroll Indicator - In the tongue area */}
+      {/* Scroll Indicator - Hidden on mobile, shown on medium+ screens */}
       <button
-        className="absolute cursor-pointer z-1 active:scale-90 transition-transform"
+        className="hidden md:block absolute cursor-pointer z-1 active:scale-90 transition-transform"
         style={{ 
           bottom: '2rem', 
           left: '50%', 
