@@ -132,7 +132,7 @@ const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
         onClick={togglePlay}
       >
         {!isPlaying && (
-          <div className="w-18 h-18 rounded-full bg-[#ead3b9]/40 backdrop-blur-md flex items-center justify-center transition-all duration-300 group-hover/play:scale-110 group-hover/play:bg-[#ead3b9]/50 shadow-[0_0_20px_rgba(0,0,0,0.3)]">
+          <div className="w-18 h-18 rounded-full bg-[#ead3b9]/40 backdrop-blur-md flex items-center justify-center transition-all duration-300 group-hover/play:scale-110 group-hover/play:bg-[#ead3b9]/50 shadow-[0_0_20px_rgba(180,130,80,0.4)]">
             <div className="flex items-center justify-center mr-0 transition-all duration-300 group-hover/play:drop-shadow-[0_0_8px_rgba(243,235,221,0.8)]">
               <Play size={28} className="text-[#f3ebdd] fill-[#f3ebdd]" />
             </div>

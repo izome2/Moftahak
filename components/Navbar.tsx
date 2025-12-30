@@ -40,7 +40,7 @@ const Navbar: React.FC = () => {
     <header
       className={`fixed top-3 left-[10%] right-[10%] z-50 transition-all duration-500 rounded-2xl ${
         isScrolled
-          ? 'bg-white/88 backdrop-blur-md shadow-[0_0_40px_rgba(0,0,0,0.2)]'
+          ? 'bg-[#fffcf9]/88 backdrop-blur-md shadow-[0_0_25px_rgba(180,130,80,0.30)]'
           : 'bg-transparent shadow-none'
       }`}
     >
