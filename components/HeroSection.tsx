@@ -153,7 +153,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                     <div className="text-2xl md:text-3xl font-bold text-primary font-bristone">
                       +3000
                     </div>
-                    <div className="text-sm text-accent font-semibold">
+                    <div className="text-base md:text-lg text-accent font-semibold">
                       ليلة
                     </div>
                   </div>
@@ -175,7 +175,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                     <div className="text-2xl md:text-3xl font-bold text-primary font-bristone">
                       +1200
                     </div>
-                    <div className="text-sm text-accent font-semibold">
+                    <div className="text-base md:text-lg text-accent font-semibold">
                       عميل راضٍ
                     </div>
                   </div>
@@ -197,7 +197,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                     <div className="text-2xl md:text-3xl font-bold text-primary font-bristone">
                       +15
                     </div>
-                    <div className="text-sm text-accent font-semibold">
+                    <div className="text-base md:text-lg text-accent font-semibold">
                       سنة خبرة
                     </div>
                   </div>
@@ -211,7 +211,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
 
       {/* Scroll Indicator - In the tongue area */}
       <button
-        className="absolute cursor-pointer z-50 active:scale-90 transition-transform"
+        className="absolute cursor-pointer z-1 active:scale-90 transition-transform"
         style={{ 
           bottom: '2rem', 
           left: '50%', 

@@ -207,10 +207,10 @@ const ServicesSection: React.FC = () => {
                     {service.price}
                   </span>
                   <button
-                    className="shrink-0 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-secondary border-2 border-secondary rounded-lg transition-all duration-300 hover:bg-secondary hover:text-[#ead3b9]"
+                    className="shrink-0 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-secondary bg-gradient-to-tl from-[#e5b483] to-[#edc49f] rounded-lg transition-all duration-300 hover:from-[#d9a46f] hover:to-[#e5b483] shadow-[0_0_15px_rgba(0,0,0,0.15)] hover:shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:scale-105 active:scale-95 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-l before:from-transparent before:via-white/30 before:to-transparent before:translate-x-full hover:before:translate-x-[-100%] before:transition-transform before:duration-700"
                   >
-                    {service.buttonText}
-                    <ArrowLeft size={16} />
+                    <span className="relative z-10">{service.buttonText}</span>
+                    <ArrowLeft size={16} className="relative z-10" />
                   </button>
                 </div>
               </div>

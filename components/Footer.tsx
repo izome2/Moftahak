@@ -51,148 +51,140 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-secondary text-white relative overflow-hidden">
-      {/* Pattern Background */}
-      <div 
-        className="absolute inset-0 opacity-5"
-        style={{
-          backgroundImage: 'url(/patterns/pattern-horizontal-white.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
+    <footer className="pb-8 relative">
+      <div className="mx-auto px-3 max-w-7xl">
+        <div className="bg-secondary text-white rounded-2xl shadow-2xl relative overflow-hidden">
 
-      <Container className="relative z-10">
-        {/* Main Footer Content */}
-        <div className="py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {/* Column 1: About & Logo */}
-          <div className="space-y-6">
-            <Link href="/" className="inline-block">
-              <div className="flex items-center gap-3">
-                <div className="relative w-12 h-12">
-                  <Image
-                    src="/logos/logo-white.png"
-                    alt="مفتاحك"
-                    fill
-                    className="object-contain"
-                  />
+          <div className="relative z-10">
+            {/* Main Footer Content */}
+            <div className="py-12 px-8 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {/* Column 1: About & Logo */}
+              <div className="space-y-4">
+                <Link href="/" className="inline-block">
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-10 h-10">
+                      <Image
+                        src="/logos/logo-white.png"
+                        alt="مفتاحك"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    <span className="text-xl font-bold text-primary font-bristone">
+                      مفتاحك
+                    </span>
+                  </div>
+                </Link>
+                <p className="text-white/70 leading-relaxed text-sm">
+                  عبد الله الخضر - مستشارك في مجال الإيجارات قصيرة المدى والشقق الفندقية
+                </p>
+                {/* Social Media Icons */}
+                <div className="flex items-center gap-2">
+                  {socialLinks.map((social) => (
+                    <a
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-primary hover:text-secondary transition-all duration-300 hover:scale-110"
+                      aria-label={social.label}
+                    >
+                      <social.icon size={16} />
+                    </a>
+                  ))}
                 </div>
-                <span className="text-2xl font-bold text-primary font-bristone">
-                  مفتاحك
-                </span>
               </div>
-            </Link>
-            <p className="text-white/70 leading-relaxed">
-              عبد الله الخضر - مستشارك في مجال الإيجارات قصيرة المدى والشقق الفندقية
-            </p>
-            {/* Social Media Icons */}
-            <div className="flex items-center gap-3">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-primary hover:text-secondary transition-all duration-300 hover:scale-110"
-                  aria-label={social.label}
-                >
-                  <social.icon size={18} />
-                </a>
-              ))}
+
+              {/* Column 2: Quick Links */}
+              <div>
+                <h3 className="text-lg font-bold mb-4 text-primary">روابط سريعة</h3>
+                <ul className="space-y-2">
+                  {footerLinks.quick.map((link) => (
+                    <li key={link.label}>
+                      <button
+                        onClick={() => scrollToSection(link.href)}
+                        className="text-white/70 hover:text-primary transition-colors duration-300 text-right text-sm"
+                      >
+                        {link.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Column 3: Services */}
+              <div>
+                <h3 className="text-lg font-bold mb-4 text-primary">الخدمات</h3>
+                <ul className="space-y-2">
+                  {footerLinks.services.map((link) => (
+                    <li key={link.label}>
+                      <button
+                        onClick={() => scrollToSection(link.href)}
+                        className="text-white/70 hover:text-primary transition-colors duration-300 text-right text-sm"
+                      >
+                        {link.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Column 4: Contact Info */}
+              <div>
+                <h3 className="text-lg font-bold mb-4 text-primary">تواصل معنا</h3>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-2">
+                    <Mail size={18} className="text-primary shrink-0 mt-1" />
+                    <a 
+                      href="mailto:info@abdallahalkhedr.com"
+                      className="text-white/70 hover:text-primary transition-colors duration-300 text-sm"
+                    >
+                      info@abdallahalkhedr.com
+                    </a>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Phone size={18} className="text-primary shrink-0 mt-1" />
+                    <a 
+                      href="tel:+20123456789"
+                      className="text-white/70 hover:text-primary transition-colors duration-300 text-sm"
+                      dir="ltr"
+                    >
+                      +20 123 456 789
+                    </a>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <MapPin size={18} className="text-primary shrink-0 mt-1" />
+                    <span className="text-white/70 text-sm">القاهرة، مصر</span>
+                  </li>
+                </ul>
+              </div>
             </div>
-          </div>
 
-          {/* Column 2: Quick Links */}
-          <div>
-            <h3 className="text-xl font-bold mb-6 text-primary">روابط سريعة</h3>
-            <ul className="space-y-3">
-              {footerLinks.quick.map((link) => (
-                <li key={link.label}>
-                  <button
-                    onClick={() => scrollToSection(link.href)}
-                    className="text-white/70 hover:text-primary transition-colors duration-300 text-right"
+            {/* Bottom Bar */}
+            <div className="py-4 px-8 md:px-12 border-t border-white/10">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+                <p className="text-white/60 text-xs">
+                  © {currentYear} عبد الله الخضر - مفتاحك. جميع الحقوق محفوظة
+                </p>
+                <div className="flex items-center gap-4">
+                  <Link 
+                    href="/privacy" 
+                    className="text-white/60 hover:text-primary text-xs transition-colors duration-300"
                   >
-                    {link.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column 3: Services */}
-          <div>
-            <h3 className="text-xl font-bold mb-6 text-primary">الخدمات</h3>
-            <ul className="space-y-3">
-              {footerLinks.services.map((link) => (
-                <li key={link.label}>
-                  <button
-                    onClick={() => scrollToSection(link.href)}
-                    className="text-white/70 hover:text-primary transition-colors duration-300 text-right"
+                    سياسة الخصوصية
+                  </Link>
+                  <Link 
+                    href="/terms" 
+                    className="text-white/60 hover:text-primary text-xs transition-colors duration-300"
                   >
-                    {link.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Column 4: Contact Info */}
-          <div>
-            <h3 className="text-xl font-bold mb-6 text-primary">تواصل معنا</h3>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <Mail size={20} className="text-primary shrink-0 mt-1" />
-                <a 
-                  href="mailto:info@abdallahalkhedr.com"
-                  className="text-white/70 hover:text-primary transition-colors duration-300"
-                >
-                  info@abdallahalkhedr.com
-                </a>
-              </li>
-              <li className="flex items-start gap-3">
-                <Phone size={20} className="text-primary shrink-0 mt-1" />
-                <a 
-                  href="tel:+20123456789"
-                  className="text-white/70 hover:text-primary transition-colors duration-300"
-                  dir="ltr"
-                >
-                  +20 123 456 789
-                </a>
-              </li>
-              <li className="flex items-start gap-3">
-                <MapPin size={20} className="text-primary shrink-0 mt-1" />
-                <span className="text-white/70">القاهرة، مصر</span>
-              </li>
-              <li className="text-sm text-white/60 italic">
-                متوفر من السبت للخميس
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Bottom Bar */}
-        <div className="py-6 border-t border-white/10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-white/60 text-sm">
-              © {currentYear} عبد الله الخضر - مفتاحك. جميع الحقوق محفوظة
-            </p>
-            <div className="flex items-center gap-6">
-              <Link 
-                href="/privacy" 
-                className="text-white/60 hover:text-primary text-sm transition-colors duration-300"
-              >
-                سياسة الخصوصية
-              </Link>
-              <Link 
-                href="/terms" 
-                className="text-white/60 hover:text-primary text-sm transition-colors duration-300"
-              >
-                الشروط والأحكام
-              </Link>
+                    الشروط والأحكام
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </Container>
+      </div>
     </footer>
   );
 };

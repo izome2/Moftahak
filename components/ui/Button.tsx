@@ -19,12 +19,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     disabled,
     ...props 
   }, ref) => {
-    const baseStyles = 'inline-flex items-center justify-center gap-2 font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed';
+    const baseStyles = 'inline-flex items-center justify-center gap-2 font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden';
     
     const variantStyles = {
-      primary: 'bg-primary text-secondary hover:bg-primary/90 shadow-[0_0_15px_rgba(0,0,0,0.15)] hover:shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:scale-105 active:scale-95',
+      primary: 'bg-gradient-to-tl from-[#e5b483] to-[#edc49f] text-secondary hover:from-[#d9a46f] hover:to-[#e5b483] shadow-[0_0_15px_rgba(0,0,0,0.15)] hover:shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:scale-105 active:scale-95 before:absolute before:inset-0 before:bg-gradient-to-l before:from-transparent before:via-white/30 before:to-transparent before:translate-x-full hover:before:translate-x-[-100%] before:transition-transform before:duration-700',
       secondary: 'bg-secondary text-primary hover:bg-secondary/90 shadow-[0_0_15px_rgba(0,0,0,0.15)] hover:shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:scale-105 active:scale-95',
-      outline: 'border-2 border-primary text-primary hover:bg-primary hover:text-secondary hover:scale-105 active:scale-95',
+      outline: 'border border-primary text-primary hover:bg-primary hover:text-secondary hover:scale-105 active:scale-95',
       ghost: 'text-primary hover:bg-primary/10 hover:scale-105 active:scale-95',
     };
     
@@ -41,9 +41,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled}
         {...props}
       >
-        {leftIcon && <span className="flex-shrink-0">{leftIcon}</span>}
-        <span>{children}</span>
-        {rightIcon && <span className="flex-shrink-0">{rightIcon}</span>}
+        {leftIcon && <span className="flex-shrink-0 relative z-10">{leftIcon}</span>}
+        <span className="relative z-10">{children}</span>
+        {rightIcon && <span className="flex-shrink-0 relative z-10">{rightIcon}</span>}
       </button>
     );
   }

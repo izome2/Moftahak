@@ -40,29 +40,29 @@ const Navbar: React.FC = () => {
     <header
       className={`fixed top-3 left-[10%] right-[10%] z-50 transition-all duration-500 rounded-2xl ${
         isScrolled
-          ? 'bg-white/90 backdrop-blur-md shadow-xl'
+          ? 'bg-white/88 backdrop-blur-md shadow-[0_0_40px_rgba(0,0,0,0.2)]'
           : 'bg-transparent shadow-none'
       }`}
     >
-      <div className="mx-auto px-6">
-        <nav className="flex items-center justify-between h-14">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="relative w-10 h-10">
+      <div className="mx-auto px-3">
+        <nav className="flex items-center justify-center h-14 relative">
+          {/* Logo - positioned absolutely on the right */}
+          <Link href="/" className="absolute right-0 flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <span className="text-lg font-bold text-secondary font-bristone hidden sm:block">
+              MOFTAHAK
+            </span>
+            <div className="relative w-8 h-8">
               <Image
-                src="/logos/logo-dark.png"
+                src="/logos/logo-dark-icon.png"
                 alt="مفتاحك"
                 fill
                 className="object-contain"
                 priority
               />
             </div>
-            <span className="text-xl font-bold text-secondary font-bristone hidden sm:block">
-              مفتاحك
-            </span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - Centered */}
           <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
               <button
@@ -76,8 +76,8 @@ const Navbar: React.FC = () => {
             ))}
           </div>
 
-          {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center gap-4 mr-2">
+          {/* Desktop Actions - positioned absolutely on the left */}
+          <div className="hidden lg:flex items-center gap-4 absolute left-0">
             <button
               className="p-2 text-secondary hover:text-primary transition-colors duration-300"
               aria-label="السلة"

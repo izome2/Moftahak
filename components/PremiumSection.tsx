@@ -104,9 +104,9 @@ const PremiumSection: React.FC = () => {
                 </p>
 
                 {/* Button */}
-                <button className="inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-bold text-secondary bg-primary rounded-xl transition-all duration-300 hover:bg-primary/90 shadow-[0_0_15px_rgba(0,0,0,0.15)] hover:shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:scale-105 active:scale-95 group/btn">
-                  <span>{pkg.buttonText}</span>
-                  <ArrowLeft size={20} className="shrink-0 transition-transform duration-300 group-hover/btn:-translate-x-1" />
+                <button className="inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-bold text-secondary bg-gradient-to-tl from-[#e5b483] to-[#edc49f] rounded-xl transition-all duration-300 hover:from-[#d9a46f] hover:to-[#e5b483] shadow-[0_0_15px_rgba(0,0,0,0.15)] hover:shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:scale-105 active:scale-95 group/btn relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-l before:from-transparent before:via-white/30 before:to-transparent before:translate-x-full hover:before:translate-x-[-100%] before:transition-transform before:duration-700">
+                  <span className="relative z-10">{pkg.buttonText}</span>
+                  <ArrowLeft size={20} className="shrink-0 transition-transform duration-300 group-hover/btn:-translate-x-1 relative z-10" />
                 </button>
               </div>
             </div>

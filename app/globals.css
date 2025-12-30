@@ -247,3 +247,8 @@ html {
   animation: float-frame 2s ease-in-out infinite;
   animation-delay: 0.3s;
 }
+
+/* Custom background white color */
+.bg-white {
+  background-color: #fffcf9;
+}

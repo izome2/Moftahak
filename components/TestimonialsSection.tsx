@@ -113,8 +113,8 @@ const TestimonialsSection: React.FC = () => {
         {/* Scrolling Testimonials */}
         <div className="relative">
           {/* Gradient Overlays */}
-          <div className="absolute left-0 top-0 bottom-0 w-32 bg-linear-to-r from-white to-transparent z-10 pointer-events-none"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-white to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute left-0 top-0 bottom-0 w-32 bg-linear-to-r from-[#fffcf9] to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-[#fffcf9] to-transparent z-10 pointer-events-none"></div>
           
           {/* First Row - Scrolling Left to Right */}
           <div className="overflow-hidden mb-6">
@@ -146,7 +146,7 @@ const TestimonialsSection: React.FC = () => {
                       <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-secondary/10 to-transparent"></div>
                       
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center shrink-0 border-2 border-secondary/20">
+                        <div className="w-12 h-12 rounded-full bg-[#ead3b9]/30 flex items-center justify-center shrink-0 border-2 border-[#ead3b9]">
                           <User size={24} className="text-secondary" />
                         </div>
                         <div>
@@ -196,7 +196,7 @@ const TestimonialsSection: React.FC = () => {
                       <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-secondary/10 to-transparent"></div>
                       
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center shrink-0 border-2 border-secondary/20">
+                        <div className="w-12 h-12 rounded-full bg-[#ead3b9]/30 flex items-center justify-center shrink-0 border-2 border-[#ead3b9]">
                           <User size={24} className="text-secondary" />
                         </div>
                         <div>

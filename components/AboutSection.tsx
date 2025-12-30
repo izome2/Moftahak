@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { CheckCircle2, ArrowLeft } from 'lucide-react';
 import Container from './ui/Container';
@@ -8,6 +8,34 @@ import Badge from './ui/Badge';
 import Button from './ui/Button';
 
 const AboutSection: React.FC = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          } else {
+            setIsVisible(false);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
+
   const expertise = [
     'خبرة عملية حقيقية في تشغيل وتطوير الشقق الفندقية والإيجارات قصيرة الأجل.',
     'أنظمة واضحة وحلول قابلة للتنفيذ تحقق نتائج فعلية.',
@@ -75,16 +103,55 @@ const AboutSection: React.FC = () => {
           </div>
 
           {/* Right Side - Image */}
-          <div className="order-2 lg:order-2 animate-in fade-in slide-in-from-right duration-700 lg:pr-10">
+          <div ref={sectionRef} className="order-2 lg:order-2 animate-in fade-in slide-in-from-right duration-700 lg:pr-10">
             <div className="relative max-w-lg mx-auto lg:mx-0">
+              {/* Overlay Image 1 (appears first) */}
+              <div className={`absolute inset-0 z-20 pointer-events-none transition-all duration-1500 ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+              }`} style={{ transitionDelay: '400ms' }}>
+                <Image
+                  src="/images/hero/overlay-1.png"
+                  alt=""
+                  width={800}
+                  height={800}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              {/* Background Image (appears second) */}
+              <div className={`absolute inset-0 z-0 transition-all duration-1500 ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+              }`} style={{ transitionDelay: '800ms' }}>
+                <Image
+                  src="/images/hero/background-0.png"
+                  alt=""
+                  width={800}
+                  height={800}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
               {/* Main Image */}
-              <div className="relative overflow-hidden rounded-3xl">
+              <div className="relative overflow-hidden rounded-3xl z-10">
                 <Image
                   src="/images/hero/abdullah-profile.jpg"
                   alt="عبد الله الخضر"
                   width={800}
                   height={800}
                   className="w-full h-auto object-contain"
+                />
+              </div>
+
+              {/* Overlay Image 2 (appears last) */}
+              <div className={`absolute inset-0 z-20 pointer-events-none transition-all duration-1500 ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+              }`} style={{ transitionDelay: '1200ms' }}>
+                <Image
+                  src="/images/hero/overlay-2.png"
+                  alt=""
+                  width={800}
+                  height={800}
+                  className="w-full h-full object-contain"
                 />
               </div>
 
