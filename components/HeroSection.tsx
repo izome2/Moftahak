@@ -94,7 +94,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
       ref={sectionRef}
       id="home"
       className="relative min-h-screen flex items-center justify-center pt-16 pb-24 md:pb-16 px-4 sm:px-6 lg:px-8 bg-white"
-      aria-label="قسم البطل الرئيسي"
+      aria-label="hero section"
     >
       {/* Backdrop blur overlay - shown when mobile menu is open */}
       {isMobileMenuOpen && (
@@ -363,10 +363,10 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                   <div className="flex justify-center mb-1 md:mb-2">
                     <motion.div 
                       className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30"
-                      whileHover={{ rotate: 360 }}
-                      transition={{ duration: 0.6 }}
+                      whileHover={{ scale: 1.15, rotate: 10 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
                     >
-                      <Moon className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500 group-hover:scale-110" />
+                      <Moon className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500" />
                     </motion.div>
                   </div>
                   
@@ -394,10 +394,10 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                   <div className="flex justify-center mb-1 md:mb-2">
                     <motion.div 
                       className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30"
-                      whileHover={{ rotate: 360 }}
-                      transition={{ duration: 0.6 }}
+                      whileHover={{ scale: 1.15, rotate: 10 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
                     >
-                      <Users className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500 group-hover:scale-110" />
+                      <Users className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500" />
                     </motion.div>
                   </div>
                   
@@ -425,10 +425,10 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                   <div className="flex justify-center mb-1 md:mb-2">
                     <motion.div 
                       className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30"
-                      whileHover={{ rotate: 360 }}
-                      transition={{ duration: 0.6 }}
+                      whileHover={{ scale: 1.15, rotate: 10 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
                     >
-                      <Award className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500 group-hover:scale-110" />
+                      <Award className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500" />
                     </motion.div>
                   </div>
                   

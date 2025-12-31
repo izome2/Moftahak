@@ -5,6 +5,7 @@ import { MessageCircle, Building2, CheckCircle2, ArrowLeft, Sparkles, Graduation
 import { motion, useInView, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import Container from './ui/Container';
 import Badge from './ui/Badge';
+import AnimatedStroke from './ui/AnimatedStroke';
 
 interface Package {
   id: number;
@@ -226,9 +227,13 @@ const MagneticCard: React.FC<{
             boxShadow: '0 0 25px rgba(180,130,80,0.4)',
           }}
           whileTap={{ scale: 0.95 }}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-          transition={{ duration: 0.4, delay: 0.7 + index * 0.15, type: "spring" }}
+          initial={{ opacity: 0, y: 15 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
+          transition={{ 
+            duration: 0.8, 
+            delay: 0.5 + index * 0.1,
+            ease: [0.22, 1, 0.36, 1]
+          }}
         >
           {/* Button shine effect on button hover - من اليمين لليسار */}
           <span className="absolute inset-0 bg-linear-to-l from-transparent via-white/40 to-transparent translate-x-full group-hover/btn:-translate-x-full transition-transform duration-700 ease-in-out pointer-events-none" />
@@ -244,33 +249,6 @@ const MagneticCard: React.FC<{
           </motion.div>
         </motion.button>
       </div>
-
-      {/* Floating particles effect */}
-      {isHovered && (
-        <>
-          {[...Array(3)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-2 h-2 bg-primary/40 rounded-full"
-              initial={{ 
-                x: Math.random() * 100 + '%',
-                y: '100%',
-                opacity: 0,
-              }}
-              animate={{
-                y: '-20%',
-                opacity: [0, 1, 0],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                delay: i * 0.3,
-                ease: "easeOut",
-              }}
-            />
-          ))}
-        </>
-      )}
     </motion.div>
   );
 };
@@ -402,7 +380,9 @@ const PremiumSection: React.FC = () => {
                 animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
-                خدمات للمستثمرين ومالكي العقارات
+                <AnimatedStroke delay={0.5}>
+                  خدمات للمستثمرين ومالكي العقارات
+                </AnimatedStroke>
               </motion.span>
             </h2>
           </motion.div>

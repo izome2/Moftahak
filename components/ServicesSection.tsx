@@ -15,6 +15,7 @@ import {
   slideInRight,
   staggerContainer
 } from '@/lib/animations/variants';
+import AnimatedStroke from './ui/AnimatedStroke';
 
 interface Service {
   id: number;
@@ -155,7 +156,9 @@ const ServicesSection: React.FC = () => {
             className="text-4xl md:text-5xl font-bold text-secondary mb-4 font-bristone"
             variants={fadeInUp}
           >
-            الخدمات المتاحة
+            <AnimatedStroke delay={0.3}>
+              الخدمات المتاحة
+            </AnimatedStroke>
           </motion.h2>
           <motion.p 
             className="text-lg text-secondary/70 max-w-2xl mx-auto"

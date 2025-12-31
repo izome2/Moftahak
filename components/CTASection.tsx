@@ -1,15 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { Mail, ArrowLeft, Sparkles, TrendingUp, CheckCircle2, User, MessageSquare, Facebook, Instagram, Youtube, Linkedin, Twitter, Phone, MapPin } from 'lucide-react';
 import Container from './ui/Container';
 import Input from './ui/Input';
 import Button from './ui/Button';
+import { fadeInUp, staggerContainer } from '@/lib/animations/variants';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 const CTASection: React.FC = () => {
   const currentYear = new Date().getFullYear();
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useScrollAnimation(ref as React.RefObject<Element>, { threshold: 0.1, rootMargin: '0px 0px 100px 0px' });
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -82,7 +87,18 @@ const CTASection: React.FC = () => {
       <div className="absolute inset-x-0 top-0" style={{ bottom: '0', background: 'linear-gradient(to bottom, white 0%, #f5e6d3 40%, #f0dcc4 70%, #f0dcc4 100%)', zIndex: -1 }} />
 
       <Container className="relative z-10 pb-8">
-        <div className="max-w-7xl mx-auto relative">
+        <motion.div 
+          ref={ref}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+          className="max-w-7xl mx-auto relative"
+        >
+          
+          <motion.div 
+            variants={fadeInUp}
+            className="relative"
+          >
           {/* SVG Shape on top right - outside the box */}
           <div className="absolute top-0 right-0 w-67 h-33 z-20" style={{ transform: 'translateY(-70%)' }}>
             <img src="/images/contact.svg" alt="" className="w-full h-full" />
@@ -108,15 +124,22 @@ const CTASection: React.FC = () => {
             `}</style>
             <div className="contact-card-wrapper grid grid-cols-1 lg:grid-cols-7 gap-6 lg:gap-0">
             {/* Right Side - Form */}
-            <div className="lg:col-span-4 p-5 md:p-6 lg:p-8 border-2 border-[#e8cebc] lg:border-0 rounded-bl-2xl rounded-br-2xl rounded-tl-2xl lg:rounded-none shadow-[0_0_40px_rgba(212,165,116,0.5)] lg:shadow-none" style={{ background: 'linear-gradient(45deg, #f8f0ea, #faeee6)' }}>
-              <div className="mb-2">
+            <div 
+              className="lg:col-span-4 p-5 md:p-6 lg:p-8 border-2 border-[#e8cebc] lg:border-0 rounded-bl-2xl rounded-br-2xl rounded-tl-2xl lg:rounded-none shadow-[0_0_40px_rgba(212,165,116,0.5)] lg:shadow-none" 
+              style={{ background: 'linear-gradient(45deg, #f8f0ea, #faeee6)' }}
+            >
+              <motion.div variants={fadeInUp} className="mb-2">
                 <p className="text-secondary/60">
                   املأ النموذج وسنتواصل معك قريباً
                 </p>
-              </div>
+              </motion.div>
 
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <motion.form 
+                variants={staggerContainer}
+                onSubmit={handleSubmit} 
+                className="space-y-3"
+              >
+                <motion.div variants={fadeInUp} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
                     type="text"
                     name="firstName"
@@ -137,20 +160,22 @@ const CTASection: React.FC = () => {
                     className="bg-[#fffffff1] border-2 border-primary/20 focus:border-primary rounded-xl h-12"
                     required
                   />
-                </div>
+                </motion.div>
                 
-                <Input
-                  type="email"
-                  name="email"
-                  placeholder="البريد الإلكتروني"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  leftIcon={<Mail size={20} />}
-                  className="bg-[#fffffff1] border-2 border-primary/20 focus:border-primary rounded-xl h-12"
-                  required
-                />
+                <motion.div variants={fadeInUp}>
+                  <Input
+                    type="email"
+                    name="email"
+                    placeholder="البريد الإلكتروني"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    leftIcon={<Mail size={20} />}
+                    className="bg-[#fffffff1] border-2 border-primary/20 focus:border-primary rounded-xl h-12"
+                    required
+                  />
+                </motion.div>
 
-                <div className="relative">
+                <motion.div variants={fadeInUp} className="relative">
                   <MessageSquare size={20} className="absolute right-3 top-3 text-secondary/40 z-10" />
                   <textarea
                     name="message"
@@ -161,9 +186,9 @@ const CTASection: React.FC = () => {
                     className="w-full pr-10 pl-4 py-3 bg-[#fdf6ee] border-2 border-primary/20 focus:border-primary rounded-xl text-secondary placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                     required
                   />
-                </div>
+                </motion.div>
 
-                <div className="flex justify-start">
+                <motion.div variants={fadeInUp} className="flex justify-start">
                   <Button
                     type="submit"
                     variant="primary"
@@ -173,17 +198,20 @@ const CTASection: React.FC = () => {
                   >
                     إرسال الرسالة
                   </Button>
-                </div>
+                </motion.div>
 
-                <p className="text-xs text-secondary/50 text-center mt-3">
+                <motion.p variants={fadeInUp} className="text-xs text-secondary/50 text-center mt-3">
                   🔒 نحترم خصوصيتك. لن نشارك بياناتك مع أي جهة خارجية.
-                </p>
-              </form>
+                </motion.p>
+              </motion.form>
             </div>
 
             {/* Left Side - Content */}
-            <div className="lg:col-span-3 flex flex-col justify-center items-center text-center space-y-8 p-5 md:p-6 lg:p-8 border-2 border-[#e8cebc] lg:border-0 rounded-2xl lg:rounded-none shadow-[0_0_40px_rgba(212,165,116,0.5)] lg:shadow-none" style={{ background: 'linear-gradient(125deg, #f9f1ea, #fcf7f2)' }}>
-              <div>
+            <div 
+              className="lg:col-span-3 flex flex-col justify-center items-center text-center space-y-8 p-5 md:p-6 lg:p-8 border-2 border-[#e8cebc] lg:border-0 rounded-2xl lg:rounded-none shadow-[0_0_40px_rgba(212,165,116,0.5)] lg:shadow-none" 
+              style={{ background: 'linear-gradient(125deg, #f9f1ea, #fcf7f2)' }}
+            >
+              <motion.div variants={fadeInUp}>
                 {/* Title */}
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-secondary mb-3 leading-tight">
                   هل أنت مستعد لتطوير
@@ -197,58 +225,71 @@ const CTASection: React.FC = () => {
                 <p className="hidden lg:block text-base md:text-lg text-secondary/70 leading-relaxed">
                   انضم إلى مالكي العقارات الذين حولوا وحداتهم إلى استثمارات مربحة
                 </p>
-              </div>
+              </motion.div>
 
               {/* Benefits Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-2 w-full">
-                <div className="flex items-center gap-3 lg:gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
+              <motion.div 
+                variants={staggerContainer}
+                className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-2 w-full"
+              >
+                <motion.div variants={fadeInUp} className="flex items-center gap-3 lg:gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
                   <CheckCircle2 className="text-primary flex-shrink-0" size={24} />
                   <span className="text-secondary font-medium text-base lg:text-xs">استشارة مجانية</span>
-                </div>
-                <div className="flex items-center gap-3 lg:gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
+                </motion.div>
+                <motion.div variants={fadeInUp} className="flex items-center gap-3 lg:gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
                   <TrendingUp className="text-primary flex-shrink-0" size={24} />
                   <span className="text-secondary font-medium text-base lg:text-xs">خطة عمل مخصصة</span>
-                </div>
-                <div className="flex items-center gap-3 lg:gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
+                </motion.div>
+                <motion.div variants={fadeInUp} className="flex items-center gap-3 lg:gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
                   <Sparkles className="text-primary flex-shrink-0" size={24} />
                   <span className="text-secondary font-medium text-base lg:text-xs">متابعة مستمرة</span>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-8 pt-6 border-t-2 border-primary/10">
-                <div className="text-center group">
+              <motion.div 
+                variants={staggerContainer}
+                className="grid grid-cols-3 gap-8 pt-6 border-t-2 border-primary/10"
+              >
+                <motion.div variants={fadeInUp} className="text-center group">
                   <div className="text-2xl md:text-3xl font-bold bg-gradient-to-l from-primary via-[#d4a574] to-primary bg-clip-text text-transparent mb-1 font-bristone group-hover:scale-110 transition-transform duration-300">
                     50+
                   </div>
                   <div className="text-secondary/70 text-sm font-medium">عميل راضٍ</div>
-                </div>
-                <div className="text-center group">
+                </motion.div>
+                <motion.div variants={fadeInUp} className="text-center group">
                   <div className="text-2xl md:text-3xl font-bold bg-gradient-to-l from-primary via-[#d4a574] to-primary bg-clip-text text-transparent mb-1 font-bristone group-hover:scale-110 transition-transform duration-300">
                     100+
                   </div>
                   <div className="text-secondary/70 text-sm font-medium">وحدة مطورة</div>
-                </div>
-                <div className="text-center group">
+                </motion.div>
+                <motion.div variants={fadeInUp} className="text-center group">
                   <div className="text-2xl md:text-3xl font-bold bg-gradient-to-l from-primary via-[#d4a574] to-primary bg-clip-text text-transparent mb-1 font-bristone group-hover:scale-110 transition-transform duration-300">
                     4.9/5
                   </div>
                   <div className="text-secondary/70 text-sm font-medium">التقييم</div>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             </div>
           </div>
-        </div>
-        </div>
+          </div>
+          </motion.div>
+        </motion.div>
 
         {/* Footer Content */}
-        <div className="mt-32 max-w-7xl mx-auto">
+        <motion.div 
+          variants={fadeInUp}
+          className="mt-32 max-w-7xl mx-auto"
+        >
           <div className="bg-secondary text-white rounded-2xl relative overflow-hidden" style={{ boxShadow: '0 6px 50px rgba(16, 48, 43, 0.5)' }}>
             <div className="relative z-10">
               {/* Main Footer Content */}
-              <div className="py-12 px-8 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <motion.div 
+                variants={staggerContainer}
+                className="py-12 px-8 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+              >
                 {/* Column 1: About & Logo */}
-                <div className="space-y-4">
+                <motion.div variants={fadeInUp} className="space-y-4">
                   <Link href="/" className="inline-block">
                     <div className="flex items-center gap-3">
                       <div className="relative w-10 h-10">
@@ -282,10 +323,10 @@ const CTASection: React.FC = () => {
                       </a>
                     ))}
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Column 2: Quick Links */}
-                <div className="hidden lg:block">
+                <motion.div variants={fadeInUp} className="hidden lg:block">
                   <h3 className="text-lg font-bold mb-4 text-primary">روابط سريعة</h3>
                   <ul className="space-y-2">
                     {footerLinks.quick.map((link) => (
@@ -299,10 +340,10 @@ const CTASection: React.FC = () => {
                       </li>
                     ))}
                   </ul>
-                </div>
+                </motion.div>
 
                 {/* Column 3: Services */}
-                <div className="hidden lg:block">
+                <motion.div variants={fadeInUp} className="hidden lg:block">
                   <h3 className="text-lg font-bold mb-4 text-primary">الخدمات</h3>
                   <ul className="space-y-2">
                     {footerLinks.services.map((link) => (
@@ -316,10 +357,10 @@ const CTASection: React.FC = () => {
                       </li>
                     ))}
                   </ul>
-                </div>
+                </motion.div>
 
                 {/* Column 4: Contact Info */}
-                <div>
+                <motion.div variants={fadeInUp}>
                   <h3 className="text-lg font-bold mb-4 text-primary">تواصل معنا</h3>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-2">
@@ -334,11 +375,11 @@ const CTASection: React.FC = () => {
                     <li className="flex items-start gap-2">
                       <Phone size={18} className="text-primary shrink-0 mt-1" />
                       <a 
-                        href="tel:+20123456789"
+                        href="tel:+201015311491"
                         className="text-white/70 hover:text-primary transition-colors duration-300 text-sm"
                         dir="ltr"
                       >
-                        +20 123 456 789
+                        +20 101 531 1491
                       </a>
                     </li>
                     <li className="flex items-start gap-2">
@@ -346,11 +387,14 @@ const CTASection: React.FC = () => {
                       <span className="text-white/70 text-sm">القاهرة، مصر</span>
                     </li>
                   </ul>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
 
               {/* Bottom Bar */}
-              <div className="py-4 px-8 md:px-12 border-t border-white/10">
+              <motion.div 
+                variants={fadeInUp}
+                className="py-4 px-8 md:px-12 border-t border-white/10"
+              >
                 <div className="flex flex-col md:flex-row items-center justify-between gap-3">
                   <p className="text-white/60 text-xs">
                     © {currentYear} عبد الله الخضر - مفتاحك. جميع الحقوق محفوظة
@@ -370,10 +414,10 @@ const CTASection: React.FC = () => {
                     </Link>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </Container>
     </section>
   );

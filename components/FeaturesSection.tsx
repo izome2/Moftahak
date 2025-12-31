@@ -4,6 +4,7 @@ import React from 'react';
 import { TrendingUp, Users, Star } from 'lucide-react';
 import Container from './ui/Container';
 import Card from './ui/Card';
+import AnimatedStroke from './ui/AnimatedStroke';
 
 interface Feature {
   icon: React.ReactNode;
@@ -36,7 +37,9 @@ const FeaturesSection: React.FC = () => {
         {/* Section Header */}
         <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom duration-700">
           <h2 className="text-4xl md:text-5xl font-bold text-secondary mb-4 font-bristone">
-            لماذا تختار العمل معي؟
+            <AnimatedStroke delay={0.2}>
+              لماذا تختار العمل معي؟
+            </AnimatedStroke>
           </h2>
           <p className="text-lg text-secondary/70 max-w-2xl mx-auto">
             خبرة مثبتة في تحويل الوحدات العقارية إلى مشاريع ناجحة ومربحة

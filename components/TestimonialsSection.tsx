@@ -2,6 +2,7 @@
 
 import React, { useRef } from 'react';
 import { Quote, User } from 'lucide-react';
+import AnimatedStroke from './ui/AnimatedStroke';
 
 interface Testimonial {
   id: number;
@@ -103,7 +104,9 @@ const TestimonialsSection: React.FC = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-secondary mb-4 font-bristone flex items-center justify-center gap-3">
-            آراء عملاء سابقين وتجارب حقيقية 
+            <AnimatedStroke delay={0.2}>
+              آراء عملاء سابقين وتجارب حقيقية
+            </AnimatedStroke>
           </h2>
           <p className="text-lg text-secondary/70 max-w-2xl mx-auto">
             عملائي هم أفضل من يتحدث عن تجاربي

@@ -2,7 +2,9 @@
 
 import React, { useState, useRef } from 'react';
 import { Play, Heart, MessageCircle, Repeat2, Instagram } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Container from './ui/Container';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 interface Video {
   id: number;
@@ -123,8 +125,10 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
     <div className="relative group">
       <video
         ref={videoRef}
-        className="w-full rounded-xl"
+        className="w-full rounded-xl object-cover"
         src={src}
+        preload="metadata"
+        playsInline
         onClick={togglePlay}
         onEnded={() => setIsPlaying(false)}
         onTimeUpdate={handleTimeUpdate}
@@ -228,6 +232,16 @@ const ContentSection: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dragStartX, setDragStartX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isInView = useScrollAnimation(containerRef as React.RefObject<Element>, { threshold: 0.2, once: true });
+
+  React.useEffect(() => {
+    if (isInView) {
+      const timer = setTimeout(() => setHasAnimated(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isInView]);
 
   const allVideos: Video[] = [
     { id: 1, src: '/videos/instagram-1.mp4', platform: 'instagram' },
@@ -439,7 +453,7 @@ const ContentSection: React.FC = () => {
         </div>
 
         {/* Carousel Container */}
-        <div className="relative py-12">
+        <div className="relative py-12" ref={containerRef}>
           {/* Videos Container */}
           <div className="relative h-[600px] flex items-center justify-center">
             <div 
@@ -455,17 +469,52 @@ const ContentSection: React.FC = () => {
                 const normalizedCurrent = ((currentIndex % allVideos.length) + allVideos.length) % allVideos.length;
                 const isCenter = index === normalizedCurrent;
                 
+                // حساب الموقع النسبي للفيديو (يمين أو يسار)
+                let position = index - normalizedCurrent;
+                if (position > allVideos.length / 2) {
+                  position -= allVideos.length;
+                } else if (position < -allVideos.length / 2) {
+                  position += allVideos.length;
+                }
+                
                 return (
-                  <div
+                  <motion.div
                     key={video.id}
-                    className="absolute left-1/2 top-1/2 -translate-y-1/2 w-[330px] md:w-[320px] transition-all duration-700 ease-out"
-                    style={styles}
+                    className="absolute left-1/2 top-1/2 -translate-y-1/2 w-[330px] md:w-[320px]"
+                    style={{
+                      zIndex: styles.zIndex,
+                      pointerEvents: styles.pointerEvents,
+                      filter: styles.filter,
+                      willChange: hasAnimated ? 'transform, opacity' : 'auto',
+                    }}
+                    initial={{
+                      opacity: 0,
+                      y: position === 0 ? 40 : 0,
+                      x: '-50%',
+                      scale: position === 0 ? 0.95 : 1,
+                    }}
+                    animate={isInView ? {
+                      opacity: styles.opacity,
+                      y: 0,
+                      x: position === 0 ? '-50%' : `calc(-50% + ${position * (isMobile ? 180 : 240)}px)`,
+                      scale: styles.transform ? parseFloat(styles.transform.toString().match(/scale\(([^)]+)\)/)?.[1] || '1') : 1,
+                    } : {
+                      opacity: 0,
+                      y: position === 0 ? 40 : 0,
+                      x: '-50%',
+                      scale: position === 0 ? 0.95 : 1,
+                    }}
+                    transition={{
+                      duration: hasAnimated ? 0.7 : 0.6,
+                      delay: hasAnimated ? 0 : (position === 0 ? 0.3 : 0.7 + Math.abs(position) * 0.15),
+                      ease: hasAnimated ? 'easeOut' : [0.25, 0.46, 0.45, 0.94]
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleVideoClick(index);
                     }}
                   >
-                    <div className={`relative rounded-2xl overflow-hidden bg-[#ead3b9]/20 border-2 border-[#ead3b9] transition-shadow duration-300 ${
+                    <div className={`relative rounded-2xl overflow-hidden bg-[#ead3b9]/20 border-2 border-[#e8cebc] transition-shadow duration-300 ${
                       isCenter 
                         ? 'shadow-[0_10px_40px_rgba(234,211,185,0.8),0_0_60px_rgba(237,191,140,0.4)]' 
                         : 'shadow-2xl hover:shadow-[0_0_40px_rgba(234,211,185,0.6)] cursor-pointer'
@@ -488,18 +537,16 @@ const ContentSection: React.FC = () => {
                         </div>
                       )}
                     </div>
-                  </div>
-                </div>
-              );
-            })}
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
-          </div>
-
-          {/* Navigation Buttons */}
+          </div>          {/* Navigation Buttons */}
           <button
-            onClick={handlePrev}
+            onClick={handleNext}
             className="absolute right-1 md:right-4 top-1/2 md:top-[48%] -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full bg-[#ead3b9] hover:bg-[#edbf8c] text-secondary flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-105 z-30 group"
-            aria-label="السابق"
+            aria-label="التالي"
           >
             <svg className="w-5 h-5 md:w-7 md:h-7 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
@@ -507,9 +554,9 @@ const ContentSection: React.FC = () => {
           </button>
 
           <button
-            onClick={handleNext}
+            onClick={handlePrev}
             className="absolute left-1 md:left-4 top-1/2 md:top-[48%] -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full bg-[#ead3b9] hover:bg-[#edbf8c] text-secondary flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-105 z-30 group"
-            aria-label="التالي"
+            aria-label="السابق"
           >
             <svg className="w-5 h-5 md:w-7 md:h-7 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />

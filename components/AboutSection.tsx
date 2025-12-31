@@ -17,6 +17,7 @@ import {
   staggerContainer,
   staggerItem
 } from '@/lib/animations/variants';
+import AnimatedStroke from './ui/AnimatedStroke';
 
 const AboutSection: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -49,7 +50,7 @@ const AboutSection: React.FC = () => {
               className="mb-6"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={isContentInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.3, duration: 1 }}
             >
               <Image
                 src="/logos/logo-dark.png"
@@ -65,7 +66,9 @@ const AboutSection: React.FC = () => {
               className="text-4xl md:text-5xl font-bold text-secondary mb-6 leading-tight"
               variants={fadeInUp}
             >
-              عبد الله الخضر
+              <AnimatedStroke delay={0.6}>
+                عبد الله الخضر
+              </AnimatedStroke>
             </motion.h2>
 
             {/* Bio Text */}
@@ -123,7 +126,7 @@ const AboutSection: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={isContentInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ delay: 0.8 }}
+              transition={{ delay: 1.5, duration: 0.9 }}
             >
               <Button
                 variant="primary"
@@ -254,10 +257,10 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
             y: [0, -8, 0],
           } : { opacity: 0, y: 20 }}
           transition={{ 
-            opacity: { delay: 0.8, duration: 1.5 },
+            opacity: { delay: 1.2, duration: 2 },
             y: {
-              delay: 0.8,
-              duration: 4,
+              delay: 1.8,
+              duration: 6,
               repeat: Infinity,
               ease: "easeInOut"
             }
@@ -281,7 +284,7 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
           className="relative overflow-hidden rounded-3xl z-10"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={isImageInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
+          transition={{ delay: 0.5, duration: 1.2 }}
           whileHover={{ scale: 1.02 }}
         >
           <Image
@@ -302,10 +305,10 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
             y: [0, 10, 0],
           } : { opacity: 0, y: 20 }}
           transition={{ 
-            opacity: { delay: 0.4, duration: 1.5 },
+            opacity: { delay: 0.8, duration: 2 },
             y: {
-              delay: 1.7,
-              duration: 5,
+              delay: 2.5,
+              duration: 7,
               repeat: Infinity,
               ease: "easeInOut"
             }
@@ -333,10 +336,10 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
             y: [0, -12, 0],
           } : { opacity: 0, y: 20 }}
           transition={{ 
-            opacity: { delay: 1.2, duration: 1.5 },
+            opacity: { delay: 1.5, duration: 2 },
             y: {
-              delay: 2.5,
-              duration: 4.5,
+              delay: 3.5,
+              duration: 6.5,
               repeat: Infinity,
               ease: "easeInOut"
             }
@@ -361,13 +364,13 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
         className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/20 rounded-full blur-3xl -z-10"
         initial={{ scale: 0, opacity: 0 }}
         animate={isImageInView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-        transition={{ delay: 1.5, duration: 1 }}
+        transition={{ delay: 2.2, duration: 1.5 }}
       />
       <motion.div 
         className="absolute -top-6 -right-6 w-32 h-32 bg-secondary/20 rounded-full blur-3xl -z-10"
         initial={{ scale: 0, opacity: 0 }}
         animate={isImageInView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-        transition={{ delay: 1.6, duration: 1 }}
+        transition={{ delay: 2.4, duration: 1.5 }}
       />
     </div>
   );
