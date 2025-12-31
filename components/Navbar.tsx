@@ -9,14 +9,23 @@ import Container from './ui/Container';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isOutOfHero, setIsOutOfHero] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
+      
+      // Check if we're out of hero section
+      const heroSection = document.getElementById('home');
+      if (heroSection) {
+        const heroBottom = heroSection.offsetTop + heroSection.offsetHeight;
+        setIsOutOfHero(window.scrollY > heroBottom - 100);
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Initial check
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -38,14 +47,18 @@ const Navbar: React.FC = () => {
 
   return (
     <header
-      className={`fixed top-3 left-[10%] right-[10%] z-50 transition-all duration-500 rounded-2xl ${
+      className={`fixed z-50 transition-all duration-500 top-3 left-[10%] right-[10%] rounded-2xl ${
         isScrolled
           ? 'bg-[#fdf6ee]/88 backdrop-blur-md shadow-[0_0_25px_rgba(180,130,80,0.30)]'
           : 'bg-transparent shadow-none'
+      } max-lg:left-4 max-lg:right-4 md:max-lg:left-8 md:max-lg:right-8 ${
+        isOutOfHero 
+          ? 'max-lg:top-3 md:max-lg:top-4 max-lg:animate-in max-lg:slide-in-from-top max-lg:duration-500' 
+          : 'max-lg:-top-24'
       }`}
     >
-      <div className="mx-auto px-3">
-        <nav className="flex items-center justify-center h-14 relative">
+      <div className="mx-auto px-3 md:px-4">
+        <nav className="flex items-center justify-center h-14 md:h-16 lg:h-14 relative">
           {/* Logo - positioned absolutely on the right */}
           <Link href="/" className="absolute right-0 flex items-center gap-2 hover:opacity-80 transition-opacity">
             <span className="text-lg font-bold text-secondary font-bristone hidden sm:block">
@@ -101,9 +114,9 @@ const Navbar: React.FC = () => {
             </Button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - positioned on the left */}
           <button
-            className="lg:hidden p-2 text-secondary hover:text-primary transition-colors"
+            className="lg:hidden p-2 text-secondary hover:text-primary transition-colors absolute left-0"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="القائمة"
           >

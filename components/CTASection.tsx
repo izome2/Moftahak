@@ -285,7 +285,7 @@ const CTASection: React.FC = () => {
                 </div>
 
                 {/* Column 2: Quick Links */}
-                <div>
+                <div className="hidden lg:block">
                   <h3 className="text-lg font-bold mb-4 text-primary">روابط سريعة</h3>
                   <ul className="space-y-2">
                     {footerLinks.quick.map((link) => (
@@ -302,7 +302,7 @@ const CTASection: React.FC = () => {
                 </div>
 
                 {/* Column 3: Services */}
-                <div>
+                <div className="hidden lg:block">
                   <h3 className="text-lg font-bold mb-4 text-primary">الخدمات</h3>
                   <ul className="space-y-2">
                     {footerLinks.services.map((link) => (

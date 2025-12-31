@@ -28,6 +28,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-dubai), Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
 }
 
 .font-en {
@@ -301,4 +306,61 @@ html {
   [style*="--hero-clip-path"] {
     --hero-clip-path: url(#heroClip) !important;
   }
+}
+
+/* Slideshow Animations with Ken Burns Effect */
+@keyframes ken-burns-zoom {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.15);
+  }
+}
+
+@keyframes slideshow-crossfade {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  8% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  17% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 1;
+  }
+  33% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-slideshow-1 {
+  animation: slideshow-crossfade 20s ease-in-out infinite, ken-burns-zoom 20s ease-out infinite;
+  animation-delay: 0s, 0s;
+  opacity: 1;
+}
+
+.animate-slideshow-2 {
+  animation: slideshow-crossfade 20s ease-in-out infinite, ken-burns-zoom 20s ease-out infinite;
+  animation-delay: 5s, 5s;
+  opacity: 0;
+}
+
+.animate-slideshow-3 {
+  animation: slideshow-crossfade 20s ease-in-out infinite, ken-burns-zoom 20s ease-out infinite;
+  animation-delay: 10s, 10s;
+  opacity: 0;
+}
+
+.animate-slideshow-4 {
+  animation: slideshow-crossfade 20s ease-in-out infinite, ken-burns-zoom 20s ease-out infinite;
+  animation-delay: 15s, 15s;
+  opacity: 0;
 }
