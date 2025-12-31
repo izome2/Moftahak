@@ -268,12 +268,8 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             fill
             className="absolute inset-0 w-full h-full object-cover animate-slideshow-1"
             priority
-            fetchPriority="high"
-            quality={95}
+            quality={85}
             sizes="100vw"
-            loading="eager"
-            placeholder="blur"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
           />
           <Image 
             src="/images/hero/slide-1.jpg"
@@ -281,30 +277,26 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             fill
             className="absolute inset-0 w-full h-full object-cover animate-slideshow-2"
             priority
-            fetchPriority="high"
-            quality={90}
+            quality={85}
             sizes="100vw"
-            loading="eager"
-            placeholder="blur"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
           />
           <Image 
             src="/images/hero/slide-2.jpg"
             alt=""
             fill
             className="absolute inset-0 w-full h-full object-cover animate-slideshow-3"
-            quality={75}
+            priority
+            quality={85}
             sizes="100vw"
-            loading="lazy"
           />
           <Image 
             src="/images/hero/slide-3.jpg"
             alt=""
             fill
             className="absolute inset-0 w-full h-full object-cover animate-slideshow-4"
-            quality={75}
+            priority
+            quality={85}
             sizes="100vw"
-            loading="lazy"
           />
         </div>
         
@@ -315,7 +307,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             alt=""
             fill
             className="object-cover"
-            quality={60}
+            quality={70}
             priority={false}
             sizes="100vw"
           />

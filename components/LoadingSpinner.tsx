@@ -27,13 +27,13 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   const content = (
     <div className="flex flex-col items-center justify-center gap-3">
       <Loader2
-        className={`${sizeClasses[size]} text-[#10302b] animate-spin`}
+        className={`${sizeClasses[size]} text-primary animate-spin`}
         aria-hidden="true"
       />
       {text && (
-        <p className="text-[#10302b] text-sm md:text-base font-semibold">{text}</p>
+        <p className="text-secondary/70 text-sm md:text-base">{text}</p>
       )}
-      <p className="text-[#10302b] text-sm md:text-base font-semibold">جاري التحميل...</p>
+      <span className="sr-only">جاري التحميل...</span>
     </div>
   );
 
