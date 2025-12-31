@@ -266,7 +266,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                   const section = document.getElementById('contact');
                   section?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto backdrop-blur-md bg-white/10"
               >
                 تواصل معي
               </Button>
