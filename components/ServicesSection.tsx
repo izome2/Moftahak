@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
@@ -8,6 +8,7 @@ import Container from './ui/Container';
 import Badge from './ui/Badge';
 import Button from './ui/Button';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { useGyroscope } from '@/hooks/useGyroscope';
 import { 
   fadeInUp, 
   slideInLeft,
@@ -184,6 +185,8 @@ const ServicesSection: React.FC = () => {
 // Service Card Component with 3D Tilt Effect
 const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, index }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = React.useState(false);
+  const [isHovering, setIsHovering] = React.useState(false);
   
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
@@ -192,8 +195,29 @@ const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, i
   const rotateXSpring = useSpring(rotateX, springConfig);
   const rotateYSpring = useSpring(rotateY, springConfig);
 
+  // Gyroscope for mobile devices
+  const gyro = useGyroscope(1);
+
+  // Detect if mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Apply gyroscope rotation on mobile when not hovering
+  useEffect(() => {
+    if (isMobile && gyro.isSupported && !isHovering) {
+      rotateX.set(gyro.rotateX);
+      rotateY.set(gyro.rotateY);
+    }
+  }, [gyro.rotateX, gyro.rotateY, isMobile, gyro.isSupported, isHovering, rotateX, rotateY]);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+    if (!cardRef.current || isMobile) return;
     
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -209,9 +233,16 @@ const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, i
     rotateY.set(rotY);
   };
 
+  const handleMouseEnter = () => {
+    setIsHovering(true);
+  };
+
   const handleMouseLeave = () => {
-    rotateX.set(0);
-    rotateY.set(0);
+    setIsHovering(false);
+    if (!isMobile) {
+      rotateX.set(0);
+      rotateY.set(0);
+    }
   };
 
   const cardVariant = {
@@ -238,6 +269,7 @@ const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, i
       variants={cardVariant}
       whileHover={{ y: -10 }}
       onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       style={{
         rotateX: rotateXSpring,
