@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from './ui/Button';
 import Container from './ui/Container';
+import SplashScreen from './SplashScreen';
 import { 
   heroTitle, 
   heroSubtitle, 
@@ -48,6 +49,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
 }) => {
   const [showFloatingButton, setShowFloatingButton] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
@@ -114,12 +116,16 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   };
 
   return (
-    <section
-      ref={sectionRef}
-      id="home"
-      className="relative min-h-screen flex items-center justify-center pt-16 pb-24 md:pb-16 px-4 sm:px-6 lg:px-8 bg-white"
-      aria-label="hero section"
-    >
+    <>
+      {/* Splash Screen */}
+      <SplashScreen isLoading={!isImageLoaded} />
+
+      <section
+        ref={sectionRef}
+        id="home"
+        className="relative min-h-screen flex items-center justify-center pt-16 pb-24 md:pb-16 px-4 sm:px-6 lg:px-8 bg-white"
+        aria-label="hero section"
+      >
       {/* Backdrop blur overlay - shown when mobile menu is open */}
       {isMobileMenuOpen && (
         <motion.div 
@@ -270,6 +276,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             priority
             quality={85}
             sizes="100vw"
+            onLoadingComplete={() => setIsImageLoaded(true)}
           />
           <Image 
             src="/images/hero/slide-1.jpg"
@@ -610,7 +617,8 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
           <span className="font-semibold text-sm">احجز استشارة مجانية</span>
         </motion.button>
       )}
-    </section>
+      </section>
+    </>
   );
 }
 
