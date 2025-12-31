@@ -278,7 +278,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             priority
             quality={85}
             sizes="100vw"
-            onLoad={() => setFirstImageLoaded(true)}
+            onLoadingComplete={() => setFirstImageLoaded(true)}
           />
           <Image 
             src="/images/hero/slide-1.jpg"

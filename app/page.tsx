@@ -20,9 +20,15 @@ export default function HomePage() {
       setIsLoading(false);
     };
 
+    // Timeout احتياطي لإخفاء شاشة التحميل بعد 3 ثوان كحد أقصى
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+
     window.addEventListener('heroImageLoaded', handleImageLoaded);
 
     return () => {
+      clearTimeout(timeout);
       window.removeEventListener('heroImageLoaded', handleImageLoaded);
     };
   }, []);
