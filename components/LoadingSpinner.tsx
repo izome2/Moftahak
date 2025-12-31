@@ -40,7 +40,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   if (fullScreen) {
     return (
       <div
-        className="fixed inset-0 bg-white z-50 flex items-center justify-center"
+        className="fixed inset-0 bg-accent/50 backdrop-blur-sm z-50 flex items-center justify-center"
         role="status"
         aria-live="polite"
       >

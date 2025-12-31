@@ -16,25 +16,28 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const handleImageLoaded = () => {
+    // Preload the first hero image
+    const img = new window.Image();
+    img.src = '/images/hero/hero-bg.jpg';
+    
+    // Set loading to false when image loads or after max 3 seconds
+    const timer = setTimeout(() => setIsLoading(false), 3000);
+    
+    img.onload = () => {
       setIsLoading(false);
+      clearTimeout(timer);
+    };
+    
+    img.onerror = () => {
+      setIsLoading(false);
+      clearTimeout(timer);
     };
 
-    // Timeout احتياطي لإخفاء شاشة التحميل بعد 3 ثوان كحد أقصى
-    const timeout = setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-
-    window.addEventListener('heroImageLoaded', handleImageLoaded);
-
-    return () => {
-      clearTimeout(timeout);
-      window.removeEventListener('heroImageLoaded', handleImageLoaded);
-    };
+    return () => clearTimeout(timer);
   }, []);
 
   if (isLoading) {
-    return <LoadingSpinner fullScreen text="جاري التحميل" />;
+    return <LoadingSpinner fullScreen />;
   }
 
   return (

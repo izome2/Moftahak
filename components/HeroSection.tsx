@@ -50,7 +50,6 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
-  const [firstImageLoaded, setFirstImageLoaded] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   
   // Animated counters
@@ -62,13 +61,6 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
     // Trigger animations on mount
     setIsVisible(true);
   }, []);
-
-  useEffect(() => {
-    // Notify parent that first image has loaded
-    if (firstImageLoaded) {
-      window.dispatchEvent(new Event('heroImageLoaded'));
-    }
-  }, [firstImageLoaded]);
 
   useEffect(() => {
     // Rotate sentences every 4 seconds
@@ -276,9 +268,10 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             fill
             className="absolute inset-0 w-full h-full object-cover animate-slideshow-1"
             priority
-            quality={85}
+            fetchPriority="high"
+            quality={90}
             sizes="100vw"
-            onLoadingComplete={() => setFirstImageLoaded(true)}
+            loading="eager"
           />
           <Image 
             src="/images/hero/slide-1.jpg"
@@ -288,24 +281,25 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             priority
             quality={85}
             sizes="100vw"
+            loading="eager"
           />
           <Image 
             src="/images/hero/slide-2.jpg"
             alt=""
             fill
             className="absolute inset-0 w-full h-full object-cover animate-slideshow-3"
-            priority
-            quality={85}
+            quality={80}
             sizes="100vw"
+            loading="lazy"
           />
           <Image 
             src="/images/hero/slide-3.jpg"
             alt=""
             fill
             className="absolute inset-0 w-full h-full object-cover animate-slideshow-4"
-            priority
-            quality={85}
+            quality={80}
             sizes="100vw"
+            loading="lazy"
           />
         </div>
         
@@ -316,7 +310,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             alt=""
             fill
             className="object-cover"
-            quality={70}
+            quality={60}
             priority={false}
             sizes="100vw"
           />

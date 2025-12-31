@@ -142,10 +142,48 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <head>
-        <link rel="preload" as="image" href="/images/hero/hero-bg.jpg" />
-        <link rel="preload" as="image" href="/images/hero/slide-1.jpg" />
-        <link rel="preload" as="image" href="/images/hero/slide-2.jpg" />
-        <link rel="preload" as="image" href="/images/hero/slide-3.jpg" />
+        {/* Critical resource hints for hero images */}
+        <link rel="preconnect" href="/" />
+        <link rel="dns-prefetch" href="/" />
+        
+        {/* Preload hero images with high priority */}
+        <link 
+          rel="preload" 
+          as="image" 
+          href="/images/hero/hero-bg.jpg" 
+          fetchPriority="high"
+          type="image/jpeg"
+        />
+        <link 
+          rel="preload" 
+          as="image" 
+          href="/images/hero/slide-1.jpg" 
+          fetchPriority="high"
+          type="image/jpeg"
+        />
+        <link 
+          rel="preload" 
+          as="image" 
+          href="/images/hero/slide-2.jpg" 
+          fetchPriority="low"
+          type="image/jpeg"
+        />
+        <link 
+          rel="preload" 
+          as="image" 
+          href="/images/hero/slide-3.jpg" 
+          fetchPriority="low"
+          type="image/jpeg"
+        />
+        
+        {/* Preload logo for splash screen */}
+        <link 
+          rel="preload" 
+          as="image" 
+          href="/logos/logo-white-icon.png" 
+          fetchPriority="high"
+          type="image/png"
+        />
       </head>
       <body
         className={`${dubai.variable} ${bristone.variable} antialiased font-dubai`}
