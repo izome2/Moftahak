@@ -1,40 +1,29 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import Image from 'next/image';
 import { CheckCircle2, ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Container from './ui/Container';
 import Badge from './ui/Badge';
 import Button from './ui/Button';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { useCounter } from '@/hooks/useCounter';
+import { 
+  fadeInUp, 
+  slideInLeft,
+  slideInRight,
+  staggerContainer,
+  staggerItem
+} from '@/lib/animations/variants';
 
 const AboutSection: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-          } else {
-            setIsVisible(false);
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+  
+  const isContentInView = useScrollAnimation(contentRef, { threshold: 0.2 });
+  const isImageInView = useScrollAnimation(imageRef, { threshold: 0.3 });
 
   const expertise = [
     'خبرة عملية حقيقية في تشغيل وتطوير الشقق الفندقية والإيجارات قصيرة الأجل.',
@@ -43,13 +32,24 @@ const AboutSection: React.FC = () => {
   ];
 
   return (
-    <section className="py-20 bg-white" id="about">
+    <section ref={sectionRef} className="py-20 bg-white" id="about">
       <Container>
         <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-12 items-center">
           {/* Left Side - Content */}
-          <div className="order-1 lg:order-1 animate-in fade-in slide-in-from-left duration-700">
+          <motion.div 
+            ref={contentRef}
+            className="order-1 lg:order-1"
+            initial="hidden"
+            animate={isContentInView ? "visible" : "hidden"}
+            variants={slideInLeft}
+          >
             {/* Company Logo */}
-            <div className="mb-6">
+            <motion.div 
+              className="mb-6"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={isContentInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+              transition={{ delay: 0.2 }}
+            >
               <Image
                 src="/logos/logo-dark.png"
                 alt="مفتاحك"
@@ -57,27 +57,53 @@ const AboutSection: React.FC = () => {
                 height={40}
                 className="h-10 w-auto"
               />
-            </div>
+            </motion.div>
 
             {/* Title */}
-            <h2 className="text-4xl md:text-5xl font-bold text-secondary mb-6 leading-tight">
+            <motion.h2 
+              className="text-4xl md:text-5xl font-bold text-secondary mb-6 leading-tight"
+              variants={fadeInUp}
+            >
               عبد الله الخضر
-            </h2>
+            </motion.h2>
 
             {/* Bio Text */}
-            <div className="space-y-5 text-secondary/70 leading-relaxed mb-8 text-lg">
+            <motion.div 
+              className="space-y-5 text-secondary/70 leading-relaxed mb-8 text-lg"
+              variants={fadeInUp}
+            >
               <p>
                 رائد أعمال ومتخصص في الإيجارات قصيرة الأجل والشقق الفندقية في القاهرة، بدأ رحلته بوحدة واحدة ونجح في بناء نموذج تشغيل احترافي يعتمد على الأنظمة الواضحة والقرارات المبنية على البيانات وتقديم تجربة نزيل عالية الجودة، حيث يعمل على مساعدة ملاك العقارات في تحويل وحداتهم إلى وحدات فندقية مربحة وقابلة للتوسع، إلى جانب مشاركته خبراته العملية من خلال محتوى تعليمي متخصص حول Airbnb والإيجارات قصيرة الأجل.
               </p>
-            </div>
+            </motion.div>
 
             {/* Expertise List */}
-            <div className="mb-8">
-              <h3 className="text-2xl font-bold text-secondary mb-5">لماذا تختار عبد الله؟</h3>
+            <motion.div 
+              className="mb-8"
+              variants={staggerContainer}
+              initial="hidden"
+              animate={isContentInView ? "visible" : "hidden"}
+            >
+              <motion.h3 
+                className="text-2xl font-bold text-secondary mb-5"
+                variants={staggerItem}
+              >
+                لماذا تختار عبد الله؟
+              </motion.h3>
               <ul className="space-y-5">
                 {expertise.map((item, index) => (
-                  <li key={index} className="flex items-start gap-4">
-                    <div className="shrink-0 mt-1">
+                  <motion.li 
+                    key={index} 
+                    className="flex items-start gap-4"
+                    variants={staggerItem}
+                    whileHover={{ x: 5 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <motion.div 
+                      className="shrink-0 mt-1"
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.6 }}
+                    >
                       <Image
                         src="/logos/logo-dark-icon.png"
                         alt="مفتاحك"
@@ -85,30 +111,45 @@ const AboutSection: React.FC = () => {
                         height={20}
                         className="w-5 h-5"
                       />
-                    </div>
+                    </motion.div>
                     <span className="text-secondary/70 font-medium leading-relaxed text-lg">{item}</span>
-                  </li>
+                  </motion.li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
 
             {/* CTA Button */}
-            <Button
-              variant="primary"
-              size="md"
-              rightIcon={<ArrowLeft size={20} />}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isContentInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ delay: 0.8 }}
             >
+              <Button
+                variant="primary"
+                size="md"
+                rightIcon={<ArrowLeft size={20} />}
+              >
               المزيد عن عبد الله
             </Button>
-          </div>
+          </motion.div>
+          </motion.div>
 
           {/* Right Side - Image */}
-          <div ref={sectionRef} className="order-2 lg:order-2 animate-in fade-in slide-in-from-right duration-700 lg:pr-10">
+          <motion.div 
+            ref={imageRef}
+            className="order-2 lg:order-2 lg:pr-10"
+            initial="hidden"
+            animate={isImageInView ? "visible" : "hidden"}
+            variants={slideInRight}
+          >
             <div className="relative max-w-lg mx-auto lg:mx-0">
               {/* Overlay Image 1 (appears first) */}
-              <div className={`absolute inset-0 z-20 pointer-events-none transition-all duration-1500 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
-              }`} style={{ transitionDelay: '400ms' }}>
+              <motion.div 
+                className="absolute inset-0 z-20 pointer-events-none"
+                initial={{ opacity: 0, y: 20 }}
+                animate={isImageInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ delay: 0.4, duration: 1.5 }}
+              >
                 <Image
                   src="/images/hero/overlay-1.png"
                   alt=""
@@ -116,12 +157,15 @@ const AboutSection: React.FC = () => {
                   height={800}
                   className="w-full h-full object-contain"
                 />
-              </div>
+              </motion.div>
 
               {/* Background Image (appears second) */}
-              <div className={`absolute inset-0 z-0 transition-all duration-1500 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
-              }`} style={{ transitionDelay: '800ms' }}>
+              <motion.div 
+                className="absolute inset-0 z-0"
+                initial={{ opacity: 0, y: 20 }}
+                animate={isImageInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ delay: 0.8, duration: 1.5 }}
+              >
                 <Image
                   src="/images/hero/background-0.png"
                   alt=""
@@ -129,10 +173,16 @@ const AboutSection: React.FC = () => {
                   height={800}
                   className="w-full h-full object-contain"
                 />
-              </div>
+              </motion.div>
 
               {/* Main Image */}
-              <div className="relative overflow-hidden rounded-3xl z-10">
+              <motion.div 
+                className="relative overflow-hidden rounded-3xl z-10"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={isImageInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+                transition={{ delay: 0.2, duration: 0.8 }}
+                whileHover={{ scale: 1.02 }}
+              >
                 <Image
                   src="/images/hero/abdullah-profile.jpg"
                   alt="عبد الله الخضر"
@@ -140,12 +190,15 @@ const AboutSection: React.FC = () => {
                   height={800}
                   className="w-full h-auto object-contain"
                 />
-              </div>
+              </motion.div>
 
               {/* Overlay Image 2 (appears last) */}
-              <div className={`absolute inset-0 z-20 pointer-events-none transition-all duration-1500 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
-              }`} style={{ transitionDelay: '1200ms' }}>
+              <motion.div 
+                className="absolute inset-0 z-20 pointer-events-none"
+                initial={{ opacity: 0, y: 20 }}
+                animate={isImageInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ delay: 1.2, duration: 1.5 }}
+              >
                 <Image
                   src="/images/hero/overlay-2.png"
                   alt=""
@@ -153,13 +206,23 @@ const AboutSection: React.FC = () => {
                   height={800}
                   className="w-full h-full object-contain"
                 />
-              </div>
+              </motion.div>
 
               {/* Decorative Elements */}
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/20 rounded-full blur-3xl -z-10" />
-              <div className="absolute -top-6 -right-6 w-32 h-32 bg-secondary/20 rounded-full blur-3xl -z-10" />
+              <motion.div 
+                className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/20 rounded-full blur-3xl -z-10"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={isImageInView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+                transition={{ delay: 1.5, duration: 1 }}
+              />
+              <motion.div 
+                className="absolute -top-6 -right-6 w-32 h-32 bg-secondary/20 rounded-full blur-3xl -z-10"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={isImageInView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+                transition={{ delay: 1.6, duration: 1 }}
+              />
             </div>
-          </div>
+          </motion.div>
         </div>
       </Container>
     </section>

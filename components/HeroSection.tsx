@@ -1,11 +1,23 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Building2, Users, Award, Phone, Moon, Menu, X, User, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 import Button from './ui/Button';
 import Container from './ui/Container';
+import { 
+  heroTitle, 
+  heroSubtitle, 
+  heroButtons, 
+  heroStats, 
+  heroStatItem,
+  scrollIndicator,
+  navbarSlideDown,
+  staggerContainer
+} from '@/lib/animations/variants';
+import { useCounter } from '@/hooks/useCounter';
 
 interface HeroSectionProps {
   title?: string;
@@ -28,8 +40,18 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
 }) => {
   const [showFloatingButton, setShowFloatingButton] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  
+  // Animated counters
+  const nightsCount = useCounter({ start: 0, end: 3000, duration: 2500 }, isVisible);
+  const clientsCount = useCounter({ start: 0, end: 1200, duration: 2500 }, isVisible);
+  const yearsCount = useCounter({ start: 0, end: 5, duration: 2000 }, isVisible);
 
   useEffect(() => {
+    // Trigger animations on mount
+    setIsVisible(true);
+    
     const handleScroll = () => {
       const scrollPercentage = (window.scrollY / document.documentElement.scrollHeight) * 100;
       setShowFloatingButton(scrollPercentage < 1);
@@ -69,26 +91,40 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
 
   return (
     <section
+      ref={sectionRef}
       id="home"
       className="relative min-h-screen flex items-center justify-center pt-16 pb-24 md:pb-16 px-4 sm:px-6 lg:px-8 bg-white"
       aria-label="قسم البطل الرئيسي"
     >
       {/* Backdrop blur overlay - shown when mobile menu is open */}
       {isMobileMenuOpen && (
-        <div 
-          className="lg:hidden absolute inset-0 bg-black/20 backdrop-blur-sm z-40 animate-in fade-in duration-300"
+        <motion.div 
+          className="lg:hidden absolute inset-0 bg-black/20 backdrop-blur-sm z-40"
           onClick={() => setIsMobileMenuOpen(false)}
           aria-hidden="true"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
         />
       )}
 
       {/* Mobile/Tablet Navbar - Inside Hero */}
-      <div className="lg:hidden absolute top-8 left-6 right-6 md:top-10 md:left-12 md:right-12 z-50">
+      <motion.div 
+        className="lg:hidden absolute top-8 left-6 right-6 md:top-10 md:left-12 md:right-12 z-50"
+        initial="hidden"
+        animate="visible"
+        variants={navbarSlideDown}
+      >
         <div className="rounded-2xl px-2 md:px-4">
           <nav className="flex items-center justify-between h-11 md:h-14">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-1.5 md:gap-2 hover:opacity-80 transition-opacity">
-              <div className="relative w-7 h-7 md:w-8 md:h-8">
+              <motion.div 
+                className="relative w-7 h-7 md:w-8 md:h-8"
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.6 }}
+              >
                 <Image
                   src="/logos/logo-white-icon.png"
                   alt="مفتاحك"
@@ -96,49 +132,69 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                   className="object-contain"
                   priority
                 />
-              </div>
+              </motion.div>
               <span className="text-sm md:text-lg font-bold text-accent font-bristone hidden sm:block">
                 MOFTAHAK
               </span>
             </Link>
 
             {/* Menu Button */}
-            <button
+            <motion.button
               className="p-1 md:p-2 text-accent hover:text-primary transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="القائمة"
+              whileTap={{ scale: 0.9 }}
             >
               {isMobileMenuOpen ? <X size={24} className="md:hidden" /> : <Menu size={24} className="md:hidden" />}
               {isMobileMenuOpen ? <X size={28} className="hidden md:block" /> : <Menu size={28} className="hidden md:block" />}
-            </button>
+            </motion.button>
           </nav>
 
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
-            <div className="py-6 border-t border-accent animate-in fade-in slide-in-from-top duration-300 bg-[#fdf6ee]/95 backdrop-blur-md rounded-2xl -mx-3 md:-mx-4 px-3 md:px-4 shadow-lg">
-              <div className="flex flex-col gap-4">
-                {navLinks.map((link) => (
-                  <button
+            <motion.div 
+              className="py-6 border-t border-accent bg-[#fdf6ee]/95 backdrop-blur-md rounded-2xl -mx-3 md:-mx-4 px-3 md:px-4 shadow-lg"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div 
+                className="flex flex-col gap-4"
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+              >
+                {navLinks.map((link, index) => (
+                  <motion.button
                     key={link.href}
                     onClick={() => scrollToSection(link.href)}
                     className="text-right text-secondary hover:text-primary font-semibold py-2 transition-colors duration-300"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ x: 5 }}
                   >
                     {link.label}
-                  </button>
+                  </motion.button>
                 ))}
                 <div className="flex items-center gap-4 pt-4 border-t border-accent">
-                  <button
+                  <motion.button
                     className="p-2 text-secondary hover:text-primary transition-colors"
                     aria-label="السلة"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                   >
                     <ShoppingCart size={22} />
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
                     className="p-2 text-secondary hover:text-primary transition-colors"
                     aria-label="تسجيل الدخول"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                   >
                     <User size={22} />
-                  </button>
+                  </motion.button>
                   <Button
                     variant="primary"
                     size="md"
@@ -149,11 +205,11 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                     تواصل معي
                   </Button>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* SVG Clip Path Definition - Hidden on mobile and tablet, shown on lg+ */}
       <svg width="0" height="0" className="absolute hidden lg:block">
@@ -234,19 +290,34 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
         {/* Content */}
         <div className="relative z-10 h-full flex flex-col items-center justify-center py-4 md:py-6 px-4 md:px-6">
           {/* Main Content */}
-          <div className="flex-1 flex flex-col items-center justify-center text-center space-y-3 md:space-y-4 max-w-4xl mx-auto w-full animate-in fade-in slide-in-from-bottom duration-1000">
+          <div className="flex-1 flex flex-col items-center justify-center text-center space-y-3 md:space-y-4 max-w-4xl mx-auto w-full">
             {/* Main Title */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-bold text-primary leading-[1.15] font-bristone animate-in fade-in slide-in-from-bottom duration-700 delay-200">
+            <motion.h1 
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-bold text-primary leading-[1.15] font-bristone"
+              initial="hidden"
+              animate="visible"
+              variants={heroTitle}
+            >
               {title}
-            </h1>
+            </motion.h1>
 
             {/* Subtitle */}
-            <p className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl text-accent font-medium leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-300 px-2">
+            <motion.p 
+              className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl text-accent font-medium leading-relaxed px-2"
+              initial="hidden"
+              animate="visible"
+              variants={heroSubtitle}
+            >
               {subtitle}
-            </p>
+            </motion.p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center pt-1 md:pt-2 animate-in fade-in slide-in-from-bottom duration-700 delay-500 w-full px-4">
+            <motion.div 
+              className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center pt-1 md:pt-2 w-full px-4"
+              initial="hidden"
+              animate="visible"
+              variants={heroButtons}
+            >
               <Button
                 variant="primary"
                 size="lg"
@@ -270,95 +341,129 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
               >
                 تواصل معي
               </Button>
-            </div>
+            </motion.div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-5 pt-4 md:pt-6 max-w-3xl w-full px-4 sm:px-0 animate-in fade-in slide-in-from-bottom duration-700 delay-700">
+            <motion.div 
+              className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-5 pt-4 md:pt-6 max-w-3xl w-full px-4 sm:px-0"
+              variants={heroStats}
+              initial="hidden"
+              animate="visible"
+            >
               {/* Stat Card 1 */}
-              <div className="group relative overflow-hidden rounded-xl">
+              <motion.div 
+                className="group relative overflow-hidden rounded-xl"
+                variants={heroStatItem}
+                whileHover={{ scale: 1.05, y: -5 }}
+                transition={{ duration: 0.3 }}
+              >
                 <div className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10" />
                 
-                <div className="relative text-center space-y-1 md:space-y-2 px-4 md:px-6 pt-3 md:pt-4 pb-4 md:pb-5 transform transition-transform duration-500 group-hover:scale-105">
+                <div className="relative text-center space-y-1 md:space-y-2 px-4 md:px-6 pt-3 md:pt-4 pb-4 md:pb-5">
                   <div className="flex justify-center mb-1 md:mb-2">
-                    <div className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30">
+                    <motion.div 
+                      className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30"
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.6 }}
+                    >
                       <Moon className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500 group-hover:scale-110" />
-                    </div>
+                    </motion.div>
                   </div>
                   
                   <div className="flex items-center justify-center gap-1.5 md:gap-2 pt-0.5 md:pt-1">
                     <div className="text-2xl md:text-3xl lg:text-3xl font-bold text-primary font-bristone">
-                      3000
+                      {nightsCount}
                     </div>
                     <div className="text-base md:text-lg lg:text-lg text-accent font-semibold">
                       ليلة
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Stat Card 2 */}
-              <div className="group relative overflow-hidden rounded-xl">
+              <motion.div 
+                className="group relative overflow-hidden rounded-xl"
+                variants={heroStatItem}
+                whileHover={{ scale: 1.05, y: -5 }}
+                transition={{ duration: 0.3 }}
+              >
                 <div className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10" />
                 
-                <div className="relative text-center space-y-1 md:space-y-2 px-4 md:px-6 pt-3 md:pt-4 pb-4 md:pb-5 transform transition-transform duration-500 group-hover:scale-105">
+                <div className="relative text-center space-y-1 md:space-y-2 px-4 md:px-6 pt-3 md:pt-4 pb-4 md:pb-5">
                   <div className="flex justify-center mb-1 md:mb-2">
-                    <div className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30">
+                    <motion.div 
+                      className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30"
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.6 }}
+                    >
                       <Users className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500 group-hover:scale-110" />
-                    </div>
+                    </motion.div>
                   </div>
                   
                   <div className="flex items-center justify-center gap-1.5 md:gap-2 pt-0.5 md:pt-1">
                     <div className="text-2xl md:text-3xl lg:text-3xl font-bold text-primary font-bristone">
-                      1200
+                      {clientsCount}
                     </div>
                     <div className="text-base md:text-lg lg:text-lg text-accent font-semibold">
                       عميل راضي
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Stat Card 3 */}
-              <div className="group relative overflow-hidden rounded-xl">
+              <motion.div 
+                className="group relative overflow-hidden rounded-xl"
+                variants={heroStatItem}
+                whileHover={{ scale: 1.05, y: -5 }}
+                transition={{ duration: 0.3 }}
+              >
                 <div className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10" />
                 
-                <div className="relative text-center space-y-1 md:space-y-2 px-4 md:px-6 pt-3 md:pt-4 pb-4 md:pb-5 transform transition-transform duration-500 group-hover:scale-105">
+                <div className="relative text-center space-y-1 md:space-y-2 px-4 md:px-6 pt-3 md:pt-4 pb-4 md:pb-5">
                   <div className="flex justify-center mb-1 md:mb-2">
-                    <div className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30">
+                    <motion.div 
+                      className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30"
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.6 }}
+                    >
                       <Award className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500 group-hover:scale-110" />
-                    </div>
+                    </motion.div>
                   </div>
                   
                   <div className="flex items-center justify-center gap-1.5 md:gap-2 pt-0.5 md:pt-1">
                     <div className="text-2xl md:text-3xl lg:text-3xl font-bold text-primary font-bristone">
-                      5
+                      {yearsCount}
                     </div>
                     <div className="text-base md:text-lg lg:text-lg text-accent font-semibold">
                       سنين خبرة
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </div>
       </div>
 
       {/* Scroll Indicator - Hidden on mobile and tablet, shown on lg+ screens */}
-      <button
+      <motion.button
         className="hidden lg:block absolute cursor-pointer z-1 active:scale-90 transition-transform"
         style={{ 
           bottom: '2rem', 
-          left: '50%', 
           transform: 'translateX(-50%)',
           transformOrigin: 'center center'
         }}
-        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateX(-50%) scale(1.1)'}
-        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateX(-50%) scale(1)'}
         onClick={scrollToNext}
         aria-label="انتقل إلى القسم التالي"
         type="button"
+        variants={scrollIndicator}
+        initial="hidden"
+        animate={showFloatingButton ? "visible" : "hidden"}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
       >
         <svg
           width={45}
@@ -397,29 +502,35 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             />
           </g>
         </svg>
-      </button>
+      </motion.button>
 
       {/* Floating Button - احجز استشارة مجانية */}
       {showFloatingButton && (
-        <button
+        <motion.button
           onClick={() => {
             const section = document.getElementById('cta');
             section?.scrollIntoView({ behavior: 'smooth' });
           }}
-          className="fixed bottom-12 right-8 sm:right-8 lg:right-10 xl:right-12 z-50 group bg-primary hover:bg-primary/90 text-secondary px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom"
+          className="fixed bottom-12 right-8 sm:right-8 lg:right-10 xl:right-12 z-50 group bg-primary hover:bg-primary/90 text-secondary px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2.5"
           aria-label="احجز استشارة مجانية"
           type="button"
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 100 }}
+          transition={{ duration: 0.5, delay: 1.5 }}
+          whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(237, 191, 140, 0.6)' }}
+          whileTap={{ scale: 0.95 }}
         >
           <Phone 
             size={18} 
             className="transition-transform duration-300 group-hover:scale-105" 
           />
           <span className="font-semibold text-sm">احجز استشارة مجانية</span>
-        </button>
+        </motion.button>
       )}
     </section>
   );
-};
+}
 
 // Export memoized component
 export const HeroSection = React.memo(HeroSectionComponent);

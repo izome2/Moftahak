@@ -1,11 +1,19 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 import Container from './ui/Container';
 import Badge from './ui/Badge';
 import Button from './ui/Button';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { 
+  fadeInUp, 
+  slideInLeft,
+  slideInRight,
+  staggerContainer
+} from '@/lib/animations/variants';
 
 interface Service {
   id: number;
@@ -21,6 +29,13 @@ interface Service {
 }
 
 const ServicesSection: React.FC = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null!);
+  const gridRef = useRef<HTMLDivElement>(null!);
+  
+  const isHeaderInView = useScrollAnimation(headerRef, { threshold: 0.3 });
+  const isGridInView = useScrollAnimation(gridRef, { threshold: 0.1 });
+
   const services: Service[] = [
     {
       id: 1,
@@ -125,100 +140,235 @@ const ServicesSection: React.FC = () => {
   ];
 
   return (
-    <section className="py-20 bg-white" id="services">
+    <section ref={sectionRef} className="py-20 bg-white" id="services">
       <Container>
         {/* Section Header */}
-        <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom duration-700">
-          <h2 className="text-4xl md:text-5xl font-bold text-secondary mb-4 font-bristone">
+        <motion.div 
+          ref={headerRef}
+          className="text-center mb-16"
+          initial="hidden"
+          animate={isHeaderInView ? "visible" : "hidden"}
+          variants={fadeInUp}
+        >
+          <motion.h2 
+            className="text-4xl md:text-5xl font-bold text-secondary mb-4 font-bristone"
+            variants={fadeInUp}
+          >
             الخدمات المتاحة
-          </h2>
-          <p className="text-lg text-secondary/70 max-w-2xl mx-auto">
+          </motion.h2>
+          <motion.p 
+            className="text-lg text-secondary/70 max-w-2xl mx-auto"
+            variants={fadeInUp}
+          >
             برامج شاملة لتطوير مشروعك في الإيجار القصير
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <motion.div 
+          ref={gridRef}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          variants={staggerContainer}
+          initial="hidden"
+          animate={isGridInView ? "visible" : "hidden"}
+        >
           {services.map((service, index) => (
-            <div
-              key={service.id}
-              className="group bg-[#ead3b9]/30 rounded-2xl overflow-visible shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-in fade-in slide-in-from-bottom relative border border-[#ead3b9]"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              {/* Image Container */}
-              <div className="relative h-72 overflow-hidden rounded-xl m-3">
-                <Image
-                  src={service.image}
-                  alt={service.title}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110 rounded-xl"
-                />
-                {/* Badge */}
-                {service.badge && (
-                  <div className="absolute top-4 right-4">
-                    <Badge variant={service.badgeVariant} size="md">
-                      {service.badge}
-                    </Badge>
-                  </div>
-                )}
-              </div>
-
-              {/* Students Badge - Positioned between image and content */}
-              {service.studentImages && service.studentsCount && (
-                <div className="absolute right-6 z-10" style={{ top: 'calc(18rem - 1rem)' }}>
-                  <div className="flex items-center gap-2 bg-[#ead3b9]/95 backdrop-blur-sm rounded-full px-5 py-2 shadow-xl border border-[#edbf8c]">
-                    <div className="flex items-center -space-x-2">
-                      {service.studentImages.slice(0, 4).map((img, i) => (
-                        <div
-                          key={i}
-                          className="relative w-7 h-7 rounded-full border-2 border-white overflow-hidden"
-                        >
-                          <Image
-                            src={img}
-                            alt={`Student ${i + 1}`}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                    <span className="text-sm font-bold text-secondary mr-1">
-                      {service.studentsCount} طالب
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Content */}
-              <div className="p-6 pt-10">
-                {/* Title */}
-                <h3 className="text-xl font-bold text-secondary mb-3">
-                  {service.title}
-                </h3>
-
-                {/* Description */}
-                <p className="text-secondary/70 leading-relaxed mb-6">
-                  {service.description}
-                </p>
-
-                {/* Price & Button */}
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-2xl font-bold text-secondary font-bristone">
-                    {service.price}
-                  </span>
-                  <button
-                    className="shrink-0 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-secondary bg-gradient-to-tl from-[#e5b483] to-[#edc49f] rounded-lg transition-all duration-300 hover:from-[#d9a46f] hover:to-[#e5b483] shadow-[0_0_15px_rgba(180,130,80,0.25)] hover:shadow-[0_0_20px_rgba(180,130,80,0.35)] hover:scale-105 active:scale-95 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-l before:from-transparent before:via-white/30 before:to-transparent before:translate-x-full hover:before:translate-x-[-100%] before:transition-transform before:duration-700"
-                  >
-                    <span className="relative z-10">{service.buttonText}</span>
-                    <ArrowLeft size={16} className="relative z-10" />
-                  </button>
-                </div>
-              </div>
-            </div>
+            <ServiceCard key={service.id} service={service} index={index} />
           ))}
-        </div>
+        </motion.div>
       </Container>
     </section>
+  );
+};
+
+// Service Card Component with 3D Tilt Effect
+const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, index }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  
+  const springConfig = { damping: 20, stiffness: 200, mass: 0.5 };
+  const rotateXSpring = useSpring(rotateX, springConfig);
+  const rotateYSpring = useSpring(rotateY, springConfig);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotY = ((x - centerX) / centerX) * 12;
+    const rotX = -((y - centerY) / centerY) * 12;
+    
+    rotateX.set(rotX);
+    rotateY.set(rotY);
+  };
+
+  const handleMouseLeave = () => {
+    rotateX.set(0);
+    rotateY.set(0);
+  };
+
+  const cardVariant = {
+    hidden: { 
+      opacity: 0, 
+      x: index % 2 === 0 ? -50 : 50,
+      y: 20
+    },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      y: 0,
+      transition: { 
+        duration: 0.6,
+        delay: index * 0.1,
+        ease: [0.17, 0.67, 0.83, 0.67] as const // cubic-bezier for easeOut
+      }
+    }
+  };
+
+  return (
+    <motion.div
+      ref={cardRef}
+      variants={cardVariant}
+      whileHover={{ y: -10 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX: rotateXSpring,
+        rotateY: rotateYSpring,
+        transformStyle: 'preserve-3d',
+        perspective: '1000px'
+      }}
+      transition={{ 
+        y: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
+      }}
+      className="group bg-[#ead3b9]/30 rounded-2xl overflow-visible shadow-lg hover:shadow-2xl transition-shadow duration-300 relative border border-[#ead3b9]"
+    >
+      {/* Image Container */}
+      <div className="relative h-72 overflow-hidden rounded-xl m-3" style={{ transform: 'translateZ(20px)' }}>
+        <motion.div
+          className="w-full h-full"
+          whileHover={{ scale: 1.1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Image
+            src={service.image}
+            alt={service.title}
+            fill
+            className="object-cover rounded-xl"
+          />
+        </motion.div>
+        
+        {/* Badge */}
+        {service.badge && (
+          <motion.div 
+            className="absolute top-4 right-4 z-10"
+            style={{ transform: 'translateZ(40px)' }}
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ delay: index * 0.1 + 0.3, type: 'spring' }}
+          >
+            <Badge variant={service.badgeVariant} size="md">
+              {service.badge}
+            </Badge>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Students Badge - Separate Container with Higher Z-Index */}
+      {service.studentImages && service.studentsCount && (
+        <div className="absolute right-6 z-50 pointer-events-none" style={{ top: 'calc(18rem - 1rem)', transform: 'translateZ(40px)' }}>
+          <motion.div 
+            initial={{ x: 50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: index * 0.1 + 0.4 }}
+            className="pointer-events-auto"
+          >
+          <div className="flex items-center gap-2 bg-[#ead3b9]/95 backdrop-blur-sm rounded-full px-5 py-2 shadow-xl border border-[#edbf8c]">
+            <div className="flex items-center -space-x-2">
+              {service.studentImages.slice(0, 4).map((img, i) => (
+                <motion.div
+                  key={i}
+                  className="relative w-7 h-7 rounded-full border-2 border-white overflow-hidden"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: index * 0.1 + 0.5 + i * 0.05 }}
+                >
+                  <Image
+                    src={img}
+                    alt={`Student ${i + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </motion.div>
+              ))}
+            </div>
+            <span className="text-sm font-bold text-secondary mr-1">
+              {service.studentsCount} طالب
+            </span>
+          </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Content */}
+      <div className="p-6 pt-10" style={{ transform: 'translateZ(30px)' }}>
+        {/* Title */}
+        <motion.h3 
+          className="text-xl font-bold text-secondary mb-3"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: index * 0.1 + 0.6 }}
+        >
+          {service.title}
+        </motion.h3>
+
+        {/* Description */}
+        <motion.p 
+          className="text-secondary/70 leading-relaxed mb-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: index * 0.1 + 0.7 }}
+        >
+          {service.description}
+        </motion.p>
+
+        {/* Price & Button */}
+        <motion.div 
+          className="flex items-center justify-between gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 + 0.8 }}
+          style={{ transform: 'translateZ(40px)' }}
+        >
+          <span className="text-2xl font-bold text-secondary font-bristone">
+            {service.price}
+          </span>
+          <motion.button
+            className="shrink-0 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-secondary bg-gradient-to-tl from-[#e5b483] to-[#edc49f] rounded-lg shadow-[0_0_15px_rgba(180,130,80,0.25)] relative overflow-hidden"
+            whileHover={{ 
+              scale: 1.05,
+              boxShadow: '0 0 20px rgba(180,130,80,0.35)'
+            }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <span className="relative z-10">{service.buttonText}</span>
+            <motion.div
+              animate={{ x: [0, 5, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              <ArrowLeft size={16} className="relative z-10" />
+            </motion.div>
+          </motion.button>
+        </motion.div>
+      </div>
+    </motion.div>
   );
 };
 

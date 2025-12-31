@@ -1,0 +1,549 @@
+/**
+ * Animation Variants for Framer Motion
+ * مجموعة شاملة من variants للاستخدام في جميع أنحاء الموقع
+ */
+
+import { Variants } from 'framer-motion';
+
+// ============================================
+// FADE VARIANTS - للظهور والاختفاء
+// ============================================
+
+export const fadeIn: Variants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1,
+    transition: { duration: 0.6, ease: 'easeOut' }
+  }
+};
+
+export const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 60 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.6, ease: 'easeOut' }
+  }
+};
+
+export const fadeInDown: Variants = {
+  hidden: { opacity: 0, y: -60 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.6, ease: 'easeOut' }
+  }
+};
+
+export const fadeInLeft: Variants = {
+  hidden: { opacity: 0, x: -60 },
+  visible: { 
+    opacity: 1, 
+    x: 0,
+    transition: { duration: 0.6, ease: 'easeOut' }
+  }
+};
+
+export const fadeInRight: Variants = {
+  hidden: { opacity: 0, x: 60 },
+  visible: { 
+    opacity: 1, 
+    x: 0,
+    transition: { duration: 0.6, ease: 'easeOut' }
+  }
+};
+
+export const fadeInScale: Variants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: { 
+    opacity: 1, 
+    scale: 1,
+    transition: { duration: 0.5, ease: 'easeOut' }
+  }
+};
+
+export const fadeInBlur: Variants = {
+  hidden: { opacity: 0, filter: 'blur(10px)' },
+  visible: { 
+    opacity: 1, 
+    filter: 'blur(0px)',
+    transition: { duration: 0.8, ease: 'easeOut' }
+  }
+};
+
+// ============================================
+// SCALE VARIANTS - للتكبير والتصغير
+// ============================================
+
+export const scaleUp: Variants = {
+  hidden: { scale: 0.8, opacity: 0 },
+  visible: { 
+    scale: 1, 
+    opacity: 1,
+    transition: { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] } // Spring-like
+  }
+};
+
+export const scaleBounce: Variants = {
+  hidden: { scale: 0 },
+  visible: { 
+    scale: 1,
+    transition: { 
+      type: 'spring',
+      stiffness: 260,
+      damping: 20
+    }
+  }
+};
+
+export const scalePopIn: Variants = {
+  hidden: { scale: 0, opacity: 0 },
+  visible: { 
+    scale: 1, 
+    opacity: 1,
+    transition: { 
+      type: 'spring',
+      stiffness: 400,
+      damping: 25
+    }
+  }
+};
+
+// ============================================
+// SLIDE VARIANTS - للحركة الجانبية
+// ============================================
+
+export const slideInLeft: Variants = {
+  hidden: { x: -100, opacity: 0 },
+  visible: { 
+    x: 0, 
+    opacity: 1,
+    transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }
+  }
+};
+
+export const slideInRight: Variants = {
+  hidden: { x: 100, opacity: 0 },
+  visible: { 
+    x: 0, 
+    opacity: 1,
+    transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }
+  }
+};
+
+// ============================================
+// ROTATE VARIANTS - للدوران
+// ============================================
+
+export const rotateIn: Variants = {
+  hidden: { rotate: -180, opacity: 0, scale: 0.5 },
+  visible: { 
+    rotate: 0, 
+    opacity: 1, 
+    scale: 1,
+    transition: { duration: 0.6, ease: 'easeOut' }
+  }
+};
+
+export const rotateFadeIn: Variants = {
+  hidden: { rotate: -10, opacity: 0 },
+  visible: { 
+    rotate: 0, 
+    opacity: 1,
+    transition: { duration: 0.5, ease: 'easeOut' }
+  }
+};
+
+// ============================================
+// STAGGER VARIANTS - للتتابع
+// ============================================
+
+export const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.3
+    }
+  }
+};
+
+export const staggerItem: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: 'easeOut' }
+  }
+};
+
+export const staggerFast: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.1
+    }
+  }
+};
+
+export const staggerSlow: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.4
+    }
+  }
+};
+
+// ============================================
+// CARD VARIANTS - للكروت
+// ============================================
+
+export const cardHover: Variants = {
+  rest: { 
+    scale: 1, 
+    y: 0,
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+  },
+  hover: { 
+    scale: 1.03, 
+    y: -8,
+    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+    transition: { duration: 0.3, ease: 'easeOut' }
+  }
+};
+
+export const cardTilt: Variants = {
+  rest: { rotateX: 0, rotateY: 0 },
+  hover: {
+    transition: { duration: 0.2, ease: 'easeOut' }
+  }
+};
+
+// ============================================
+// BUTTON VARIANTS - للأزرار
+// ============================================
+
+export const buttonHover: Variants = {
+  rest: { 
+    scale: 1,
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+  },
+  hover: { 
+    scale: 1.05,
+    boxShadow: '0 10px 15px -3px rgba(237, 191, 140, 0.4)',
+    transition: { duration: 0.2, ease: 'easeOut' }
+  },
+  tap: { 
+    scale: 0.95,
+    transition: { duration: 0.1 }
+  }
+};
+
+export const buttonGlow: Variants = {
+  rest: { 
+    boxShadow: '0 0 0 0 rgba(237, 191, 140, 0)'
+  },
+  hover: { 
+    boxShadow: '0 0 20px 5px rgba(237, 191, 140, 0.5)',
+    transition: { duration: 0.3 }
+  }
+};
+
+export const buttonMagnetic = {
+  x: 0,
+  y: 0,
+  transition: { 
+    type: 'spring',
+    stiffness: 150,
+    damping: 15,
+    mass: 0.1
+  }
+};
+
+// ============================================
+// HERO VARIANTS - لقسم Hero
+// ============================================
+
+export const heroTitle: Variants = {
+  hidden: { opacity: 0, y: 50, scale: 0.9 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1,
+    transition: { 
+      duration: 0.8, 
+      ease: [0.6, 0.05, 0.01, 0.9],
+      delay: 0.2
+    }
+  }
+};
+
+export const heroSubtitle: Variants = {
+  hidden: { opacity: 0, y: 30, filter: 'blur(10px)' },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    filter: 'blur(0px)',
+    transition: { 
+      duration: 0.8, 
+      ease: 'easeOut',
+      delay: 0.5
+    }
+  }
+};
+
+export const heroButtons: Variants = {
+  hidden: { opacity: 0, y: 20, scale: 0.8 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    scale: 1,
+    transition: { 
+      duration: 0.6, 
+      ease: [0.34, 1.56, 0.64, 1],
+      delay: 0.8
+    }
+  }
+};
+
+export const heroStats: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 1
+    }
+  }
+};
+
+export const heroStatItem: Variants = {
+  hidden: { opacity: 0, y: 30, scale: 0.8 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { 
+      duration: 0.5, 
+      ease: 'easeOut'
+    }
+  }
+};
+
+// ============================================
+// SCROLL INDICATOR VARIANTS
+// ============================================
+
+export const scrollIndicator: Variants = {
+  visible: {
+    y: [0, 10, 0],
+    opacity: [1, 0.7, 1],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      ease: 'easeInOut'
+    }
+  },
+  hidden: {
+    opacity: 0,
+    y: -20,
+    transition: { duration: 0.3 }
+  }
+};
+
+// ============================================
+// TEXT SPLIT VARIANTS - لتقسيم النص
+// ============================================
+
+export const textContainer: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.1
+    }
+  }
+};
+
+export const textWord: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: 'easeOut' }
+  }
+};
+
+export const textCharacter: Variants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.3, ease: 'easeOut' }
+  }
+};
+
+// ============================================
+// NAVBAR VARIANTS
+// ============================================
+
+export const navbarSlideDown: Variants = {
+  hidden: { y: -100, opacity: 0 },
+  visible: { 
+    y: 0, 
+    opacity: 1,
+    transition: { 
+      type: 'spring',
+      stiffness: 100,
+      damping: 20,
+      delay: 0.1
+    }
+  }
+};
+
+export const navItem: Variants = {
+  hidden: { opacity: 0, y: -10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.3, ease: 'easeOut' }
+  }
+};
+
+// ============================================
+// IMAGE REVEAL VARIANTS
+// ============================================
+
+export const imageReveal: Variants = {
+  hidden: { 
+    scale: 1.2, 
+    opacity: 0,
+    filter: 'blur(20px)'
+  },
+  visible: { 
+    scale: 1, 
+    opacity: 1,
+    filter: 'blur(0px)',
+    transition: { 
+      duration: 1, 
+      ease: [0.6, 0.05, 0.01, 0.9]
+    }
+  }
+};
+
+export const imageClipPath: Variants = {
+  hidden: { 
+    clipPath: 'inset(0 100% 0 0)'
+  },
+  visible: { 
+    clipPath: 'inset(0 0% 0 0)',
+    transition: { 
+      duration: 1, 
+      ease: [0.6, 0.05, 0.01, 0.9]
+    }
+  }
+};
+
+// ============================================
+// COUNTER VARIANTS - للأرقام
+// ============================================
+
+export const counterVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.5 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.5, ease: 'easeOut' }
+  }
+};
+
+// ============================================
+// PAGE TRANSITION VARIANTS
+// ============================================
+
+export const pageTransition: Variants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.4, ease: 'easeOut' }
+  },
+  exit: { 
+    opacity: 0, 
+    y: -20,
+    transition: { duration: 0.3 }
+  }
+};
+
+// ============================================
+// FLOATING ANIMATION - للعناصر الطافية
+// ============================================
+
+export const floating: Variants = {
+  animate: {
+    y: [-10, 10, -10],
+    transition: {
+      duration: 3,
+      repeat: Infinity,
+      ease: 'easeInOut'
+    }
+  }
+};
+
+export const floatingRotate: Variants = {
+  animate: {
+    y: [-10, 10, -10],
+    rotate: [-2, 2, -2],
+    transition: {
+      duration: 4,
+      repeat: Infinity,
+      ease: 'easeInOut'
+    }
+  }
+};
+
+// ============================================
+// MODAL/OVERLAY VARIANTS
+// ============================================
+
+export const modalOverlay: Variants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1,
+    transition: { duration: 0.3 }
+  },
+  exit: { 
+    opacity: 0,
+    transition: { duration: 0.2 }
+  }
+};
+
+export const modalContent: Variants = {
+  hidden: { 
+    opacity: 0, 
+    scale: 0.95,
+    y: 20
+  },
+  visible: { 
+    opacity: 1, 
+    scale: 1,
+    y: 0,
+    transition: { 
+      duration: 0.3,
+      ease: 'easeOut'
+    }
+  },
+  exit: { 
+    opacity: 0,
+    scale: 0.95,
+    y: 20,
+    transition: { duration: 0.2 }
+  }
+};
