@@ -141,6 +141,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
+      <head>
+        <link rel="preload" as="image" href="/images/hero/hero-bg.jpg" />
+        <link rel="preload" as="image" href="/images/hero/slide-1.jpg" />
+        <link rel="preload" as="image" href="/images/hero/slide-2.jpg" />
+        <link rel="preload" as="image" href="/images/hero/slide-3.jpg" />
+      </head>
       <body
         className={`${dubai.variable} ${bristone.variable} antialiased font-dubai`}
       >

@@ -262,54 +262,56 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
         >
         {/* Slideshow Background Images with Ken Burns Effect */}
         <div className="absolute inset-0 rounded-2xl lg:rounded-none overflow-hidden opacity-30">
-          <div 
-            className="absolute inset-0 w-full h-full animate-slideshow-1"
-            style={{
-              backgroundImage: `url('/images/hero/hero-bg.jpg')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-            }}
+          <Image 
+            src="/images/hero/hero-bg.jpg"
+            alt=""
+            fill
+            className="absolute inset-0 w-full h-full object-cover animate-slideshow-1"
+            priority
+            quality={85}
+            sizes="100vw"
           />
-          <div 
-            className="absolute inset-0 w-full h-full animate-slideshow-2"
-            style={{
-              backgroundImage: `url('/images/hero/slide-1.jpg')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-            }}
+          <Image 
+            src="/images/hero/slide-1.jpg"
+            alt=""
+            fill
+            className="absolute inset-0 w-full h-full object-cover animate-slideshow-2"
+            priority
+            quality={85}
+            sizes="100vw"
           />
-          <div 
-            className="absolute inset-0 w-full h-full animate-slideshow-3"
-            style={{
-              backgroundImage: `url('/images/hero/slide-2.jpg')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-            }}
+          <Image 
+            src="/images/hero/slide-2.jpg"
+            alt=""
+            fill
+            className="absolute inset-0 w-full h-full object-cover animate-slideshow-3"
+            priority
+            quality={85}
+            sizes="100vw"
           />
-          <div 
-            className="absolute inset-0 w-full h-full animate-slideshow-4"
-            style={{
-              backgroundImage: `url('/images/hero/slide-3.jpg')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-            }}
+          <Image 
+            src="/images/hero/slide-3.jpg"
+            alt=""
+            fill
+            className="absolute inset-0 w-full h-full object-cover animate-slideshow-4"
+            priority
+            quality={85}
+            sizes="100vw"
           />
         </div>
         
         {/* Pattern Overlay */}
-        <div 
-          className="absolute inset-0 opacity-20 rounded-2xl lg:rounded-none overflow-hidden z-[1]"
-          style={{
-            backgroundImage: 'url(/patterns/pattern_hero.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-          }}
-        />
+        <div className="absolute inset-0 opacity-20 rounded-2xl lg:rounded-none overflow-hidden z-[1]">
+          <Image 
+            src="/patterns/pattern_hero.png"
+            alt=""
+            fill
+            className="object-cover"
+            quality={70}
+            priority={false}
+            sizes="100vw"
+          />
+        </div>
 
         {/* Content */}
         <div className="relative z-10 h-full flex flex-col items-center justify-center py-4 md:py-6 px-4 md:px-6">
