@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Building2, Users, Award, Phone, Moon, Menu, X, User, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Button from './ui/Button';
 import Container from './ui/Container';
 import { 
@@ -18,6 +18,14 @@ import {
   staggerContainer
 } from '@/lib/animations/variants';
 import { useCounter } from '@/hooks/useCounter';
+
+const sentences = [
+  'طوّر مشروعك العقاري مع عبد الله الخضر.',
+  'حوّل وحدتك إلى استثمار فندقي ناجح مع عبد الله الخضر.',
+  'ارتقِ بالإيجارات قصيرة الأجل بخبرة عبد الله الخضر.',
+  'استثمر بذكاء في الشقق الفندقية مع عبد الله الخضر.',
+  'ابْنِ نموذجًا عقاريًا مربحًا مع عبد الله الخضر.',
+];
 
 interface HeroSectionProps {
   title?: string;
@@ -41,6 +49,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   const [showFloatingButton, setShowFloatingButton] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
   
   // Animated counters
@@ -51,7 +60,20 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   useEffect(() => {
     // Trigger animations on mount
     setIsVisible(true);
+  }, []);
+
+  useEffect(() => {
+    // Rotate sentences every 4 seconds
+    const sentenceInterval = setInterval(() => {
+      setCurrentSentenceIndex((prev) => (prev + 1) % sentences.length);
+    }, 4000);
     
+    return () => {
+      clearInterval(sentenceInterval);
+    };
+  }, []);
+
+  useEffect(() => {
     const handleScroll = () => {
       const scrollPercentage = (window.scrollY / document.documentElement.scrollHeight) * 100;
       setShowFloatingButton(scrollPercentage < 1);
@@ -63,7 +85,9 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, [isMobileMenuOpen]);
 
   const scrollToNext = () => {
@@ -294,70 +318,114 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             {/* Main Title */}
             <motion.h1 
               className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-bold text-primary leading-[1.15] font-bristone"
-              initial="hidden"
-              animate="visible"
-              variants={heroTitle}
+              initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.8, delay: 0.2 }}
             >
               {title}
             </motion.h1>
 
-            {/* Subtitle */}
-            <motion.p 
-              className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl text-accent font-medium leading-relaxed px-2"
-              initial="hidden"
-              animate="visible"
-              variants={heroSubtitle}
+            {/* Animated Subtitle with Word-by-Word Fade */}
+            <motion.div 
+              className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl text-accent font-medium leading-relaxed px-2 min-h-[4rem] sm:min-h-[3rem] md:min-h-[3.5rem] flex items-center justify-center"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
             >
-              {subtitle}
-            </motion.p>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentSentenceIndex}
+                  className="flex flex-wrap gap-x-2 gap-y-1 justify-center items-center"
+                  initial={{ opacity: 0, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, filter: "blur(10px)" }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {sentences[currentSentenceIndex].split(' ').map((word, index) => (
+                    <motion.span
+                      key={`${currentSentenceIndex}-${index}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        duration: 0.4,
+                        delay: index * 0.08,
+                      }}
+                    >
+                      {word}
+                    </motion.span>
+                  ))}
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
 
             {/* CTA Buttons */}
             <motion.div 
               className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center pt-1 md:pt-2 w-full px-4"
-              initial="hidden"
-              animate="visible"
-              variants={heroButtons}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
             >
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => {
-                  const section = document.getElementById('services');
-                  section?.scrollIntoView({ behavior: 'smooth' });
-                }}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.9 }}
                 className="w-full sm:w-auto"
               >
-                اكتشف الخدمات
-              </Button>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={() => {
+                    const section = document.getElementById('services');
+                    section?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="w-full sm:w-auto"
+                >
+                  اكتشف الخدمات
+                </Button>
+              </motion.div>
 
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => {
-                  const section = document.getElementById('contact');
-                  section?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="w-full sm:w-auto backdrop-blur-md bg-white/10"
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 1.0 }}
+                className="w-full sm:w-auto"
               >
-                تواصل معي
-              </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => {
+                    const section = document.getElementById('contact');
+                    section?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="w-full sm:w-auto backdrop-blur-md bg-white/10"
+                >
+                  تواصل معي
+                </Button>
+              </motion.div>
             </motion.div>
 
             {/* Stats */}
             <motion.div 
               className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-5 pt-4 md:pt-6 max-w-3xl w-full px-4 sm:px-0"
-              variants={heroStats}
-              initial="hidden"
-              animate="visible"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 1.1 }}
             >
               {/* Stat Card 1 */}
               <motion.div 
                 className="group relative overflow-hidden rounded-xl"
-                variants={heroStatItem}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.2 }}
                 whileHover={{ scale: 1.05, y: -5 }}
-                transition={{ duration: 0.3 }}
               >
-                <div className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10" />
+                <motion.div 
+                  className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10"
+                  initial={{ opacity: 0, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, filter: "blur(0px)" }}
+                  transition={{ duration: 0.6, delay: 1.2 }}
+                />
                 
                 <div className="relative text-center space-y-1 md:space-y-2 px-4 md:px-6 pt-3 md:pt-4 pb-4 md:pb-5">
                   <div className="flex justify-center mb-1 md:mb-2">
@@ -384,11 +452,17 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
               {/* Stat Card 2 */}
               <motion.div 
                 className="group relative overflow-hidden rounded-xl"
-                variants={heroStatItem}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.4 }}
                 whileHover={{ scale: 1.05, y: -5 }}
-                transition={{ duration: 0.3 }}
               >
-                <div className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10" />
+                <motion.div 
+                  className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10"
+                  initial={{ opacity: 0, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, filter: "blur(0px)" }}
+                  transition={{ duration: 0.6, delay: 1.4 }}
+                />
                 
                 <div className="relative text-center space-y-1 md:space-y-2 px-4 md:px-6 pt-3 md:pt-4 pb-4 md:pb-5">
                   <div className="flex justify-center mb-1 md:mb-2">
@@ -415,11 +489,17 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
               {/* Stat Card 3 */}
               <motion.div 
                 className="group relative overflow-hidden rounded-xl"
-                variants={heroStatItem}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.6 }}
                 whileHover={{ scale: 1.05, y: -5 }}
-                transition={{ duration: 0.3 }}
               >
-                <div className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10" />
+                <motion.div 
+                  className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10"
+                  initial={{ opacity: 0, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, filter: "blur(0px)" }}
+                  transition={{ duration: 0.6, delay: 1.6 }}
+                />
                 
                 <div className="relative text-center space-y-1 md:space-y-2 px-4 md:px-6 pt-3 md:pt-4 pb-4 md:pb-5">
                   <div className="flex justify-center mb-1 md:mb-2">

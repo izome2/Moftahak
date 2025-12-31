@@ -42,6 +42,23 @@ html {
   -webkit-overflow-scrolling: touch;
 }
 
+/* إخفاء شريط التمرير الافتراضي على اللابتوب والأيباد */
+@media (min-width: 768px) {
+  /* Firefox */
+  html {
+    scrollbar-width: none;
+  }
+  
+  /* Chrome, Safari, Edge */
+  html::-webkit-scrollbar {
+    display: none;
+  }
+  
+  body::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 .font-en {
   font-family: var(--font-bristone), sans-serif;
 }
@@ -122,6 +139,15 @@ html {
 
 /* Custom Animations */
 @keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
   from {
     opacity: 0;
   }
