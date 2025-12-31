@@ -106,9 +106,15 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: '/logos/logo-white-icon.png',
-    shortcut: '/logos/logo-white-icon.png',
-    apple: '/logos/logo-white-icon.png',
+    icon: [
+      { url: '/logos/logo-white-icon.png', sizes: 'any' },
+      { url: '/logos/logo-white-icon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/logos/logo-white-icon.png', sizes: '192x192', type: 'image/png' },
+      { url: '/logos/logo-white-icon.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/logos/logo-white-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
   manifest: '/manifest.json',
   verification: {
@@ -135,21 +141,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
-      <head>
-        {/* Preload critical hero images for faster loading */}
-        <link
-          rel="preload"
-          as="image"
-          href="/images/hero/hero-bg.jpg"
-          type="image/jpeg"
-        />
-        <link
-          rel="preload"
-          as="image"
-          href="/logos/logo-white-icon.png"
-          type="image/png"
-        />
-      </head>
       <body
         className={`${dubai.variable} ${bristone.variable} antialiased font-dubai`}
       >
