@@ -1,51 +1,50 @@
 import { MetadataRoute } from 'next';
 
-/**
- * Sitemap Generator
- * Automatically generates sitemap.xml for better SEO
- * Includes all main sections and dynamic content
- */
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://moftahak.com';
-  const currentDate = new Date();
-  const lastModified = currentDate.toISOString();
-
+  
   return [
     {
       url: baseUrl,
-      lastModified: lastModified,
+      lastModified: new Date(),
       changeFrequency: 'daily',
-      priority: 1.0,
+      priority: 1,
     },
     {
-      url: `${baseUrl}/#home`,
-      lastModified: lastModified,
-      changeFrequency: 'daily',
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/#properties`,
-      lastModified: lastModified,
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/#courses`,
-      lastModified: lastModified,
+      url: `${baseUrl}/#about`,
+      lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/#gallery`,
-      lastModified: currentDate,
+      url: `${baseUrl}/#services`,
+      lastModified: new Date(),
       changeFrequency: 'weekly',
-      priority: 0.7,
+      priority: 0.8,
     },
     {
-      url: `${baseUrl}/#contact`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.6,
+      url: `${baseUrl}/#features`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/#premium`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/#content`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/#testimonials`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
     },
   ];
 }
