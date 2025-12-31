@@ -366,10 +366,10 @@ const CTASection: React.FC = () => {
                     <li className="flex items-start gap-2">
                       <Mail size={18} className="text-primary shrink-0 mt-1" />
                       <a 
-                        href="mailto:info@abdallahalkhedr.com"
+                        href="mailto:abdullah.she7ata@gmail.com"
                         className="text-white/70 hover:text-primary transition-colors duration-300 text-sm"
                       >
-                        info@abdallahalkhedr.com
+                        abdullah.she7ata@gmail.com
                       </a>
                     </li>
                     <li className="flex items-start gap-2">

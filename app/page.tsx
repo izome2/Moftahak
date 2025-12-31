@@ -16,22 +16,32 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Preload the first hero image
-    const img = new window.Image();
-    img.src = '/images/hero/hero-bg.jpg';
+    // Preload all critical hero images
+    const images = [
+      '/images/hero/hero-bg.jpg',
+      '/images/hero/slide-1.jpg'
+    ];
     
-    // Set loading to false when image loads or after max 3 seconds
-    const timer = setTimeout(() => setIsLoading(false), 3000);
+    let loadedCount = 0;
+    const totalImages = images.length;
     
-    img.onload = () => {
-      setIsLoading(false);
-      clearTimeout(timer);
+    const checkAllLoaded = () => {
+      loadedCount++;
+      if (loadedCount === totalImages) {
+        // Add small delay to ensure smooth transition
+        setTimeout(() => setIsLoading(false), 300);
+      }
     };
     
-    img.onerror = () => {
-      setIsLoading(false);
-      clearTimeout(timer);
-    };
+    // Timeout fallback - max 5 seconds
+    const timer = setTimeout(() => setIsLoading(false), 5000);
+    
+    images.forEach(src => {
+      const img = new window.Image();
+      img.src = src;
+      img.onload = checkAllLoaded;
+      img.onerror = checkAllLoaded;
+    });
 
     return () => clearTimeout(timer);
   }, []);
