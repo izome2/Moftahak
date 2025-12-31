@@ -50,6 +50,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
+  const [firstImageLoaded, setFirstImageLoaded] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   
   // Animated counters
@@ -61,6 +62,13 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
     // Trigger animations on mount
     setIsVisible(true);
   }, []);
+
+  useEffect(() => {
+    // Notify parent that first image has loaded
+    if (firstImageLoaded) {
+      window.dispatchEvent(new Event('heroImageLoaded'));
+    }
+  }, [firstImageLoaded]);
 
   useEffect(() => {
     // Rotate sentences every 4 seconds
@@ -270,6 +278,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             priority
             quality={85}
             sizes="100vw"
+            onLoad={() => setFirstImageLoaded(true)}
           />
           <Image 
             src="/images/hero/slide-1.jpg"
