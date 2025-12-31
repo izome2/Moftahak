@@ -29,10 +29,17 @@ body {
   color: var(--foreground);
   font-family: var(--font-dubai), Arial, sans-serif;
   overflow-x: hidden;
+  /* تحسينات الأداء */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html {
   overflow-x: hidden;
+  /* تحسين السكرول */
+  scroll-behavior: smooth;
+  /* تحسين الأداء */
+  -webkit-overflow-scrolling: touch;
 }
 
 .font-en {
@@ -46,6 +53,22 @@ html {
 /* Smooth Scrolling */
 html {
   scroll-behavior: smooth;
+}
+
+/* تحسين الأداء للعناصر المتحركة */
+* {
+  will-change: auto;
+}
+
+/* تحسين الأداء للعناصر التي تستخدم transform و opacity */
+[class*="motion-"] {
+  will-change: transform, opacity;
+}
+
+/* إزالة will-change بعد انتهاء الأنيميشن */
+.motion-safe\:animate-none {
+  animation: none !important;
+  will-change: auto !important;
 }
 
 /* Custom shadow colors with beige tone */

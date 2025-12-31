@@ -34,8 +34,8 @@ const ServicesSection: React.FC = () => {
   const headerRef = useRef<HTMLDivElement>(null!);
   const gridRef = useRef<HTMLDivElement>(null!);
   
-  const isHeaderInView = useScrollAnimation(headerRef, { threshold: 0.3 });
-  const isGridInView = useScrollAnimation(gridRef, { threshold: 0.1 });
+  const isHeaderInView = useScrollAnimation(headerRef, { threshold: 0.3, once: false });
+  const isGridInView = useScrollAnimation(gridRef, { threshold: 0.1, once: false });
 
   const services: Service[] = [
     {
@@ -247,18 +247,16 @@ const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, i
 
   const cardVariant = {
     hidden: { 
-      opacity: 0, 
-      x: index % 2 === 0 ? -50 : 50,
-      y: 20
+      opacity: 0,
+      y: 40
     },
     visible: { 
-      opacity: 1, 
-      x: 0,
+      opacity: 1,
       y: 0,
       transition: { 
-        duration: 0.6,
-        delay: index * 0.1,
-        ease: [0.17, 0.67, 0.83, 0.67] as const // cubic-bezier for easeOut
+        duration: 0.7,
+        delay: index * 0.15,
+        ease: [0.4, 0, 0.2, 1] as [number, number, number, number]
       }
     }
   };

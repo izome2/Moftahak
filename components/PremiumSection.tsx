@@ -286,7 +286,7 @@ interface Package {
 
 const PremiumSection: React.FC = () => {
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+  const isInView = useInView(sectionRef, { once: false, amount: 0.3 });
   
   // Mouse tracking for magnetic effect - separate for each card
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);

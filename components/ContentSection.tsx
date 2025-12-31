@@ -7,9 +7,10 @@ import Container from './ui/Container';
 interface Video {
   id: number;
   src: string;
+  platform: 'instagram' | 'tiktok';
 }
 
-const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
+const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActive }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -18,6 +19,14 @@ const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
   const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
+
+  // Pause video when not active
+  React.useEffect(() => {
+    if (!isActive && videoRef.current && isPlaying) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  }, [isActive, isPlaying]);
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -216,20 +225,177 @@ const VideoPlayer: React.FC<{ src: string }> = ({ src }) => {
 };
 
 const ContentSection: React.FC = () => {
-  const instagramVideos: Video[] = [
-    { id: 1, src: '/videos/instagram-1.mp4' },
-    { id: 2, src: '/videos/instagram-2.mp4' },
-    { id: 3, src: '/videos/instagram-3.mp4' },
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [dragStartX, setDragStartX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const allVideos: Video[] = [
+    { id: 1, src: '/videos/instagram-1.mp4', platform: 'instagram' },
+    { id: 2, src: '/videos/instagram-2.mp4', platform: 'instagram' },
+    { id: 3, src: '/videos/instagram-3.mp4', platform: 'instagram' },
+    { id: 4, src: '/videos/tiktok-1.mp4', platform: 'tiktok' },
+    { id: 5, src: '/videos/tiktok-2.mp4', platform: 'tiktok' },
+    { id: 6, src: '/videos/tiktok-3.mp4', platform: 'tiktok' },
   ];
 
-  const tiktokVideos: Video[] = [
-    { id: 4, src: '/videos/tiktok-1.mp4' },
-    { id: 5, src: '/videos/tiktok-2.mp4' },
-    { id: 6, src: '/videos/tiktok-3.mp4' },
-  ];
+  const handlePrev = () => {
+    setCurrentIndex((prev) => prev - 1);
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => prev + 1);
+  };
+
+  const handleVideoClick = (videoIndex: number) => {
+    const position = videoIndex - (((currentIndex % allVideos.length) + allVideos.length) % allVideos.length);
+    if (position !== 0) {
+      setCurrentIndex((prev) => prev + position);
+    }
+  };
+
+  const handleDragStart = (clientX: number) => {
+    setIsDragging(true);
+    setDragStartX(clientX);
+  };
+
+  const handleDragEnd = (clientX: number) => {
+    if (!isDragging) return;
+    
+    const diff = dragStartX - clientX;
+    const threshold = 80;
+
+    if (diff > threshold) {
+      handleNext();
+    } else if (diff < -threshold) {
+      handlePrev();
+    }
+
+    setIsDragging(false);
+    setDragStartX(0);
+  };
+
+  const getPositionStyles = (index: number, isMobile: boolean = false) => {
+    const normalizedCurrent = ((currentIndex % allVideos.length) + allVideos.length) % allVideos.length;
+    let position = index - normalizedCurrent;
+    
+    // Adjust position for circular wrapping
+    if (position > allVideos.length / 2) {
+      position -= allVideos.length;
+    } else if (position < -allVideos.length / 2) {
+      position += allVideos.length;
+    }
+    
+    const spacing = isMobile ? 180 : 240;
+    let translateX = position * spacing;
+    let scale = 1;
+    let opacity = 1;
+    let zIndex = 10;
+    let blur = 0;
+
+    if (position === 0) {
+      scale = isMobile ? 1 : 1.1;
+      opacity = 1;
+      zIndex = 15;
+      blur = 0;
+    } else if (Math.abs(position) === 1) {
+      scale = isMobile ? 0.85 : 1.05;
+      opacity = 0.75;
+      zIndex = 14;
+      blur = 2;
+    } else if (Math.abs(position) === 2) {
+      scale = isMobile ? 0.7 : 1;
+      opacity = 0.5;
+      zIndex = 13;
+      blur = 6;
+    } else {
+      scale = 0.9;
+      opacity = 0;
+      zIndex = 10;
+      blur = 8;
+    }
+
+    return {
+      transform: `translateX(calc(-50% + ${translateX}px)) scale(${scale})`,
+      opacity,
+      zIndex,
+      filter: `blur(${blur}px)`,
+      pointerEvents: Math.abs(position) <= 2 ? 'auto' : 'none',
+    };
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    handleDragStart(e.clientX);
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    handleDragEnd(e.clientX);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    handleDragStart(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (e.changedTouches.length > 0) {
+      handleDragEnd(e.changedTouches[0].clientX);
+    }
+  };
+
+  // Get 5 visible videos: 2 left, center, 2 right
+  const getVisibleVideos = () => {
+    const positions = [-2, -1, 0, 1, 2];
+    return positions.map((offset) => {
+      const index = (currentIndex + offset + allVideos.length) % allVideos.length;
+      return {
+        ...allVideos[index],
+        offset,
+      };
+    });
+  };
+
+  const getVideoStyles = (offset: number) => {
+    switch (offset) {
+      case 0: // المنتصف - الأكبر
+        return {
+          transform: `translateX(-50%) scale(1.1)`,
+          opacity: 1,
+          zIndex: 5,
+        };
+      case -1: // يسار قريب
+        return {
+          transform: `translateX(calc(-50% - 240px)) scale(1.05)`,
+          opacity: 0.75,
+          zIndex: 4,
+        };
+      case 1: // يمين قريب
+        return {
+          transform: `translateX(calc(-50% + 240px)) scale(1.05)`,
+          opacity: 0.75,
+          zIndex: 4,
+        };
+      case -2: // يسار بعيد
+        return {
+          transform: `translateX(calc(-50% - 450px)) scale(1)`,
+          opacity: 0.5,
+          zIndex: 3,
+        };
+      case 2: // يمين بعيد
+        return {
+          transform: `translateX(calc(-50% + 450px)) scale(1)`,
+          opacity: 0.5,
+          zIndex: 3,
+        };
+      default:
+        return {
+          transform: `translateX(-50%) scale(0.5)`,
+          opacity: 0,
+          zIndex: 0,
+        };
+    }
+  };
 
   return (
-    <section className="py-20 bg-white" id="content">
+    <section className="py-20 bg-white overflow-hidden" id="content">
       <Container>
         {/* Section Header */}
         <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom duration-700">
@@ -241,63 +407,132 @@ const ContentSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Instagram Section */}
-        <div className="mb-16">
-          {/* Instagram Header */}
+        {/* Social Media Links */}
+        <div className="flex items-center justify-center gap-8 mb-12">
           <a 
             href="https://www.instagram.com/abdullahelkheddr/" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-3 mb-8 cursor-pointer group/header transition-transform duration-300 hover:scale-105"
+            className="flex items-center gap-3 cursor-pointer group/header transition-transform duration-300 hover:scale-105"
           >
-            <h3 className="text-3xl font-bold text-secondary font-bristone transition-colors duration-300 group-hover/header:text-pink-600">Instagram</h3>
-            <div className="w-12 h-12 rounded-xl bg-linear-to-br from-purple-600 via-pink-600 to-orange-500 flex items-center justify-center shadow-lg">
-              <Instagram size={28} className="text-white" />
+            <h3 className="text-2xl font-bold text-secondary font-bristone transition-colors duration-300 group-hover/header:text-pink-600">Instagram</h3>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 flex items-center justify-center shadow-lg">
+              <Instagram size={22} className="text-white" />
             </div>
           </a>
 
-          {/* Instagram Videos Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {instagramVideos.map((video, index) => (
-              <div
-                key={video.id}
-                className="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl bg-[#ead3b9]/20 border-2 border-[#ead3b9] group hover:-translate-y-2 transition-all duration-500 animate-in fade-in slide-in-from-bottom"
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                <VideoPlayer src={video.src} />
-              </div>
-            ))}
-          </div>
-        </div>
+          <div className="w-px h-8 bg-secondary/20" />
 
-        {/* TikTok Section */}
-        <div>
-          {/* TikTok Header */}
           <a 
             href="https://www.tiktok.com/@abdullahelkhedr" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-3 mb-8 cursor-pointer group/header transition-transform duration-300 hover:scale-105"
+            className="flex items-center gap-3 cursor-pointer group/header transition-transform duration-300 hover:scale-105"
           >
-            <h3 className="text-3xl font-bold text-black font-bristone transition-colors duration-300 group-hover/header:text-black">TikTok</h3>
-            <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center shadow-lg">
-              <svg viewBox="0 0 24 24" fill="white" className="w-7 h-7">
+            <h3 className="text-2xl font-bold text-black font-bristone">TikTok</h3>
+            <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center shadow-lg">
+              <svg viewBox="0 0 24 24" fill="white" className="w-6 h-6">
                 <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
               </svg>
             </div>
           </a>
+        </div>
 
-          {/* TikTok Videos Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {tiktokVideos.map((video, index) => (
-              <div
-                key={video.id}
-                className="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl bg-[#ead3b9]/20 border-2 border-[#ead3b9] group hover:-translate-y-2 transition-all duration-500 animate-in fade-in slide-in-from-bottom"
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                <VideoPlayer src={video.src} />
-              </div>
-            ))}
+        {/* Carousel Container */}
+        <div className="relative py-12">
+          {/* Videos Container */}
+          <div className="relative h-[600px] flex items-center justify-center">
+            <div 
+              className="relative w-full h-full cursor-grab active:cursor-grabbing"
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              {allVideos.map((video, index) => {
+                const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+                const styles = getPositionStyles(index, isMobile) as React.CSSProperties;
+                const normalizedCurrent = ((currentIndex % allVideos.length) + allVideos.length) % allVideos.length;
+                const isCenter = index === normalizedCurrent;
+                
+                return (
+                  <div
+                    key={video.id}
+                    className="absolute left-1/2 top-1/2 -translate-y-1/2 w-[330px] md:w-[320px] transition-all duration-700 ease-out"
+                    style={styles}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleVideoClick(index);
+                    }}
+                  >
+                    <div className={`relative rounded-2xl overflow-hidden bg-[#ead3b9]/20 border-2 border-[#ead3b9] transition-shadow duration-300 ${
+                      isCenter 
+                        ? 'shadow-[0_10px_40px_rgba(234,211,185,0.8),0_0_60px_rgba(237,191,140,0.4)]' 
+                        : 'shadow-2xl hover:shadow-[0_0_40px_rgba(234,211,185,0.6)] cursor-pointer'
+                    }`}>
+                      <div className={!isCenter ? 'pointer-events-none' : ''}>
+                        <VideoPlayer src={video.src} isActive={isCenter} />
+                      </div>
+                    
+                    {/* Platform Badge */}
+                    <div className="absolute top-4 left-4 z-10">
+                      {video.platform === 'instagram' ? (
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 flex items-center justify-center shadow-lg">
+                          <Instagram size={18} className="text-white" />
+                        </div>
+                      ) : (
+                        <div className="w-8 h-8 rounded-lg bg-black flex items-center justify-center shadow-lg">
+                          <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5">
+                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            </div>
+          </div>
+
+          {/* Navigation Buttons */}
+          <button
+            onClick={handlePrev}
+            className="absolute right-1 md:right-4 top-1/2 md:top-[48%] -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full bg-[#ead3b9] hover:bg-[#edbf8c] text-secondary flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-105 z-30 group"
+            aria-label="السابق"
+          >
+            <svg className="w-5 h-5 md:w-7 md:h-7 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <button
+            onClick={handleNext}
+            className="absolute left-1 md:left-4 top-1/2 md:top-[48%] -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full bg-[#ead3b9] hover:bg-[#edbf8c] text-secondary flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-105 z-30 group"
+            aria-label="التالي"
+          >
+            <svg className="w-5 h-5 md:w-7 md:h-7 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          {/* Indicators */}
+          <div className="flex justify-center gap-2 mt-8">
+            {allVideos.map((_, index) => {
+              const normalizedIndex = ((currentIndex % allVideos.length) + allVideos.length) % allVideos.length;
+              return (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    index === normalizedIndex
+                      ? 'w-8 bg-[#edbf8c]'
+                      : 'w-2 bg-[#ead3b9] hover:bg-[#edbf8c]/60'
+                  }`}
+                  aria-label={`اذهب إلى الفيديو ${index + 1}`}
+                />
+              );
+            })}
           </div>
         </div>
       </Container>

@@ -23,8 +23,8 @@ const AboutSection: React.FC = () => {
   const contentRef = useRef<HTMLDivElement | null>(null);
   const imageRef = useRef<HTMLDivElement | null>(null);
   
-  const isContentInView = useScrollAnimation(contentRef as React.RefObject<Element>, { threshold: 0.2 });
-  const isImageInView = useScrollAnimation(imageRef as React.RefObject<Element>, { threshold: 0.3 });
+  const isContentInView = useScrollAnimation(contentRef as React.RefObject<Element>, { threshold: 0.2, once: false });
+  const isImageInView = useScrollAnimation(imageRef as React.RefObject<Element>, { threshold: 0.3, once: false });
 
   const expertise = [
     'خبرة عملية حقيقية في تشغيل وتطوير الشقق الفندقية والإيجارات قصيرة الأجل.',

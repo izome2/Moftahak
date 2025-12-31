@@ -20,13 +20,30 @@ export function useMousePosition(): MousePosition {
   const [mousePosition, setMousePosition] = useState<MousePosition>({ x: 0, y: 0 });
 
   useEffect(() => {
+    let rafId: number | null = null;
+    let lastUpdateTime = 0;
+    const throttleDelay = 16; // ~60fps
+
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      const now = Date.now();
+      
+      if (rafId === null && now - lastUpdateTime >= throttleDelay) {
+        rafId = requestAnimationFrame(() => {
+          setMousePosition({ x: e.clientX, y: e.clientY });
+          lastUpdateTime = now;
+          rafId = null;
+        });
+      }
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
   }, []);
 
   return mousePosition;
@@ -46,16 +63,33 @@ export function useMousePositionRelative(
     const element = ref.current;
     if (!element) return;
 
+    let rafId: number | null = null;
+    let lastUpdateTime = 0;
+    const throttleDelay = 16; // ~60fps
+
     const handleMouseMove = (e: MouseEvent) => {
-      const rect = element.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      setPosition({ x, y });
+      const now = Date.now();
+      
+      if (rafId === null && now - lastUpdateTime >= throttleDelay) {
+        rafId = requestAnimationFrame(() => {
+          const rect = element.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          setPosition({ x, y });
+          lastUpdateTime = now;
+          rafId = null;
+        });
+      }
     };
 
-    element.addEventListener('mousemove', handleMouseMove);
+    element.addEventListener('mousemove', handleMouseMove, { passive: true });
 
-    return () => element.removeEventListener('mousemove', handleMouseMove);
+    return () => {
+      element.removeEventListener('mousemove', handleMouseMove);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
   }, [ref]);
 
   return position;
@@ -87,24 +121,37 @@ export function useMagneticEffect(
       return;
     }
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = element.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      
-      const distanceX = e.clientX - centerX;
-      const distanceY = e.clientY - centerY;
-      const distance = Math.sqrt(distanceX ** 2 + distanceY ** 2);
+    let rafId: number | null = null;
+    let lastUpdateTime = 0;
+    const throttleDelay = 16; // ~60fps
 
-      // Only activate within radius
-      if (distance < radius) {
-        const x = distanceX * strength;
-        const y = distanceY * strength;
-        setTransform({ x, y });
-        setIsHovering(true);
-      } else if (isHovering) {
-        setTransform({ x: 0, y: 0 });
-        setIsHovering(false);
+    const handleMouseMove = (e: MouseEvent) => {
+      const now = Date.now();
+      
+      if (rafId === null && now - lastUpdateTime >= throttleDelay) {
+        rafId = requestAnimationFrame(() => {
+          const rect = element.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          
+          const distanceX = e.clientX - centerX;
+          const distanceY = e.clientY - centerY;
+          const distance = Math.sqrt(distanceX ** 2 + distanceY ** 2);
+
+          // Only activate within radius
+          if (distance < radius) {
+            const x = distanceX * strength;
+            const y = distanceY * strength;
+            setTransform({ x, y });
+            setIsHovering(true);
+          } else if (isHovering) {
+            setTransform({ x: 0, y: 0 });
+            setIsHovering(false);
+          }
+          
+          lastUpdateTime = now;
+          rafId = null;
+        });
       }
     };
 
@@ -113,12 +160,15 @@ export function useMagneticEffect(
       setIsHovering(false);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     element.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       element.removeEventListener('mouseleave', handleMouseLeave);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
     };
   }, [ref, strength, radius, isHovering]);
 
@@ -148,20 +198,32 @@ export function useTiltEffect(
       return;
     }
 
+    let rafId: number | null = null;
+    let lastUpdateTime = 0;
+    const throttleDelay = 16; // ~60fps
+
     const handleMouseMove = (e: MouseEvent) => {
-      const rect = element.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const now = Date.now();
       
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      
-      // Calculate rotation based on mouse position relative to center
-      // Inverted rotateY for more natural tilt (right side tilts right)
-      const rotateY = ((x - centerX) / centerX) * intensity;
-      const rotateX = -((y - centerY) / centerY) * intensity;
-      
-      setRotation({ rotateX, rotateY });
+      if (rafId === null && now - lastUpdateTime >= throttleDelay) {
+        rafId = requestAnimationFrame(() => {
+          const rect = element.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          
+          // Calculate rotation based on mouse position relative to center
+          // Inverted rotateY for more natural tilt (right side tilts right)
+          const rotateY = ((x - centerX) / centerX) * intensity;
+          const rotateX = -((y - centerY) / centerY) * intensity;
+          
+          setRotation({ rotateX, rotateY });
+          lastUpdateTime = now;
+          rafId = null;
+        });
+      }
     };
 
     const handleMouseLeave = () => {
@@ -169,12 +231,15 @@ export function useTiltEffect(
       setRotation({ rotateX: 0, rotateY: 0 });
     };
 
-    element.addEventListener('mousemove', handleMouseMove);
+    element.addEventListener('mousemove', handleMouseMove, { passive: true });
     element.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
       element.removeEventListener('mousemove', handleMouseMove);
       element.removeEventListener('mouseleave', handleMouseLeave);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
     };
   }, [ref, intensity]);
 

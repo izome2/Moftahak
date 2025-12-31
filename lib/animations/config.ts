@@ -10,18 +10,18 @@ import { Transition, Easing } from 'framer-motion';
 // ============================================
 
 export const ANIMATION_DURATION = {
-  instant: 0.15,
-  fast: 0.3,
-  normal: 0.5,
-  slow: 0.8,
-  verySlow: 1.2
+  instant: 0.3,
+  fast: 0.6,
+  normal: 0.9,
+  slow: 1.2,
+  verySlow: 1.6
 } as const;
 
 export const STAGGER_DELAY = {
-  fast: 0.05,
-  normal: 0.1,
-  slow: 0.15,
-  verySlow: 0.2
+  fast: 0.1,
+  normal: 0.15,
+  slow: 0.2,
+  verySlow: 0.3
 } as const;
 
 export const ENTRANCE_DELAY = {
@@ -37,16 +37,16 @@ export const ENTRANCE_DELAY = {
 
 // Cubic Bezier curves for smooth animations
 export const EASING: Record<string, Easing> = {
-  // Standard easings
-  easeIn: [0.4, 0, 1, 1],
-  easeOut: [0, 0, 0.2, 1],
-  easeInOut: [0.4, 0, 0.2, 1],
+  // Standard easings - سلس وطبيعي
+  easeIn: [0.4, 0, 0.6, 1],
+  easeOut: [0.25, 1, 0.5, 1],
+  easeInOut: [0.45, 0, 0.55, 1],
   
-  // Custom easings
-  smooth: [0.25, 0.46, 0.45, 0.94],
-  snappy: [0.34, 1.56, 0.64, 1],
-  elegant: [0.6, 0.05, 0.01, 0.9],
-  bouncy: [0.68, -0.55, 0.265, 1.55],
+  // Custom easings - سلس بدون توقف مفاجئ
+  smooth: [0.4, 0, 0.2, 1],
+  snappy: [0.4, 0, 0.2, 1],
+  elegant: [0.4, 0, 0.2, 1],
+  bouncy: [0.5, 0.5, 0.5, 1],
   
   // Material Design
   standard: [0.4, 0.0, 0.2, 1],
@@ -63,35 +63,35 @@ export const EASING: Record<string, Easing> = {
 // ============================================
 
 export const SPRING_CONFIG = {
-  // Gentle spring
+  // Gentle spring - أكثر سلاسة
   gentle: {
     type: 'spring' as const,
-    stiffness: 100,
-    damping: 15,
-    mass: 1
+    stiffness: 60,
+    damping: 20,
+    mass: 1.2
   },
   
-  // Default spring
+  // Default spring - أكثر سلاسة
   default: {
     type: 'spring' as const,
-    stiffness: 150,
-    damping: 20,
+    stiffness: 80,
+    damping: 25,
+    mass: 1.2
+  },
+  
+  // Snappy spring - أكثر سلاسة
+  snappy: {
+    type: 'spring' as const,
+    stiffness: 120,
+    damping: 25,
     mass: 1
   },
   
-  // Snappy spring
-  snappy: {
-    type: 'spring' as const,
-    stiffness: 260,
-    damping: 20,
-    mass: 0.8
-  },
-  
-  // Bouncy spring
+  // Bouncy spring - أقل حدة
   bouncy: {
     type: 'spring' as const,
-    stiffness: 400,
-    damping: 25,
+    stiffness: 180,
+    damping: 30,
     mass: 1.2
   },
   
@@ -169,9 +169,9 @@ export const VIEWPORT_CONFIG = {
     margin: '0px 0px -10% 0px'
   },
   
-  // Trigger when element is 30% visible (default)
+  // Trigger when element is 30% visible (default) - Repeats on scroll
   default: {
-    once: true,
+    once: false,
     amount: 0.3,
     margin: '0px 0px -20% 0px'
   },

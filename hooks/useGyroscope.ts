@@ -17,32 +17,43 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
   });
 
   useEffect(() => {
+    // تعطيل على desktop لتقليل الحمل
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isMobile) {
+      return;
+    }
     
     if (typeof window === 'undefined' || !window.DeviceOrientationEvent) {
       return;
     }
 
     let isPermissionGranted = false;
+    let rafId: number | null = null;
+    let lastUpdateTime = 0;
+    const throttleDelay = 32; // ~30fps for smoother performance
 
     const handleOrientation = (event: DeviceOrientationEvent) => {
       if (!isPermissionGranted) return;
 
-      const { beta, gamma } = event;
+      const now = Date.now();
+      if (rafId === null && now - lastUpdateTime >= throttleDelay) {
+        rafId = requestAnimationFrame(() => {
+          const { beta, gamma } = event;
 
-      if (beta !== null && gamma !== null) {
-        
-        
-        
-        
-        
-        const maxTilt = 15;
-        const rotateX = Math.max(-maxTilt, Math.min(maxTilt, (beta - 45) * 0.3 * intensity));
-        const rotateY = Math.max(-maxTilt, Math.min(maxTilt, gamma * 0.3 * intensity));
+          if (beta !== null && gamma !== null) {
+            const maxTilt = 15;
+            const rotateX = Math.max(-maxTilt, Math.min(maxTilt, (beta - 45) * 0.3 * intensity));
+            const rotateY = Math.max(-maxTilt, Math.min(maxTilt, gamma * 0.3 * intensity));
 
-        setRotation({
-          rotateX: -rotateX, 
-          rotateY: rotateY,
-          isSupported: true,
+            setRotation({
+              rotateX: -rotateX, 
+              rotateY: rotateY,
+              isSupported: true,
+            });
+          }
+          
+          lastUpdateTime = now;
+          rafId = null;
         });
       }
     };
@@ -75,6 +86,9 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
 
     return () => {
       window.removeEventListener('deviceorientation', handleOrientation);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
     };
   }, [intensity]);
 

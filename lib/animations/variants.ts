@@ -13,7 +13,7 @@ export const fadeIn: Variants = {
   hidden: { opacity: 0 },
   visible: { 
     opacity: 1,
-    transition: { duration: 0.6, ease: 'easeOut' }
+    transition: { duration: 0.7, ease: [0.25, 1, 0.5, 1] }
   }
 };
 
@@ -22,7 +22,7 @@ export const fadeInUp: Variants = {
   visible: { 
     opacity: 1, 
     y: 0,
-    transition: { duration: 0.6, ease: 'easeOut' }
+    transition: { duration: 0.8, ease: [0.25, 1, 0.5, 1] }
   }
 };
 
@@ -31,7 +31,7 @@ export const fadeInDown: Variants = {
   visible: { 
     opacity: 1, 
     y: 0,
-    transition: { duration: 0.6, ease: 'easeOut' }
+    transition: { duration: 0.8, ease: [0.25, 1, 0.5, 1] }
   }
 };
 
@@ -40,7 +40,7 @@ export const fadeInLeft: Variants = {
   visible: { 
     opacity: 1, 
     x: 0,
-    transition: { duration: 0.6, ease: 'easeOut' }
+    transition: { duration: 0.8, ease: [0.25, 1, 0.5, 1] }
   }
 };
 
@@ -49,7 +49,7 @@ export const fadeInRight: Variants = {
   visible: { 
     opacity: 1, 
     x: 0,
-    transition: { duration: 0.6, ease: 'easeOut' }
+    transition: { duration: 0.8, ease: [0.25, 1, 0.5, 1] }
   }
 };
 
@@ -58,7 +58,7 @@ export const fadeInScale: Variants = {
   visible: { 
     opacity: 1, 
     scale: 1,
-    transition: { duration: 0.5, ease: 'easeOut' }
+    transition: { duration: 0.7, ease: [0.25, 1, 0.5, 1] }
   }
 };
 
@@ -67,7 +67,7 @@ export const fadeInBlur: Variants = {
   visible: { 
     opacity: 1, 
     filter: 'blur(0px)',
-    transition: { duration: 0.8, ease: 'easeOut' }
+    transition: { duration: 0.9, ease: [0.25, 1, 0.5, 1] }
   }
 };
 
@@ -80,7 +80,7 @@ export const scaleUp: Variants = {
   visible: { 
     scale: 1, 
     opacity: 1,
-    transition: { duration: 0.5, ease: [0.34, 1.56, 0.64, 1] } // Spring-like
+    transition: { duration: 0.7, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -90,8 +90,8 @@ export const scaleBounce: Variants = {
     scale: 1,
     transition: { 
       type: 'spring',
-      stiffness: 260,
-      damping: 20
+      stiffness: 120,
+      damping: 25
     }
   }
 };
@@ -103,8 +103,8 @@ export const scalePopIn: Variants = {
     opacity: 1,
     transition: { 
       type: 'spring',
-      stiffness: 400,
-      damping: 25
+      stiffness: 180,
+      damping: 30
     }
   }
 };
@@ -118,7 +118,7 @@ export const slideInLeft: Variants = {
   visible: { 
     x: 0, 
     opacity: 1,
-    transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }
+    transition: { duration: 0.8, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -127,7 +127,7 @@ export const slideInRight: Variants = {
   visible: { 
     x: 0, 
     opacity: 1,
-    transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }
+    transition: { duration: 0.8, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -141,7 +141,7 @@ export const rotateIn: Variants = {
     rotate: 0, 
     opacity: 1, 
     scale: 1,
-    transition: { duration: 0.6, ease: 'easeOut' }
+    transition: { duration: 0.8, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -150,7 +150,7 @@ export const rotateFadeIn: Variants = {
   visible: { 
     rotate: 0, 
     opacity: 1,
-    transition: { duration: 0.5, ease: 'easeOut' }
+    transition: { duration: 0.7, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -163,8 +163,8 @@ export const staggerContainer: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.3
+      staggerChildren: 0.15,
+      delayChildren: 0.4
     }
   }
 };
@@ -174,7 +174,7 @@ export const staggerItem: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: 'easeOut' }
+    transition: { duration: 0.7, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -183,8 +183,8 @@ export const staggerFast: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.05,
-      delayChildren: 0.1
+      staggerChildren: 0.1,
+      delayChildren: 0.2
     }
   }
 };
@@ -194,8 +194,8 @@ export const staggerSlow: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2,
-      delayChildren: 0.4
+      staggerChildren: 0.25,
+      delayChildren: 0.5
     }
   }
 };
@@ -214,14 +214,14 @@ export const cardHover: Variants = {
     scale: 1.03, 
     y: -8,
     boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-    transition: { duration: 0.3, ease: 'easeOut' }
+    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
 export const cardTilt: Variants = {
   rest: { rotateX: 0, rotateY: 0 },
   hover: {
-    transition: { duration: 0.2, ease: 'easeOut' }
+    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -237,11 +237,11 @@ export const buttonHover: Variants = {
   hover: { 
     scale: 1.05,
     boxShadow: '0 10px 15px -3px rgba(237, 191, 140, 0.4)',
-    transition: { duration: 0.2, ease: 'easeOut' }
+    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
   },
   tap: { 
     scale: 0.95,
-    transition: { duration: 0.1 }
+    transition: { duration: 0.15, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -251,7 +251,7 @@ export const buttonGlow: Variants = {
   },
   hover: { 
     boxShadow: '0 0 20px 5px rgba(237, 191, 140, 0.5)',
-    transition: { duration: 0.3 }
+    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -260,9 +260,9 @@ export const buttonMagnetic = {
   y: 0,
   transition: { 
     type: 'spring',
-    stiffness: 150,
-    damping: 15,
-    mass: 0.1
+    stiffness: 80,
+    damping: 20,
+    mass: 0.5
   }
 };
 
@@ -277,8 +277,8 @@ export const heroTitle: Variants = {
     y: 0, 
     scale: 1,
     transition: { 
-      duration: 0.8, 
-      ease: [0.6, 0.05, 0.01, 0.9],
+      duration: 0.9, 
+      ease: [0.4, 0, 0.2, 1],
       delay: 0.2
     }
   }
@@ -291,8 +291,8 @@ export const heroSubtitle: Variants = {
     y: 0,
     filter: 'blur(0px)',
     transition: { 
-      duration: 0.8, 
-      ease: 'easeOut',
+      duration: 0.9, 
+      ease: [0.4, 0, 0.2, 1],
       delay: 0.5
     }
   }
@@ -305,8 +305,8 @@ export const heroButtons: Variants = {
     y: 0,
     scale: 1,
     transition: { 
-      duration: 0.6, 
-      ease: [0.34, 1.56, 0.64, 1],
+      duration: 0.7, 
+      ease: [0.4, 0, 0.2, 1],
       delay: 0.8
     }
   }
@@ -317,7 +317,7 @@ export const heroStats: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.15,
+      staggerChildren: 0.2,
       delayChildren: 1
     }
   }
@@ -330,8 +330,8 @@ export const heroStatItem: Variants = {
     y: 0,
     scale: 1,
     transition: { 
-      duration: 0.5, 
-      ease: 'easeOut'
+      duration: 0.7, 
+      ease: [0.4, 0, 0.2, 1]
     }
   }
 };
@@ -345,7 +345,7 @@ export const scrollIndicator: Variants = {
     y: [0, 10, 0],
     opacity: [1, 0.7, 1],
     transition: {
-      duration: 2,
+      duration: 2.5,
       repeat: Infinity,
       ease: 'easeInOut'
     }
@@ -353,7 +353,7 @@ export const scrollIndicator: Variants = {
   hidden: {
     opacity: 0,
     y: -20,
-    transition: { duration: 0.3 }
+    transition: { duration: 0.5, ease: [0.16, 0.85, 0.45, 1] }
   }
 };
 
@@ -366,8 +366,8 @@ export const textContainer: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.05,
-      delayChildren: 0.1
+      staggerChildren: 0.08,
+      delayChildren: 0.2
     }
   }
 };
@@ -377,7 +377,7 @@ export const textWord: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.4, ease: 'easeOut' }
+    transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -386,7 +386,7 @@ export const textCharacter: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.3, ease: 'easeOut' }
+    transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -401,8 +401,8 @@ export const navbarSlideDown: Variants = {
     opacity: 1,
     transition: { 
       type: 'spring',
-      stiffness: 100,
-      damping: 20,
+      stiffness: 80,
+      damping: 25,
       delay: 0.1
     }
   }
@@ -413,7 +413,7 @@ export const navItem: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.3, ease: 'easeOut' }
+    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -433,7 +433,7 @@ export const imageReveal: Variants = {
     filter: 'blur(0px)',
     transition: { 
       duration: 1, 
-      ease: [0.6, 0.05, 0.01, 0.9]
+      ease: [0.4, 0, 0.2, 1]
     }
   }
 };
@@ -445,8 +445,8 @@ export const imageClipPath: Variants = {
   visible: { 
     clipPath: 'inset(0 0% 0 0)',
     transition: { 
-      duration: 1, 
-      ease: [0.6, 0.05, 0.01, 0.9]
+      duration: 1.4, 
+      ease: [0.33, 0.85, 0.4, 0.96]
     }
   }
 };
@@ -460,7 +460,7 @@ export const counterVariants: Variants = {
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.5, ease: 'easeOut' }
+    transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -473,12 +473,12 @@ export const pageTransition: Variants = {
   animate: { 
     opacity: 1, 
     y: 0,
-    transition: { duration: 0.4, ease: 'easeOut' }
+    transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] }
   },
   exit: { 
     opacity: 0, 
     y: -20,
-    transition: { duration: 0.3 }
+    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -490,7 +490,7 @@ export const floating: Variants = {
   animate: {
     y: [-10, 10, -10],
     transition: {
-      duration: 3,
+      duration: 4,
       repeat: Infinity,
       ease: 'easeInOut'
     }
@@ -502,7 +502,7 @@ export const floatingRotate: Variants = {
     y: [-10, 10, -10],
     rotate: [-2, 2, -2],
     transition: {
-      duration: 4,
+      duration: 5,
       repeat: Infinity,
       ease: 'easeInOut'
     }
@@ -517,11 +517,11 @@ export const modalOverlay: Variants = {
   hidden: { opacity: 0 },
   visible: { 
     opacity: 1,
-    transition: { duration: 0.3 }
+    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
   },
   exit: { 
     opacity: 0,
-    transition: { duration: 0.2 }
+    transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] }
   }
 };
 
@@ -536,14 +536,14 @@ export const modalContent: Variants = {
     scale: 1,
     y: 0,
     transition: { 
-      duration: 0.3,
-      ease: 'easeOut'
+      duration: 0.4,
+      ease: [0.4, 0, 0.2, 1]
     }
   },
   exit: { 
     opacity: 0,
     scale: 0.95,
     y: 20,
-    transition: { duration: 0.2 }
+    transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] }
   }
 };
