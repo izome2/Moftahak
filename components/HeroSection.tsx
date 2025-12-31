@@ -50,7 +50,6 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
-  const [isHeroImageLoaded, setIsHeroImageLoaded] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   
   // Animated counters
@@ -113,53 +112,6 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
       setIsMobileMenuOpen(false);
     }
   };
-
-  // Show splash screen until hero image loads
-  if (!isHeroImageLoaded) {
-    return (
-      <div className="fixed inset-0 bg-primary flex items-center justify-center z-50">
-        <div className="text-center space-y-6">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="relative w-24 h-24 md:w-32 md:h-32 mx-auto"
-          >
-            <Image
-              src="/logos/logo-white-icon.png"
-              alt="مفتاحك"
-              fill
-              className="object-contain"
-              priority
-            />
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-          >
-            <h2 className="text-2xl md:text-3xl font-bold text-accent font-bristone mb-2">
-              MOFTAHAK
-            </h2>
-            <p className="text-accent/80 text-sm md:text-base">جاري التحميل...</p>
-          </motion.div>
-          <motion.div
-            className="w-48 h-1 bg-accent/20 rounded-full overflow-hidden mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <motion.div
-              className="h-full bg-accent rounded-full"
-              initial={{ width: '0%' }}
-              animate={{ width: '100%' }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <section
@@ -318,7 +270,6 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             priority
             quality={85}
             sizes="100vw"
-            onLoad={() => setIsHeroImageLoaded(true)}
           />
           <Image 
             src="/images/hero/slide-1.jpg"
