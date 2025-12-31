@@ -7,7 +7,6 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from './ui/Button';
 import Container from './ui/Container';
-import SplashScreen from './SplashScreen';
 import { 
   heroTitle, 
   heroSubtitle, 
@@ -49,9 +48,9 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
 }) => {
   const [showFloatingButton, setShowFloatingButton] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
+  const [isHeroImageLoaded, setIsHeroImageLoaded] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   
   // Animated counters
@@ -115,17 +114,60 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
     }
   };
 
-  return (
-    <>
-      {/* Splash Screen */}
-      <SplashScreen isLoading={!isImageLoaded} />
+  // Show splash screen until hero image loads
+  if (!isHeroImageLoaded) {
+    return (
+      <div className="fixed inset-0 bg-primary flex items-center justify-center z-50">
+        <div className="text-center space-y-6">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="relative w-24 h-24 md:w-32 md:h-32 mx-auto"
+          >
+            <Image
+              src="/logos/logo-white-icon.png"
+              alt="مفتاحك"
+              fill
+              className="object-contain"
+              priority
+            />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
+            <h2 className="text-2xl md:text-3xl font-bold text-accent font-bristone mb-2">
+              MOFTAHAK
+            </h2>
+            <p className="text-accent/80 text-sm md:text-base">جاري التحميل...</p>
+          </motion.div>
+          <motion.div
+            className="w-48 h-1 bg-accent/20 rounded-full overflow-hidden mx-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <motion.div
+              className="h-full bg-accent rounded-full"
+              initial={{ width: '0%' }}
+              animate={{ width: '100%' }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
 
-      <section
-        ref={sectionRef}
-        id="home"
-        className="relative min-h-screen flex items-center justify-center pt-16 pb-24 md:pb-16 px-4 sm:px-6 lg:px-8 bg-white"
-        aria-label="hero section"
-      >
+  return (
+    <section
+      ref={sectionRef}
+      id="home"
+      className="relative min-h-screen flex items-center justify-center pt-16 pb-24 md:pb-16 px-4 sm:px-6 lg:px-8 bg-white"
+      aria-label="hero section"
+    >
       {/* Backdrop blur overlay - shown when mobile menu is open */}
       {isMobileMenuOpen && (
         <motion.div 
@@ -276,7 +318,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             priority
             quality={85}
             sizes="100vw"
-            onLoadingComplete={() => setIsImageLoaded(true)}
+            onLoad={() => setIsHeroImageLoaded(true)}
           />
           <Image 
             src="/images/hero/slide-1.jpg"
@@ -617,8 +659,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
           <span className="font-semibold text-sm">احجز استشارة مجانية</span>
         </motion.button>
       )}
-      </section>
-    </>
+    </section>
   );
 }
 
