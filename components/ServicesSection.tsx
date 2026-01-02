@@ -35,8 +35,8 @@ const ServicesSection: React.FC = () => {
   const headerRef = useRef<HTMLDivElement>(null!);
   const gridRef = useRef<HTMLDivElement>(null!);
   
-  const isHeaderInView = useScrollAnimation(headerRef, { threshold: 0.3, once: false });
-  const isGridInView = useScrollAnimation(gridRef, { threshold: 0.1, once: false });
+  const isHeaderInView = useScrollAnimation(headerRef, { threshold: 0.3, once: true });
+  const isGridInView = useScrollAnimation(gridRef, { threshold: 0.1, once: true });
 
   const services: Service[] = [
     {
@@ -199,7 +199,7 @@ const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, i
   const rotateYSpring = useSpring(rotateY, springConfig);
 
   // Gyroscope for mobile devices
-  const gyro = useGyroscope(1);
+  const gyro = useGyroscope(0.8);
 
   // Detect if mobile
   useEffect(() => {
@@ -211,13 +211,13 @@ const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, i
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Apply gyroscope rotation on mobile when not hovering
+  // Apply gyroscope rotation on mobile
   useEffect(() => {
-    if (isMobile && gyro.isSupported && !isHovering) {
+    if (isMobile && gyro.isSupported) {
       rotateX.set(gyro.rotateX);
       rotateY.set(gyro.rotateY);
     }
-  }, [gyro.rotateX, gyro.rotateY, isMobile, gyro.isSupported, isHovering, rotateX, rotateY]);
+  }, [gyro.rotateX, gyro.rotateY, isMobile, gyro.isSupported, rotateX, rotateY]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current || isMobile) return;
@@ -236,6 +236,25 @@ const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, i
     rotateY.set(rotY);
   };
 
+  // Touch move handler for mobile devices
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!cardRef.current || !isMobile) return;
+    
+    const touch = e.touches[0];
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotY = ((x - centerX) / centerX) * 8;
+    const rotX = -((y - centerY) / centerY) * 8;
+    
+    rotateX.set(rotX);
+    rotateY.set(rotY);
+  };
+
   const handleMouseEnter = () => {
     setIsHovering(true);
   };
@@ -243,6 +262,13 @@ const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, i
   const handleMouseLeave = () => {
     setIsHovering(false);
     if (!isMobile) {
+      rotateX.set(0);
+      rotateY.set(0);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (isMobile && !gyro.isSupported) {
       rotateX.set(0);
       rotateY.set(0);
     }
@@ -272,6 +298,8 @@ const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, i
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       style={{
         rotateX: rotateXSpring,
         rotateY: rotateYSpring,
