@@ -384,7 +384,7 @@ const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, i
             {service.price}
           </span>
           <motion.button
-            className="shrink-0 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-secondary bg-gradient-to-tl from-[#e5b483] to-[#edc49f] rounded-lg shadow-[0_0_15px_rgba(180,130,80,0.25)] relative overflow-hidden"
+            className="shrink-0 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-secondary bg-linear-to-tl from-[#e5b483] to-[#edc49f] rounded-lg shadow-[0_0_15px_rgba(180,130,80,0.25)] relative overflow-hidden"
             whileHover={{ 
               scale: 1.05,
               boxShadow: '0 0 20px rgba(180,130,80,0.35)'

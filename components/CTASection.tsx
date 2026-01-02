@@ -69,7 +69,7 @@ const CTASection: React.FC = () => {
   };
 
   return (
-    <section className="pt-24 relative overflow-visible bg-gradient-to-b from-[#fdf6ee] via-[#f5e6d3] to-[#f0dcc4]" id="cta">
+    <section className="pt-24 relative overflow-visible bg-linear-to-b from-[#fdf6ee] via-[#f5e6d3] to-[#f0dcc4]" id="cta">
       {/* Background Pattern - extends to bottom of page */}
       <div className="absolute inset-0" style={{ bottom: '0' }}>
         <div className="absolute inset-0" style={{
@@ -216,7 +216,7 @@ const CTASection: React.FC = () => {
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-secondary mb-3 leading-tight">
                   هل أنت مستعد لتطوير
                   <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-l from-[#c98f4d] via-[#c59766] to-[#c98f4d]">
+                  <span className="text-transparent bg-clip-text bg-linear-to-l from-[#c98f4d] via-[#c59766] to-[#c98f4d]">
                     مشروعك اليوم؟
                   </span>
                 </h2>
@@ -232,16 +232,16 @@ const CTASection: React.FC = () => {
                 variants={staggerContainer}
                 className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-2 w-full"
               >
-                <motion.div variants={fadeInUp} className="flex items-center gap-3 lg:gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
-                  <CheckCircle2 className="text-primary flex-shrink-0" size={24} />
+                <motion.div variants={fadeInUp} className="flex items-center gap-3 lg:gap-2 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
+                  <CheckCircle2 className="text-primary shrink-0" size={24} />
                   <span className="text-secondary font-medium text-base lg:text-xs">استشارة مجانية</span>
                 </motion.div>
-                <motion.div variants={fadeInUp} className="flex items-center gap-3 lg:gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
-                  <TrendingUp className="text-primary flex-shrink-0" size={24} />
+                <motion.div variants={fadeInUp} className="flex items-center gap-3 lg:gap-2 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
+                  <TrendingUp className="text-primary shrink-0" size={24} />
                   <span className="text-secondary font-medium text-base lg:text-xs">خطة عمل مخصصة</span>
                 </motion.div>
-                <motion.div variants={fadeInUp} className="flex items-center gap-3 lg:gap-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
-                  <Sparkles className="text-primary flex-shrink-0" size={24} />
+                <motion.div variants={fadeInUp} className="flex items-center gap-3 lg:gap-2 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
+                  <Sparkles className="text-primary shrink-0" size={24} />
                   <span className="text-secondary font-medium text-base lg:text-xs">متابعة مستمرة</span>
                 </motion.div>
               </motion.div>
@@ -252,19 +252,19 @@ const CTASection: React.FC = () => {
                 className="grid grid-cols-3 gap-8 pt-6 border-t-2 border-primary/10"
               >
                 <motion.div variants={fadeInUp} className="text-center group">
-                  <div className="text-2xl md:text-3xl font-bold bg-gradient-to-l from-primary via-[#d4a574] to-primary bg-clip-text text-transparent mb-1 font-bristone group-hover:scale-110 transition-transform duration-300">
+                  <div className="text-2xl md:text-3xl font-bold bg-linear-to-l from-primary via-[#d4a574] to-primary bg-clip-text text-transparent mb-1 font-bristone group-hover:scale-110 transition-transform duration-300">
                     50+
                   </div>
                   <div className="text-secondary/70 text-sm font-medium">عميل راضٍ</div>
                 </motion.div>
                 <motion.div variants={fadeInUp} className="text-center group">
-                  <div className="text-2xl md:text-3xl font-bold bg-gradient-to-l from-primary via-[#d4a574] to-primary bg-clip-text text-transparent mb-1 font-bristone group-hover:scale-110 transition-transform duration-300">
+                  <div className="text-2xl md:text-3xl font-bold bg-linear-to-l from-primary via-[#d4a574] to-primary bg-clip-text text-transparent mb-1 font-bristone group-hover:scale-110 transition-transform duration-300">
                     100+
                   </div>
                   <div className="text-secondary/70 text-sm font-medium">وحدة مطورة</div>
                 </motion.div>
                 <motion.div variants={fadeInUp} className="text-center group">
-                  <div className="text-2xl md:text-3xl font-bold bg-gradient-to-l from-primary via-[#d4a574] to-primary bg-clip-text text-transparent mb-1 font-bristone group-hover:scale-110 transition-transform duration-300">
+                  <div className="text-2xl md:text-3xl font-bold bg-linear-to-l from-primary via-[#d4a574] to-primary bg-clip-text text-transparent mb-1 font-bristone group-hover:scale-110 transition-transform duration-300">
                     4.9/5
                   </div>
                   <div className="text-secondary/70 text-sm font-medium">التقييم</div>
@@ -274,14 +274,13 @@ const CTASection: React.FC = () => {
           </div>
           </div>
           </motion.div>
-        </motion.div>
 
         {/* Footer Content */}
         <motion.div 
           variants={fadeInUp}
           className="mt-32 max-w-7xl mx-auto"
         >
-          <div className="bg-secondary text-white rounded-2xl relative overflow-hidden" style={{ boxShadow: '0 6px 50px rgba(16, 48, 43, 0.5)' }}>
+          <div className="bg-secondary text-white rounded-2xl relative overflow-hidden border-2 border-[#2e5852]" style={{ boxShadow: '0 6px 50px rgba(16, 48, 43, 0.5)' }}>
             <div className="relative z-10">
               {/* Main Footer Content */}
               <motion.div 
@@ -417,6 +416,7 @@ const CTASection: React.FC = () => {
               </motion.div>
             </div>
           </div>
+        </motion.div>
         </motion.div>
       </Container>
     </section>

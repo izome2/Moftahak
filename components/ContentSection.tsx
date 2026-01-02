@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Play, Heart, MessageCircle, Repeat2, Instagram } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Play, Heart, MessageCircle, Repeat2, Instagram, ThumbsUp, Flame } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Container from './ui/Container';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
@@ -233,8 +233,11 @@ const ContentSection: React.FC = () => {
   const [dragStartX, setDragStartX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
+  const [showEmojis, setShowEmojis] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
   const isInView = useScrollAnimation(containerRef as React.RefObject<Element>, { threshold: 0.2, once: true });
+  const isHeaderInView = useScrollAnimation(headerRef as React.RefObject<Element>, { threshold: 0.5, once: false });
 
   React.useEffect(() => {
     if (isInView) {
@@ -242,6 +245,17 @@ const ContentSection: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [isInView]);
+
+  React.useEffect(() => {
+    if (isHeaderInView) {
+      setShowEmojis(true);
+      const timer = setTimeout(() => setShowEmojis(false), 3000);
+      return () => clearTimeout(timer);
+    } else {
+      // عند الخروج من القسم، إعادة تشغيل الأنيميشن عند العودة
+      setShowEmojis(false);
+    }
+  }, [isHeaderInView]);
 
   const allVideos: Video[] = [
     { id: 1, src: '/videos/instagram-1.mp4', platform: 'instagram' },
@@ -251,6 +265,34 @@ const ContentSection: React.FC = () => {
     { id: 5, src: '/videos/tiktok-2.mp4', platform: 'tiktok' },
     { id: 6, src: '/videos/tiktok-3.mp4', platform: 'tiktok' },
   ];
+
+  const emojis = [
+    { icon: ThumbsUp, colors: ['#F58529', '#DD2A7B', '#D4A574', '#D4A574'] },
+    { icon: Heart, colors: ['#DD2A7B', '#F58529', '#D4A574', '#D4A574'] },
+    { icon: Flame, colors: ['#FEDA75', '#FA7E1E', '#D4A574', '#D4A574'] },
+    { icon: Heart, colors: ['#3B5998', '#8134AF', '#D4A574', '#D4A574'] },
+    { icon: ThumbsUp, colors: ['#8134AF', '#3B5998', '#D4A574', '#D4A574'] },
+    { icon: Flame, colors: ['#FA7E1E', '#FEDA75', '#D4A574', '#D4A574'] },
+  ];
+
+  const getEmojiPosition = (index: number) => {
+    // توزيع متساوٍ في جميع الاتجاهات: فوق، يمين، تحت، يسار
+    const baseAngles = [
+      -Math.PI / 2,      // فوق
+      0,                 // يمين
+      Math.PI / 2,       // تحت
+      Math.PI,           // يسار
+      -Math.PI / 4,      // فوق-يمين
+      Math.PI / 4,       // تحت-يمين
+    ];
+    
+    // إضافة تنوع عشوائي صغير للزاوية
+    const angle = baseAngles[index] + (Math.random() - 0.5) * 0.3;
+    const distance = 100 + Math.random() * 60; // مسافة عشوائية
+    const x = Math.cos(angle) * distance;
+    const y = Math.sin(angle) * distance;
+    return { x, y };
+  };
 
   const handlePrev = () => {
     setCurrentIndex((prev) => prev - 1);
@@ -412,10 +454,82 @@ const ContentSection: React.FC = () => {
     <section className="py-20 bg-white overflow-hidden" id="content">
       <Container>
         {/* Section Header */}
-        <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom duration-700">
-          <h2 className="text-4xl md:text-5xl font-bold text-secondary mb-4 font-bristone">
-            سوشيال
-          </h2>
+        <div ref={headerRef} className="text-center mb-16 animate-in fade-in slide-in-from-bottom duration-700">
+          <div className="relative inline-block overflow-visible">
+            <h2 className="text-4xl md:text-5xl font-bold text-secondary mb-4 font-bristone">
+              سوشيال
+            </h2>
+            
+            {/* Emoji Explosion */}
+            <AnimatePresence>
+              {showEmojis && emojis.map((emoji, index) => {
+                const pos = getEmojiPosition(index);
+                const randomRotation = Math.random() * 720 - 360; // دوران عشوائي
+                const IconComponent = emoji.icon;
+                return (
+                  <motion.div
+                    key={`emoji-${index}-${Date.now()}`}
+                    className="absolute top-1/2 left-1/2 pointer-events-none"
+                    initial={{ 
+                      x: '-50%', 
+                      y: '-50%',
+                      scale: 0,
+                      opacity: 0,
+                      rotate: 0
+                    }}
+                    animate={{ 
+                      x: `calc(-50% + ${pos.x}px)`,
+                      y: `calc(-50% + ${pos.y}px)`,
+                      scale: [0, 1.3, 1.1, 0.9, 0],
+                      opacity: [0, 1, 1, 0.8, 0],
+                      rotate: randomRotation
+                    }}
+                    exit={{ 
+                      scale: 0,
+                      opacity: 0
+                    }}
+                    transition={{
+                      duration: 2.5,
+                      delay: index * 0.1,
+                      ease: [0.34, 1.56, 0.64, 1]
+                    }}
+                  >
+                    <motion.div
+                      animate={{
+                        filter: [
+                          'hue-rotate(0deg) saturate(2)',
+                          'hue-rotate(0deg) saturate(2)',
+                          'hue-rotate(0deg) saturate(1)',
+                          'hue-rotate(0deg) saturate(1)',
+                        ]
+                      }}
+                      transition={{
+                        duration: 2.5,
+                        times: [0, 0.3, 0.7, 1]
+                      }}
+                    >
+                      <motion.div
+                        animate={{
+                          color: emoji.colors
+                        }}
+                        transition={{
+                          duration: 2.5,
+                          times: [0, 0.2, 0.4, 1]
+                        }}
+                      >
+                        <IconComponent 
+                          size={32} 
+                          strokeWidth={2}
+                          fill="none"
+                        />
+                      </motion.div>
+                    </motion.div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+          
           <p className="text-lg text-secondary/70 max-w-2xl mx-auto mb-6">
             تابعني, وشاهد أحدث المحتوى
           </p>
@@ -430,7 +544,7 @@ const ContentSection: React.FC = () => {
             className="flex items-center gap-3 cursor-pointer group/header transition-transform duration-300 hover:scale-105"
           >
             <h3 className="text-2xl font-bold text-secondary font-bristone transition-colors duration-300 group-hover/header:text-pink-600">Instagram</h3>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-purple-600 via-pink-600 to-orange-500 flex items-center justify-center shadow-lg">
               <Instagram size={22} className="text-white" />
             </div>
           </a>
@@ -526,7 +640,7 @@ const ContentSection: React.FC = () => {
                     {/* Platform Badge */}
                     <div className="absolute top-4 left-4 z-10">
                       {video.platform === 'instagram' ? (
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 flex items-center justify-center shadow-lg">
+                        <div className="w-8 h-8 rounded-lg bg-linear-to-br from-purple-600 via-pink-600 to-orange-500 flex items-center justify-center shadow-lg">
                           <Instagram size={18} className="text-white" />
                         </div>
                       ) : (
