@@ -21,7 +21,7 @@ interface UseScrollAnimationOptions {
  * @returns boolean indicating if element is in view
  */
 export function useScrollAnimation(
-  ref: RefObject<Element>,
+  ref: RefObject<Element | null>,
   options: UseScrollAnimationOptions = {}
 ): boolean {
   const {
