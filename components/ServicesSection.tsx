@@ -40,23 +40,23 @@ const ServicesSection: React.FC = () => {
   const isHeaderInView = useScrollAnimation(headerRef, { threshold: 0.3, once: true });
   const isGridInView = useScrollAnimation(gridRef, { threshold: 0.1, once: true });
   
-  // استخدام الجايروسكوب مرة واحدة للجميع
+  
   const gyro = useGyroscope(0.8);
 
-  // التحقق من الحاجة لطلب إذن الجايروسكوب على iOS
+  
   useEffect(() => {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const needsPermission = 
       typeof DeviceOrientationEvent !== 'undefined' &&
       typeof (DeviceOrientationEvent as any).requestPermission === 'function';
     
-    // التحقق من localStorage إذا كان الإذن قد مُنح سابقاً
+    
     const gyroPermissionGranted = localStorage.getItem('gyroPermissionGranted') === 'true';
     
     if (isIOS && needsPermission && !gyroRequested && gyro.needsPermission && !gyroPermissionGranted) {
       setShowGyroButton(true);
       
-      // إخفاء الرسالة تلقائياً بعد 4 ثواني
+      
       const timer = setTimeout(() => {
         setShowGyroButton(false);
       }, 4000);
@@ -71,7 +71,7 @@ const ServicesSection: React.FC = () => {
         await gyro.requestPermission();
         setGyroRequested(true);
         setShowGyroButton(false);
-        // حفظ الإذن في localStorage
+        
         localStorage.setItem('gyroPermissionGranted', 'true');
       }
     } catch (error) {
@@ -186,7 +186,7 @@ const ServicesSection: React.FC = () => {
   return (
     <section ref={sectionRef} className="py-20 bg-white" id="services">
       <Container>
-        {/* رسالة إذن الجايروسكوب لأجهزة iOS */}
+        {}
         <AnimatePresence>
           {showGyroButton && (
             <motion.div
@@ -198,7 +198,7 @@ const ServicesSection: React.FC = () => {
             >
             <div className="bg-accent/80 backdrop-blur-md rounded-2xl shadow-2xl border border-primary/20 p-5">
               <div className="flex items-start gap-4">
-                {/* أيقونة الهاتف مع أنيميشن الاهتزاز */}
+                {}
                 <motion.div
                   animate={{ 
                     rotate: [-8, 8, -8, 8, -8, 8, 0],
@@ -211,7 +211,7 @@ const ServicesSection: React.FC = () => {
                   }}
                   className="shrink-0 relative"
                 >
-                  {/* SVG هاتف */}
+                  {}
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="6" y="2" width="12" height="20" rx="2" stroke="#10302b" strokeWidth="1.5" fill="#edbf8c"/>
                     <rect x="9" y="18" width="6" height="1.5" rx="0.75" fill="#10302b"/>
@@ -219,13 +219,13 @@ const ServicesSection: React.FC = () => {
                   </svg>
                 </motion.div>
 
-                {/* النص */}
+                {}
                 <div className="flex-1">
                   <p className="text-secondary text-sm leading-relaxed mb-4">
                     هذه الصفحة تمتلك أنيميشن وتأثيرات 3D عند تحريك الهاتف. هل تريد السماح بتفعيل الميزة؟
                   </p>
                   
-                  {/* أزرار نعم/لا */}
+                  {}
                   <div className="flex gap-3">
                     <motion.button
                       onClick={handleGyroRequest}
@@ -251,7 +251,7 @@ const ServicesSection: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Section Header */}
+        {}
         <motion.div 
           ref={headerRef}
           className="text-center mb-16"
@@ -275,7 +275,7 @@ const ServicesSection: React.FC = () => {
           </motion.p>
         </motion.div>
 
-        {/* Services Grid */}
+        {}
         <motion.div 
           ref={gridRef}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
@@ -292,7 +292,7 @@ const ServicesSection: React.FC = () => {
   );
 };
 
-// Service Card Component with 3D Tilt Effect
+
 const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotateX: number; rotateY: number; isSupported: boolean; needsPermission: boolean; requestPermission: () => Promise<void> } }> = ({ service, index, gyroData }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = React.useState(false);
@@ -305,7 +305,7 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
   const rotateXSpring = useSpring(rotateX, springConfig);
   const rotateYSpring = useSpring(rotateY, springConfig);
 
-  // Detect if mobile
+  
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
@@ -315,7 +315,7 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Apply gyroscope rotation on mobile
+  
   useEffect(() => {
     if (isMobile && gyroData.isSupported) {
       rotateX.set(gyroData.rotateX);
@@ -340,7 +340,7 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
     rotateY.set(rotY);
   };
 
-  // Touch move handler for mobile devices
+  
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
     if (!cardRef.current || !isMobile) return;
     
@@ -415,7 +415,7 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
       }}
       className="group bg-[#ead3b9]/30 rounded-2xl overflow-visible shadow-lg hover:shadow-2xl transition-shadow duration-300 relative border border-[#ead3b9]"
     >
-      {/* Image Container */}
+      {}
       <div className="relative h-72 overflow-hidden rounded-xl m-3" style={{ transform: 'translateZ(20px)' }}>
         <motion.div
           className="w-full h-full"
@@ -430,7 +430,7 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
           />
         </motion.div>
         
-        {/* Badge */}
+        {}
         {service.badge && (
           <motion.div 
             className="absolute top-4 right-4 z-10"
@@ -446,7 +446,7 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
         )}
       </div>
 
-      {/* Students Badge - Separate Container with Higher Z-Index */}
+      {}
       {service.studentImages && service.studentsCount && (
         <div className="absolute right-6 z-50 pointer-events-none" style={{ top: 'calc(18rem - 1rem)', transform: 'translateZ(40px)' }}>
           <motion.div 
@@ -482,9 +482,9 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
         </div>
       )}
 
-      {/* Content */}
+      {}
       <div className="p-6 pt-10" style={{ transform: 'translateZ(30px)' }}>
-        {/* Title */}
+        {}
         <motion.h3 
           className="text-xl font-bold text-secondary mb-3"
           initial={{ opacity: 0 }}
@@ -494,7 +494,7 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
           {service.title}
         </motion.h3>
 
-        {/* Description */}
+        {}
         <motion.p 
           className="text-secondary/70 leading-relaxed mb-6"
           initial={{ opacity: 0 }}
@@ -504,7 +504,7 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
           {service.description}
         </motion.p>
 
-        {/* Price & Button */}
+        {}
         <motion.div 
           className="flex items-center justify-between gap-4"
           initial={{ opacity: 0, y: 20 }}

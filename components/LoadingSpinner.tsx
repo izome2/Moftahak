@@ -9,10 +9,7 @@ interface LoadingSpinnerProps {
   fullScreen?: boolean;
 }
 
-/**
- * Loading Spinner Component
- * Shows loading state with optional text
- */
+
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = 'md',
   text,

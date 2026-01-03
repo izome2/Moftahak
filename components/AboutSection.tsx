@@ -37,7 +37,7 @@ const AboutSection: React.FC = () => {
     <section ref={sectionRef} className="py-20 bg-white" id="about">
       <Container>
         <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-12 items-center">
-          {/* Left Side - Content */}
+          {}
           <motion.div 
             ref={contentRef}
             className="order-1 lg:order-1"
@@ -45,7 +45,7 @@ const AboutSection: React.FC = () => {
             animate={isContentInView ? "visible" : "hidden"}
             variants={slideInLeft}
           >
-            {/* Company Logo */}
+            {}
             <motion.div 
               className="mb-6"
               initial={{ opacity: 0, scale: 0.8 }}
@@ -61,7 +61,7 @@ const AboutSection: React.FC = () => {
               />
             </motion.div>
 
-            {/* Title */}
+            {}
             <motion.h2 
               className="text-4xl md:text-5xl font-bold text-secondary mb-6 leading-tight"
               variants={fadeInUp}
@@ -71,7 +71,7 @@ const AboutSection: React.FC = () => {
               </AnimatedStroke>
             </motion.h2>
 
-            {/* Bio Text */}
+            {}
             <motion.div 
               className="space-y-5 text-secondary/70 leading-relaxed mb-8 text-lg"
               variants={fadeInUp}
@@ -81,7 +81,7 @@ const AboutSection: React.FC = () => {
               </p>
             </motion.div>
 
-            {/* Expertise List */}
+            {}
             <motion.div 
               className="mb-8"
               variants={staggerContainer}
@@ -122,7 +122,7 @@ const AboutSection: React.FC = () => {
               </ul>
             </motion.div>
 
-            {/* CTA Button */}
+            {}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={isContentInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
@@ -138,7 +138,7 @@ const AboutSection: React.FC = () => {
           </motion.div>
           </motion.div>
 
-          {/* Right Side - Image */}
+          {}
           <motion.div 
             ref={imageRef}
             className="order-2 lg:order-2 lg:pr-10"
@@ -154,7 +154,7 @@ const AboutSection: React.FC = () => {
   );
 };
 
-// Component for 3D Image with Gyroscope and Mouse support
+
 const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -167,22 +167,22 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
   const rotateXSpring = useSpring(rotateX, springConfig);
   const rotateYSpring = useSpring(rotateY, springConfig);
 
-  // Create parallax effect for each layer
-  // Background moves more (farther away effect)
+  
+  
   const xBackground = useTransform(rotateYSpring, [-3, 3], [-6, 6]);
   const yBackground = useTransform(rotateXSpring, [-3, 3], [6, -6]);
   
-  // Overlays move less (closer to camera) - with offset for overlay1
+  
   const xOverlay1 = useTransform(rotateYSpring, [-3, 3], [-10 + 2, -10 - 2]);
   const yOverlay1 = useTransform(rotateXSpring, [-3, 3], [-2, 2]);
   
   const xOverlay2 = useTransform(rotateYSpring, [-3, 3], [2.5, -2.5]);
   const yOverlay2 = useTransform(rotateXSpring, [-3, 3], [-2.5, 2.5]);
 
-  // Gyroscope for mobile devices
+  
   const gyro = useGyroscope(0.8);
 
-  // Detect if mobile
+  
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
@@ -192,7 +192,7 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Apply gyroscope rotation on mobile
+  
   useEffect(() => {
     if (isMobile && gyro.isSupported) {
       rotateX.set(gyro.rotateX);
@@ -248,7 +248,7 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
         }}
         className="relative"
       >
-        {/* Background Image 0 - الخلفية (أبعد صورة) */}
+        {}
         <motion.div 
           className="absolute inset-0 z-0"
           initial={{ opacity: 0, y: 20 }}
@@ -279,7 +279,7 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
           />
         </motion.div>
 
-        {/* Main Image - صورة عبد الله (في الوسط) */}
+        {}
         <motion.div 
           className="relative overflow-hidden rounded-3xl z-10"
           initial={{ opacity: 0, scale: 0.9 }}
@@ -296,7 +296,7 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
           />
         </motion.div>
 
-        {/* Overlay Image 1 - طبقة علوية (أمامي) */}
+        {}
         <motion.div 
           className="absolute inset-0 z-20 pointer-events-none"
           initial={{ opacity: 0, y: 20 }}
@@ -327,7 +327,7 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
           />
         </motion.div>
 
-        {/* Overlay Image 2 - طبقة علوية (الأكثر بروزاً) */}
+        {}
         <motion.div 
           className="absolute inset-0 z-30 pointer-events-none"
           initial={{ opacity: 0, y: 20 }}
@@ -359,7 +359,7 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
         </motion.div>
       </motion.div>
 
-      {/* Decorative Elements */}
+      {}
       <motion.div 
         className="absolute -bottom-6 -left-6 w-32 h-32 bg-primary/20 rounded-full blur-3xl -z-10"
         initial={{ scale: 0, opacity: 0 }}

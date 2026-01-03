@@ -12,15 +12,11 @@ interface AnimatedStrokeProps {
   delay?: number;
 }
 
-/**
- * AnimatedStroke Component
- * يضيف خط stroke متحرك بشكل يد خلف النص
- * مع أطراف دائرية وأنيميشن رسم تدريجي
- */
+
 const AnimatedStroke: React.FC<AnimatedStrokeProps> = ({
   children,
   className = '',
-  strokeColor = '#efa862', // بيج
+  strokeColor = '#efa862', 
   strokeWidth = 8,
   delay = 0,
 }) => {
@@ -29,10 +25,10 @@ const AnimatedStroke: React.FC<AnimatedStrokeProps> = ({
 
   return (
     <div ref={containerRef} className={`relative inline-block ${className}`}>
-      {/* النص */}
+      {}
       <span className="relative z-10">{children}</span>
       
-      {/* SVG Stroke الخلفي */}
+      {}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ 

@@ -22,7 +22,7 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
 
-  // Pause video when not active
+  
   React.useEffect(() => {
     if (!isActive && videoRef.current && isPlaying) {
       videoRef.current.pause();
@@ -51,7 +51,7 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
   const handleLike = () => {
     setIsLiked(!isLiked);
     
-    // Create hearts animation with staggered timing
+    
     if (!isLiked) {
       Array.from({ length: 5 }).forEach((_, i) => {
         setTimeout(() => {
@@ -62,11 +62,11 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
           };
           setHearts(prev => [...prev, newHeart]);
           
-          // Remove heart after animation
+          
           setTimeout(() => {
             setHearts(prev => prev.filter(h => h.id !== newHeart.id));
           }, 1000);
-        }, i * 150); // Stagger each heart by 150ms
+        }, i * 150); 
       });
     }
   };
@@ -136,10 +136,10 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
         المتصفح لا يدعم تشغيل الفيديو
       </video>
 
-      {/* Bottom Gradient Overlay */}
+      {}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-black/50 to-transparent pointer-events-none rounded-b-xl" />
 
-      {/* Play/Pause Overlay */}
+      {}
       <div
         className="absolute inset-0 flex items-center justify-center cursor-pointer group/play"
         onClick={togglePlay}
@@ -153,9 +153,9 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
         )}
       </div>
 
-      {/* Social Actions - Right Side */}
+      {}
       <div className="absolute right-4 bottom-16 flex flex-col gap-3">
-        {/* Like Button */}
+        {}
         <button 
           onClick={handleLike}
           className="w-12 h-12 rounded-full bg-[#ead3b9]/40 backdrop-blur-md flex items-center justify-center transition-all duration-300 hover:scale-110 hover:bg-[#ead3b9]/50 shadow-lg relative overflow-visible"
@@ -169,7 +169,7 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
             }`}
           />
           
-          {/* Hearts Animation */}
+          {}
           {hearts.map((heart) => (
             <Heart
               key={heart.id}
@@ -186,12 +186,12 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
           ))}
         </button>
         
-        {/* Comment Button */}
+        {}
         <button className="w-12 h-12 rounded-full bg-[#ead3b9]/40 backdrop-blur-md flex items-center justify-center transition-all duration-300 hover:scale-110 hover:bg-[#ead3b9]/50 shadow-lg">
           <MessageCircle size={20} className="text-[#f3ebdd]" />
         </button>
         
-        {/* Repost Button */}
+        {}
         <button className="w-12 h-12 rounded-full bg-[#ead3b9]/40 backdrop-blur-md flex items-center justify-center transition-all duration-300 hover:scale-110 hover:bg-[#ead3b9]/50 shadow-lg">
           <Repeat2 size={20} className="text-[#f3ebdd]" />
         </button>
@@ -210,7 +210,7 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
         }
       `}</style>
 
-      {/* Floating Progress Bar */}
+      {}
       <div className="absolute bottom-6 left-4 right-4 px-2">
         <div
           ref={progressBarRef}
@@ -252,7 +252,7 @@ const ContentSection: React.FC = () => {
       const timer = setTimeout(() => setShowEmojis(false), 3000);
       return () => clearTimeout(timer);
     } else {
-      // عند الخروج من القسم، إعادة تشغيل الأنيميشن عند العودة
+      
       setShowEmojis(false);
     }
   }, [isHeaderInView]);
@@ -276,19 +276,19 @@ const ContentSection: React.FC = () => {
   ];
 
   const getEmojiPosition = (index: number) => {
-    // توزيع متساوٍ في جميع الاتجاهات: فوق، يمين، تحت، يسار
+    
     const baseAngles = [
-      -Math.PI / 2,      // فوق
-      0,                 // يمين
-      Math.PI / 2,       // تحت
-      Math.PI,           // يسار
-      -Math.PI / 4,      // فوق-يمين
-      Math.PI / 4,       // تحت-يمين
+      -Math.PI / 2,      
+      0,                 
+      Math.PI / 2,       
+      Math.PI,           
+      -Math.PI / 4,      
+      Math.PI / 4,       
     ];
     
-    // إضافة تنوع عشوائي صغير للزاوية
+    
     const angle = baseAngles[index] + (Math.random() - 0.5) * 0.3;
-    const distance = 100 + Math.random() * 60; // مسافة عشوائية
+    const distance = 100 + Math.random() * 60; 
     const x = Math.cos(angle) * distance;
     const y = Math.sin(angle) * distance;
     return { x, y };
@@ -334,7 +334,7 @@ const ContentSection: React.FC = () => {
     const normalizedCurrent = ((currentIndex % allVideos.length) + allVideos.length) % allVideos.length;
     let position = index - normalizedCurrent;
     
-    // Adjust position for circular wrapping
+    
     if (position > allVideos.length / 2) {
       position -= allVideos.length;
     } else if (position < -allVideos.length / 2) {
@@ -397,7 +397,7 @@ const ContentSection: React.FC = () => {
     }
   };
 
-  // Get 5 visible videos: 2 left, center, 2 right
+  
   const getVisibleVideos = () => {
     const positions = [-2, -1, 0, 1, 2];
     return positions.map((offset) => {
@@ -411,31 +411,31 @@ const ContentSection: React.FC = () => {
 
   const getVideoStyles = (offset: number) => {
     switch (offset) {
-      case 0: // المنتصف - الأكبر
+      case 0: 
         return {
           transform: `translateX(-50%) scale(1.1)`,
           opacity: 1,
           zIndex: 5,
         };
-      case -1: // يسار قريب
+      case -1: 
         return {
           transform: `translateX(calc(-50% - 240px)) scale(1.05)`,
           opacity: 0.75,
           zIndex: 4,
         };
-      case 1: // يمين قريب
+      case 1: 
         return {
           transform: `translateX(calc(-50% + 240px)) scale(1.05)`,
           opacity: 0.75,
           zIndex: 4,
         };
-      case -2: // يسار بعيد
+      case -2: 
         return {
           transform: `translateX(calc(-50% - 450px)) scale(1)`,
           opacity: 0.5,
           zIndex: 3,
         };
-      case 2: // يمين بعيد
+      case 2: 
         return {
           transform: `translateX(calc(-50% + 450px)) scale(1)`,
           opacity: 0.5,
@@ -453,18 +453,18 @@ const ContentSection: React.FC = () => {
   return (
     <section className="py-20 bg-white overflow-hidden" id="content">
       <Container>
-        {/* Section Header */}
+        {}
         <div ref={headerRef} className="text-center mb-16 animate-in fade-in slide-in-from-bottom duration-700">
           <div className="relative inline-block overflow-visible">
             <h2 className="text-4xl md:text-5xl font-bold text-secondary mb-4 font-bristone">
               سوشيال
             </h2>
             
-            {/* Emoji Explosion */}
+            {}
             <AnimatePresence>
               {showEmojis && emojis.map((emoji, index) => {
                 const pos = getEmojiPosition(index);
-                const randomRotation = Math.random() * 720 - 360; // دوران عشوائي
+                const randomRotation = Math.random() * 720 - 360; 
                 const IconComponent = emoji.icon;
                 return (
                   <motion.div
@@ -535,7 +535,7 @@ const ContentSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Social Media Links */}
+        {}
         <div className="flex items-center justify-center gap-8 mb-12">
           <a 
             href="https://www.instagram.com/abdullahelkheddr/" 
@@ -566,9 +566,9 @@ const ContentSection: React.FC = () => {
           </a>
         </div>
 
-        {/* Carousel Container */}
+        {}
         <div className="relative py-12" ref={containerRef}>
-          {/* Videos Container */}
+          {}
           <div className="relative h-[600px] flex items-center justify-center">
             <div 
               className="relative w-full h-full cursor-grab active:cursor-grabbing"
@@ -583,7 +583,7 @@ const ContentSection: React.FC = () => {
                 const normalizedCurrent = ((currentIndex % allVideos.length) + allVideos.length) % allVideos.length;
                 const isCenter = index === normalizedCurrent;
                 
-                // حساب الموقع النسبي للفيديو (يمين أو يسار)
+                
                 let position = index - normalizedCurrent;
                 if (position > allVideos.length / 2) {
                   position -= allVideos.length;
@@ -637,7 +637,7 @@ const ContentSection: React.FC = () => {
                         <VideoPlayer src={video.src} isActive={isCenter} />
                       </div>
                     
-                    {/* Platform Badge */}
+                    {}
                     <div className="absolute top-4 left-4 z-10">
                       {video.platform === 'instagram' ? (
                         <div className="w-8 h-8 rounded-lg bg-linear-to-br from-purple-600 via-pink-600 to-orange-500 flex items-center justify-center shadow-lg">
@@ -656,7 +656,7 @@ const ContentSection: React.FC = () => {
                 );
               })}
             </div>
-          </div>          {/* Navigation Buttons */}
+          </div>          {}
           <button
             onClick={handleNext}
             className="absolute right-1 md:right-4 top-1/2 md:top-[48%] -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full bg-[#ead3b9] hover:bg-[#edbf8c] text-secondary flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-105 z-30 group"
@@ -677,7 +677,7 @@ const ContentSection: React.FC = () => {
             </svg>
           </button>
 
-          {/* Indicators */}
+          {}
           <div className="flex justify-center gap-2 mt-8">
             {allVideos.map((_, index) => {
               const normalizedIndex = ((currentIndex % allVideos.length) + allVideos.length) % allVideos.length;

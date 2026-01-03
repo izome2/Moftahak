@@ -32,16 +32,7 @@ interface HeroSectionProps {
   subtitle?: string;
 }
 
-/**
- * Hero Section Component - Cinematic landing section
- * Features:
- * - Full height (100vh)
- * - Dynamic pattern background
- * - Bold typography with animations
- * - CTA buttons
- * - Stats cards
- * - Scroll indicator
- */
+
 const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   title = 'مُفتاحك للاستثمار العقاري',
   subtitle = 'طور مشروعك ومهاراتك في العقارات مع عبد الله الخضر',
@@ -52,18 +43,18 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
   
-  // Animated counters
+  
   const nightsCount = useCounter({ start: 0, end: 3000, duration: 2500 }, isVisible);
   const clientsCount = useCounter({ start: 0, end: 1200, duration: 2500 }, isVisible);
   const yearsCount = useCounter({ start: 0, end: 5, duration: 2000 }, isVisible);
 
   useEffect(() => {
-    // Trigger animations on mount
+    
     setIsVisible(true);
   }, []);
 
   useEffect(() => {
-    // Rotate sentences every 4 seconds
+    
     const sentenceInterval = setInterval(() => {
       setCurrentSentenceIndex((prev) => (prev + 1) % sentences.length);
     }, 4000);
@@ -78,7 +69,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
       const scrollPercentage = (window.scrollY / document.documentElement.scrollHeight) * 100;
       setShowFloatingButton(scrollPercentage < 1);
       
-      // Close mobile menu on scroll
+      
       if (isMobileMenuOpen) {
         setIsMobileMenuOpen(false);
       }
@@ -120,7 +111,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
       className="relative min-h-screen flex items-center justify-center pt-16 pb-24 md:pb-16 px-4 sm:px-6 lg:px-8 bg-white"
       aria-label="hero section"
     >
-      {/* Backdrop blur overlay - shown when mobile menu is open */}
+      {}
       {isMobileMenuOpen && (
         <motion.div 
           className="lg:hidden absolute inset-0 bg-black/20 backdrop-blur-sm z-40"
@@ -133,7 +124,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
         />
       )}
 
-      {/* Mobile/Tablet Navbar - Inside Hero */}
+      {}
       <motion.div 
         className="lg:hidden absolute top-8 left-6 right-6 md:top-10 md:left-12 md:right-12 z-50"
         initial="hidden"
@@ -142,7 +133,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
       >
         <div className="rounded-2xl px-2 md:px-4">
           <nav className="flex items-center justify-between h-11 md:h-14">
-            {/* Logo */}
+            {}
             <Link href="/" className="flex items-center gap-1.5 md:gap-2 hover:opacity-80 transition-opacity">
               <motion.div 
                 className="relative w-7 h-7 md:w-8 md:h-8"
@@ -162,7 +153,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
               </span>
             </Link>
 
-            {/* Menu Button */}
+            {}
             <motion.button
               className="p-1 md:p-2 text-accent hover:text-primary transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -174,7 +165,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             </motion.button>
           </nav>
 
-          {/* Mobile Menu */}
+          {}
           {isMobileMenuOpen && (
             <motion.div 
               className="py-6 border-t border-accent bg-[#fdf6ee]/95 backdrop-blur-md rounded-2xl -mx-3 md:-mx-4 px-3 md:px-4 shadow-lg"
@@ -235,7 +226,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
         </div>
       </motion.div>
 
-      {/* SVG Clip Path Definition - Hidden on mobile and tablet, shown on lg+ */}
+      {}
       <svg width="0" height="0" className="absolute hidden lg:block">
         <defs>
           <clipPath id="heroClip" clipPathUnits="objectBoundingBox">
@@ -246,21 +237,21 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
         </defs>
       </svg>
 
-      {/* Shadow wrapper - Outside clipped area */}
+      {}
       <div 
         className="absolute inset-4 bottom-8 lg:top-20 lg:left-16 lg:right-16 xl:left-20 xl:right-20 lg:bottom-12"
         style={{ 
           filter: 'drop-shadow(0px 10px 25px rgba(0, 0, 0, 0.35))',
         }}
       >
-        {/* Background Container with Custom Shape */}
+        {}
         <div 
           className="w-full h-full bg-secondary rounded-2xl lg:rounded-none"
           style={{ 
             clipPath: 'var(--hero-clip-path, none)',
           }}
         >
-        {/* Slideshow Background Images with Ken Burns Effect */}
+        {}
         <div className="absolute inset-0 rounded-2xl lg:rounded-none overflow-hidden opacity-30">
           <div 
             className="absolute inset-0 w-full h-full animate-slideshow-1"
@@ -300,7 +291,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
           />
         </div>
         
-        {/* Pattern Overlay */}
+        {}
         <div 
           className="absolute inset-0 opacity-20 rounded-2xl lg:rounded-none overflow-hidden z-[1]"
           style={{
@@ -311,11 +302,11 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
           }}
         />
 
-        {/* Content */}
+        {}
         <div className="relative z-10 h-full flex flex-col items-center justify-center py-4 md:py-6 px-4 md:px-6">
-          {/* Main Content */}
+          {}
           <div className="flex-1 flex flex-col items-center justify-center text-center space-y-3 md:space-y-4 max-w-4xl mx-auto w-full">
-            {/* Main Title */}
+            {}
             <motion.h1 
               className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-bold text-primary leading-[1.15] font-bristone"
               initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
@@ -325,7 +316,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
               {title}
             </motion.h1>
 
-            {/* Animated Subtitle with Word-by-Word Fade */}
+            {}
             <motion.div 
               className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl text-accent font-medium leading-relaxed px-2 min-h-[4rem] sm:min-h-[3rem] md:min-h-[3.5rem] flex items-center justify-center"
               initial={{ opacity: 0, y: 30 }}
@@ -359,7 +350,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
               </AnimatePresence>
             </motion.div>
 
-            {/* CTA Buttons */}
+            {}
             <motion.div 
               className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center pt-1 md:pt-2 w-full px-4"
               initial={{ opacity: 0, y: 30 }}
@@ -405,14 +396,14 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
               </motion.div>
             </motion.div>
 
-            {/* Stats */}
+            {}
             <motion.div 
               className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-5 pt-4 md:pt-6 max-w-3xl w-full px-4 sm:px-0"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4, delay: 1.1 }}
             >
-              {/* Stat Card 1 */}
+              {}
               <motion.div 
                 className="group relative overflow-hidden rounded-xl"
                 initial={{ opacity: 0, y: 30 }}
@@ -449,7 +440,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                 </div>
               </motion.div>
 
-              {/* Stat Card 2 */}
+              {}
               <motion.div 
                 className="group relative overflow-hidden rounded-xl"
                 initial={{ opacity: 0, y: 30 }}
@@ -486,7 +477,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                 </div>
               </motion.div>
 
-              {/* Stat Card 3 */}
+              {}
               <motion.div 
                 className="group relative overflow-hidden rounded-xl"
                 initial={{ opacity: 0, y: 30 }}
@@ -528,7 +519,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
       </div>
       </div>
 
-      {/* Scroll Indicator - Hidden on mobile and tablet, shown on lg+ screens */}
+      {}
       <motion.button
         className="hidden lg:block absolute cursor-pointer z-1 active:scale-90 transition-transform"
         style={{ 
@@ -584,7 +575,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
         </svg>
       </motion.button>
 
-      {/* Floating Button - احجز استشارة مجانية */}
+      {}
       {showFloatingButton && (
         <motion.button
           onClick={() => {
@@ -612,7 +603,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   );
 }
 
-// Export memoized component
+
 export const HeroSection = React.memo(HeroSectionComponent);
 
 export default HeroSection;

@@ -58,7 +58,7 @@ const CTASection: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
-    // TODO: Add actual form submission logic
+    
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -70,7 +70,7 @@ const CTASection: React.FC = () => {
 
   return (
     <section className="pt-24 relative overflow-visible bg-linear-to-b from-[#fdf6ee] via-[#f5e6d3] to-[#f0dcc4]" id="cta">
-      {/* Background Pattern - extends to bottom of page */}
+      {}
       <div className="absolute inset-0" style={{ bottom: '0' }}>
         <div className="absolute inset-0" style={{
           backgroundImage: 'url(/patterns/pattern-vertical-white.png)',
@@ -83,7 +83,7 @@ const CTASection: React.FC = () => {
         }} />
       </div>
 
-      {/* Background color extends to page bottom */}
+      {}
       <div className="absolute inset-x-0 top-0" style={{ bottom: '0', background: 'linear-gradient(to bottom, white 0%, #f5e6d3 40%, #f0dcc4 70%, #f0dcc4 100%)', zIndex: -1 }} />
 
       <Container className="relative z-10 pb-8">
@@ -99,12 +99,12 @@ const CTASection: React.FC = () => {
             variants={fadeInUp}
             className="relative"
           >
-          {/* SVG Shape on top right - outside the box */}
+          {}
           <div className="absolute top-0 right-0 w-67 h-33 z-20" style={{ transform: 'translateY(-70%)' }}>
             <img src="/images/contact.svg" alt="" className="w-full h-full" />
           </div>
           
-          {/* Title on top of SVG */}
+          {}
           <div className="absolute top-0 right-6 md:right-8 z-30 flex items-center gap-2" style={{ transform: 'translateY(-80%)' }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-secondary">
               <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"></path>
@@ -123,7 +123,7 @@ const CTASection: React.FC = () => {
               }
             `}</style>
             <div className="contact-card-wrapper grid grid-cols-1 lg:grid-cols-7 gap-6 lg:gap-0">
-            {/* Right Side - Form */}
+            {}
             <div 
               className="lg:col-span-4 p-5 md:p-6 lg:p-8 border-2 border-[#e8cebc] lg:border-0 rounded-bl-2xl rounded-br-2xl rounded-tl-2xl lg:rounded-none shadow-[0_0_40px_rgba(212,165,116,0.5)] lg:shadow-none" 
               style={{ background: 'linear-gradient(45deg, #f8f0ea, #faeee6)' }}
@@ -206,13 +206,13 @@ const CTASection: React.FC = () => {
               </motion.form>
             </div>
 
-            {/* Left Side - Content */}
+            {}
             <div 
               className="lg:col-span-3 flex flex-col justify-center items-center text-center space-y-8 p-5 md:p-6 lg:p-8 border-2 border-[#e8cebc] lg:border-0 rounded-2xl lg:rounded-none shadow-[0_0_40px_rgba(212,165,116,0.5)] lg:shadow-none" 
               style={{ background: 'linear-gradient(125deg, #f9f1ea, #fcf7f2)' }}
             >
               <motion.div variants={fadeInUp}>
-                {/* Title */}
+                {}
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-secondary mb-3 leading-tight">
                   هل أنت مستعد لتطوير
                   <br />
@@ -221,13 +221,13 @@ const CTASection: React.FC = () => {
                   </span>
                 </h2>
 
-                {/* Subtitle */}
+                {}
                 <p className="hidden lg:block text-base md:text-lg text-secondary/70 leading-relaxed">
                   انضم إلى مالكي العقارات الذين حولوا وحداتهم إلى استثمارات مربحة
                 </p>
               </motion.div>
 
-              {/* Benefits Grid */}
+              {}
               <motion.div 
                 variants={staggerContainer}
                 className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3 lg:gap-2 w-full"
@@ -246,7 +246,7 @@ const CTASection: React.FC = () => {
                 </motion.div>
               </motion.div>
 
-              {/* Stats */}
+              {}
               <motion.div 
                 variants={staggerContainer}
                 className="grid grid-cols-3 gap-8 pt-6 border-t-2 border-primary/10"
@@ -275,19 +275,19 @@ const CTASection: React.FC = () => {
           </div>
           </motion.div>
 
-        {/* Footer Content */}
+        {}
         <motion.div 
           variants={fadeInUp}
           className="mt-32 max-w-7xl mx-auto"
         >
           <div className="bg-secondary text-white rounded-2xl relative overflow-hidden border-2 border-[#2e5852]" style={{ boxShadow: '0 6px 50px rgba(16, 48, 43, 0.5)' }}>
             <div className="relative z-10">
-              {/* Main Footer Content */}
+              {}
               <motion.div 
                 variants={staggerContainer}
                 className="py-12 px-8 md:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
               >
-                {/* Column 1: About & Logo */}
+                {}
                 <motion.div variants={fadeInUp} className="space-y-4">
                   <Link href="/" className="inline-block">
                     <div className="flex items-center gap-3">
@@ -307,7 +307,7 @@ const CTASection: React.FC = () => {
                   <p className="text-white/70 leading-relaxed text-sm">
                     عبد الله الخضر - مستشارك في مجال الإيجارات قصيرة المدى والشقق الفندقية
                   </p>
-                  {/* Social Media Icons */}
+                  {}
                   <div className="flex items-center gap-2">
                     {socialLinks.map((social) => (
                       <a
@@ -324,7 +324,7 @@ const CTASection: React.FC = () => {
                   </div>
                 </motion.div>
 
-                {/* Column 2: Quick Links */}
+                {}
                 <motion.div variants={fadeInUp} className="hidden lg:block">
                   <h3 className="text-lg font-bold mb-4 text-primary">روابط سريعة</h3>
                   <ul className="space-y-2">
@@ -341,7 +341,7 @@ const CTASection: React.FC = () => {
                   </ul>
                 </motion.div>
 
-                {/* Column 3: Services */}
+                {}
                 <motion.div variants={fadeInUp} className="hidden lg:block">
                   <h3 className="text-lg font-bold mb-4 text-primary">الخدمات</h3>
                   <ul className="space-y-2">
@@ -358,7 +358,7 @@ const CTASection: React.FC = () => {
                   </ul>
                 </motion.div>
 
-                {/* Column 4: Contact Info */}
+                {}
                 <motion.div variants={fadeInUp}>
                   <h3 className="text-lg font-bold mb-4 text-primary">تواصل معنا</h3>
                   <ul className="space-y-3">
@@ -389,7 +389,7 @@ const CTASection: React.FC = () => {
                 </motion.div>
               </motion.div>
 
-              {/* Bottom Bar */}
+              {}
               <motion.div 
                 variants={fadeInUp}
                 className="py-4 px-8 md:px-12 border-t border-white/10"
