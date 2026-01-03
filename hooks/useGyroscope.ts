@@ -43,10 +43,10 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
           const { beta, gamma } = event;
 
           if (beta !== null && gamma !== null) {
-            const maxTilt = 15;
-            // تعديل الحسابات لتناسب iPhone
-            const rotateX = Math.max(-maxTilt, Math.min(maxTilt, beta * 0.3 * intensity));
-            const rotateY = Math.max(-maxTilt, Math.min(maxTilt, gamma * 0.3 * intensity));
+            const maxTilt = 20;
+            // تعديل الحسابات لتناسب iPhone - حساسية أعلى
+            const rotateX = Math.max(-maxTilt, Math.min(maxTilt, beta * 0.8 * intensity));
+            const rotateY = Math.max(-maxTilt, Math.min(maxTilt, gamma * 0.8 * intensity));
 
             setRotation({
               rotateX: -rotateX, 
