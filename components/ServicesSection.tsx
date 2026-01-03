@@ -39,6 +39,9 @@ const ServicesSection: React.FC = () => {
   
   const isHeaderInView = useScrollAnimation(headerRef, { threshold: 0.3, once: true });
   const isGridInView = useScrollAnimation(gridRef, { threshold: 0.1, once: true });
+  
+  // استخدام الجايروسكوب مرة واحدة للجميع
+  const gyro = useGyroscope(0.8);
 
   // التحقق من الحاجة لطلب إذن الجايروسكوب على iOS
   useEffect(() => {
@@ -47,20 +50,21 @@ const ServicesSection: React.FC = () => {
       typeof DeviceOrientationEvent !== 'undefined' &&
       typeof (DeviceOrientationEvent as any).requestPermission === 'function';
     
-    if (isIOS && needsPermission && !gyroRequested) {
+    if (isIOS && needsPermission && !gyroRequested && gyro.needsPermission) {
       setShowGyroButton(true);
     }
-  }, [gyroRequested]);
+  }, [gyroRequested, gyro.needsPermission]);
 
   const handleGyroRequest = async () => {
     try {
-      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-        await (DeviceOrientationEvent as any).requestPermission();
+      if (gyro.requestPermission) {
+        await gyro.requestPermission();
         setGyroRequested(true);
         setShowGyroButton(false);
       }
     } catch (error) {
       console.error('Error requesting gyroscope permission:', error);
+      setShowGyroButton(false);
     }
   };
 
@@ -228,7 +232,7 @@ const ServicesSection: React.FC = () => {
           animate={isGridInView ? "visible" : "hidden"}
         >
           {services.map((service, index) => (
-            <ServiceCard key={service.id} service={service} index={index} />
+            <ServiceCard key={service.id} service={service} index={index} gyroData={gyro} />
           ))}
         </motion.div>
       </Container>
@@ -237,7 +241,7 @@ const ServicesSection: React.FC = () => {
 };
 
 // Service Card Component with 3D Tilt Effect
-const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, index }) => {
+const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotateX: number; rotateY: number; isSupported: boolean; needsPermission: boolean; requestPermission: () => Promise<void> } }> = ({ service, index, gyroData }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = React.useState(false);
   const [isHovering, setIsHovering] = React.useState(false);
@@ -248,9 +252,6 @@ const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, i
   const springConfig = { damping: 20, stiffness: 200, mass: 0.5 };
   const rotateXSpring = useSpring(rotateX, springConfig);
   const rotateYSpring = useSpring(rotateY, springConfig);
-
-  // Gyroscope for mobile devices
-  const gyro = useGyroscope(0.8);
 
   // Detect if mobile
   useEffect(() => {
@@ -264,11 +265,11 @@ const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, i
 
   // Apply gyroscope rotation on mobile
   useEffect(() => {
-    if (isMobile && gyro.isSupported) {
-      rotateX.set(gyro.rotateX);
-      rotateY.set(gyro.rotateY);
+    if (isMobile && gyroData.isSupported) {
+      rotateX.set(gyroData.rotateX);
+      rotateY.set(gyroData.rotateY);
     }
-  }, [gyro.rotateX, gyro.rotateY, isMobile, gyro.isSupported, rotateX, rotateY]);
+  }, [gyroData.rotateX, gyroData.rotateY, isMobile, gyroData.isSupported, rotateX, rotateY]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current || isMobile) return;
@@ -319,7 +320,7 @@ const ServiceCard: React.FC<{ service: Service; index: number }> = ({ service, i
   };
 
   const handleTouchEnd = () => {
-    if (isMobile && !gyro.isSupported) {
+    if (isMobile && !gyroData.isSupported) {
       rotateX.set(0);
       rotateY.set(0);
     }

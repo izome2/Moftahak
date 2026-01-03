@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 interface GyroscopeData {
   rotateX: number;
@@ -12,13 +12,15 @@ interface GyroscopeData {
 
 
 export function useGyroscope(intensity: number = 1): GyroscopeData {
-  const [rotation, setRotation] = useState<GyroscopeData>({
+  const [rotation, setRotation] = useState({
     rotateX: 0,
     rotateY: 0,
     isSupported: false,
-    needsPermission: false,
-    requestPermission: async () => {},
   });
+  const [needsPermission, setNeedsPermission] = useState(false);
+  const isPermissionGrantedRef = useRef(false);
+  const rafIdRef = useRef<number | null>(null);
+  const lastUpdateTimeRef = useRef(0);
 
   useEffect(() => {
     // تعطيل على desktop لتقليل الحمل
@@ -31,17 +33,14 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
       return;
     }
 
-    let isPermissionGranted = false;
-    let rafId: number | null = null;
-    let lastUpdateTime = 0;
     const throttleDelay = 32; // ~30fps for smoother performance
 
     const handleOrientation = (event: DeviceOrientationEvent) => {
-      if (!isPermissionGranted) return;
+      if (!isPermissionGrantedRef.current) return;
 
       const now = Date.now();
-      if (rafId === null && now - lastUpdateTime >= throttleDelay) {
-        rafId = requestAnimationFrame(() => {
+      if (rafIdRef.current === null && now - lastUpdateTimeRef.current >= throttleDelay) {
+        rafIdRef.current = requestAnimationFrame(() => {
           const { beta, gamma } = event;
 
           if (beta !== null && gamma !== null) {
@@ -49,78 +48,100 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
             const rotateX = Math.max(-maxTilt, Math.min(maxTilt, (beta - 45) * 0.3 * intensity));
             const rotateY = Math.max(-maxTilt, Math.min(maxTilt, gamma * 0.3 * intensity));
 
-            setRotation(prev => ({
-              ...prev,
+            setRotation({
               rotateX: -rotateX, 
               rotateY: rotateY,
               isSupported: true,
-            }));
+            });
           }
           
-          lastUpdateTime = now;
-          rafId = null;
+          lastUpdateTimeRef.current = now;
+          rafIdRef.current = null;
         });
       }
     };
 
-    
-    const requestPermissionFunc = async () => {
-      if (
-        typeof DeviceOrientationEvent !== 'undefined' &&
-        typeof (DeviceOrientationEvent as any).requestPermission === 'function'
-      ) {
-        try {
-          const permission = await (DeviceOrientationEvent as any).requestPermission();
-          if (permission === 'granted') {
-            isPermissionGranted = true;
-            window.addEventListener('deviceorientation', handleOrientation);
-            setRotation(prev => ({ 
-              ...prev, 
-              isSupported: true,
-              needsPermission: false 
-            }));
-          } else {
-            setRotation(prev => ({ 
-              ...prev, 
-              needsPermission: false,
-              isSupported: false
-            }));
-          }
-        } catch (error) {
-          console.error('Error requesting device orientation permission:', error);
-          setRotation(prev => ({ 
-            ...prev, 
-            needsPermission: false,
-            isSupported: false
-          }));
-        }
-      } else {
-        // Android وأجهزة أخرى لا تحتاج إذن
-        isPermissionGranted = true;
-        window.addEventListener('deviceorientation', handleOrientation);
-        setRotation(prev => ({ ...prev, isSupported: true, needsPermission: false }));
-      }
-    };
-
     // تحقق إذا كان يحتاج إذن (iOS)
-    const needsPermission = 
+    const needsPermissionCheck = 
       typeof DeviceOrientationEvent !== 'undefined' &&
       typeof (DeviceOrientationEvent as any).requestPermission === 'function';
 
-    if (needsPermission) {
-      setRotation(prev => ({ 
-        ...prev, 
-        needsPermission: true,
-        requestPermission: requestPermissionFunc
-      }));
+    if (!needsPermissionCheck) {
+      // Android وأجهزة أخرى لا تحتاج إذن
+      isPermissionGrantedRef.current = true;
+      window.addEventListener('deviceorientation', handleOrientation);
+      setRotation(prev => ({ ...prev, isSupported: true }));
     } else {
-      requestPermissionFunc();
+      setNeedsPermission(true);
     }
 
     return () => {
       window.removeEventListener('deviceorientation', handleOrientation);
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
+  }, [intensity]);
+
+  const requestPermission = useCallback(async () => {
+    if (
+      typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof (DeviceOrientationEvent as any).requestPermission === 'function'
+    ) {
+      try {
+        console.log('🎯 طلب إذن الجايروسكوب...');
+        const permission = await (DeviceOrientationEvent as any).requestPermission();
+        console.log('✅ نتيجة الإذن:', permission);
+        
+        if (permission === 'granted') {
+          isPermissionGrantedRef.current = true;
+          console.log('🎉 تم منح الإذن! تفعيل الجايروسكوب...');
+          
+          const handleOrientation = (event: DeviceOrientationEvent) => {
+            const now = Date.now();
+            const throttleDelay = 32;
+            
+            if (rafIdRef.current === null && now - lastUpdateTimeRef.current >= throttleDelay) {
+              rafIdRef.current = requestAnimationFrame(() => {
+                const { beta, gamma } = event;
+
+                if (beta !== null && gamma !== null) {
+                  const maxTilt = 15;
+                  const rotateX = Math.max(-maxTilt, Math.min(maxTilt, (beta - 45) * 0.3 * intensity));
+                  const rotateY = Math.max(-maxTilt, Math.min(maxTilt, gamma * 0.3 * intensity));
+
+                  console.log('📱 بيانات الجايروسكوب:', { beta, gamma, rotateX, rotateY });
+
+                  setRotation({
+                    rotateX: -rotateX, 
+                    rotateY: rotateY,
+                    isSupported: true,
+                  });
+                }
+                
+                lastUpdateTimeRef.current = now;
+                rafIdRef.current = null;
+              });
+            }
+          };
+          
+          window.addEventListener('deviceorientation', handleOrientation);
+          setNeedsPermission(false);
+          setRotation(prev => ({ ...prev, isSupported: true }));
+          console.log('✨ الجايروسكوب مُفعّل ويعمل!');
+        }
+      } catch (error) {
+        console.error('❌ خطأ في طلب إذن الجايروسكوب:', error);
+        setNeedsPermission(false);
+      }
+    }
+  }, [intensity]);
+
+  return {
+    ...rotation,
+    needsPermission,
+    requestPermission,
+  };
       }
     };
   }, [intensity]);
