@@ -84,6 +84,33 @@ html {
   will-change: auto !important;
 }
 
+/* تحسين تحميل الصور - إزالة التأثير التدريجي */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  /* إزالة التأثير التدريجي - الصورة تظهر فورًا */
+  image-rendering: auto;
+  content-visibility: auto;
+}
+
+/* Next.js Image optimization - ظهور فوري بدون تأثير تدريجي */
+img[loading="lazy"] {
+  image-rendering: auto;
+}
+
+/* تحميل أسرع للصور */
+img {
+  decoding: async;
+  loading: lazy;
+}
+
+/* الصور ذات الأولوية (priority) تحمل مباشرة */
+img[fetchpriority="high"],
+img[loading="eager"] {
+  content-visibility: auto;
+  decoding: sync;
+}
+
 /* Custom shadow colors with beige tone */
 .shadow-sm {
   --tw-shadow: 0 1px 2px 0 rgb(180 130 80 / 0.04);

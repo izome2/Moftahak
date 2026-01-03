@@ -142,10 +142,18 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <head>
-        <link rel="preload" as="image" href="/images/hero/hero-bg.jpg" />
-        <link rel="preload" as="image" href="/images/hero/slide-1.jpg" />
+        {/* Preload critical images for instant loading */}
+        <link rel="preload" as="image" href="/images/hero/hero-bg.jpg" fetchPriority="high" />
+        <link rel="preload" as="image" href="/images/hero/slide-1.jpg" fetchPriority="high" />
         <link rel="preload" as="image" href="/images/hero/slide-2.jpg" />
         <link rel="preload" as="image" href="/images/hero/slide-3.jpg" />
+        <link rel="preload" as="image" href="/logos/logo-white.png" fetchPriority="high" />
+        <link rel="preload" as="image" href="/logos/logo-white-icon.png" fetchPriority="high" />
+        {/* DNS prefetch for external images */}
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://i.pravatar.cc" />
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://i.pravatar.cc" crossOrigin="anonymous" />
       </head>
       <body
         className={`${dubai.variable} ${bristone.variable} antialiased font-dubai`}

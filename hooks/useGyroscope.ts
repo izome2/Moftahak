@@ -18,7 +18,13 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
     isSupported: false,
   });
   const [needsPermission, setNeedsPermission] = useState(false);
-  const [permissionGranted, setPermissionGranted] = useState(false);
+  const [permissionGranted, setPermissionGranted] = useState(() => {
+    // Check localStorage on initial mount
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('gyroPermissionGranted') === 'true';
+    }
+    return false;
+  });
   const rafIdRef = useRef<number | null>(null);
   const lastUpdateTimeRef = useRef(0);
   const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -103,21 +109,15 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
       typeof DeviceOrientationEvent !== 'undefined' &&
       typeof (DeviceOrientationEvent as any).requestPermission === 'function';
 
-    
-    const gyroPermissionGranted = typeof window !== 'undefined' && 
-      localStorage.getItem('gyroPermissionGranted') === 'true';
-
     if (!needsPermissionCheck) {
       
       window.addEventListener('deviceorientation', handleOrientation);
       setRotation(prev => ({ ...prev, isSupported: true }));
-    } else if (permissionGranted || gyroPermissionGranted) {
+    } else if (permissionGranted) {
       
       window.addEventListener('deviceorientation', handleOrientation);
-      if (gyroPermissionGranted && !permissionGranted) {
-        setPermissionGranted(true);
-        setNeedsPermission(false);
-      }
+      setRotation(prev => ({ ...prev, isSupported: true }));
+      setNeedsPermission(false);
     } else {
       
       setNeedsPermission(true);
