@@ -52,6 +52,13 @@ const ServicesSection: React.FC = () => {
     
     if (isIOS && needsPermission && !gyroRequested && gyro.needsPermission) {
       setShowGyroButton(true);
+      
+      // إخفاء الرسالة تلقائياً بعد 4 ثواني
+      const timer = setTimeout(() => {
+        setShowGyroButton(false);
+      }, 4000);
+      
+      return () => clearTimeout(timer);
     }
   }, [gyroRequested, gyro.needsPermission]);
 
@@ -174,28 +181,96 @@ const ServicesSection: React.FC = () => {
   return (
     <section ref={sectionRef} className="py-20 bg-white" id="services">
       <Container>
-        {/* زر تفعيل الجايروسكوب لأجهزة iOS */}
+        {/* رسالة إذن الجايروسكوب لأجهزة iOS */}
         {showGyroButton && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-24 left-1/2 -translate-x-1/2 z-50"
+            exit={{ opacity: 0, y: -50 }}
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md"
           >
-            <motion.button
-              onClick={handleGyroRequest}
-              className="bg-secondary text-primary px-6 py-3 rounded-lg shadow-2xl border-2 border-primary font-bold text-sm flex items-center gap-3"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <motion.span
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              >
-                📱
-              </motion.span>
-              <span>تفعيل التأثيرات ثلاثية الأبعاد</span>
-            </motion.button>
+            <div className="bg-accent/80 backdrop-blur-md rounded-2xl shadow-2xl border border-primary/20 p-5">
+              <div className="flex items-start gap-4">
+                {/* أيقونة الهاتف مع أنيميشن الاهتزاز */}
+                <motion.div
+                  animate={{ 
+                    rotate: [-8, 8, -8, 8, -8, 8, 0],
+                  }}
+                  transition={{ 
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatDelay: 1,
+                    ease: "easeInOut"
+                  }}
+                  className="shrink-0 relative"
+                >
+                  {/* SVG هاتف */}
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="6" y="2" width="12" height="20" rx="2" stroke="#10302b" strokeWidth="1.5" fill="#edbf8c"/>
+                    <rect x="9" y="18" width="6" height="1.5" rx="0.75" fill="#10302b"/>
+                    <line x1="6" y1="5" x2="18" y2="5" stroke="#10302b" strokeWidth="1"/>
+                  </svg>
+                  
+                  {/* سهم منحني */}
+                  <motion.svg 
+                    width="32" 
+                    height="32" 
+                    viewBox="0 0 32 32" 
+                    className="absolute -top-2 -right-2"
+                    animate={{ 
+                      rotate: [0, 10, -10, 0],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ 
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <path 
+                      d="M 8 20 Q 16 8, 24 12" 
+                      stroke="#10302b" 
+                      strokeWidth="2" 
+                      fill="none" 
+                      strokeLinecap="round"
+                      markerEnd="url(#arrowhead)"
+                    />
+                    <defs>
+                      <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+                        <polygon points="0 0, 10 5, 0 10" fill="#10302b" />
+                      </marker>
+                    </defs>
+                  </motion.svg>
+                </motion.div>
+
+                {/* النص */}
+                <div className="flex-1">
+                  <p className="text-secondary text-sm leading-relaxed mb-4">
+                    هذه الصفحة تمتلك أنيميشن وتأثيرات 3D عند تحريك الهاتف. هل تريد السماح بتفعيل الميزة؟
+                  </p>
+                  
+                  {/* أزرار نعم/لا */}
+                  <div className="flex gap-3">
+                    <motion.button
+                      onClick={handleGyroRequest}
+                      className="flex-1 bg-secondary text-primary px-4 py-2.5 rounded-xl font-bold text-sm shadow-lg"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      نعم
+                    </motion.button>
+                    <motion.button
+                      onClick={() => setShowGyroButton(false)}
+                      className="flex-1 bg-white/50 text-secondary px-4 py-2.5 rounded-xl font-semibold text-sm border border-secondary/20"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      لا
+                    </motion.button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </motion.div>
         )}
 

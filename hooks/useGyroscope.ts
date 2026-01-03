@@ -21,6 +21,7 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
   const [permissionGranted, setPermissionGranted] = useState(false);
   const rafIdRef = useRef<number | null>(null);
   const lastUpdateTimeRef = useRef(0);
+  const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Main effect that handles gyroscope events
   useEffect(() => {
@@ -44,7 +45,6 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
 
           if (beta !== null && gamma !== null) {
             const maxTilt = 20;
-            // تعديل الحسابات لتناسب iPhone - حساسية أعلى
             const rotateX = Math.max(-maxTilt, Math.min(maxTilt, beta * 0.8 * intensity));
             const rotateY = Math.max(-maxTilt, Math.min(maxTilt, gamma * 0.8 * intensity));
 
@@ -53,6 +53,20 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
               rotateY: rotateY,
               isSupported: true,
             });
+
+            // إلغاء المؤقت السابق
+            if (resetTimeoutRef.current) {
+              clearTimeout(resetTimeoutRef.current);
+            }
+
+            // إعادة التعيين بعد ثانية من عدم الحركة
+            resetTimeoutRef.current = setTimeout(() => {
+              setRotation(prev => ({
+                ...prev,
+                rotateX: 0,
+                rotateY: 0,
+              }));
+            }, 1000);
           }
           
           lastUpdateTimeRef.current = now;
@@ -67,24 +81,24 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
       typeof (DeviceOrientationEvent as any).requestPermission === 'function';
 
     if (!needsPermissionCheck) {
-      // Android وأجهزة أخرى لا تحتاج إذن
+      // Android وأجهزة أخرى لا تحتاج إذن - لا تظهر زر الإذن
       window.addEventListener('deviceorientation', handleOrientation);
       setRotation(prev => ({ ...prev, isSupported: true }));
-      console.log('✅ الجايروسكوب مُفعّل (Android)');
     } else if (permissionGranted) {
       // iOS بعد منح الإذن
       window.addEventListener('deviceorientation', handleOrientation);
-      console.log('✅ الجايروسكوب مُفعّل (iOS)');
     } else {
       // iOS يحتاج إذن
       setNeedsPermission(true);
-      console.log('⏳ في انتظار إذن الجايروسكوب (iOS)');
     }
 
     return () => {
       window.removeEventListener('deviceorientation', handleOrientation);
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
+      }
+      if (resetTimeoutRef.current) {
+        clearTimeout(resetTimeoutRef.current);
       }
     };
   }, [intensity, permissionGranted]);
@@ -95,21 +109,16 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
       typeof (DeviceOrientationEvent as any).requestPermission === 'function'
     ) {
       try {
-        console.log('🎯 طلب إذن الجايروسكوب...');
         const permission = await (DeviceOrientationEvent as any).requestPermission();
-        console.log('✅ نتيجة الإذن:', permission);
         
         if (permission === 'granted') {
-          console.log('🎉 تم منح الإذن! جاري تفعيل الجايروسكوب...');
           setPermissionGranted(true);
           setNeedsPermission(false);
           setRotation(prev => ({ ...prev, isSupported: true }));
         } else {
-          console.log('❌ تم رفض الإذن');
           setNeedsPermission(false);
         }
       } catch (error) {
-        console.error('❌ خطأ في طلب إذن الجايروسكوب:', error);
         setNeedsPermission(false);
       }
     }
