@@ -39,9 +39,6 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
-  // SWC Minification for better performance
-  swcMinify: true,
-  
   // Output standalone for optimal deployment
   output: 'standalone',
   
