@@ -16,7 +16,7 @@ interface Feature {
 }
 
 const FeaturesSection: React.FC = () => {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
   const isInView = useScrollAnimation(ref, { threshold: 0.2, once: true });
 
   const features: Feature[] = [
