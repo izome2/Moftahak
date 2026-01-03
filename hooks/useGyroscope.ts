@@ -142,11 +142,6 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
     needsPermission,
     requestPermission,
   };
-      }
-    };
-  }, [intensity]);
-
-  return rotation;
 }
 
 
