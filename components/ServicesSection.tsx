@@ -3,7 +3,7 @@
 import React, { useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 import Container from './ui/Container';
 import Badge from './ui/Badge';
 import Button from './ui/Button';
@@ -182,13 +182,15 @@ const ServicesSection: React.FC = () => {
     <section ref={sectionRef} className="py-20 bg-white" id="services">
       <Container>
         {/* رسالة إذن الجايروسكوب لأجهزة iOS */}
-        {showGyroButton && (
-          <motion.div
-            initial={{ opacity: 0, y: -50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md"
-          >
+        <AnimatePresence>
+          {showGyroButton && (
+            <motion.div
+              initial={{ opacity: 0, y: -50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -50 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md"
+            >
             <div className="bg-accent/80 backdrop-blur-md rounded-2xl shadow-2xl border border-primary/20 p-5">
               <div className="flex items-start gap-4">
                 {/* أيقونة الهاتف مع أنيميشن الاهتزاز */}
@@ -210,37 +212,6 @@ const ServicesSection: React.FC = () => {
                     <rect x="9" y="18" width="6" height="1.5" rx="0.75" fill="#10302b"/>
                     <line x1="6" y1="5" x2="18" y2="5" stroke="#10302b" strokeWidth="1"/>
                   </svg>
-                  
-                  {/* سهم منحني */}
-                  <motion.svg 
-                    width="32" 
-                    height="32" 
-                    viewBox="0 0 32 32" 
-                    className="absolute -top-2 -right-2"
-                    animate={{ 
-                      rotate: [0, 10, -10, 0],
-                      scale: [1, 1.1, 1]
-                    }}
-                    transition={{ 
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <path 
-                      d="M 8 20 Q 16 8, 24 12" 
-                      stroke="#10302b" 
-                      strokeWidth="2" 
-                      fill="none" 
-                      strokeLinecap="round"
-                      markerEnd="url(#arrowhead)"
-                    />
-                    <defs>
-                      <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
-                        <polygon points="0 0, 10 5, 0 10" fill="#10302b" />
-                      </marker>
-                    </defs>
-                  </motion.svg>
                 </motion.div>
 
                 {/* النص */}
@@ -272,7 +243,8 @@ const ServicesSection: React.FC = () => {
               </div>
             </div>
           </motion.div>
-        )}
+          )}
+        </AnimatePresence>
 
         {/* Section Header */}
         <motion.div 

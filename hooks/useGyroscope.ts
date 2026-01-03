@@ -22,6 +22,8 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
   const rafIdRef = useRef<number | null>(null);
   const lastUpdateTimeRef = useRef(0);
   const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const initialBetaRef = useRef<number | null>(null);
+  const initialGammaRef = useRef<number | null>(null);
 
   // Main effect that handles gyroscope events
   useEffect(() => {
@@ -44,9 +46,19 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
           const { beta, gamma } = event;
 
           if (beta !== null && gamma !== null) {
+            // حفظ الزاوية الأولية عند أول قراءة
+            if (initialBetaRef.current === null) {
+              initialBetaRef.current = beta;
+              initialGammaRef.current = gamma;
+            }
+
             const maxTilt = 20;
-            const rotateX = Math.max(-maxTilt, Math.min(maxTilt, beta * 0.8 * intensity));
-            const rotateY = Math.max(-maxTilt, Math.min(maxTilt, gamma * 0.8 * intensity));
+            // حساب الفرق من الزاوية الافتراضية
+            const deltaBeta = beta - (initialBetaRef.current || 0);
+            const deltaGamma = gamma - (initialGammaRef.current || 0);
+            
+            const rotateX = Math.max(-maxTilt, Math.min(maxTilt, deltaBeta * 0.8 * intensity));
+            const rotateY = Math.max(-maxTilt, Math.min(maxTilt, deltaGamma * 0.8 * intensity));
 
             setRotation({
               rotateX: -rotateX, 
