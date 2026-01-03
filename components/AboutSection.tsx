@@ -376,4 +376,4 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
   );
 };
 
-export default AboutSection;
+export default React.memo(AboutSection);

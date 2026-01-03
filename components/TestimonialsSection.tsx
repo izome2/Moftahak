@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { Quote, User } from 'lucide-react';
 import AnimatedStroke from './ui/AnimatedStroke';
 
@@ -15,7 +15,7 @@ const TestimonialsSection: React.FC = () => {
   const scrollRef1 = useRef<HTMLDivElement>(null);
   const scrollRef2 = useRef<HTMLDivElement>(null);
 
-  const testimonials: Testimonial[] = [
+  const testimonials: Testimonial[] = useMemo(() => [
     {
       id: 1,
       name: 'أحمد محمود',
@@ -88,15 +88,15 @@ const TestimonialsSection: React.FC = () => {
       role: 'مالكة شقة فندقية',
       text: 'فرق شاسع بين قبل وبعد تطبيق نظام عبد الله. التشغيل بقى احترافي بالكامل، والضيوف بيلاحظوا الفرق في مستوى الخدمة والاهتمام بالتفاصيل.',
     },
-  ];
+  ], []);
 
   // تقسيم الشهادات إلى صفين
-  const row1Testimonials = testimonials.filter((_, index) => index % 2 === 0);
-  const row2Testimonials = testimonials.filter((_, index) => index % 2 !== 0);
+  const row1Testimonials = useMemo(() => testimonials.filter((_, index) => index % 2 === 0), [testimonials]);
+  const row2Testimonials = useMemo(() => testimonials.filter((_, index) => index % 2 !== 0), [testimonials]);
   
-  // تكرار كل صف لضمان حركة مستمرة
-  const duplicatedRow1 = [...row1Testimonials, ...row1Testimonials, ...row1Testimonials];
-  const duplicatedRow2 = [...row2Testimonials, ...row2Testimonials, ...row2Testimonials];
+  // تكرار كل صف 2 مرات فقط (بدلاً من 3)
+  const duplicatedRow1 = useMemo(() => [...row1Testimonials, ...row1Testimonials], [row1Testimonials]);
+  const duplicatedRow2 = useMemo(() => [...row2Testimonials, ...row2Testimonials], [row2Testimonials]);
 
   return (
     <section className="py-20 bg-white overflow-hidden" id="testimonials">
@@ -246,4 +246,4 @@ const TestimonialsSection: React.FC = () => {
   );
 };
 
-export default TestimonialsSection;
+export default React.memo(TestimonialsSection);

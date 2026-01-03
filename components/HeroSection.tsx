@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ChevronDown, Building2, Users, Award, Phone, Moon, Menu, X, User, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -19,24 +19,24 @@ import {
 } from '@/lib/animations/variants';
 import { useCounter } from '@/hooks/useCounter';
 
-const sentences = [
-  'طور مشروعك ومهاراتك في العقارات مع عبد الله الخضر',
-  'حوّل وحدتك إلى استثمار فندقي ناجح مع عبد الله الخضر',
-  'ارتقِ بالإيجارات قصيرة الأجل بخبرة عبد الله الخضر',
-  'استثمر بذكاء في الشقق الفندقية مع عبد الله الخضر',
-  'ابْنِ نموذجًا عقاريًا مربحًا مع عبد الله الخضر',
-];
-
 interface HeroSectionProps {
   title?: string;
   subtitle?: string;
 }
 
-
 const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   title = 'مُفتاحك للاستثمار العقاري',
   subtitle = 'طور مشروعك ومهاراتك في العقارات مع عبد الله الخضر',
 }) => {
+  // useMemo for sentences array
+  const sentences = useMemo(() => [
+    'طور مشروعك ومهاراتك في العقارات مع عبد الله الخضر',
+    'حوّل وحدتك إلى استثمار فندقي ناجح مع عبد الله الخضر',
+    'ارتقِ بالإيجارات قصيرة الأجل بخبرة عبد الله الخضر',
+    'استثمر بذكاء في الشقق الفندقية مع عبد الله الخضر',
+    'ابْنِ نموذجًا عقاريًا مربحًا مع عبد الله الخضر',
+  ], []);
+  
   const [showFloatingButton, setShowFloatingButton] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -88,13 +88,13 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
     }
   };
 
-  const navLinks = [
+  const navLinks = useMemo(() => [
     { label: 'الرئيسية', href: '#home' },
     { label: 'من أنا', href: '#about' },
     { label: 'الخدمات', href: '#services' },
     { label: 'المحتوى', href: '#content' },
     { label: 'تواصل معي', href: '#contact' },
-  ];
+  ], []);
 
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
@@ -309,9 +309,9 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
             {}
             <motion.h1 
               className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-bold text-primary leading-[1.15] font-bristone"
-              initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
             >
               {title}
             </motion.h1>
@@ -327,10 +327,10 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                 <motion.div
                   key={currentSentenceIndex}
                   className="flex flex-wrap gap-x-2 gap-y-1 justify-center items-center"
-                  initial={{ opacity: 0, filter: "blur(10px)" }}
-                  animate={{ opacity: 1, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, filter: "blur(10px)" }}
-                  transition={{ duration: 0.5 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
                 >
                   {sentences[currentSentenceIndex].split(' ').map((word, index) => (
                     <motion.span
@@ -339,8 +339,8 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{
-                        duration: 0.4,
-                        delay: index * 0.08,
+                        duration: 0.3,
+                        delay: index * 0.05,
                       }}
                     >
                       {word}
@@ -406,16 +406,16 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
               {}
               <motion.div 
                 className="group relative overflow-hidden rounded-xl"
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 1.2 }}
+                transition={{ duration: 0.5, delay: 1.2 }}
                 whileHover={{ scale: 1.05, y: -5 }}
               >
                 <motion.div 
                   className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10"
-                  initial={{ opacity: 0, filter: "blur(10px)" }}
-                  animate={{ opacity: 1, filter: "blur(0px)" }}
-                  transition={{ duration: 0.6, delay: 1.2 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 1.2 }}
                 />
                 
                 <div className="relative text-center space-y-1 md:space-y-2 px-4 md:px-6 pt-3 md:pt-4 pb-4 md:pb-5">

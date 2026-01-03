@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
@@ -80,7 +80,7 @@ const ServicesSection: React.FC = () => {
     }
   };
 
-  const services: Service[] = [
+  const services: Service[] = useMemo(() => [
     {
       id: 1,
       image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
@@ -181,7 +181,7 @@ const ServicesSection: React.FC = () => {
         'https://i.pravatar.cc/150?img=24',
       ],
     },
-  ];
+  ], []);
 
   return (
     <section ref={sectionRef} className="py-20 bg-white" id="services">
@@ -537,4 +537,4 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
   );
 };
 
-export default ServicesSection;
+export default React.memo(ServicesSection);

@@ -615,4 +615,4 @@ const PremiumSection: React.FC = () => {
   );
 };
 
-export default PremiumSection;
+export default React.memo(PremiumSection);

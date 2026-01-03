@@ -78,4 +78,4 @@ const FeaturesSection: React.FC = () => {
   );
 };
 
-export default FeaturesSection;
+export default React.memo(FeaturesSection);

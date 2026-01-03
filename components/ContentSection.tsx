@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
 import { Play, Heart, MessageCircle, Repeat2, Instagram, ThumbsUp, Flame } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Container from './ui/Container';
@@ -34,7 +34,7 @@ const VideoPlayer: React.FC<{ src: string; thumbnail: string; isActive: boolean 
     pauseVideo();
   }, [isActive, isPlaying]);
 
-  const togglePlay = async () => {
+  const togglePlay = useCallback(async () => {
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
@@ -52,16 +52,16 @@ const VideoPlayer: React.FC<{ src: string; thumbnail: string; isActive: boolean 
         }
       }
     }
-  };
+  }, [isPlaying]);
 
-  const toggleMute = () => {
+  const toggleMute = useCallback(() => {
     if (videoRef.current) {
       videoRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
     }
-  };
+  }, [isMuted]);
 
-  const handleLike = () => {
+  const handleLike = useCallback(() => {
     setIsLiked(!isLiked);
     
     
@@ -82,16 +82,16 @@ const VideoPlayer: React.FC<{ src: string; thumbnail: string; isActive: boolean 
         }, i * 120); 
       });
     }
-  };
+  }, [isLiked]);
 
-  const handleTimeUpdate = () => {
+  const handleTimeUpdate = useCallback(() => {
     if (videoRef.current && !isDragging) {
       const progress = (videoRef.current.currentTime / videoRef.current.duration) * 100;
       setProgress(progress);
     }
-  };
+  }, [isDragging]);
 
-  const updateProgress = (e: MouseEvent | React.MouseEvent<HTMLDivElement>) => {
+  const updateProgress = useCallback((e: MouseEvent | React.MouseEvent<HTMLDivElement>) => {
     if (videoRef.current && progressBarRef.current) {
       const rect = progressBarRef.current.getBoundingClientRect();
       const clickX = rect.right - e.clientX;
@@ -101,16 +101,16 @@ const VideoPlayer: React.FC<{ src: string; thumbnail: string; isActive: boolean 
       videoRef.current.currentTime = newTime;
       setProgress(percentage);
     }
-  };
+  }, []);
 
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleProgressClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     updateProgress(e);
-  };
+  }, [updateProgress]);
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     setIsDragging(true);
     updateProgress(e);
-  };
+  }, [updateProgress]);
 
   React.useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -149,7 +149,7 @@ const VideoPlayer: React.FC<{ src: string; thumbnail: string; isActive: boolean 
         ref={videoRef}
         className="w-full rounded-xl object-cover"
         src={src}
-        preload="none"
+        preload="metadata"
         playsInline
         poster={thumbnail}
         onClick={togglePlay}
@@ -289,25 +289,25 @@ const ContentSection: React.FC = () => {
     };
   }, []);
 
-  const allVideos: Video[] = [
+  const allVideos: Video[] = useMemo(() => [
     { id: 1, src: '/videos/instagram-1.mp4', platform: 'instagram', thumbnail: '/images/thumbnails/tiktok-2.png' },
     { id: 2, src: '/videos/instagram-2.mp4', platform: 'instagram', thumbnail: '/images/thumbnails/tiktok-1.png' },
     { id: 3, src: '/videos/instagram-3.mp4', platform: 'instagram', thumbnail: '/images/thumbnails/instagram-3.png' },
     { id: 4, src: '/videos/tiktok-1.mp4', platform: 'tiktok', thumbnail: '/images/thumbnails/instagram-1.png' },
     { id: 5, src: '/videos/tiktok-2.mp4', platform: 'tiktok', thumbnail: '/images/thumbnails/instagram-2.png' },
     { id: 6, src: '/videos/tiktok-3.mp4', platform: 'tiktok', thumbnail: '/images/thumbnails/tiktok-3.png' },
-  ];
+  ], []);
 
-  const emojis = [
+  const emojis = useMemo(() => [
     { icon: ThumbsUp, colors: ['#F58529', '#DD2A7B', '#D4A574', '#D4A574'] },
     { icon: Heart, colors: ['#DD2A7B', '#F58529', '#D4A574', '#D4A574'] },
     { icon: Flame, colors: ['#FEDA75', '#FA7E1E', '#D4A574', '#D4A574'] },
     { icon: Heart, colors: ['#3B5998', '#8134AF', '#D4A574', '#D4A574'] },
     { icon: ThumbsUp, colors: ['#8134AF', '#3B5998', '#D4A574', '#D4A574'] },
     { icon: Flame, colors: ['#FA7E1E', '#FEDA75', '#D4A574', '#D4A574'] },
-  ];
+  ], []);
 
-  const getEmojiPosition = (index: number) => {
+  const getEmojiPosition = useCallback((index: number) => {
     
     const baseAngles = [
       -Math.PI / 2,      
@@ -324,9 +324,9 @@ const ContentSection: React.FC = () => {
     const x = Math.cos(angle) * distance;
     const y = Math.sin(angle) * distance;
     return { x, y };
-  };
+  }, []);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     if (isTransitioning) return;
     setIsTransitioning(true);
     setCurrentIndex((prev) => prev - 1);
@@ -337,9 +337,9 @@ const ContentSection: React.FC = () => {
     transitionTimeoutRef.current = setTimeout(() => {
       setIsTransitioning(false);
     }, 700);
-  };
+  }, [isTransitioning]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (isTransitioning) return;
     setIsTransitioning(true);
     setCurrentIndex((prev) => prev + 1);
@@ -350,7 +350,7 @@ const ContentSection: React.FC = () => {
     transitionTimeoutRef.current = setTimeout(() => {
       setIsTransitioning(false);
     }, 700);
-  };
+  }, [isTransitioning]);
 
   const handleVideoClick = (videoIndex: number) => {
     if (isTransitioning) return;
@@ -777,4 +777,4 @@ const ContentSection: React.FC = () => {
   );
 };
 
-export default ContentSection;
+export default React.memo(ContentSection);

@@ -14,7 +14,7 @@ import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 const CTASection: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useScrollAnimation(ref as React.RefObject<Element>, { threshold: 0.1, rootMargin: '0px 0px 300px 0px', once: true });
+  const isInView = useScrollAnimation(ref as React.RefObject<Element>, { threshold: 0.1, rootMargin: '0px 0px 200px 0px', once: true });
   
   const [formData, setFormData] = useState({
     firstName: '',
