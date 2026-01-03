@@ -26,7 +26,7 @@ export const fadeInUp: Variants = {
   visible: { 
     opacity: 1, 
     y: 0,
-    transition: { duration: 0.8, ease: [0.25, 1, 0.5, 1] }
+    transition: { duration: 1.2, ease: [0.25, 1, 0.5, 1] }
   }
 };
 
@@ -83,6 +83,37 @@ export const fadeInBlur: Variants = {
   visible: { 
     opacity: 1,
     transition: { duration: 0.6, ease: [0.25, 1, 0.5, 1] }
+  }
+};
+
+// Card rotation variants - for feature cards with angle animation
+export const fadeInUpRotateRight: Variants = {
+  hidden: { 
+    opacity: 0, 
+    y: 40,
+    rotate: 30,
+    transition: { duration: 0.6, ease: [0.25, 1, 0.5, 1] }
+  },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    rotate: 0,
+    transition: { duration: 1.2, ease: [0.34, 1.56, 0.64, 1] }
+  }
+};
+
+export const fadeInUpRotateLeft: Variants = {
+  hidden: { 
+    opacity: 0, 
+    y: 40,
+    rotate: -30,
+    transition: { duration: 0.6, ease: [0.25, 1, 0.5, 1] }
+  },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    rotate: 0,
+    transition: { duration: 1.2, ease: [0.34, 1.56, 0.64, 1] }
   }
 };
 
@@ -186,8 +217,8 @@ export const staggerContainer: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.25,
-      delayChildren: 0.6
+      staggerChildren: 0.15,
+      delayChildren: 0.2
     }
   }
 };
@@ -210,8 +241,8 @@ export const staggerFast: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2
+      staggerChildren: 0.02,
+      delayChildren: 0.04
     }
   }
 };
@@ -221,8 +252,8 @@ export const staggerSlow: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.25,
-      delayChildren: 0.5
+      staggerChildren: 0.05,
+      delayChildren: 0.1
     }
   }
 };
@@ -306,7 +337,7 @@ export const heroTitle: Variants = {
     transition: { 
       duration: 0.9, 
       ease: [0.4, 0, 0.2, 1],
-      delay: 0.2
+      delay: 0.04
     }
   }
 };
@@ -320,7 +351,7 @@ export const heroSubtitle: Variants = {
     transition: { 
       duration: 0.9, 
       ease: [0.4, 0, 0.2, 1],
-      delay: 0.5
+      delay: 0.1
     }
   }
 };
@@ -334,7 +365,7 @@ export const heroButtons: Variants = {
     transition: { 
       duration: 0.7, 
       ease: [0.4, 0, 0.2, 1],
-      delay: 0.8
+      delay: 0.16
     }
   }
 };
@@ -344,8 +375,8 @@ export const heroStats: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2,
-      delayChildren: 1
+      staggerChildren: 0.04,
+      delayChildren: 0.2
     }
   }
 };
@@ -393,8 +424,8 @@ export const textContainer: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.2
+      staggerChildren: 0.016,
+      delayChildren: 0.04
     }
   }
 };
@@ -430,7 +461,7 @@ export const navbarSlideDown: Variants = {
       type: 'spring',
       stiffness: 80,
       damping: 25,
-      delay: 0.1
+      delay: 0.02
     }
   }
 };

@@ -19,13 +19,52 @@ import {
 } from '@/lib/animations/variants';
 import AnimatedStroke from './ui/AnimatedStroke';
 
+// Highlight Text Component with beige background animation
+const HighlightText: React.FC<{ children: React.ReactNode; delay?: number }> = ({ children, delay = 0 }) => {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, []);
+
+  return (
+    <span 
+      ref={ref}
+      className={`highlight-text ${isVisible ? 'highlight-active' : ''}`}
+      style={{ 
+        ['--highlight-delay' as string]: `${delay}s`
+      }}
+    >
+      {children}
+    </span>
+  );
+};
+
 const AboutSection: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const imageRef = useRef<HTMLDivElement | null>(null);
   
-  const isContentInView = useScrollAnimation(contentRef as React.RefObject<Element>, { threshold: 0.2, once: false });
-  const isImageInView = useScrollAnimation(imageRef as React.RefObject<Element>, { threshold: 0.3, once: false });
+  const isContentInView = useScrollAnimation(contentRef as React.RefObject<Element>, { threshold: 0.1, once: false });
+  const isImageInView = useScrollAnimation(imageRef as React.RefObject<Element>, { threshold: 0.1, once: false });
 
   const expertise = [
     'خبرة عملية حقيقية في تشغيل وتطوير الشقق الفندقية والإيجارات قصيرة الأجل.',
@@ -77,7 +116,7 @@ const AboutSection: React.FC = () => {
               variants={fadeInUp}
             >
               <p>
-                رائد أعمال ومتخصص في الإيجارات قصيرة الأجل والشقق الفندقية في القاهرة، بدأ رحلته بوحدة واحدة ونجح في بناء نموذج تشغيل احترافي يعتمد على الأنظمة الواضحة والقرارات المبنية على البيانات وتقديم تجربة نزيل عالية الجودة، حيث يعمل على مساعدة ملاك العقارات في تحويل وحداتهم إلى وحدات فندقية مربحة وقابلة للتوسع، إلى جانب مشاركته خبراته العملية من خلال محتوى تعليمي متخصص حول Airbnb والإيجارات قصيرة الأجل.
+                <HighlightText delay={0.8}>رائد أعمال ومتخصص في الإيجارات قصيرة الأجل والشقق الفندقية في القاهرة</HighlightText>، بدأ رحلته بوحدة واحدة ونجح في بناء نموذج تشغيل احترافي يعتمد على الأنظمة الواضحة والقرارات المبنية على البيانات وتقديم تجربة نزيل عالية الجودة، حيث <HighlightText delay={2.2}>يعمل على مساعدة ملاك العقارات في تحويل وحداتهم إلى وحدات فندقية مربحة وقابلة للتوسع</HighlightText>، إلى جانب مشاركته خبراته العملية من خلال <HighlightText delay={3.6}>محتوى تعليمي متخصص حول Airbnb والإيجارات قصيرة الأجل</HighlightText>.
               </p>
             </motion.div>
 

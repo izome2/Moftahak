@@ -1,10 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
+import { motion } from 'framer-motion';
 import { TrendingUp, Users, Star } from 'lucide-react';
 import Container from './ui/Container';
 import Card from './ui/Card';
 import AnimatedStroke from './ui/AnimatedStroke';
+import { fadeInUp, fadeInUpRotateRight, fadeInUpRotateLeft, staggerContainer } from '@/lib/animations/variants';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 interface Feature {
   icon: React.ReactNode;
@@ -13,6 +16,9 @@ interface Feature {
 }
 
 const FeaturesSection: React.FC = () => {
+  const ref = useRef(null);
+  const isInView = useScrollAnimation(ref, { threshold: 0.2, once: true });
+
   const features: Feature[] = [
     {
       icon: <TrendingUp className="w-8 h-8" />,
@@ -31,6 +37,13 @@ const FeaturesSection: React.FC = () => {
     },
   ];
 
+  // Different animation variants for each card position
+  const getCardVariant = (index: number) => {
+    if (index === 0) return fadeInUpRotateRight; // Right card: rotate from +30deg
+    if (index === 1) return fadeInUp; // Center card: normal fade up
+    return fadeInUpRotateLeft; // Left card: rotate from -30deg
+  };
+
   return (
     <section className="py-20 bg-white" id="features">
       <Container>
@@ -47,32 +60,39 @@ const FeaturesSection: React.FC = () => {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <motion.div 
+          ref={ref}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          variants={staggerContainer}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+        >
           {features.map((feature, index) => (
-            <Card
+            <motion.div
               key={index}
-              className="text-center group animate-in fade-in slide-in-from-bottom"
-              style={{ animationDelay: `${index * 150}ms` }}
+              variants={getCardVariant(index)}
             >
-              {/* Icon Container */}
-              <div className="flex justify-center mb-6">
-                <div className="p-4 bg-primary/10 border-2 border-primary/30 rounded-2xl text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-secondary group-hover:scale-110 group-hover:rotate-6">
-                  {feature.icon}
+              <Card className="text-center group h-full">
+                {/* Icon Container */}
+                <div className="flex justify-center mb-6">
+                  <div className="p-4 bg-primary/10 border-2 border-primary/30 rounded-2xl text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-secondary group-hover:scale-110 group-hover:rotate-6">
+                    {feature.icon}
+                  </div>
                 </div>
-              </div>
 
-              {/* Title */}
-              <h3 className="text-2xl font-bold text-secondary mb-4 group-hover:text-primary transition-colors duration-300">
-                {feature.title}
-              </h3>
+                {/* Title */}
+                <h3 className="text-2xl font-bold text-secondary mb-4 group-hover:text-primary transition-colors duration-300">
+                  {feature.title}
+                </h3>
 
-              {/* Description */}
-              <p className="text-secondary/70 leading-relaxed">
-                {feature.description}
-              </p>
-            </Card>
+                {/* Description */}
+                <p className="text-secondary/70 leading-relaxed">
+                  {feature.description}
+                </p>
+              </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </Container>
     </section>
   );

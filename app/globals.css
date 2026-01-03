@@ -160,6 +160,44 @@ img[loading="eager"] {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
+/* Highlight Text Animation - RTL (Right to Left) */
+.highlight-text {
+  background: linear-gradient(90deg, rgba(237, 191, 140, 0.25) 0%, rgba(237, 191, 140, 0.25) 100%);
+  background-size: 0% 100%;
+  background-repeat: no-repeat;
+  background-position: right;
+  padding: 1px 3px;
+  margin: 0 -3px;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  display: inline;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.highlight-text.highlight-active {
+  animation: highlight-appear-disappear 2.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation-delay: var(--highlight-delay, 0s);
+}
+
+@keyframes highlight-appear-disappear {
+  0% {
+    background-size: 0% 100%;
+  }
+  40% {
+    background-size: 100% 100%;
+  }
+  60% {
+    background-size: 100% 100%;
+  }
+  100% {
+    background-size: 0% 100%;
+  }
+}
+
 /* Custom Animations */
 @keyframes fade-in {
   from {
