@@ -6,6 +6,8 @@ interface GyroscopeData {
   rotateX: number;
   rotateY: number;
   isSupported: boolean;
+  needsPermission: boolean;
+  requestPermission: () => Promise<void>;
 }
 
 
@@ -14,6 +16,8 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
     rotateX: 0,
     rotateY: 0,
     isSupported: false,
+    needsPermission: false,
+    requestPermission: async () => {},
   });
 
   useEffect(() => {
@@ -45,11 +49,12 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
             const rotateX = Math.max(-maxTilt, Math.min(maxTilt, (beta - 45) * 0.3 * intensity));
             const rotateY = Math.max(-maxTilt, Math.min(maxTilt, gamma * 0.3 * intensity));
 
-            setRotation({
+            setRotation(prev => ({
+              ...prev,
               rotateX: -rotateX, 
               rotateY: rotateY,
               isSupported: true,
-            });
+            }));
           }
           
           lastUpdateTime = now;
@@ -59,7 +64,7 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
     };
 
     
-    const requestPermission = async () => {
+    const requestPermissionFunc = async () => {
       if (
         typeof DeviceOrientationEvent !== 'undefined' &&
         typeof (DeviceOrientationEvent as any).requestPermission === 'function'
@@ -69,20 +74,48 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
           if (permission === 'granted') {
             isPermissionGranted = true;
             window.addEventListener('deviceorientation', handleOrientation);
-            setRotation(prev => ({ ...prev, isSupported: true }));
+            setRotation(prev => ({ 
+              ...prev, 
+              isSupported: true,
+              needsPermission: false 
+            }));
+          } else {
+            setRotation(prev => ({ 
+              ...prev, 
+              needsPermission: false,
+              isSupported: false
+            }));
           }
         } catch (error) {
           console.error('Error requesting device orientation permission:', error);
+          setRotation(prev => ({ 
+            ...prev, 
+            needsPermission: false,
+            isSupported: false
+          }));
         }
       } else {
-        
+        // Android وأجهزة أخرى لا تحتاج إذن
         isPermissionGranted = true;
         window.addEventListener('deviceorientation', handleOrientation);
-        setRotation(prev => ({ ...prev, isSupported: true }));
+        setRotation(prev => ({ ...prev, isSupported: true, needsPermission: false }));
       }
     };
 
-    requestPermission();
+    // تحقق إذا كان يحتاج إذن (iOS)
+    const needsPermission = 
+      typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof (DeviceOrientationEvent as any).requestPermission === 'function';
+
+    if (needsPermission) {
+      setRotation(prev => ({ 
+        ...prev, 
+        needsPermission: true,
+        requestPermission: requestPermissionFunc
+      }));
+    } else {
+      requestPermissionFunc();
+    }
 
     return () => {
       window.removeEventListener('deviceorientation', handleOrientation);

@@ -34,9 +34,35 @@ const ServicesSection: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null!);
   const gridRef = useRef<HTMLDivElement>(null!);
+  const [showGyroButton, setShowGyroButton] = React.useState(false);
+  const [gyroRequested, setGyroRequested] = React.useState(false);
   
   const isHeaderInView = useScrollAnimation(headerRef, { threshold: 0.3, once: true });
   const isGridInView = useScrollAnimation(gridRef, { threshold: 0.1, once: true });
+
+  // التحقق من الحاجة لطلب إذن الجايروسكوب على iOS
+  useEffect(() => {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const needsPermission = 
+      typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof (DeviceOrientationEvent as any).requestPermission === 'function';
+    
+    if (isIOS && needsPermission && !gyroRequested) {
+      setShowGyroButton(true);
+    }
+  }, [gyroRequested]);
+
+  const handleGyroRequest = async () => {
+    try {
+      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+        await (DeviceOrientationEvent as any).requestPermission();
+        setGyroRequested(true);
+        setShowGyroButton(false);
+      }
+    } catch (error) {
+      console.error('Error requesting gyroscope permission:', error);
+    }
+  };
 
   const services: Service[] = [
     {
@@ -144,6 +170,31 @@ const ServicesSection: React.FC = () => {
   return (
     <section ref={sectionRef} className="py-20 bg-white" id="services">
       <Container>
+        {/* زر تفعيل الجايروسكوب لأجهزة iOS */}
+        {showGyroButton && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-24 left-1/2 -translate-x-1/2 z-50"
+          >
+            <motion.button
+              onClick={handleGyroRequest}
+              className="bg-secondary text-primary px-6 py-3 rounded-lg shadow-2xl border-2 border-primary font-bold text-sm flex items-center gap-3"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.span
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              >
+                📱
+              </motion.span>
+              <span>تفعيل التأثيرات ثلاثية الأبعاد</span>
+            </motion.button>
+          </motion.div>
+        )}
+
         {/* Section Header */}
         <motion.div 
           ref={headerRef}
