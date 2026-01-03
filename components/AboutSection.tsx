@@ -192,13 +192,13 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Apply gyroscope rotation on mobile when not hovering
+  // Apply gyroscope rotation on mobile
   useEffect(() => {
-    if (isMobile && gyro.isSupported && !isHovering) {
+    if (isMobile && gyro.isSupported) {
       rotateX.set(gyro.rotateX);
       rotateY.set(gyro.rotateY);
     }
-  }, [gyro.rotateX, gyro.rotateY, isMobile, gyro.isSupported, isHovering, rotateX, rotateY]);
+  }, [gyro.rotateX, gyro.rotateY, isMobile, gyro.isSupported, rotateX, rotateY]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current || isMobile) return;

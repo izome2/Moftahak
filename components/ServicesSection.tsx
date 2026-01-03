@@ -50,7 +50,10 @@ const ServicesSection: React.FC = () => {
       typeof DeviceOrientationEvent !== 'undefined' &&
       typeof (DeviceOrientationEvent as any).requestPermission === 'function';
     
-    if (isIOS && needsPermission && !gyroRequested && gyro.needsPermission) {
+    // التحقق من localStorage إذا كان الإذن قد مُنح سابقاً
+    const gyroPermissionGranted = localStorage.getItem('gyroPermissionGranted') === 'true';
+    
+    if (isIOS && needsPermission && !gyroRequested && gyro.needsPermission && !gyroPermissionGranted) {
       setShowGyroButton(true);
       
       // إخفاء الرسالة تلقائياً بعد 4 ثواني
@@ -68,6 +71,8 @@ const ServicesSection: React.FC = () => {
         await gyro.requestPermission();
         setGyroRequested(true);
         setShowGyroButton(false);
+        // حفظ الإذن في localStorage
+        localStorage.setItem('gyroPermissionGranted', 'true');
       }
     } catch (error) {
       console.error('Error requesting gyroscope permission:', error);

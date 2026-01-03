@@ -24,6 +24,8 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
   const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const initialBetaRef = useRef<number | null>(null);
   const initialGammaRef = useRef<number | null>(null);
+  const lastBetaRef = useRef<number>(0);
+  const lastGammaRef = useRef<number>(0);
 
   // Main effect that handles gyroscope events
   useEffect(() => {
@@ -57,28 +59,37 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
             const deltaBeta = beta - (initialBetaRef.current || 0);
             const deltaGamma = gamma - (initialGammaRef.current || 0);
             
-            const rotateX = Math.max(-maxTilt, Math.min(maxTilt, deltaBeta * 0.8 * intensity));
-            const rotateY = Math.max(-maxTilt, Math.min(maxTilt, deltaGamma * 0.8 * intensity));
+            // التحقق من وجود حركة فعلية (تغيير أكثر من 0.5 درجة)
+            const betaChanged = Math.abs(beta - lastBetaRef.current) > 0.5;
+            const gammaChanged = Math.abs(gamma - lastGammaRef.current) > 0.5;
+            
+            if (betaChanged || gammaChanged) {
+              const rotateX = Math.max(-maxTilt, Math.min(maxTilt, deltaBeta * 0.8 * intensity));
+              const rotateY = Math.max(-maxTilt, Math.min(maxTilt, deltaGamma * 0.8 * intensity));
 
-            setRotation({
-              rotateX: -rotateX, 
-              rotateY: rotateY,
-              isSupported: true,
-            });
+              setRotation({
+                rotateX: -rotateX, 
+                rotateY: rotateY,
+                isSupported: true,
+              });
 
-            // إلغاء المؤقت السابق
-            if (resetTimeoutRef.current) {
-              clearTimeout(resetTimeoutRef.current);
+              lastBetaRef.current = beta;
+              lastGammaRef.current = gamma;
+
+              // إلغاء المؤقت السابق
+              if (resetTimeoutRef.current) {
+                clearTimeout(resetTimeoutRef.current);
+              }
+
+              // إعادة التعيين بعد ثانية من عدم الحركة
+              resetTimeoutRef.current = setTimeout(() => {
+                setRotation(prev => ({
+                  ...prev,
+                  rotateX: 0,
+                  rotateY: 0,
+                }));
+              }, 1000);
             }
-
-            // إعادة التعيين بعد ثانية من عدم الحركة
-            resetTimeoutRef.current = setTimeout(() => {
-              setRotation(prev => ({
-                ...prev,
-                rotateX: 0,
-                rotateY: 0,
-              }));
-            }, 1000);
           }
           
           lastUpdateTimeRef.current = now;
@@ -92,13 +103,21 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
       typeof DeviceOrientationEvent !== 'undefined' &&
       typeof (DeviceOrientationEvent as any).requestPermission === 'function';
 
+    // التحقق من localStorage إذا كان الإذن قد مُنح سابقاً
+    const gyroPermissionGranted = typeof window !== 'undefined' && 
+      localStorage.getItem('gyroPermissionGranted') === 'true';
+
     if (!needsPermissionCheck) {
       // Android وأجهزة أخرى لا تحتاج إذن - لا تظهر زر الإذن
       window.addEventListener('deviceorientation', handleOrientation);
       setRotation(prev => ({ ...prev, isSupported: true }));
-    } else if (permissionGranted) {
-      // iOS بعد منح الإذن
+    } else if (permissionGranted || gyroPermissionGranted) {
+      // iOS بعد منح الإذن أو إذا كان محفوظاً في localStorage
       window.addEventListener('deviceorientation', handleOrientation);
+      if (gyroPermissionGranted && !permissionGranted) {
+        setPermissionGranted(true);
+        setNeedsPermission(false);
+      }
     } else {
       // iOS يحتاج إذن
       setNeedsPermission(true);
@@ -127,6 +146,10 @@ export function useGyroscope(intensity: number = 1): GyroscopeData {
           setPermissionGranted(true);
           setNeedsPermission(false);
           setRotation(prev => ({ ...prev, isSupported: true }));
+          // حفظ الإذن في localStorage
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('gyroPermissionGranted', 'true');
+          }
         } else {
           setNeedsPermission(false);
         }

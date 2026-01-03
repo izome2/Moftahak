@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { MessageCircle, Building2, CheckCircle2, ArrowLeft, Sparkles, GraduationCap } from 'lucide-react';
 import { motion, useInView, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import Container from './ui/Container';
 import Badge from './ui/Badge';
 import AnimatedStroke from './ui/AnimatedStroke';
+import { useGyroscope } from '@/hooks/useGyroscope';
 
 interface Package {
   id: number;
@@ -24,9 +25,29 @@ const MagneticCard: React.FC<{
   hoveredCard: number | null;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
-}> = ({ pkg, index, isInView, hoveredCard, onMouseEnter, onMouseLeave }) => {
+  gyroData: { rotateX: number; rotateY: number; isSupported: boolean };
+}> = ({ pkg, index, isInView, hoveredCard, onMouseEnter, onMouseLeave, gyroData }) => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // التحقق من الهاتف
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // تطبيق الجايروسكوب على الهواتف
+  useEffect(() => {
+    if (isMobile && gyroData.isSupported) {
+      mouseX.set(gyroData.rotateY * 2);
+      mouseY.set(gyroData.rotateX * 2);
+    }
+  }, [gyroData.rotateX, gyroData.rotateY, isMobile, gyroData.isSupported, mouseX, mouseY]);
   
   // Spring physics for smooth magnetic effect
   const springConfig = { stiffness: 150, damping: 20, mass: 0.5 };
@@ -34,6 +55,8 @@ const MagneticCard: React.FC<{
   const smoothMouseY = useSpring(mouseY, springConfig);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isMobile) return; // تعطيل تأثير الماوس على الهواتف
+    
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left - rect.width / 2;
     const y = e.clientY - rect.top - rect.height / 2;
@@ -43,8 +66,10 @@ const MagneticCard: React.FC<{
   };
 
   const handleMouseLeaveCard = () => {
-    mouseX.set(0);
-    mouseY.set(0);
+    if (!isMobile) {
+      mouseX.set(0);
+      mouseY.set(0);
+    }
     onMouseLeave();
   };
 
@@ -268,6 +293,9 @@ const PremiumSection: React.FC = () => {
   
   // Mouse tracking for magnetic effect - separate for each card
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  
+  // استخدام الجايروسكوب للهواتف
+  const gyro = useGyroscope(1.5);
 
   const packages: Package[] = [
     {
@@ -421,6 +449,7 @@ const PremiumSection: React.FC = () => {
               hoveredCard={hoveredCard}
               onMouseEnter={() => handleMouseEnter(pkg.id)}
               onMouseLeave={handleMouseLeave}
+              gyroData={gyro}
             />
           ))}
 
