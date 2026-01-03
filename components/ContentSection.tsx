@@ -10,9 +10,10 @@ interface Video {
   id: number;
   src: string;
   platform: 'instagram' | 'tiktok';
+  thumbnail: string;
 }
 
-const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActive }) => {
+const VideoPlayer: React.FC<{ src: string; thumbnail: string; isActive: boolean }> = ({ src, thumbnail, isActive }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -24,20 +25,32 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
 
   
   React.useEffect(() => {
-    if (!isActive && videoRef.current && isPlaying) {
-      videoRef.current.pause();
-      setIsPlaying(false);
-    }
+    const pauseVideo = async () => {
+      if (!isActive && videoRef.current && isPlaying) {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      }
+    };
+    pauseVideo();
   }, [isActive, isPlaying]);
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
+        setIsPlaying(false);
       } else {
-        videoRef.current.play();
+        try {
+          await videoRef.current.play();
+          setIsPlaying(true);
+        } catch (error) {
+          // Ignore AbortError when play is interrupted
+          if ((error as Error).name !== 'AbortError') {
+            console.error('Error playing video:', error);
+          }
+          setIsPlaying(false);
+        }
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -53,7 +66,7 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
     
     
     if (!isLiked) {
-      Array.from({ length: 5 }).forEach((_, i) => {
+      Array.from({ length: 3 }).forEach((_, i) => {
         setTimeout(() => {
           const newHeart = {
             id: Date.now() + Math.random(),
@@ -65,8 +78,8 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
           
           setTimeout(() => {
             setHearts(prev => prev.filter(h => h.id !== newHeart.id));
-          }, 1000);
-        }, i * 150); 
+          }, 800);
+        }, i * 120); 
       });
     }
   };
@@ -123,12 +136,22 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
 
   return (
     <div className="relative group">
+      {/* Thumbnail */}
+      {!isPlaying && (
+        <img
+          src={thumbnail}
+          alt="Video thumbnail"
+          className="w-full rounded-xl object-cover absolute inset-0 z-10"
+        />
+      )}
+      
       <video
         ref={videoRef}
         className="w-full rounded-xl object-cover"
         src={src}
-        preload="metadata"
+        preload="none"
         playsInline
+        poster={thumbnail}
         onClick={togglePlay}
         onEnded={() => setIsPlaying(false)}
         onTimeUpdate={handleTimeUpdate}
@@ -141,7 +164,7 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
 
       {}
       <div
-        className="absolute inset-0 flex items-center justify-center cursor-pointer group/play"
+        className="absolute inset-0 flex items-center justify-center cursor-pointer group/play z-20"
         onClick={togglePlay}
       >
         {!isPlaying && (
@@ -154,7 +177,7 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
       </div>
 
       {}
-      <div className="absolute right-4 bottom-16 flex flex-col gap-3">
+      <div className="absolute right-4 bottom-16 flex flex-col gap-3 z-20">
         {}
         <button 
           onClick={handleLike}
@@ -211,7 +234,7 @@ const VideoPlayer: React.FC<{ src: string; isActive: boolean }> = ({ src, isActi
       `}</style>
 
       {}
-      <div className="absolute bottom-6 left-4 right-4 px-2">
+      <div className="absolute bottom-6 left-4 right-4 px-2 z-20">
         <div
           ref={progressBarRef}
           className="h-1.5 bg-[#ead3b9]/30 rounded-full overflow-hidden cursor-pointer shadow-lg backdrop-blur-sm select-none"
@@ -234,8 +257,10 @@ const ContentSection: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const [showEmojis, setShowEmojis] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInView = useScrollAnimation(containerRef as React.RefObject<Element>, { threshold: 0.2, once: true });
   const isHeaderInView = useScrollAnimation(headerRef as React.RefObject<Element>, { threshold: 0.5, once: false });
 
@@ -252,18 +277,25 @@ const ContentSection: React.FC = () => {
       const timer = setTimeout(() => setShowEmojis(false), 3000);
       return () => clearTimeout(timer);
     } else {
-      
       setShowEmojis(false);
     }
   }, [isHeaderInView]);
 
+  React.useEffect(() => {
+    return () => {
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const allVideos: Video[] = [
-    { id: 1, src: '/videos/instagram-1.mp4', platform: 'instagram' },
-    { id: 2, src: '/videos/instagram-2.mp4', platform: 'instagram' },
-    { id: 3, src: '/videos/instagram-3.mp4', platform: 'instagram' },
-    { id: 4, src: '/videos/tiktok-1.mp4', platform: 'tiktok' },
-    { id: 5, src: '/videos/tiktok-2.mp4', platform: 'tiktok' },
-    { id: 6, src: '/videos/tiktok-3.mp4', platform: 'tiktok' },
+    { id: 1, src: '/videos/instagram-1.mp4', platform: 'instagram', thumbnail: '/images/thumbnails/tiktok-2.png' },
+    { id: 2, src: '/videos/instagram-2.mp4', platform: 'instagram', thumbnail: '/images/thumbnails/tiktok-1.png' },
+    { id: 3, src: '/videos/instagram-3.mp4', platform: 'instagram', thumbnail: '/images/thumbnails/instagram-3.png' },
+    { id: 4, src: '/videos/tiktok-1.mp4', platform: 'tiktok', thumbnail: '/images/thumbnails/instagram-1.png' },
+    { id: 5, src: '/videos/tiktok-2.mp4', platform: 'tiktok', thumbnail: '/images/thumbnails/instagram-2.png' },
+    { id: 6, src: '/videos/tiktok-3.mp4', platform: 'tiktok', thumbnail: '/images/thumbnails/tiktok-3.png' },
   ];
 
   const emojis = [
@@ -295,17 +327,44 @@ const ContentSection: React.FC = () => {
   };
 
   const handlePrev = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
     setCurrentIndex((prev) => prev - 1);
+    
+    if (transitionTimeoutRef.current) {
+      clearTimeout(transitionTimeoutRef.current);
+    }
+    transitionTimeoutRef.current = setTimeout(() => {
+      setIsTransitioning(false);
+    }, 700);
   };
 
   const handleNext = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
     setCurrentIndex((prev) => prev + 1);
+    
+    if (transitionTimeoutRef.current) {
+      clearTimeout(transitionTimeoutRef.current);
+    }
+    transitionTimeoutRef.current = setTimeout(() => {
+      setIsTransitioning(false);
+    }, 700);
   };
 
   const handleVideoClick = (videoIndex: number) => {
+    if (isTransitioning) return;
     const position = videoIndex - (((currentIndex % allVideos.length) + allVideos.length) % allVideos.length);
     if (position !== 0) {
+      setIsTransitioning(true);
       setCurrentIndex((prev) => prev + position);
+      
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
+      transitionTimeoutRef.current = setTimeout(() => {
+        setIsTransitioning(false);
+      }, 700);
     }
   };
 
@@ -315,7 +374,7 @@ const ContentSection: React.FC = () => {
   };
 
   const handleDragEnd = (clientX: number) => {
-    if (!isDragging) return;
+    if (!isDragging || isTransitioning) return;
     
     const diff = dragStartX - clientX;
     const threshold = 80;
@@ -341,7 +400,10 @@ const ContentSection: React.FC = () => {
       position += allVideos.length;
     }
     
-    const spacing = isMobile ? 180 : 240;
+    // عرض 3 فيديوهات فقط على الشاشات الصغيرة
+    const maxVisible = isMobile ? 1 : 2;
+    
+    const spacing = isMobile ? 200 : 240;
     let translateX = position * spacing;
     let scale = 1;
     let opacity = 1;
@@ -354,17 +416,17 @@ const ContentSection: React.FC = () => {
       zIndex = 15;
       blur = 0;
     } else if (Math.abs(position) === 1) {
-      scale = isMobile ? 0.85 : 1.05;
-      opacity = 0.75;
+      scale = isMobile ? 0.8 : 1.05;
+      opacity = isMobile ? 0.6 : 0.75;
       zIndex = 14;
-      blur = 2;
+      blur = isMobile ? 1 : 2;
     } else if (Math.abs(position) === 2) {
-      scale = isMobile ? 0.7 : 1;
-      opacity = 0.5;
+      scale = isMobile ? 0 : 1;
+      opacity = isMobile ? 0 : 0.5;
       zIndex = 13;
       blur = 6;
     } else {
-      scale = 0.9;
+      scale = 0;
       opacity = 0;
       zIndex = 10;
       blur = 8;
@@ -375,7 +437,8 @@ const ContentSection: React.FC = () => {
       opacity,
       zIndex,
       filter: `blur(${blur}px)`,
-      pointerEvents: Math.abs(position) <= 2 ? 'auto' : 'none',
+      pointerEvents: Math.abs(position) <= maxVisible ? 'auto' : 'none',
+      display: isMobile && Math.abs(position) > maxVisible ? 'none' : 'block',
     };
   };
 
@@ -399,7 +462,8 @@ const ContentSection: React.FC = () => {
 
   
   const getVisibleVideos = () => {
-    const positions = [-2, -1, 0, 1, 2];
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+    const positions = isMobile ? [-1, 0, 1] : [-2, -1, 0, 1, 2];
     return positions.map((offset) => {
       const index = (currentIndex + offset + allVideos.length) % allVideos.length;
       return {
@@ -569,7 +633,7 @@ const ContentSection: React.FC = () => {
         {}
         <div className="relative py-12" ref={containerRef}>
           {}
-          <div className="relative h-[600px] flex items-center justify-center">
+          <div className="relative h-150 flex items-center justify-center">
             <div 
               className="relative w-full h-full cursor-grab active:cursor-grabbing"
               onMouseDown={handleMouseDown}
@@ -578,7 +642,7 @@ const ContentSection: React.FC = () => {
               onTouchEnd={handleTouchEnd}
             >
               {allVideos.map((video, index) => {
-                const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+                const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
                 const styles = getPositionStyles(index, isMobile) as React.CSSProperties;
                 const normalizedCurrent = ((currentIndex % allVideos.length) + allVideos.length) % allVideos.length;
                 const isCenter = index === normalizedCurrent;
@@ -591,10 +655,15 @@ const ContentSection: React.FC = () => {
                   position += allVideos.length;
                 }
                 
+                // إخفاء الفيديوهات البعيدة على الشاشات الصغيرة لتحسين الأداء
+                if (isMobile && Math.abs(position) > 1) {
+                  return null;
+                }
+                
                 return (
                   <motion.div
                     key={video.id}
-                    className="absolute left-1/2 top-1/2 -translate-y-1/2 w-[330px] md:w-[320px]"
+                    className="absolute left-1/2 top-1/2 -translate-y-1/2 w-82.5 md:w-80"
                     style={{
                       zIndex: styles.zIndex,
                       pointerEvents: styles.pointerEvents,
@@ -610,7 +679,7 @@ const ContentSection: React.FC = () => {
                     animate={isInView ? {
                       opacity: styles.opacity,
                       y: 0,
-                      x: position === 0 ? '-50%' : `calc(-50% + ${position * (isMobile ? 180 : 240)}px)`,
+                      x: position === 0 ? '-50%' : `calc(-50% + ${position * (isMobile ? 200 : 240)}px)`,
                       scale: styles.transform ? parseFloat(styles.transform.toString().match(/scale\(([^)]+)\)/)?.[1] || '1') : 1,
                     } : {
                       opacity: 0,
@@ -619,9 +688,14 @@ const ContentSection: React.FC = () => {
                       scale: position === 0 ? 0.95 : 1,
                     }}
                     transition={{
-                      duration: hasAnimated ? 0.7 : 0.6,
-                      delay: hasAnimated ? 0 : (position === 0 ? 0.3 : 0.7 + Math.abs(position) * 0.15),
-                      ease: hasAnimated ? 'easeOut' : [0.25, 0.46, 0.45, 0.94]
+                      type: hasAnimated ? "spring" : "tween",
+                      duration: hasAnimated ? undefined : 0.5,
+                      bounce: 0,
+                      damping: hasAnimated ? 25 : undefined,
+                      stiffness: hasAnimated ? 200 : undefined,
+                      mass: hasAnimated ? 0.8 : undefined,
+                      delay: hasAnimated ? 0 : (position === 0 ? 0.2 : 0.5 + Math.abs(position) * 0.1),
+                      ease: hasAnimated ? undefined : [0.4, 0, 0.2, 1]
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -634,11 +708,11 @@ const ContentSection: React.FC = () => {
                         : 'shadow-2xl hover:shadow-[0_0_40px_rgba(234,211,185,0.6)] cursor-pointer'
                     }`}>
                       <div className={!isCenter ? 'pointer-events-none' : ''}>
-                        <VideoPlayer src={video.src} isActive={isCenter} />
+                        <VideoPlayer src={video.src} thumbnail={video.thumbnail} isActive={isCenter} />
                       </div>
                     
                     {}
-                    <div className="absolute top-4 left-4 z-10">
+                    <div className="absolute top-4 left-4 z-30">
                       {video.platform === 'instagram' ? (
                         <div className="w-8 h-8 rounded-lg bg-linear-to-br from-purple-600 via-pink-600 to-orange-500 flex items-center justify-center shadow-lg">
                           <Instagram size={18} className="text-white" />
@@ -659,7 +733,8 @@ const ContentSection: React.FC = () => {
           </div>          {}
           <button
             onClick={handleNext}
-            className="absolute right-1 md:right-4 top-1/2 md:top-[48%] -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full bg-[#ead3b9] hover:bg-[#edbf8c] text-secondary flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-105 z-30 group"
+            disabled={isTransitioning}
+            className="absolute right-1 md:right-4 top-1/2 md:top-[48%] -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full bg-[#ead3b9] hover:bg-[#edbf8c] text-secondary flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-105 z-30 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-[#ead3b9]"
             aria-label="التالي"
           >
             <svg className="w-5 h-5 md:w-7 md:h-7 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -669,7 +744,8 @@ const ContentSection: React.FC = () => {
 
           <button
             onClick={handlePrev}
-            className="absolute left-1 md:left-4 top-1/2 md:top-[48%] -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full bg-[#ead3b9] hover:bg-[#edbf8c] text-secondary flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-105 z-30 group"
+            disabled={isTransitioning}
+            className="absolute left-1 md:left-4 top-1/2 md:top-[48%] -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 rounded-full bg-[#ead3b9] hover:bg-[#edbf8c] text-secondary flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-105 z-30 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-[#ead3b9]"
             aria-label="السابق"
           >
             <svg className="w-5 h-5 md:w-7 md:h-7 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">

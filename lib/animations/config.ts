@@ -10,25 +10,25 @@ import { Transition, Easing } from 'framer-motion';
 // ============================================
 
 export const ANIMATION_DURATION = {
-  instant: 0.3,
-  fast: 0.6,
-  normal: 0.9,
-  slow: 1.2,
-  verySlow: 1.6
+  instant: 0.2,
+  fast: 0.4,
+  normal: 0.6,
+  slow: 0.8,
+  verySlow: 1.0
 } as const;
 
 export const STAGGER_DELAY = {
-  fast: 0.1,
-  normal: 0.15,
-  slow: 0.2,
-  verySlow: 0.3
+  fast: 0.05,
+  normal: 0.1,
+  slow: 0.15,
+  verySlow: 0.2
 } as const;
 
 export const ENTRANCE_DELAY = {
   none: 0,
-  fast: 0.1,
-  normal: 0.3,
-  slow: 0.5
+  fast: 0.05,
+  normal: 0.15,
+  slow: 0.3
 } as const;
 
 // ============================================

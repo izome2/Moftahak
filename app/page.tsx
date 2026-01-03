@@ -1,12 +1,16 @@
+import { lazy, Suspense } from 'react';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
-import FeaturesSection from '@/components/FeaturesSection';
-import ServicesSection from '@/components/ServicesSection';
-import PremiumSection from '@/components/PremiumSection';
-import AboutSection from '@/components/AboutSection';
-import TestimonialsSection from '@/components/TestimonialsSection';
-import ContentSection from '@/components/ContentSection';
-import CTASection from '@/components/CTASection';
+import LoadingSpinner from '@/components/LoadingSpinner';
+
+// Lazy load non-critical sections for better performance
+const FeaturesSection = lazy(() => import('@/components/FeaturesSection'));
+const ServicesSection = lazy(() => import('@/components/ServicesSection'));
+const PremiumSection = lazy(() => import('@/components/PremiumSection'));
+const AboutSection = lazy(() => import('@/components/AboutSection'));
+const TestimonialsSection = lazy(() => import('@/components/TestimonialsSection'));
+const ContentSection = lazy(() => import('@/components/ContentSection'));
+const CTASection = lazy(() => import('@/components/CTASection'));
 
 export default function HomePage() {
   return (
@@ -14,13 +18,27 @@ export default function HomePage() {
       <Navbar />
       <main>
         <HeroSection />
-        <AboutSection />
-        <FeaturesSection />
-        <ServicesSection />
-        <PremiumSection />
-        <TestimonialsSection />
-        <ContentSection />
-        <CTASection />
+        <Suspense fallback={<LoadingSpinner />}>
+          <AboutSection />
+        </Suspense>
+        <Suspense fallback={<LoadingSpinner />}>
+          <FeaturesSection />
+        </Suspense>
+        <Suspense fallback={<LoadingSpinner />}>
+          <ServicesSection />
+        </Suspense>
+        <Suspense fallback={<LoadingSpinner />}>
+          <PremiumSection />
+        </Suspense>
+        <Suspense fallback={<LoadingSpinner />}>
+          <TestimonialsSection />
+        </Suspense>
+        <Suspense fallback={<LoadingSpinner />}>
+          <ContentSection />
+        </Suspense>
+        <Suspense fallback={<LoadingSpinner />}>
+          <CTASection />
+        </Suspense>
       </main>
     </>
   );

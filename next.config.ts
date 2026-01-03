@@ -39,11 +39,21 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
+  // SWC Minification for better performance
+  swcMinify: true,
+  
+  // Output standalone for optimal deployment
+  output: 'standalone',
+  
   // Experimental features for better performance
   experimental: {
-    optimizePackageImports: ['lucide-react', 'react-icons'],
+    optimizePackageImports: ['lucide-react', 'react-icons', 'framer-motion'],
     // Enable modern bundling
     serverMinification: true,
+    // Optimize CSS
+    optimizeCss: true,
+    // Enable partial prerendering for better performance
+    ppr: false,
   },
   
   // Turbopack configuration (empty to silence warnings)
