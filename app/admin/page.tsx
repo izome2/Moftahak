@@ -1,0 +1,167 @@
+'use client';
+
+import React, { useEffect } from 'react';
+import { Users, FileText, Building2, Star, Menu } from 'lucide-react';
+import StatsCard from '@/components/admin/StatsCard';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+
+export default function AdminDashboard() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  // حماية الصفحة - إعادة توجيه إذا لم يكن أدمن
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/');
+    } else if (status === 'authenticated' && session?.user?.role !== 'ADMIN') {
+      router.push('/');
+    }
+  }, [status, session, router]);
+
+  // عرض loading أثناء التحقق
+  if (status === 'loading' || !session || session.user?.role !== 'ADMIN') {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-secondary font-dubai">جاري التحميل...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // بيانات مؤقتة - سيتم استبدالها بـ API calls حقيقية
+  const stats = {
+    totalUsers: 156,
+    newRequests: 23,
+    properties: 47,
+    reviews: 89,
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* الترحيب */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="flex items-center justify-between gap-3 sm:gap-4"
+      >
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
+            <Image
+              src="/logos/logo-dark-icon.png"
+              alt="مفتاحك"
+              fill
+              className="object-contain"
+            />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-secondary font-bristone">
+              MOFTAHAK
+            </h1>
+            <p className="text-sm sm:text-base text-secondary/60 font-dubai">
+              إليك نظرة عامة على أداء الموقع اليوم
+            </p>
+          </div>
+        </div>
+        
+        {/* زر القائمة للموبايل والآيباد */}
+        <button
+          onClick={() => {
+            const event = new CustomEvent('openAdminMenu');
+            window.dispatchEvent(event);
+          }}
+          className="lg:hidden p-2 hover:bg-primary/10 rounded-lg transition-colors"
+          aria-label="فتح القائمة"
+        >
+          <Menu size={28} className="text-secondary" />
+        </button>
+      </motion.div>
+
+      {/* البطاقات الإحصائية */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
+        <StatsCard
+          icon={Users}
+          label="إجمالي المستخدمين"
+          value={stats.totalUsers}
+          iconBgColor="bg-primary/20"
+          iconColor="text-primary"
+        />
+        <StatsCard
+          icon={FileText}
+          label="الطلبات الجديدة"
+          value={stats.newRequests}
+          iconBgColor="bg-primary/20"
+          iconColor="text-primary"
+        />
+        <StatsCard
+          icon={Building2}
+          label="العقارات المنشورة"
+          value={stats.properties}
+          iconBgColor="bg-primary/20"
+          iconColor="text-primary"
+        />
+        <StatsCard
+          icon={Star}
+          label="المراجعات"
+          value={stats.reviews}
+          iconBgColor="bg-primary/20"
+          iconColor="text-primary"
+        />
+      </div>
+
+      {/* الأقسام الإضافية */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        {/* آخر المستخدمين */}
+        <motion.div 
+          className="bg-white border-2 border-primary/20 p-6 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)] hover:shadow-[0_8px_30px_rgba(237,191,140,0.25)] transition-all duration-300"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <h2 className="text-xl font-bold text-secondary mb-4 font-dubai">
+            آخر المستخدمين المسجلين
+          </h2>
+          <div className="space-y-3">
+            <p className="text-secondary/60 text-center py-8 font-dubai">
+              قريباً...
+            </p>
+          </div>
+        </motion.div>
+
+        {/* آخر الطلبات */}
+        <motion.div 
+          className="bg-white border-2 border-primary/20 p-6 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)] hover:shadow-[0_8px_30px_rgba(237,191,140,0.25)] transition-all duration-300"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <h2 className="text-xl font-bold text-secondary mb-4 font-dubai">
+            آخر الطلبات
+          </h2>
+          <div className="space-y-3">
+            <p className="text-secondary/60 text-center py-8 font-dubai">
+              قريباً...
+            </p>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* رسالة تطوير */}
+      <motion.div 
+        className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 p-6 rounded-2xl text-center shadow-[0_4px_20px_rgba(237,191,140,0.1)]"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+      >
+        <p className="text-secondary font-dubai text-lg">
+          🚀 هذه النسخة التجريبية من لوحة التحكم. سيتم إضافة المزيد من الميزات قريباً!
+        </p>
+      </motion.div>
+    </div>
+  );
+}

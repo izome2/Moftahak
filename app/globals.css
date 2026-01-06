@@ -59,6 +59,16 @@ html {
   }
 }
 
+/* إخفاء شريط التمرير في Modals */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 .font-en {
   font-family: var(--font-bristone), sans-serif;
 }

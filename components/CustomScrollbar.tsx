@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function CustomScrollbar() {
   const [scrollPercentage, setScrollPercentage] = useState(0);
   const [isDesktop, setIsDesktop] = useState(false);
   const scrollbarRef = useRef<HTMLDivElement>(null);
   const thumbRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const checkDevice = () => {
@@ -41,7 +43,10 @@ export default function CustomScrollbar() {
     };
   }, []);
 
-  if (!isDesktop) return null;
+  // إخفاء الشريط في صفحات الأدمن أو على الموبايل
+  if (pathname?.startsWith('/admin') || !isDesktop) {
+    return null;
+  }
 
   return (
     <div

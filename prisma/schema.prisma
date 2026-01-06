@@ -1,0 +1,32 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User Model - نموذج المستخدم
+model User {
+  id            String    @id @default(cuid())
+  firstName     String    @map("first_name")
+  lastName      String    @map("last_name")
+  email         String    @unique
+  password      String
+  role          Role      @default(USER)
+  image         String?   @default("/images/default-avatar.svg")
+  emailVerified DateTime? @map("email_verified")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+// Role Enum - أدوار المستخدمين
+enum Role {
+  USER  // مستخدم عادي
+  ADMIN // مدير
+}

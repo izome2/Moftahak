@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { bristone, dubai } from "./fonts";
 import "./globals.css";
 import CustomScrollbar from "@/components/CustomScrollbar";
+import Providers from "@/components/Providers";
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -158,8 +159,10 @@ export default function RootLayout({
       <body
         className={`${dubai.variable} ${bristone.variable} antialiased font-dubai`}
       >
-        {children}
-        <CustomScrollbar />
+        <Providers>
+          {children}
+          <CustomScrollbar />
+        </Providers>
       </body>
     </html>
   );

@@ -3,14 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 import { Menu, X, Phone, User, ShoppingCart } from 'lucide-react';
 import Button from './ui/Button';
 import Container from './ui/Container';
+import AuthModal from './auth/AuthModal';
+import UserDropdown from './user/UserDropdown';
 
 const Navbar: React.FC = () => {
+  const { data: session } = useSession();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOutOfHero, setIsOutOfHero] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -97,12 +102,17 @@ const Navbar: React.FC = () => {
             >
               <ShoppingCart size={22} />
             </button>
-            <button
-              className="p-2 text-secondary hover:text-primary transition-colors duration-300"
-              aria-label="تسجيل الدخول"
-            >
-              <User size={22} />
-            </button>
+            {session ? (
+              <UserDropdown />
+            ) : (
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="p-2 text-secondary hover:text-primary transition-colors duration-300"
+                aria-label="تسجيل الدخول"
+              >
+                <User size={22} />
+              </button>
+            )}
             <Button
               variant="primary"
               size="sm"
@@ -137,33 +147,46 @@ const Navbar: React.FC = () => {
                   {link.label}
                 </button>
               ))}
-              <div className="flex items-center gap-4 pt-4 border-t border-accent">
+            </div>
+            <div className="flex items-center gap-4 pt-4 border-t border-accent">
+              <button
+                className="p-2 text-secondary hover:text-primary transition-colors"
+                aria-label="السلة"
+              >
+                <ShoppingCart size={22} />
+              </button>
+              {session ? (
+                <div className="flex-1">
+                  <UserDropdown />
+                </div>
+              ) : (
                 <button
-                  className="p-2 text-secondary hover:text-primary transition-colors"
-                  aria-label="السلة"
-                >
-                  <ShoppingCart size={22} />
-                </button>
-                <button
+                  onClick={() => setIsAuthModalOpen(true)}
                   className="p-2 text-secondary hover:text-primary transition-colors"
                   aria-label="تسجيل الدخول"
                 >
                   <User size={22} />
                 </button>
-                <Button
-                  variant="primary"
-                  size="md"
-                  leftIcon={<Phone size={18} />}
-                  onClick={() => scrollToSection('#contact')}
-                  className="flex-1"
-                >
-                  تواصل معي
-                </Button>
-              </div>
+              )}
+              <Button
+                variant="primary"
+                size="md"
+                leftIcon={<Phone size={18} />}
+                onClick={() => scrollToSection('#contact')}
+                className="flex-1"
+              >
+                تواصل معي
+              </Button>
             </div>
           </div>
         )}
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
     </header>
   );
 };
