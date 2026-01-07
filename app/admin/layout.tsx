@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Menu } from 'lucide-react';
 import Sidebar from '@/components/admin/Sidebar';
+import { FeasibilityEditorProvider } from '@/contexts/FeasibilityEditorContext';
 
 export default function AdminLayout({
   children,
@@ -13,7 +14,11 @@ export default function AdminLayout({
 }) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // كشف صفحة المحرر لتوسيع مساحة العمل
+  const isEditorPage = (pathname?.includes('/admin/feasibility/') && pathname?.includes('/edit')) || pathname === '/admin/feasibility/new';
 
   // حماية الصفحة
   useEffect(() => {
@@ -37,7 +42,7 @@ export default function AdminLayout({
   }
 
   return (
-    <>
+    <FeasibilityEditorProvider>
       <div className="fixed inset-0 bg-gradient-to-l from-primary/20 via-accent/40 to-accent/60 -z-10" />
       <div className="min-h-screen font-dubai" dir="rtl">
         <Sidebar 
@@ -46,14 +51,18 @@ export default function AdminLayout({
           onOpen={() => setIsMobileMenuOpen(true)}
         />
         
-        <main className="relative lg:mr-[21rem] min-h-screen">
-          <div className="p-4 sm:p-6 lg:p-8 lg:pr-4 min-h-screen flex items-stretch">
-            <div className="flex-1 bg-white/80 backdrop-blur-md rounded-xl lg:rounded-2xl shadow-[0_15px_60px_rgba(237,191,140,0.65)] border-2 border-primary/10 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        <main className={`relative h-screen ${isEditorPage ? 'lg:mr-0' : 'lg:mr-[21rem]'}`}>
+          <div className={`h-full flex items-stretch ${isEditorPage ? 'p-0' : 'p-4 sm:p-6 lg:p-8 lg:pr-4'}`}>
+            <div className={`flex-1 overflow-hidden flex flex-col ${
+              isEditorPage 
+                ? 'bg-accent' 
+                : 'bg-white/80 backdrop-blur-md rounded-xl lg:rounded-2xl shadow-[0_15px_60px_rgba(237,191,140,0.65)] border-2 border-primary/10'
+            }`}>
               {children}
             </div>
           </div>
         </main>
       </div>
-    </>
+    </FeasibilityEditorProvider>
   );
 }

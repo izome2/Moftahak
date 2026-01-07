@@ -42,6 +42,20 @@ html {
   -webkit-overflow-scrolling: touch;
 }
 
+/* إزالة outline عند التركيز (focus) */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: none;
+}
+
+button:focus,
+button:active {
+  outline: none;
+}
+
 /* إخفاء شريط التمرير الافتراضي على اللابتوب والأيباد */
 @media (min-width: 768px) {
   /* Firefox */

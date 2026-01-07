@@ -44,10 +44,27 @@ module.exports = {
         'linear-to-bl': 'linear-gradient(to bottom left, var(--tw-gradient-stops))',
         'linear-to-br': 'linear-gradient(to bottom right, var(--tw-gradient-stops))',
       },
-      // Force sharp corners globally - NO BORDER RADIUS
+      // Modern border radius system
       borderRadius: {
         'none': '0',
-        DEFAULT: '0',
+        'sm': '0.25rem',    // 4px
+        DEFAULT: '0.5rem',  // 8px
+        'md': '0.625rem',   // 10px
+        'lg': '0.75rem',    // 12px
+        'xl': '1rem',       // 16px
+        '2xl': '1.25rem',   // 20px
+        '3xl': '1.5rem',    // 24px
+        'full': '9999px',
+      },
+      // Modern shadow system
+      boxShadow: {
+        'soft': '0 2px 8px rgba(16, 48, 43, 0.08)',
+        'medium': '0 4px 16px rgba(16, 48, 43, 0.12)',
+        'large': '0 8px 32px rgba(16, 48, 43, 0.16)',
+        'xl': '0 12px 48px rgba(16, 48, 43, 0.2)',
+        'glow': '0 0 20px rgba(237, 191, 140, 0.3)',
+        'glow-lg': '0 0 40px rgba(237, 191, 140, 0.4)',
+        'inner-soft': 'inset 0 2px 4px rgba(16, 48, 43, 0.06)',
       },
       // Additional aspect ratios
       aspectRatio: {

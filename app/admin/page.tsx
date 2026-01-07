@@ -42,7 +42,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-8">
       {/* الترحيب */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
