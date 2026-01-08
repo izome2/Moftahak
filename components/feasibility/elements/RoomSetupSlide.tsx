@@ -392,7 +392,7 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
   // ============================================
   if (hasGenerated) {
     return (
-      <div className="absolute inset-0 bg-linear-to-br from-accent/30 via-white to-accent/20 overflow-hidden" dir="rtl">
+      <div className="relative bg-gradient-to-br from-accent/30 via-white to-accent/20 overflow-hidden" style={{ minHeight: '1200px' }} dir="rtl">
         {/* Background Glow Effects */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
@@ -519,7 +519,7 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
   // 🔧 SETUP VIEW - عرض التكوين
   // ============================================
   return (
-    <div className="absolute inset-0 bg-linear-to-br from-accent/30 via-white to-accent/20 overflow-hidden" dir="rtl">
+    <div className="relative bg-gradient-to-br from-accent/30 via-white to-accent/20 overflow-hidden" style={{ minHeight: '1200px' }} dir="rtl">
       {/* Background Glow Effects */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
@@ -756,7 +756,7 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
                     >
                       <div className="absolute inset-0 bg-primary/20 rounded-3xl blur-xl" />
                       <div 
-                        className="relative w-20 h-20 bg-linear-to-br from-primary/30 to-primary/10 rounded-3xl flex items-center justify-center border-2 border-primary/30"
+                        className="relative w-20 h-20 bg-gradient-to-br from-primary/30 to-primary/10 rounded-3xl flex items-center justify-center border-2 border-primary/30"
                         style={{ boxShadow: SHADOWS.icon }}
                       >
                         <Home className="w-10 h-10 text-primary" strokeWidth={1.5} />

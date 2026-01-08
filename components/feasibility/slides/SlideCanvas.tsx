@@ -321,7 +321,7 @@ const PlaceholderSlideContent: React.FC<PlaceholderProps> = ({ slide }) => {
   const Icon = slideIcons[slide.type];
 
   return (
-    <div className="absolute inset-0 bg-linear-to-br from-accent/40 to-accent/20 flex flex-col items-center justify-center p-8" dir="rtl">
+    <div className="absolute inset-0 bg-gradient-to-br from-accent/40 to-accent/20 flex flex-col items-center justify-center p-8" dir="rtl">
       <div className="text-center">
         <div className="w-20 h-20 mx-auto mb-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-medium flex items-center justify-center">
           <Icon className="w-10 h-10 text-secondary/50" />

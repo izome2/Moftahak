@@ -147,12 +147,6 @@ const EditorCanvasWrapper: React.FC<EditorCanvasWrapperProps> = ({
                   onGenerateRoomSlides={onGenerateRoomSlides}
                 />
               </div>
-              
-              {/* مؤشرات الزوايا للتحجيم */}
-              <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-primary border-2 border-white rounded-full shadow-medium cursor-nwse-resize" style={{ pointerEvents: 'auto' }} />
-              <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-primary border-2 border-white rounded-full shadow-medium cursor-nesw-resize" style={{ pointerEvents: 'auto' }} />
-              <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-primary border-2 border-white rounded-full shadow-medium cursor-nesw-resize" style={{ pointerEvents: 'auto' }} />
-              <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-primary border-2 border-white rounded-full shadow-medium cursor-nwse-resize" style={{ pointerEvents: 'auto' }} />
             </div>
           ) : (
             <div 
