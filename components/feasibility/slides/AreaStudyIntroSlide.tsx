@@ -9,7 +9,6 @@ import {
   DollarSign,
   Star,
   BarChart3,
-  Home,
   Users,
   Edit3,
   Check
@@ -21,6 +20,16 @@ interface AreaStudyIntroSlideProps {
   isEditing?: boolean;
   onUpdate?: (data: Partial<SlideData>) => void;
 }
+
+// ============================================
+// 🎨 DESIGN TOKENS
+// ============================================
+const SHADOWS = {
+  card: '0 4px 20px rgba(16, 48, 43, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)',
+  cardHover: '0 12px 40px rgba(16, 48, 43, 0.15), 0 4px 12px rgba(237, 191, 140, 0.1)',
+  icon: '0 4px 12px rgba(237, 191, 140, 0.3)',
+  button: '0 4px 16px rgba(237, 191, 140, 0.4)',
+};
 
 // قائمة النقاط الافتراضية
 const defaultBulletPoints = [
@@ -78,86 +87,103 @@ const AreaStudyIntroSlide: React.FC<AreaStudyIntroSlideProps> = ({
   };
 
   return (
-    <div className="w-full h-full bg-linear-to-br from-accent via-accent to-primary/10 flex flex-col overflow-hidden" dir="rtl">
-      {/* رأس الشريحة */}
-      <div className="bg-secondary text-white px-6 py-4 flex items-center gap-3">
-        <div className="w-12 h-12 bg-primary/20 flex items-center justify-center rounded-xl">
-          <MapPin className="w-6 h-6 text-primary" />
-        </div>
-        <div className="flex-1">
-          {isEditing && editingTitle ? (
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={localTitle}
-                onChange={(e) => setLocalTitle(e.target.value)}
-                className="flex-1 bg-white/10 border border-white/20 px-3 py-2 text-white font-dubai text-xl focus:outline-none focus:border-primary rounded-lg"
-                autoFocus
-              />
-              <button
-                onClick={() => handleSave('title')}
-                className="p-1.5 bg-primary/20 hover:bg-primary/30 transition-colors rounded-lg"
-              >
-                <Check className="w-5 h-5 text-primary" />
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold font-dubai">{localTitle}</h2>
-              {isEditing && (
-                <button
-                  onClick={() => setEditingTitle(true)}
-                  className="p-1.5 hover:bg-white/10 transition-colors rounded-lg"
-                >
-                  <Edit3 className="w-4 h-4 text-primary/70" />
-                </button>
-              )}
-            </div>
-          )}
-          <p className="text-primary/80 text-sm">
-            تحليل السوق والمنافسة
-          </p>
-        </div>
-      </div>
-
-      {/* محتوى الشريحة */}
-      <div className="flex-1 p-8 flex flex-col justify-center">
+    <div className="p-6 md:p-8 bg-gradient-to-br from-accent/30 via-white to-accent/20 pb-24" dir="rtl">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-5xl mx-auto space-y-8"
+      >
+        {/* Header Card */}
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-2xl mx-auto w-full"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20"
+          style={{ boxShadow: SHADOWS.card }}
         >
-          {/* أيقونة كبيرة */}
-          <motion.div
-            variants={itemVariants}
-            className="flex justify-center mb-8"
-          >
-            <div className="w-24 h-24 bg-secondary/10 flex items-center justify-center rounded-3xl shadow-medium">
-              <Building2 className="w-12 h-12 text-secondary" />
-            </div>
-          </motion.div>
+          <div className="absolute -top-8 -left-8 opacity-[0.05] pointer-events-none">
+            <MapPin className="w-48 h-48 text-primary" strokeWidth={1} />
+          </div>
 
-          {/* العنوان الفرعي */}
-          <motion.div variants={itemVariants} className="text-center mb-6">
-            <h3 className="text-2xl font-bold text-secondary font-dubai mb-2">
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div 
+                className="p-4 rounded-2xl bg-primary/20 border-2 border-primary/30"
+                style={{ boxShadow: SHADOWS.icon }}
+              >
+                <MapPin className="w-8 h-8 text-primary" strokeWidth={2} />
+              </div>
+              <div>
+                {isEditing && editingTitle ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={localTitle}
+                      onChange={(e) => setLocalTitle(e.target.value)}
+                      className="text-2xl sm:text-3xl font-bold text-secondary font-dubai bg-white/50 border border-primary/30 px-3 py-1 rounded-xl focus:outline-none focus:border-primary"
+                      autoFocus
+                    />
+                    <button
+                      onClick={() => handleSave('title')}
+                      className="p-2 bg-primary/20 hover:bg-primary/30 transition-colors rounded-xl"
+                    >
+                      <Check className="w-5 h-5 text-primary" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="group relative flex items-center gap-2">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
+                      {localTitle}
+                    </h2>
+                    {isEditing && (
+                      <button
+                        onClick={() => setEditingTitle(true)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Edit3 className="w-5 h-5 text-primary/60" />
+                      </button>
+                    )}
+                  </div>
+                )}
+                <p className="text-secondary/60 font-dubai text-sm mt-1">
+                  تحليل السوق والمنافسة المحيطة
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Description Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20"
+          style={{ boxShadow: SHADOWS.card }}
+        >
+          <div className="absolute -top-4 -right-4 opacity-[0.05] pointer-events-none">
+            <Building2 className="w-32 h-32 text-primary" strokeWidth={1} />
+          </div>
+
+          <div className="relative z-10">
+            <h3 className="text-xl font-bold text-secondary font-dubai mb-4 flex items-center gap-3">
+              <div className="w-1.5 h-8 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
               في هذا القسم ستتعرف على:
             </h3>
-          </motion.div>
 
-          {/* الوصف */}
-          <motion.div variants={itemVariants} className="mb-8">
             {isEditing && editingDescription ? (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3">
                 <textarea
                   value={localDescription}
                   onChange={(e) => setLocalDescription(e.target.value)}
-                  className="w-full h-24 bg-white border border-secondary/20 px-4 py-3 text-secondary font-dubai text-center focus:outline-none focus:border-primary resize-none rounded-xl shadow-soft"
+                  className="w-full min-h-[120px] bg-accent/20 border-2 border-primary/20 px-4 py-3 text-secondary font-dubai focus:outline-none focus:border-primary resize-none rounded-xl"
                   autoFocus
                 />
                 <button
                   onClick={() => handleSave('description')}
-                  className="self-center p-2 bg-primary/20 hover:bg-primary/30 transition-colors flex items-center gap-1 text-secondary text-sm rounded-lg"
+                  className="self-start px-4 py-2 bg-primary hover:bg-primary/90 transition-colors flex items-center gap-2 text-secondary text-sm font-dubai font-bold rounded-xl"
+                  style={{ boxShadow: SHADOWS.button }}
                 >
                   <Check className="w-4 h-4" />
                   حفظ
@@ -165,51 +191,138 @@ const AreaStudyIntroSlide: React.FC<AreaStudyIntroSlideProps> = ({
               </div>
             ) : (
               <div
-                className={`text-center text-secondary/70 font-dubai leading-relaxed ${isEditing ? 'cursor-pointer hover:bg-white/60' : ''} bg-white/50 backdrop-blur-sm p-5 border border-secondary/10 rounded-xl shadow-soft`}
+                className={`text-secondary/70 font-dubai leading-relaxed ${isEditing ? 'cursor-pointer hover:bg-accent/30' : ''} bg-accent/20 p-5 rounded-xl transition-colors relative group`}
                 onClick={() => isEditing && setEditingDescription(true)}
               >
                 {localDescription}
                 {isEditing && (
-                  <Edit3 className="w-4 h-4 inline-block mr-2 text-primary/50" />
+                  <Edit3 className="w-4 h-4 absolute left-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity text-primary/60" />
                 )}
               </div>
             )}
-          </motion.div>
+          </div>
+        </motion.div>
 
-          {/* النقاط */}
-          <motion.div
-            variants={itemVariants}
-            className="grid grid-cols-2 md:grid-cols-3 gap-4"
-          >
-            {defaultBulletPoints.map((point, index) => {
-              const Icon = point.icon;
-              return (
-                <motion.div
-                  key={index}
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.02 }}
-                  className="bg-white/80 backdrop-blur-sm border border-secondary/10 p-4 flex items-center gap-3 hover:border-primary/30 hover:shadow-soft transition-all rounded-xl"
-                >
-                  <div className="w-10 h-10 bg-primary/10 flex items-center justify-center shrink-0 rounded-lg">
-                    <Icon className="w-5 h-5 text-primary" />
+        {/* Features Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {defaultBulletPoints.map((point, index) => {
+            const Icon = point.icon;
+            return (
+              <div
+                key={index}
+                className="group relative bg-white p-6 rounded-2xl border-2 border-primary/10 hover:border-primary/40 cursor-pointer card-hover overflow-hidden"
+                style={{ 
+                  boxShadow: SHADOWS.card,
+                  opacity: 0,
+                  animation: `fadeInUp 0.5s ease-out ${0.4 + index * 0.1}s forwards`,
+                }}
+              >
+                {/* Background Icon */}
+                <div className="absolute -bottom-4 -right-4 opacity-[0.03] pointer-events-none">
+                  <Icon className="w-32 h-32 text-primary" strokeWidth={1} />
+                </div>
+
+                {/* Shimmer Effect - من اليمين لليسار */}
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none shimmer-effect"
+                  style={{
+                    background: 'linear-gradient(-90deg, transparent, rgba(237, 191, 140, 0.2), transparent)',
+                  }}
+                />
+
+                <div className="flex flex-col items-center text-center gap-4 relative z-10">
+                  <div
+                    className="icon-container w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shrink-0 rounded-2xl border-2 border-primary/30 group-hover:border-primary/50"
+                    style={{ boxShadow: SHADOWS.icon }}
+                  >
+                    <Icon className="w-8 h-8 text-primary icon-rotate relative z-10" strokeWidth={2.5} />
                   </div>
-                  <span className="text-secondary font-dubai text-sm font-medium">
+                  <span className="text-secondary font-dubai text-base font-bold leading-relaxed group-hover:text-primary text-hover">
                     {point.text}
                   </span>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </motion.div>
-      </div>
+                </div>
 
-      {/* فوتر الشريحة */}
-      <div className="bg-secondary/5 px-6 py-3 border-t border-secondary/10">
-        <div className="flex items-center justify-center gap-2 text-secondary/50 text-sm">
-          <Home className="w-4 h-4" />
-          <span className="font-dubai">مفتاحك - دراسات الجدوى الاحترافية</span>
-        </div>
-      </div>
+                {/* Corner Accent */}
+                <div 
+                  className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-3xl opacity-0 group-hover:opacity-100 corner-accent"
+                />
+              </div>
+            );
+          })}
+        </motion.div>
+      </motion.div>
+
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @keyframes shimmer {
+          0% { transform: translateX(100%); }
+          100% { transform: translateX(-100%); }
+        }
+
+        @keyframes iconRotate {
+          0%, 100% { transform: rotate(0deg) scale(1); }
+          25% { transform: rotate(-10deg) scale(1.15); }
+          50% { transform: rotate(10deg) scale(1.15); }
+          75% { transform: rotate(-10deg) scale(1.15); }
+        }
+
+        .card-hover {
+          transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, border-color 0.15s ease-out;
+        }
+
+        .card-hover:hover {
+          transform: translateY(-8px);
+          box-shadow: ${SHADOWS.cardHover};
+        }
+
+        .icon-container {
+          position: relative;
+          transition: transform 0.15s ease-out, border-color 0.15s ease-out;
+        }
+
+        .group:hover .icon-container {
+          transform: scale(1.15);
+        }
+
+        .icon-rotate {
+          transition: transform 0.15s ease-out;
+        }
+
+        .group:hover .icon-rotate {
+          animation: iconRotate 0.5s ease-in-out;
+        }
+
+        .text-hover {
+          transition: color 0.15s ease-out;
+        }
+
+        .corner-accent {
+          transition: opacity 0.15s ease-out;
+        }
+
+        .shimmer-effect {
+          transition: opacity 0.2s ease-out;
+        }
+
+        .group:hover .shimmer-effect {
+          animation: shimmer 1.5s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 };
