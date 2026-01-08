@@ -44,6 +44,7 @@ export default function NewFeasibilityStudyPage() {
         <EditorCanvas
           zoom={editor.zoom}
           slide={editor.activeSlide}
+          allSlides={editor.slides}
           slideIndex={editor.activeSlideIndex}
           totalSlides={editor.slides.length}
           isSidebarOpen={true}

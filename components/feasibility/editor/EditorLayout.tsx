@@ -125,6 +125,7 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
           <EditorCanvas
             zoom={zoom}
             slide={activeSlide}
+            allSlides={slides}
             slideIndex={activeSlideIndex}
             totalSlides={slides.length}
             isSidebarOpen={isSidebarOpen}

@@ -7,6 +7,7 @@ import type { Slide, SlideData } from '@/types/feasibility';
 interface EditorCanvasWrapperProps {
   zoom: number;
   slide: Slide | null;
+  allSlides?: Slide[];
   slideIndex: number;
   totalSlides: number;
   isSidebarOpen: boolean;
@@ -19,6 +20,7 @@ interface EditorCanvasWrapperProps {
 const EditorCanvasWrapper: React.FC<EditorCanvasWrapperProps> = ({
   zoom,
   slide,
+  allSlides = [],
   slideIndex,
   totalSlides,
   isSidebarOpen,
@@ -138,6 +140,7 @@ const EditorCanvasWrapper: React.FC<EditorCanvasWrapperProps> = ({
               >
                 <SlideCanvas
                   slide={slide}
+                  allSlides={allSlides}
                   zoom={100} // نمرر 100 دائماً لأن التكبير يتم عبر CSS transform
                   isEditing={true}
                   onUpdateSlideData={onUpdateSlideData}

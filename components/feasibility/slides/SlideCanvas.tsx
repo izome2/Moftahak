@@ -43,6 +43,7 @@ const slideIcons: Record<SlideType, React.ElementType> = {
 
 interface SlideCanvasProps {
   slide: Slide;
+  allSlides?: Slide[];
   zoom: number;
   isEditing?: boolean;
   onUpdateSlideData?: (data: Partial<SlideData>) => void;
@@ -51,6 +52,7 @@ interface SlideCanvasProps {
 
 const SlideCanvas: React.FC<SlideCanvasProps> = ({
   slide,
+  allSlides = [],
   zoom,
   isEditing = true,
   onUpdateSlideData,
@@ -243,9 +245,13 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
           />
         );
       case 'nearby-apartments':
+        // الحصول على بيانات الخريطة من الشرائح الأخرى
+        const mapSlide = allSlides.find(s => s.type === 'map');
+        const mapDataForApartments = mapSlide?.data?.map;
         return (
           <NearbyApartmentsSlide
             data={slide.data.nearbyApartments || { apartments: [] }}
+            mapData={mapDataForApartments}
             isEditing={isEditing}
             onUpdate={(data) => onUpdateSlideData?.({ nearbyApartments: data })}
           />

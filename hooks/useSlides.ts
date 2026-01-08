@@ -141,6 +141,15 @@ const defaultSlideTemplates: Record<SlideType, { title: string; data: SlideData;
       },
     },
   },
+  'nearby-apartments': {
+    title: 'الشقق المحيطة',
+    data: {
+      nearbyApartments: {
+        apartments: [],
+        showFromMap: true,
+      },
+    },
+  },
   statistics: {
     title: 'الإحصائيات',
     data: {

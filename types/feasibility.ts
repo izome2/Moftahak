@@ -94,6 +94,8 @@ export interface NearbyApartment {
     lat: number;
     lng: number;
   };
+  description?: string; // فقرة نصية وصفية
+  images?: string[]; // صور الشقة (حتى 4 صور)
 }
 
 // بيانات شريحة دراسة المنطقة

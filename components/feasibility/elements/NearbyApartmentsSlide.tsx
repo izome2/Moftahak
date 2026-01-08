@@ -1,404 +1,611 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useRef, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { 
   Building2, 
-  Plus, 
   X, 
-  Save, 
   DollarSign, 
   Bed, 
-  Hash, 
   Star, 
   TrendingUp,
-  MapPin
+  MapPin,
+  Edit3,
+  Check,
+  ImagePlus,
+  FileText,
+  Hash,
+  Sparkles,
+  Home
 } from 'lucide-react';
-import { NearbyApartmentsSlideData, NearbyApartment } from '@/types/feasibility';
-import { fadeInUp, staggerContainer } from '@/lib/animations/variants';
-import ApartmentCard from './ApartmentCard';
+import { NearbyApartmentsSlideData, NearbyApartment, MapSlideData } from '@/types/feasibility';
+
+// ============================================
+// 🎨 DESIGN TOKENS - ذهبي وبيج فقط
+// ============================================
+const SHADOWS = {
+  card: '0 4px 20px rgba(16, 48, 43, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)',
+  cardHover: '0 12px 40px rgba(16, 48, 43, 0.15), 0 4px 12px rgba(237, 191, 140, 0.1)',
+  icon: '0 4px 12px rgba(237, 191, 140, 0.3)',
+  button: '0 4px 16px rgba(237, 191, 140, 0.4)',
+  image: '0 4px 12px rgba(16, 48, 43, 0.1)',
+};
 
 interface NearbyApartmentsSlideProps {
   data?: NearbyApartmentsSlideData;
+  mapData?: MapSlideData;
   isEditing?: boolean;
   onUpdate?: (data: NearbyApartmentsSlideData) => void;
 }
 
-interface ApartmentFormData {
-  name: string;
-  price: number;
-  rooms: number;
-  features: string;
-  rentCount: number;
-  highestRent: number;
-}
-
-const defaultFormData: ApartmentFormData = {
-  name: '',
-  price: 0,
-  rooms: 1,
-  features: '',
-  rentCount: 0,
-  highestRent: 0,
-};
-
 const defaultData: NearbyApartmentsSlideData = {
   apartments: [],
-  showFromMap: false,
+  showFromMap: true,
+};
+
+// مكون بطاقة الشقة الكبيرة
+interface ApartmentCardProps {
+  apartment: NearbyApartment;
+  index: number;
+  isEditing: boolean;
+  isMyApartment?: boolean;
+  onUpdateDescription: (id: string, description: string) => void;
+  onUpdateImages: (id: string, images: string[]) => void;
+}
+
+const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
+  apartment,
+  index,
+  isEditing,
+  isMyApartment = false,
+  onUpdateDescription,
+  onUpdateImages,
+}) => {
+  const [editingDescription, setEditingDescription] = useState(false);
+  const [localDescription, setLocalDescription] = useState(apartment.description || '');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSaveDescription = () => {
+    onUpdateDescription(apartment.id, localDescription);
+    setEditingDescription(false);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const currentImages = apartment.images || [];
+    const remainingSlots = 4 - currentImages.length;
+    
+    if (remainingSlots <= 0) return;
+
+    const filesToProcess = Array.from(files).slice(0, remainingSlots);
+    
+    filesToProcess.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64 = event.target?.result as string;
+        onUpdateImages(apartment.id, [...(apartment.images || []), base64]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleRemoveImage = (imageIndex: number) => {
+    const newImages = (apartment.images || []).filter((_, i) => i !== imageIndex);
+    onUpdateImages(apartment.id, newImages);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      className="relative bg-white rounded-2xl border-2 border-primary/30 hover:border-primary/50 overflow-hidden group"
+      style={{ boxShadow: SHADOWS.card }}
+    >
+      {/* Header - ذهبي موحد */}
+      <div 
+        className="p-5 relative overflow-hidden bg-primary/20 border-b-2 border-primary/30"
+        style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+      >
+        {/* زخرفة خلفية */}
+        <div className="absolute top-0 left-0 w-full h-full opacity-10">
+          <div className="absolute -top-4 -right-4 w-24 h-24 border-4 border-primary/30 rounded-full" />
+          <div className="absolute -bottom-6 -left-6 w-32 h-32 border-4 border-primary/20 rounded-full" />
+        </div>
+        
+        <div className="relative z-10 flex items-center gap-4">
+          <div 
+            className="w-14 h-14 bg-primary/30 rounded-2xl flex items-center justify-center border-2 border-primary/40"
+            style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+          >
+            <Building2 className="w-7 h-7 text-secondary" strokeWidth={2} />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-xl font-bold text-secondary font-dubai">{apartment.name}</h3>
+            <div className="flex items-center gap-2 text-secondary/60 text-sm mt-0.5">
+              <div className="w-4 h-4 bg-primary/30 rounded-full flex items-center justify-center border border-primary/40">
+                <MapPin className="w-2.5 h-2.5 text-secondary" />
+              </div>
+              <span className="font-dubai">موقع على الخريطة</span>
+            </div>
+          </div>
+          {/* رقم الشقة أو "شقتي" */}
+          <div 
+            className="px-3 py-2 bg-primary/30 rounded-xl flex items-center justify-center border-2 border-primary/40"
+            style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+          >
+            <span className="text-secondary font-bold font-dubai text-sm">
+              {isMyApartment ? 'شقتي' : `#${index + 1}`}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-4 space-y-4">
+        {/* Stats Grid - كل الخلايا ذهبي موحد */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* السعر */}
+          <div 
+            className="bg-primary/20 p-3 rounded-xl border-2 border-primary/30"
+            style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+          >
+            <div className="flex items-center gap-2 text-secondary/70 mb-1">
+              <div className="w-6 h-6 bg-primary/30 rounded-lg flex items-center justify-center border border-primary/40">
+                <DollarSign className="w-3.5 h-3.5 text-secondary" />
+              </div>
+              <span className="text-xs font-dubai">سعر الإيجار</span>
+            </div>
+            <div className="text-xl font-bold text-secondary font-bristone">
+              {apartment.price.toLocaleString('ar-EG')}
+              <span className="text-sm font-normal mr-1 text-secondary/60">ج.م</span>
+            </div>
+          </div>
+
+          {/* عدد الغرف */}
+          <div 
+            className="bg-primary/20 p-3 rounded-xl border-2 border-primary/30"
+            style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+          >
+            <div className="flex items-center gap-2 text-secondary/70 mb-1">
+              <div className="w-6 h-6 bg-primary/30 rounded-lg flex items-center justify-center border border-primary/40">
+                <Bed className="w-3.5 h-3.5 text-secondary" />
+              </div>
+              <span className="text-xs font-dubai">عدد الغرف</span>
+            </div>
+            <div className="text-xl font-bold text-secondary font-bristone">
+              {apartment.rooms}
+              <span className="text-sm font-normal mr-1 text-secondary/60">غرف</span>
+            </div>
+          </div>
+
+          {/* مرات التأجير */}
+          <div 
+            className="bg-primary/20 p-3 rounded-xl border-2 border-primary/30"
+            style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+          >
+            <div className="flex items-center gap-2 text-secondary/70 mb-1">
+              <div className="w-6 h-6 bg-primary/30 rounded-lg flex items-center justify-center border border-primary/40">
+                <Hash className="w-3.5 h-3.5 text-secondary" />
+              </div>
+              <span className="text-xs font-dubai">مرات التأجير</span>
+            </div>
+            <div className="text-xl font-bold text-secondary font-bristone">
+              {apartment.rentCount}
+              <span className="text-sm font-normal mr-1 text-secondary/60">مرة</span>
+            </div>
+          </div>
+
+          {/* أعلى إيجار */}
+          <div 
+            className="bg-primary/20 p-3 rounded-xl border-2 border-primary/30"
+            style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+          >
+            <div className="flex items-center gap-2 text-secondary/70 mb-1">
+              <div className="w-6 h-6 bg-primary/30 rounded-lg flex items-center justify-center border border-primary/40">
+                <TrendingUp className="w-3.5 h-3.5 text-secondary" />
+              </div>
+              <span className="text-xs font-dubai">أعلى إيجار</span>
+            </div>
+            <div className="text-xl font-bold text-secondary font-bristone">
+              {apartment.highestRent.toLocaleString('ar-EG')}
+              <span className="text-sm font-normal mr-1 text-secondary/60">ج.م</span>
+            </div>
+          </div>
+        </div>
+
+        {/* المميزات */}
+        {apartment.features.length > 0 && (
+          <div 
+            className="bg-primary/20 p-3 rounded-xl border-2 border-primary/30"
+            style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+          >
+            <div className="flex items-center gap-2 text-secondary/70 mb-2">
+              <div className="w-6 h-6 bg-primary/30 rounded-lg flex items-center justify-center border border-primary/40">
+                <Star className="w-3.5 h-3.5 text-secondary" />
+              </div>
+              <span className="text-xs font-bold font-dubai">المميزات</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {apartment.features.map((feature, i) => (
+                <span 
+                  key={i}
+                  className="px-2 py-1 bg-white text-secondary text-xs rounded-lg border-2 border-primary/30 font-dubai"
+                  style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+                >
+                  {feature}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* الوصف */}
+        <div 
+          className="bg-primary/20 rounded-xl p-3 border-2 border-primary/30"
+          style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 text-secondary/70">
+              <div className="w-6 h-6 bg-primary/30 rounded-lg flex items-center justify-center border border-primary/40">
+                <FileText className="w-3.5 h-3.5 text-secondary" />
+              </div>
+              <span className="text-xs font-bold font-dubai">وصف إضافي</span>
+            </div>
+            {isEditing && !editingDescription && (
+              <button
+                onClick={() => setEditingDescription(true)}
+                className="p-1.5 bg-primary/30 hover:bg-primary/40 rounded-lg transition-colors border border-primary/40"
+                style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+              >
+                <Edit3 className="w-4 h-4 text-secondary" />
+              </button>
+            )}
+          </div>
+          
+          {editingDescription ? (
+            <div className="space-y-2">
+              <textarea
+                value={localDescription}
+                onChange={(e) => setLocalDescription(e.target.value)}
+                placeholder="أضف وصفاً للشقة..."
+                className="w-full h-24 bg-accent/30 border-2 border-primary/20 rounded-lg p-2 text-sm text-secondary font-dubai focus:outline-none focus:border-primary resize-none"
+                autoFocus
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSaveDescription}
+                  className="px-3 py-1.5 bg-primary text-secondary text-xs font-bold rounded-lg flex items-center gap-1 font-dubai border-2 border-primary/50"
+                  style={{ boxShadow: SHADOWS.button }}
+                >
+                  <Check className="w-3 h-3" />
+                  حفظ
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingDescription(false);
+                    setLocalDescription(apartment.description || '');
+                  }}
+                  className="px-3 py-1.5 bg-accent/50 text-secondary text-xs rounded-lg font-dubai border-2 border-primary/20"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-secondary/60 font-dubai leading-relaxed">
+              {apartment.description || (isEditing ? 'انقر للإضافة...' : 'لا يوجد وصف')}
+            </p>
+          )}
+        </div>
+
+        {/* الصور */}
+        <div 
+          className="bg-primary/20 rounded-xl p-3 border-2 border-primary/30"
+          style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 text-secondary/70">
+              <div className="w-6 h-6 bg-primary/30 rounded-lg flex items-center justify-center border border-primary/40">
+                <ImagePlus className="w-3.5 h-3.5 text-secondary" />
+              </div>
+              <span className="text-xs font-bold font-dubai">صور الشقة ({(apartment.images || []).length}/4)</span>
+            </div>
+            {isEditing && (apartment.images || []).length < 4 && (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="px-2 py-1 bg-primary/30 text-secondary text-xs rounded-lg flex items-center gap-1 hover:bg-primary/40 transition-colors font-dubai border-2 border-primary/40"
+                style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+              >
+                <ImagePlus className="w-3 h-3" />
+                إضافة
+              </button>
+            )}
+          </div>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImageUpload}
+            className="hidden"
+          />
+
+          {(apartment.images || []).length > 0 ? (
+            <div className="grid grid-cols-4 gap-2">
+              {(apartment.images || []).map((img, i) => (
+                <div 
+                  key={i} 
+                  className="relative aspect-square group/img rounded-lg overflow-hidden border-2 border-primary/40"
+                  style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+                >
+                  <Image
+                    src={img}
+                    alt={`صورة ${i + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                  {isEditing && (
+                    <button
+                      onClick={() => handleRemoveImage(i)}
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-primary/80 text-secondary rounded-full flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity border-2 border-primary"
+                      style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="h-16 flex items-center justify-center text-secondary/40 text-xs font-dubai bg-primary/10 rounded-lg border-2 border-dashed border-primary/30">
+              {isEditing ? 'انقر على "إضافة" لرفع الصور' : 'لا توجد صور'}
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
 };
 
 export default function NearbyApartmentsSlide({
   data = defaultData,
+  mapData,
   isEditing = false,
   onUpdate,
 }: NearbyApartmentsSlideProps) {
-  const [slideData, setSlideData] = useState<NearbyApartmentsSlideData>(data);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editingApartment, setEditingApartment] = useState<string | null>(null);
-  const [formData, setFormData] = useState<ApartmentFormData>(defaultFormData);
+  // دمج الشقق من الخريطة مع الشقق المحلية
+  const apartments = useMemo(() => {
+    if (mapData?.pins && mapData.pins.length > 0) {
+      return mapData.pins.map(pin => pin.apartment);
+    }
+    return data.apartments;
+  }, [mapData?.pins, data.apartments]);
 
-  // حفظ مرجع لـ onUpdate لتجنب infinite loop
+  const [localData, setLocalData] = useState<Record<string, { description?: string; images?: string[] }>>({});
+
+  // حفظ مرجع لـ onUpdate
   const onUpdateRef = useRef(onUpdate);
   onUpdateRef.current = onUpdate;
 
-  // تحديث البيانات عند التغيير
-  const isInitialMount = useRef(true);
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-    if (onUpdateRef.current) {
-      onUpdateRef.current(slideData);
-    }
-  }, [slideData]);
-
-  // إضافة شقة جديدة
-  const handleAddApartment = () => {
-    setFormData(defaultFormData);
-    setEditingApartment(null);
-    setShowAddModal(true);
-  };
-
-  // تعديل شقة
-  const handleEditApartment = (apartmentId: string) => {
-    const apartment = slideData.apartments.find(a => a.id === apartmentId);
-    if (!apartment) return;
-
-    setFormData({
-      name: apartment.name,
-      price: apartment.price,
-      rooms: apartment.rooms,
-      features: apartment.features.join(', '),
-      rentCount: apartment.rentCount,
-      highestRent: apartment.highestRent,
-    });
-    setEditingApartment(apartmentId);
-    setShowAddModal(true);
-  };
-
-  // حذف شقة
-  const handleDeleteApartment = (apartmentId: string) => {
-    setSlideData(prev => ({
+  // تحديث الوصف
+  const handleUpdateDescription = (id: string, description: string) => {
+    setLocalData(prev => ({
       ...prev,
-      apartments: prev.apartments.filter(a => a.id !== apartmentId),
+      [id]: { ...prev[id], description }
     }));
   };
 
-  // حفظ الشقة
-  const handleSaveApartment = () => {
-    if (!formData.name.trim()) return;
-
-    const newApartment: NearbyApartment = {
-      id: editingApartment || `apartment-${Date.now()}`,
-      name: formData.name,
-      price: formData.price,
-      rooms: formData.rooms,
-      features: formData.features.split(',').map(f => f.trim()).filter(Boolean),
-      rentCount: formData.rentCount,
-      highestRent: formData.highestRent,
-      location: { lat: 30.0444, lng: 31.2357 }, // موقع افتراضي
-    };
-
-    if (editingApartment) {
-      setSlideData(prev => ({
-        ...prev,
-        apartments: prev.apartments.map(a =>
-          a.id === editingApartment ? newApartment : a
-        ),
-      }));
-    } else {
-      setSlideData(prev => ({
-        ...prev,
-        apartments: [...prev.apartments, newApartment],
-      }));
-    }
-
-    setShowAddModal(false);
-    setEditingApartment(null);
-    setFormData(defaultFormData);
+  // تحديث الصور
+  const handleUpdateImages = (id: string, images: string[]) => {
+    setLocalData(prev => ({
+      ...prev,
+      [id]: { ...prev[id], images }
+    }));
   };
 
+  // دمج البيانات المحلية مع بيانات الشقق
+  const mergedApartments = useMemo(() => {
+    return apartments.map(apt => ({
+      ...apt,
+      description: localData[apt.id]?.description ?? apt.description,
+      images: localData[apt.id]?.images ?? apt.images,
+    }));
+  }, [apartments, localData]);
+
   return (
-    <div className="w-full h-full flex flex-col p-8 bg-linear-to-br from-accent/30 via-white/50 to-accent/20">
-      {/* العنوان */}
+    <div className="p-6 md:p-8 bg-linear-to-br from-accent/30 via-white to-accent/20 pb-24" dir="rtl">
       <motion.div
-        variants={fadeInUp}
-        initial="hidden"
-        animate="visible"
-        className="text-center mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-6xl mx-auto space-y-8"
       >
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-secondary to-secondary/80 flex items-center justify-center shadow-medium">
-            <Building2 className="w-7 h-7 text-primary" />
-          </div>
-        </div>
-        <h2 className="text-2xl font-bold text-secondary font-dubai">الشقق المحيطة</h2>
-        <p className="text-secondary/60 text-sm mt-1">
-          {isEditing
-            ? `قم بإضافة الشقق المحيطة للمقارنة (${slideData.apartments.length}/10)`
-            : 'مقارنة أسعار ومميزات الشقق في المنطقة'}
-        </p>
-      </motion.div>
-
-      {/* زر إضافة شقة */}
-      {isEditing && slideData.apartments.length < 10 && (
+        {/* Header Card */}
         <motion.div
-          variants={fadeInUp}
-          initial="hidden"
-          animate="visible"
-          className="flex justify-center mb-6"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/30"
+          style={{ boxShadow: SHADOWS.card }}
         >
-          <button
-            onClick={handleAddApartment}
-            className="px-6 py-2.5 bg-linear-to-r from-secondary to-secondary/90 text-primary rounded-xl font-medium hover:shadow-glow transition-all flex items-center gap-2 font-dubai"
-          >
-            <Plus className="w-5 h-5" />
-            إضافة شقة
-          </button>
-        </motion.div>
-      )}
+          <div className="absolute -top-8 -left-8 opacity-[0.05] pointer-events-none">
+            <Building2 className="w-48 h-48 text-primary" strokeWidth={1} />
+          </div>
 
-      {/* قائمة الشقق */}
-      <motion.div
-        variants={staggerContainer}
-        initial="hidden"
-        animate="visible"
-        className="flex-1 overflow-auto"
-      >
-        {slideData.apartments.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {slideData.apartments.map((apartment, index) => (
-              <ApartmentCard
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div 
+                className="p-4 rounded-2xl bg-primary/20 border-2 border-primary/30"
+                style={{ boxShadow: SHADOWS.icon }}
+              >
+                <Building2 className="w-8 h-8 text-primary" strokeWidth={2} />
+              </div>
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
+                  الشقق المحيطة
+                </h2>
+                <p className="text-secondary/60 font-dubai text-sm mt-1">
+                  مقارنة تفصيلية للشقق في منطقتك
+                </p>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="flex items-center gap-4">
+              <div 
+                className="text-center px-4 py-2 bg-accent/40 rounded-xl border-2 border-primary/20"
+                style={{ boxShadow: SHADOWS.card }}
+              >
+                <span className="block text-2xl font-bold text-secondary font-bristone">
+                  {mergedApartments.length}
+                </span>
+                <span className="text-xs text-secondary/60 font-dubai">شقة</span>
+              </div>
+              {mergedApartments.length > 0 && (
+                <div 
+                  className="text-center px-4 py-2 bg-primary/20 rounded-xl border-2 border-primary/30"
+                  style={{ boxShadow: SHADOWS.icon }}
+                >
+                  <span className="block text-xl font-bold text-secondary font-bristone">
+                    {Math.round(
+                      mergedApartments.reduce((sum, a) => sum + a.price, 0) / mergedApartments.length
+                    ).toLocaleString('ar-EG')}
+                  </span>
+                  <span className="text-xs text-secondary/60 font-dubai">متوسط الإيجار</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* فقرة توضيحية للعميل */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-primary/20 rounded-2xl p-5 border-2 border-primary/30 flex items-center gap-4"
+          style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+        >
+          <span className="w-1 h-5 bg-primary rounded-full shrink-0"></span>
+          <p className="text-secondary text-base font-dubai leading-relaxed">
+            عزيزي العميل، إليك تفاصيل الوحدات السكنية القريبة من موقعك مع معلومات شاملة عن الأسعار والمميزات وبعض الصور التوضيحية.
+          </p>
+        </motion.div>
+
+        {/* Apartments Grid */}
+        {mergedApartments.length > 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+          >
+            {mergedApartments.map((apartment, index) => (
+              <ApartmentCardComponent
                 key={apartment.id}
                 apartment={apartment}
                 index={index}
                 isEditing={isEditing}
-                onEdit={() => handleEditApartment(apartment.id)}
-                onDelete={() => handleDeleteApartment(apartment.id)}
+                isMyApartment={index === 0}
+                onUpdateDescription={handleUpdateDescription}
+                onUpdateImages={handleUpdateImages}
               />
             ))}
-          </div>
+          </motion.div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-center py-12">
-            <div className="w-20 h-20 rounded-2xl bg-secondary/10 flex items-center justify-center mb-4">
-              <MapPin className="w-10 h-10 text-secondary/40" />
-            </div>
-            <p className="text-secondary/50 font-dubai">
-              {isEditing
-                ? 'لم تتم إضافة أي شقق بعد. انقر على "إضافة شقة" للبدء.'
-                : 'لا توجد شقق محيطة للعرض'}
-            </p>
-          </div>
-        )}
-      </motion.div>
-
-      {/* ملخص الإحصائيات */}
-      {slideData.apartments.length > 0 && (
-        <motion.div
-          variants={fadeInUp}
-          initial="hidden"
-          animate="visible"
-          className="mt-6 bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-soft border border-black/5"
-        >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* عدد الشقق */}
-            <div className="text-center">
-              <div className="text-2xl font-bold text-secondary">{slideData.apartments.length}</div>
-              <div className="text-xs text-secondary/60 font-dubai">عدد الشقق</div>
-            </div>
-            
-            {/* متوسط السعر */}
-            <div className="text-center">
-              <div className="text-2xl font-bold text-secondary">
-                {Math.round(
-                  slideData.apartments.reduce((sum, a) => sum + a.price, 0) / slideData.apartments.length
-                ).toLocaleString('ar-EG')}
-              </div>
-              <div className="text-xs text-secondary/60 font-dubai">متوسط الإيجار (ج.م)</div>
-            </div>
-            
-            {/* أقل سعر */}
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {Math.min(...slideData.apartments.map(a => a.price)).toLocaleString('ar-EG')}
-              </div>
-              <div className="text-xs text-secondary/60 font-dubai">أقل إيجار (ج.م)</div>
-            </div>
-            
-            {/* أعلى سعر */}
-            <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">
-                {Math.max(...slideData.apartments.map(a => a.price)).toLocaleString('ar-EG')}
-              </div>
-              <div className="text-xs text-secondary/60 font-dubai">أعلى إيجار (ج.م)</div>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* نافذة إضافة/تعديل الشقة */}
-      <AnimatePresence>
-        {showAddModal && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            onClick={() => setShowAddModal(false)}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-2xl border-2 border-primary/30 p-12"
+            style={{ boxShadow: SHADOWS.card }}
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-secondary font-dubai">
-                  {editingApartment ? 'تعديل بيانات الشقة' : 'إضافة شقة جديدة'}
-                </h3>
-                <button
-                  onClick={() => setShowAddModal(false)}
-                  className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary hover:bg-secondary/20 transition-colors"
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="relative mb-6">
+                <div className="absolute inset-0 bg-primary/20 rounded-3xl blur-xl" />
+                <div 
+                  className="relative w-24 h-24 bg-accent/50 rounded-3xl flex items-center justify-center border-2 border-primary/30"
+                  style={{ boxShadow: SHADOWS.icon }}
                 >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {/* اسم الشقة */}
-                <div>
-                  <label className="block text-sm font-medium text-secondary mb-1 font-dubai">
-                    <Building2 className="w-4 h-4 inline-block ml-1" />
-                    اسم الشقة
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full px-4 py-2.5 bg-accent/30 border border-secondary/10 rounded-xl text-secondary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-dubai"
-                    placeholder="مثال: شقة الزهراء"
-                  />
-                </div>
-
-                {/* السعر وعدد الغرف */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-secondary mb-1 font-dubai">
-                      <DollarSign className="w-4 h-4 inline-block ml-1" />
-                      السعر (ج.م)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.price}
-                      onChange={e => setFormData(prev => ({ ...prev, price: Number(e.target.value) }))}
-                      className="w-full px-4 py-2.5 bg-accent/30 border border-secondary/10 rounded-xl text-secondary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-dubai"
-                      placeholder="0"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-secondary mb-1 font-dubai">
-                      <Bed className="w-4 h-4 inline-block ml-1" />
-                      عدد الغرف
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.rooms}
-                      onChange={e => setFormData(prev => ({ ...prev, rooms: Number(e.target.value) }))}
-                      className="w-full px-4 py-2.5 bg-accent/30 border border-secondary/10 rounded-xl text-secondary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-dubai"
-                      min="1"
-                    />
-                  </div>
-                </div>
-
-                {/* عدد مرات التأجير وأعلى سعر */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-secondary mb-1 font-dubai">
-                      <Hash className="w-4 h-4 inline-block ml-1" />
-                      مرات التأجير
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.rentCount}
-                      onChange={e => setFormData(prev => ({ ...prev, rentCount: Number(e.target.value) }))}
-                      className="w-full px-4 py-2.5 bg-accent/30 border border-secondary/10 rounded-xl text-secondary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-dubai"
-                      min="0"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-secondary mb-1 font-dubai">
-                      <TrendingUp className="w-4 h-4 inline-block ml-1" />
-                      أعلى إيجار (ج.م)
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.highestRent}
-                      onChange={e => setFormData(prev => ({ ...prev, highestRent: Number(e.target.value) }))}
-                      className="w-full px-4 py-2.5 bg-accent/30 border border-secondary/10 rounded-xl text-secondary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-dubai"
-                      placeholder="0"
-                    />
-                  </div>
-                </div>
-
-                {/* المميزات */}
-                <div>
-                  <label className="block text-sm font-medium text-secondary mb-1 font-dubai">
-                    <Star className="w-4 h-4 inline-block ml-1" />
-                    المميزات (مفصولة بفواصل)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.features}
-                    onChange={e => setFormData(prev => ({ ...prev, features: e.target.value }))}
-                    className="w-full px-4 py-2.5 bg-accent/30 border border-secondary/10 rounded-xl text-secondary focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-dubai"
-                    placeholder="مثال: مفروشة، تكييف، واي فاي"
-                  />
-                </div>
-
-                {/* أزرار الإجراءات */}
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={handleSaveApartment}
-                    disabled={!formData.name.trim()}
-                    className="flex-1 px-4 py-2.5 bg-linear-to-r from-secondary to-secondary/90 text-primary rounded-xl font-medium hover:shadow-glow transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-dubai"
-                  >
-                    <Save className="w-4 h-4" />
-                    {editingApartment ? 'حفظ التعديلات' : 'إضافة الشقة'}
-                  </button>
-                  <button
-                    onClick={() => setShowAddModal(false)}
-                    className="px-4 py-2.5 bg-secondary/10 text-secondary rounded-xl font-medium hover:bg-secondary/20 transition-colors font-dubai"
-                  >
-                    إلغاء
-                  </button>
+                  <MapPin className="w-12 h-12 text-primary" strokeWidth={1.5} />
                 </div>
               </div>
-            </motion.div>
+              <h4 className="font-dubai font-bold text-secondary text-xl mb-2">
+                لا توجد شقق محيطة بعد
+              </h4>
+              <p className="font-dubai text-secondary/50 text-sm max-w-sm">
+                قم بإضافة دبابيس الشقق على الخريطة أولاً، وستظهر هنا تلقائياً مع إمكانية إضافة تفاصيل أكثر
+              </p>
+            </div>
           </motion.div>
         )}
-      </AnimatePresence>
+
+        {/* Summary Stats */}
+        {mergedApartments.length > 1 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white rounded-2xl p-6 border-2 border-primary/30"
+            style={{ boxShadow: SHADOWS.card }}
+          >
+            <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
+              <div 
+                className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center border-2 border-primary/30"
+                style={{ boxShadow: SHADOWS.icon }}
+              >
+                <TrendingUp className="w-4 h-4 text-primary" />
+              </div>
+              ملخص الإحصائيات
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div 
+                className="text-center p-4 bg-primary/20 rounded-xl border-2 border-primary/30"
+                style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+              >
+                <div className="text-3xl font-bold text-secondary font-bristone">
+                  {mergedApartments.length}
+                </div>
+                <div className="text-sm text-secondary/60 font-dubai mt-1">عدد الشقق</div>
+              </div>
+              <div 
+                className="text-center p-4 bg-primary/20 rounded-xl border-2 border-primary/30"
+                style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+              >
+                <div className="text-3xl font-bold text-secondary font-bristone">
+                  {Math.min(...mergedApartments.map(a => a.price)).toLocaleString('ar-EG')}
+                </div>
+                <div className="text-sm text-secondary/60 font-dubai mt-1">أقل إيجار (ج.م)</div>
+              </div>
+              <div 
+                className="text-center p-4 bg-primary/20 rounded-xl border-2 border-primary/30"
+                style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+              >
+                <div className="text-3xl font-bold text-secondary font-bristone">
+                  {Math.max(...mergedApartments.map(a => a.price)).toLocaleString('ar-EG')}
+                </div>
+                <div className="text-sm text-secondary/60 font-dubai mt-1">أعلى إيجار (ج.م)</div>
+              </div>
+              <div 
+                className="text-center p-4 bg-primary/20 rounded-xl border-2 border-primary/30"
+                style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+              >
+                <div className="text-3xl font-bold text-secondary font-bristone">
+                  {Math.round(
+                    mergedApartments.reduce((sum, a) => sum + a.price, 0) / mergedApartments.length
+                  ).toLocaleString('ar-EG')}
+                </div>
+                <div className="text-sm text-secondary/60 font-dubai mt-1">المتوسط (ج.م)</div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </motion.div>
     </div>
   );
 }
