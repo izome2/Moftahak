@@ -422,7 +422,7 @@ const LibraryPopup: React.FC<LibraryPopupProps> = ({ isOpen, onClose, onAddItem 
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -100 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="fixed top-28 bottom-16 left-8 w-96 bg-white rounded-2xl overflow-hidden flex flex-col z-[9999]"
+        className="fixed top-28 bottom-16 left-8 w-96 bg-white rounded-2xl overflow-hidden flex flex-col z-9999"
         style={{ boxShadow: SHADOWS.modal }}
         onPointerDown={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
@@ -588,7 +588,7 @@ const KitchenSlide: React.FC<KitchenSlideProps> = ({
       const newItem: RoomItem = {
         id: `${itemDef.id}-${Date.now()}`,
         name: itemDef.name,
-        icon: itemDef.icon,
+        icon: itemDef.id,
         price: itemDef.defaultPrice,
         quantity: 1,
       };
@@ -596,7 +596,6 @@ const KitchenSlide: React.FC<KitchenSlideProps> = ({
       setItems(newItems);
       updateParent(newItems);
     }
-    setShowLibrary(false);
   };
 
   const handleRemoveItem = (itemId: string) => {
@@ -640,7 +639,7 @@ const KitchenSlide: React.FC<KitchenSlideProps> = ({
   }, [room?.items]);
 
   return (
-    <div className="min-h-full p-6 md:p-8 bg-linear-to-br from-accent/30 via-white to-accent/20">
+    <div className="p-6 md:p-8 bg-gradient-to-br from-accent/30 via-white to-accent/20 pb-24">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -700,7 +699,7 @@ const KitchenSlide: React.FC<KitchenSlideProps> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className={`
-            min-h-100 p-6 rounded-2xl sm:rounded-3xl border-2
+            min-h-[400px] p-6 rounded-2xl sm:rounded-3xl border-2
             ${isOver 
               ? 'border-primary bg-primary/5' 
               : 'border-dashed border-secondary/20 bg-white/50'
@@ -713,7 +712,7 @@ const KitchenSlide: React.FC<KitchenSlideProps> = ({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="h-full min-h-87 flex flex-col items-center justify-center text-center"
+              className="h-full min-h-[350px] flex flex-col items-center justify-center text-center"
             >
               <motion.div
                 animate={{ 

@@ -292,7 +292,6 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
       className="bg-white shadow-xl rounded-2xl relative overflow-hidden ring-1 ring-black/5"
       style={{
         width: `${SLIDE_WIDTH}px`,
-        height: `${SLIDE_HEIGHT}px`,
       }}
     >
       {renderSlideContent()}

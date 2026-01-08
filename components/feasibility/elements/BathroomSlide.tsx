@@ -586,7 +586,6 @@ const BathroomSlide: React.FC<BathroomSlideProps> = ({
       setItems(newItems);
       updateParent(newItems);
     }
-    setShowLibrary(false);
   };
 
   const handleRemoveItem = (itemId: string) => {
@@ -630,7 +629,7 @@ const BathroomSlide: React.FC<BathroomSlideProps> = ({
   }, [room?.items]);
 
   return (
-    <div className="min-h-full p-6 md:p-8 bg-linear-to-br from-accent/30 via-white to-accent/20">
+    <div className="min-h-full p-6 md:p-8 bg-gradient-to-br from-accent/30 via-white to-accent/20 pb-24">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

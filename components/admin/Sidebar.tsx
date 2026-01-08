@@ -140,22 +140,18 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onClose, onOpen }) => {
               </motion.div>
             </Link>
 
-            <div className="h-7 w-px bg-primary/20" />
-
             {/* الشعار */}
-            <div className="w-9 h-9 relative shrink-0">
+            <div className="w-7 h-7 relative shrink-0">
               <Image
-                src="/logos/logo-icon.png"
+                src="/logos/logo-dark-icon.png"
                 alt="مفتاحك"
                 fill
                 className="object-contain"
               />
             </div>
-
-            <div className="h-7 w-px bg-primary/20" />
             
             {/* معلومات الدراسة */}
-            <div className="flex flex-col min-w-0 flex-1">
+            <div className="flex flex-col min-w-0 flex-1 mr-3">
               <span className="text-secondary font-dubai text-base truncate">
                 دراسة جدوى
               </span>

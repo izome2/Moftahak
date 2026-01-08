@@ -61,7 +61,8 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
 
   return (
     <div 
-      className="absolute inset-0 bg-secondary flex flex-col overflow-hidden"
+      className="relative bg-secondary flex flex-col overflow-hidden"
+      style={{ minHeight: '1200px' }}
       dir="rtl"
     >
       {/* النمط الخلفي */}
@@ -69,8 +70,9 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
         className="absolute inset-0 opacity-5"
         style={{
           backgroundImage: `url('/patterns/pattern-vertical-white.png')`,
-          backgroundRepeat: 'repeat',
-          backgroundSize: '200px',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       />
 
@@ -85,9 +87,9 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
             transition={{ duration: 0.5 }}
           >
             {/* الشعار */}
-            <div className="relative w-28 h-28 mx-auto mb-4">
+            <div className="relative w-40 h-40 mx-auto mb-6">
               <Image
-                src="/logos/logo-icon-light.png"
+                src="/logos/logo-white.png"
                 alt="مفتاحك"
                 fill
                 className="object-contain"
@@ -95,11 +97,7 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
               />
             </div>
             
-            {/* اسم الشركة */}
-            <h1 className="font-bristone text-primary text-2xl tracking-wider">
-              Moftahak
-            </h1>
-            <p className="text-primary/60 text-sm font-dubai mt-1">
+            <p className="text-primary/60 text-base font-dubai mt-2">
               شريكك في النجاح العقاري
             </p>
           </motion.div>
@@ -120,7 +118,7 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
                   type="text"
                   value={studyTitle}
                   onChange={(e) => setStudyTitle(e.target.value)}
-                  className="text-xl font-dubai text-primary/80 bg-white/10 backdrop-blur-sm border-b-2 border-primary/50 outline-none text-center px-4 py-2 rounded-t-xl"
+                  className="text-2xl font-dubai text-primary/80 bg-white/10 backdrop-blur-sm border-b-2 border-primary/50 outline-none text-center px-4 py-2 rounded-t-xl"
                   autoFocus
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSave('studyTitle');
@@ -145,7 +143,7 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
                 className={`relative group ${isEditing ? 'cursor-pointer' : ''}`}
                 onClick={() => isEditing && setEditingField('studyTitle')}
               >
-                <span className="text-xl font-dubai text-primary/80">
+                <span className="text-2xl font-dubai text-primary/80">
                   {studyTitle}
                 </span>
                 {isEditing && (
@@ -170,7 +168,7 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4 }}
           >
-            <p className="text-primary/50 text-sm font-dubai mb-2">
+            <p className="text-primary/50 text-base font-dubai mb-3">
               أُعدت خصيصاً لـ
             </p>
             
@@ -180,7 +178,7 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
                   type="text"
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  className="text-3xl font-dubai font-bold text-primary bg-white/10 backdrop-blur-sm border-b-2 border-primary outline-none text-center px-4 py-2 rounded-t-xl"
+                  className="text-4xl font-dubai font-bold text-primary bg-white/10 backdrop-blur-sm border-b-2 border-primary outline-none text-center px-4 py-2 rounded-t-xl"
                   autoFocus
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSave('clientName');
@@ -207,7 +205,7 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
                 className={`relative group inline-block ${isEditing ? 'cursor-pointer' : ''}`}
                 onClick={() => isEditing && setEditingField('clientName')}
               >
-                <h2 className="text-3xl font-dubai font-bold text-primary">
+                <h2 className="text-4xl font-dubai font-bold text-primary">
                   {clientName}
                 </h2>
                 {isEditing && (
@@ -238,8 +236,8 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
           >
-            <Calendar className="w-4 h-4" />
-            <span className="text-sm font-dubai">{currentDate}</span>
+            <Calendar className="w-5 h-5" />
+            <span className="text-base font-dubai">{currentDate}</span>
           </motion.div>
         </div>
 
