@@ -17,13 +17,13 @@ import {
   FileText,
   Hash,
   Sparkles,
-  Home
+  Home,
+  ExternalLink,
+  Users,
+  Bath
 } from 'lucide-react';
 import { NearbyApartmentsSlideData, NearbyApartment, MapSlideData } from '@/types/feasibility';
 
-// ============================================
-// 🎨 DESIGN TOKENS - ذهبي وبيج فقط
-// ============================================
 const SHADOWS = {
   card: '0 4px 20px rgba(16, 48, 43, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)',
   cardHover: '0 12px 40px rgba(16, 48, 43, 0.15), 0 4px 12px rgba(237, 191, 140, 0.1)',
@@ -44,6 +44,98 @@ const defaultData: NearbyApartmentsSlideData = {
   showFromMap: true,
 };
 
+interface EditableWidgetProps {
+  icon: React.ReactNode;
+  label: string;
+  value: number | string;
+  suffix: string;
+  isEditable: boolean;
+  onSave?: (newValue: number) => void;
+  isNumber?: boolean;
+}
+
+const EditableWidget: React.FC<EditableWidgetProps> = ({
+  icon,
+  label,
+  value,
+  suffix,
+  isEditable,
+  onSave,
+  isNumber = true,
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [localValue, setLocalValue] = useState(String(value));
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleClick = () => {
+    if (isEditable && onSave) {
+      setIsEditing(true);
+      setLocalValue(String(value === '-' ? 0 : value));
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  };
+
+  const handleSave = () => {
+    if (onSave && isNumber) {
+      const numValue = parseFloat(localValue) || 0;
+      onSave(numValue);
+    }
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSave();
+    if (e.key === 'Escape') setIsEditing(false);
+  };
+
+  return (
+    <div 
+      className={`bg-primary/20 p-3 rounded-xl border-2 border-primary/30 transition-all ${
+        isEditable ? 'cursor-pointer hover:border-primary/50 hover:bg-primary/30' : ''
+      }`}
+      style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+      onClick={handleClick}
+    >
+      <div className="flex items-center gap-2 text-secondary/70 mb-1">
+        <div className="w-6 h-6 bg-primary/30 rounded-lg flex items-center justify-center border border-primary/40">
+          {icon}
+        </div>
+        <span className="text-xs font-dubai">{label}</span>
+        {isEditable && !isEditing && (
+          <Edit3 className="w-3 h-3 text-primary/60 mr-auto" />
+        )}
+      </div>
+      {isEditing ? (
+        <div className="flex items-center gap-1">
+          <input
+            ref={inputRef}
+            type="number"
+            value={localValue}
+            onChange={(e) => setLocalValue(e.target.value)}
+            onBlur={handleSave}
+            onKeyDown={handleKeyDown}
+            className="w-full text-lg font-bold text-secondary font-bristone bg-white/50 border border-primary/40 rounded-lg px-2 py-1 focus:outline-none focus:border-primary"
+            min={0}
+            step={label === 'التقييم' ? '0.1' : '1'}
+            max={label === 'التقييم' ? '5' : undefined}
+          />
+          <button
+            onClick={(e) => { e.stopPropagation(); handleSave(); }}
+            className="p-1.5 bg-secondary/80 rounded-lg text-white hover:bg-secondary transition-colors"
+          >
+            <Check className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      ) : (
+        <div className="text-lg font-bold text-secondary font-bristone">
+          {typeof value === 'number' ? value.toLocaleString('ar-EG') : value}
+          <span className="text-xs font-normal mr-1 text-secondary/60">{suffix}</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // مكون بطاقة الشقة الكبيرة
 interface ApartmentCardProps {
   apartment: NearbyApartment;
@@ -52,6 +144,7 @@ interface ApartmentCardProps {
   isMyApartment?: boolean;
   onUpdateDescription: (id: string, description: string) => void;
   onUpdateImages: (id: string, images: string[]) => void;
+  onUpdateApartment?: (id: string, updates: Partial<NearbyApartment>) => void;
 }
 
 const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
@@ -61,10 +154,21 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
   isMyApartment = false,
   onUpdateDescription,
   onUpdateImages,
+  onUpdateApartment,
 }) => {
   const [editingDescription, setEditingDescription] = useState(false);
   const [localDescription, setLocalDescription] = useState(apartment.description || '');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // هل هذه شقة يدوية (قابلة للتعديل)؟
+  const isManualApartment = !apartment.airbnbUrl;
+  const canEdit = isEditing && isManualApartment;
+
+  const handleUpdateValue = (field: keyof NearbyApartment, value: number) => {
+    if (onUpdateApartment) {
+      onUpdateApartment(apartment.id, { [field]: value });
+    }
+  };
 
   const handleSaveDescription = () => {
     onUpdateDescription(apartment.id, localDescription);
@@ -126,10 +230,27 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
           <div className="flex-1">
             <h3 className="text-xl font-bold text-secondary font-dubai">{apartment.name}</h3>
             <div className="flex items-center gap-2 text-secondary/60 text-sm mt-0.5">
-              <div className="w-4 h-4 bg-primary/30 rounded-full flex items-center justify-center border border-primary/40">
-                <MapPin className="w-2.5 h-2.5 text-secondary" />
-              </div>
-              <span className="font-dubai">موقع على الخريطة</span>
+              {apartment.airbnbUrl ? (
+                <a
+                  href={apartment.airbnbUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:text-[#FF5A5F] transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="w-4 h-4 bg-[#FF5A5F]/20 rounded-full flex items-center justify-center border border-[#FF5A5F]/40">
+                    <ExternalLink className="w-2.5 h-2.5 text-[#FF5A5F]" />
+                  </div>
+                  <span className="font-dubai">عرض في Airbnb</span>
+                </a>
+              ) : (
+                <>
+                  <div className="w-4 h-4 bg-primary/30 rounded-full flex items-center justify-center border border-primary/40">
+                    <MapPin className="w-2.5 h-2.5 text-secondary" />
+                  </div>
+                  <span className="font-dubai">موقع على الخريطة</span>
+                </>
+              )}
             </div>
           </div>
           {/* رقم الشقة أو "شقتي" */}
@@ -146,75 +267,67 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
 
       {/* Content */}
       <div className="p-4 space-y-4">
-        {/* Stats Grid - كل الخلايا ذهبي موحد */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Stats Grid - 6 ويدجات موحدة لكل الشقق */}
+        <div className="grid grid-cols-3 gap-3">
           {/* السعر */}
-          <div 
-            className="bg-primary/20 p-3 rounded-xl border-2 border-primary/30"
-            style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
-          >
-            <div className="flex items-center gap-2 text-secondary/70 mb-1">
-              <div className="w-6 h-6 bg-primary/30 rounded-lg flex items-center justify-center border border-primary/40">
-                <DollarSign className="w-3.5 h-3.5 text-secondary" />
-              </div>
-              <span className="text-xs font-dubai">سعر الإيجار</span>
-            </div>
-            <div className="text-xl font-bold text-secondary font-bristone">
-              {apartment.price.toLocaleString('ar-EG')}
-              <span className="text-sm font-normal mr-1 text-secondary/60">ج.م</span>
-            </div>
-          </div>
+          <EditableWidget
+            icon={<DollarSign className="w-3.5 h-3.5 text-secondary" />}
+            label="السعر/ليلة"
+            value={apartment.price}
+            suffix="ج.م"
+            isEditable={canEdit}
+            onSave={(v) => handleUpdateValue('price', v)}
+          />
 
-          {/* عدد الغرف */}
-          <div 
-            className="bg-primary/20 p-3 rounded-xl border-2 border-primary/30"
-            style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
-          >
-            <div className="flex items-center gap-2 text-secondary/70 mb-1">
-              <div className="w-6 h-6 bg-primary/30 rounded-lg flex items-center justify-center border border-primary/40">
-                <Bed className="w-3.5 h-3.5 text-secondary" />
-              </div>
-              <span className="text-xs font-dubai">عدد الغرف</span>
-            </div>
-            <div className="text-xl font-bold text-secondary font-bristone">
-              {apartment.rooms}
-              <span className="text-sm font-normal mr-1 text-secondary/60">غرف</span>
-            </div>
-          </div>
+          {/* غرف النوم */}
+          <EditableWidget
+            icon={<Home className="w-3.5 h-3.5 text-secondary" />}
+            label="غرف النوم"
+            value={apartment.rooms}
+            suffix="غرف"
+            isEditable={canEdit}
+            onSave={(v) => handleUpdateValue('rooms', v)}
+          />
 
-          {/* مرات التأجير */}
-          <div 
-            className="bg-primary/20 p-3 rounded-xl border-2 border-primary/30"
-            style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
-          >
-            <div className="flex items-center gap-2 text-secondary/70 mb-1">
-              <div className="w-6 h-6 bg-primary/30 rounded-lg flex items-center justify-center border border-primary/40">
-                <Hash className="w-3.5 h-3.5 text-secondary" />
-              </div>
-              <span className="text-xs font-dubai">مرات التأجير</span>
-            </div>
-            <div className="text-xl font-bold text-secondary font-bristone">
-              {apartment.rentCount}
-              <span className="text-sm font-normal mr-1 text-secondary/60">مرة</span>
-            </div>
-          </div>
+          {/* الضيوف */}
+          <EditableWidget
+            icon={<Users className="w-3.5 h-3.5 text-secondary" />}
+            label="الضيوف"
+            value={apartment.guests || 0}
+            suffix="ضيف"
+            isEditable={canEdit}
+            onSave={(v) => handleUpdateValue('guests', v)}
+          />
 
-          {/* أعلى إيجار */}
-          <div 
-            className="bg-primary/20 p-3 rounded-xl border-2 border-primary/30"
-            style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
-          >
-            <div className="flex items-center gap-2 text-secondary/70 mb-1">
-              <div className="w-6 h-6 bg-primary/30 rounded-lg flex items-center justify-center border border-primary/40">
-                <TrendingUp className="w-3.5 h-3.5 text-secondary" />
-              </div>
-              <span className="text-xs font-dubai">أعلى إيجار</span>
-            </div>
-            <div className="text-xl font-bold text-secondary font-bristone">
-              {apartment.highestRent.toLocaleString('ar-EG')}
-              <span className="text-sm font-normal mr-1 text-secondary/60">ج.م</span>
-            </div>
-          </div>
+          {/* الأسرّة */}
+          <EditableWidget
+            icon={<Bed className="w-3.5 h-3.5 text-secondary" />}
+            label="الأسرّة"
+            value={apartment.beds || 0}
+            suffix="سرير"
+            isEditable={canEdit}
+            onSave={(v) => handleUpdateValue('beds', v)}
+          />
+
+          {/* الحمامات */}
+          <EditableWidget
+            icon={<Bath className="w-3.5 h-3.5 text-secondary" />}
+            label="الحمامات"
+            value={apartment.bathrooms || 0}
+            suffix="حمام"
+            isEditable={canEdit}
+            onSave={(v) => handleUpdateValue('bathrooms', v)}
+          />
+
+          {/* التقييم */}
+          <EditableWidget
+            icon={<Star className="w-3.5 h-3.5 text-secondary" />}
+            label="التقييم"
+            value={apartment.rating ? apartment.rating.toFixed(1) : 0}
+            suffix={apartment.reviewsCount ? `(${apartment.reviewsCount})` : '/ 5'}
+            isEditable={canEdit}
+            onSave={(v) => handleUpdateValue('rating', v)}
+          />
         </div>
 
         {/* المميزات */}
@@ -378,21 +491,18 @@ export default function NearbyApartmentsSlide({
   isEditing = false,
   onUpdate,
 }: NearbyApartmentsSlideProps) {
-  // دمج الشقق من الخريطة مع الشقق المحلية
   const apartments = useMemo(() => {
     if (mapData?.pins && mapData.pins.length > 0) {
-      return mapData.pins.map(pin => pin.apartment);
+      return mapData.pins.slice(1).map(pin => pin.apartment);
     }
     return data.apartments;
   }, [mapData?.pins, data.apartments]);
 
   const [localData, setLocalData] = useState<Record<string, { description?: string; images?: string[] }>>({});
 
-  // حفظ مرجع لـ onUpdate
   const onUpdateRef = useRef(onUpdate);
   onUpdateRef.current = onUpdate;
 
-  // تحديث الوصف
   const handleUpdateDescription = (id: string, description: string) => {
     setLocalData(prev => ({
       ...prev,
@@ -400,7 +510,6 @@ export default function NearbyApartmentsSlide({
     }));
   };
 
-  // تحديث الصور
   const handleUpdateImages = (id: string, images: string[]) => {
     setLocalData(prev => ({
       ...prev,
@@ -408,12 +517,24 @@ export default function NearbyApartmentsSlide({
     }));
   };
 
-  // دمج البيانات المحلية مع بيانات الشقق
+  const handleUpdateApartment = (id: string, updates: Partial<NearbyApartment>) => {
+    setLocalData(prev => ({
+      ...prev,
+      [id]: { ...prev[id], ...updates }
+    }));
+  };
+
   const mergedApartments = useMemo(() => {
     return apartments.map(apt => ({
       ...apt,
       description: localData[apt.id]?.description ?? apt.description,
       images: localData[apt.id]?.images ?? apt.images,
+      price: (localData[apt.id] as any)?.price ?? apt.price,
+      rooms: (localData[apt.id] as any)?.rooms ?? apt.rooms,
+      guests: (localData[apt.id] as any)?.guests ?? apt.guests,
+      beds: (localData[apt.id] as any)?.beds ?? apt.beds,
+      bathrooms: (localData[apt.id] as any)?.bathrooms ?? apt.bathrooms,
+      rating: (localData[apt.id] as any)?.rating ?? apt.rating,
     }));
   }, [apartments, localData]);
 
@@ -464,7 +585,7 @@ export default function NearbyApartmentsSlide({
                 <span className="block text-2xl font-bold text-secondary font-bristone">
                   {mergedApartments.length}
                 </span>
-                <span className="text-xs text-secondary/60 font-dubai">شقة</span>
+                <span className="text-xs text-secondary/60 font-dubai">شقة محيطة</span>
               </div>
               {mergedApartments.length > 0 && (
                 <div 
@@ -514,6 +635,7 @@ export default function NearbyApartmentsSlide({
                 isMyApartment={index === 0}
                 onUpdateDescription={handleUpdateDescription}
                 onUpdateImages={handleUpdateImages}
+                onUpdateApartment={handleUpdateApartment}
               />
             ))}
           </motion.div>

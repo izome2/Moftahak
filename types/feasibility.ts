@@ -1,25 +1,25 @@
-// أنواع نظام دراسات الجدوى
 
-// أنواع الشرائح المتاحة
+
+
 export type SlideType =
-  | 'cover'           // شريحة الغلاف
-  | 'introduction'    // المقدمة الترحيبية
-  | 'room-setup'      // إعداد الغرف
-  | 'kitchen'         // المطبخ
-  | 'bathroom'        // الحمام
-  | 'living-room'     // الصالة
-  | 'bedroom'         // غرفة النوم
-  | 'cost-summary'    // ملخص التكاليف
-  | 'area-study'      // دراسة المنطقة
-  | 'map'             // الخريطة
-  | 'nearby-apartments' // الشقق المحيطة
-  | 'statistics'      // الإحصائيات
-  | 'footer';         // الخاتمة
+  | 'cover'           
+  | 'introduction'    
+  | 'room-setup'      
+  | 'kitchen'         
+  | 'bathroom'        
+  | 'living-room'     
+  | 'bedroom'         
+  | 'cost-summary'    
+  | 'area-study'      
+  | 'map'             
+  | 'nearby-apartments' 
+  | 'statistics'      
+  | 'footer';         
 
-// حالة الدراسة
+
 export type StudyStatus = 'draft' | 'sent' | 'viewed';
 
-// عنصر غرفة (مطبخ، حمام، الخ)
+
 export interface RoomItem {
   id: string;
   name: string;
@@ -28,42 +28,42 @@ export interface RoomItem {
   quantity: number;
 }
 
-// نوع الغرفة
+
 export type RoomType = 'bedroom' | 'living-room' | 'kitchen' | 'bathroom';
 
-// بيانات الغرفة
+
 export interface RoomData {
   id: string;
   type: RoomType;
   name: string;
-  number: number; // ترقيم الغرفة (غرفة نوم 1، حمام 2، الخ)
+  number: number; 
   items: RoomItem[];
   image?: string;
   totalCost: number;
 }
 
-// بيانات شريحة الغلاف
+
 export interface CoverSlideData {
   clientName: string;
   studyTitle?: string;
   date?: string;
 }
 
-// بيانات شريحة المقدمة
+
 export interface IntroductionSlideData {
   title: string;
   description: string;
   bulletPoints: string[];
 }
 
-// بيانات شريحة الغرفة
+
 export interface RoomSlideData {
   room: RoomData;
   showImage: boolean;
   imagePosition: 'left' | 'right';
 }
 
-// بيانات شريحة إعداد الغرف
+
 export interface RoomSetupSlideData {
   rooms: {
     bedrooms: number;
@@ -74,14 +74,14 @@ export interface RoomSetupSlideData {
   slidesGenerated?: boolean;
 }
 
-// بيانات شريحة ملخص التكاليف
+
 export interface CostSummarySlideData {
   rooms: RoomData[];
   additionalCosts: { name: string; amount: number }[];
   discount?: number;
 }
 
-// بيانات الشقة المحيطة
+
 export interface NearbyApartment {
   id: string;
   name: string;
@@ -94,17 +94,25 @@ export interface NearbyApartment {
     lat: number;
     lng: number;
   };
-  description?: string; // فقرة نصية وصفية
-  images?: string[]; // صور الشقة (حتى 4 صور)
+  description?: string; 
+  images?: string[]; 
+  airbnbUrl?: string; 
+  
+  guests?: number; 
+  beds?: number; 
+  bathrooms?: number; 
+  subtitle?: string; 
+  rating?: number; 
+  reviewsCount?: number; 
 }
 
-// بيانات شريحة دراسة المنطقة
+
 export interface AreaStudySlideData {
   title: string;
   description: string;
 }
 
-// بيانات شريحة الخريطة
+
 export interface MapSlideData {
   center: {
     lat: number;
@@ -119,13 +127,13 @@ export interface MapSlideData {
   }[];
 }
 
-// بيانات شريحة الشقق المحيطة
+
 export interface NearbyApartmentsSlideData {
   apartments: NearbyApartment[];
-  showFromMap?: boolean; // عرض الشقق من الخريطة
+  showFromMap?: boolean; 
 }
 
-// بيانات شريحة الإحصائيات
+
 export interface StatisticsSlideData {
   totalCost: number;
   averageRent: number;
@@ -133,7 +141,7 @@ export interface StatisticsSlideData {
   comparisonData: { label: string; value: number }[];
 }
 
-// بيانات شريحة الخاتمة
+
 export interface FooterSlideData {
   message: string;
   contactInfo: {
@@ -149,7 +157,7 @@ export interface FooterSlideData {
   };
 }
 
-// بيانات الشريحة العامة
+
 export interface SlideData {
   cover?: CoverSlideData;
   introduction?: IntroductionSlideData;
@@ -163,17 +171,17 @@ export interface SlideData {
   footer?: FooterSlideData;
 }
 
-// الشريحة
+
 export interface Slide {
   id: string;
   type: SlideType;
   title: string;
   order: number;
   data: SlideData;
-  isLocked?: boolean; // بعض الشرائح مثل الغلاف والخاتمة لا يمكن حذفها
+  isLocked?: boolean; 
 }
 
-// دراسة الجدوى
+
 export interface FeasibilityStudy {
   id: string;
   clientId: string;
@@ -190,7 +198,7 @@ export interface FeasibilityStudy {
   sentAt?: Date;
 }
 
-// إعدادات الشريحة الافتراضية
+
 export interface SlideTemplate {
   type: SlideType;
   title: string;
@@ -199,7 +207,7 @@ export interface SlideTemplate {
   isLocked?: boolean;
 }
 
-// حالة المحرر
+
 export interface EditorState {
   study: FeasibilityStudy | null;
   activeSlideIndex: number;
@@ -213,7 +221,7 @@ export interface EditorState {
   };
 }
 
-// إجراءات المحرر
+
 export type EditorAction =
   | { type: 'SET_STUDY'; payload: FeasibilityStudy }
   | { type: 'SET_ACTIVE_SLIDE'; payload: number }
