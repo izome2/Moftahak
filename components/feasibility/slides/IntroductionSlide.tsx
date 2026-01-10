@@ -1,15 +1,5 @@
 'use client';
 
-/**
- * IntroductionSlide - شريحة المقدمة
- * 
- * تصميم احترافي مع:
- * - بطاقات بزوايا rounded-xl/2xl
- * - ظلال احترافية
- * - أيقونة خلفية كبيرة شفافة
- * - تأثير shimmer عند hover
- */
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -28,9 +18,6 @@ import {
 } from 'lucide-react';
 import type { IntroductionSlideData, SlideData } from '@/types/feasibility';
 
-// ============================================
-// 🎨 DESIGN TOKENS
-// ============================================
 
 const SHADOWS = {
   card: 'rgba(237, 191, 140, 0.15) 0px 4px 20px',
@@ -103,26 +90,11 @@ const IntroductionSlide: React.FC<IntroductionSlideProps> = ({
   };
 
   return (
-    <div className="relative bg-gradient-to-br from-accent/30 via-white to-accent/20 overflow-hidden" style={{ minHeight: '1200px' }} dir="rtl">
+    <div className="relative bg-linear-to-br from-accent/30 via-white to-accent/20 overflow-hidden" style={{ minHeight: '1200px' }} dir="rtl">
       {/* Background Glow Effects */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-100 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-
-      {/* الشعار في الأعلى */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="absolute top-6 left-6 w-16 h-16"
-      >
-        <Image
-          src="/logos/logo-icon-dark.png"
-          alt="مفتاحك"
-          fill
-          className="object-contain"
-        />
-      </motion.div>
 
       {/* المحتوى الرئيسي */}
       <div className="relative h-full flex flex-col p-8 pt-20">
@@ -135,8 +107,8 @@ const IntroductionSlide: React.FC<IntroductionSlideProps> = ({
           style={{ boxShadow: SHADOWS.card }}
         >
           {/* Background Icon */}
-          <div className="absolute -top-8 -left-8 opacity-[0.05] pointer-events-none">
-            <BookOpen className="w-48 h-48 text-primary" strokeWidth={1} />
+          <div className="absolute -top-8 -left-8 opacity-[0.08] pointer-events-none">
+            <BookOpen className="w-56 h-56 text-primary" strokeWidth={1.5} />
           </div>
 
           {/* Shimmer Effect */}
@@ -205,8 +177,8 @@ const IntroductionSlide: React.FC<IntroductionSlideProps> = ({
           style={{ boxShadow: SHADOWS.card }}
         >
           {/* أيقونة خلفية شفافة */}
-          <div className="absolute -top-4 -right-4 opacity-[0.05] pointer-events-none">
-            <BookOpen className="w-32 h-32 text-primary" strokeWidth={1} />
+          <div className="absolute -top-4 -right-4 opacity-[0.08] pointer-events-none">
+            <BookOpen className="w-40 h-40 text-primary" strokeWidth={1.5} />
           </div>
           
           {/* تأثير التحويم */}
@@ -256,18 +228,18 @@ const IntroductionSlide: React.FC<IntroductionSlideProps> = ({
           style={{ boxShadow: SHADOWS.card }}
         >
           {/* Background Icon */}
-          <div className="absolute -bottom-10 -left-10 opacity-[0.05] pointer-events-none">
-            <FileText className="w-64 h-64 text-primary" strokeWidth={1} />
+          <div className="absolute -bottom-10 -left-10 opacity-[0.08] pointer-events-none">
+            <FileText className="w-64 h-64 text-primary" strokeWidth={1.5} />
           </div>
 
           {/* عنوان البطاقة */}
           <div className="flex items-center gap-4 mb-6 relative z-10">
             <motion.div 
-              className="p-4 rounded-2xl bg-secondary border-2 border-secondary"
+              className="p-4 rounded-2xl bg-primary/20 border-2 border-primary/40 -ml-0.5"
               whileHover={{ scale: 1.05, rotate: 5 }}
-              style={{ boxShadow: SHADOWS.button }}
+              style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
             >
-              <FileText className="w-6 h-6 text-primary" strokeWidth={2} />
+              <FileText className="w-7 h-7 text-secondary" strokeWidth={2} />
             </motion.div>
             <h2 className="text-xl font-dubai font-bold text-secondary">
               ما ستجده في هذا التقرير
@@ -290,8 +262,8 @@ const IntroductionSlide: React.FC<IntroductionSlideProps> = ({
                   style={{ boxShadow: SHADOWS.card }}
                 >
                   {/* Background Icon for each item */}
-                  <div className="absolute -top-2 -left-2 opacity-[0.07] pointer-events-none">
-                    <IconComponent className="w-20 h-20 text-primary" strokeWidth={1} />
+                  <div className="absolute -top-2 -left-2 opacity-[0.10] pointer-events-none">
+                    <IconComponent className="w-24 h-24 text-primary" strokeWidth={1.5} />
                   </div>
 
                   {/* Shimmer Effect */}

@@ -149,8 +149,8 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
           style={{ boxShadow: SHADOWS.card }}
         >
           {/* Background Icon */}
-          <div className="absolute -top-8 -left-8 opacity-[0.05] pointer-events-none">
-            <Calculator className="w-48 h-48 text-primary" strokeWidth={1} />
+          <div className="absolute -top-8 -left-8 opacity-[0.08] pointer-events-none">
+            <Calculator className="w-56 h-56 text-primary" strokeWidth={1.5} />
           </div>
 
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -251,8 +251,8 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
                       style={{ boxShadow: 'rgba(237, 191, 140, 0.2) 0px 2px 8px' }}
                     >
                       {/* Background Icon */}
-                      <div className="absolute -top-2 -left-2 opacity-[0.05] pointer-events-none">
-                        <Icon className="w-20 h-20 text-primary" strokeWidth={1} />
+                      <div className="absolute -top-2 -left-2 opacity-[0.08] pointer-events-none">
+                        <Icon className="w-24 h-24 text-primary" strokeWidth={1.5} />
                       </div>
 
                       <div className="relative z-10 flex items-center gap-4">
@@ -366,8 +366,8 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
                     style={{ boxShadow: 'rgba(237, 191, 140, 0.2) 0px 2px 8px' }}
                   >
                     {/* Background Icon */}
-                    <div className="absolute -top-2 -left-2 opacity-[0.05] pointer-events-none">
-                      <Sparkles className="w-20 h-20 text-primary" strokeWidth={1} />
+                    <div className="absolute -top-2 -left-2 opacity-[0.08] pointer-events-none">
+                      <Sparkles className="w-24 h-24 text-primary" strokeWidth={1.5} />
                     </div>
 
                     <div className="relative z-10 flex items-center gap-4">
@@ -535,7 +535,7 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
         >
           {/* Background Pattern */}
           <div className="absolute -top-10 -left-10 opacity-10 pointer-events-none">
-            <Calculator className="w-40 h-40 text-white" strokeWidth={1} />
+            <Calculator className="w-40 h-40 text-white" strokeWidth={1.5} />
           </div>
 
           <div className="relative z-10">

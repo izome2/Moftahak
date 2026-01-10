@@ -128,8 +128,8 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
       />
 
       {/* Background Icon - Large Transparent */}
-      <div className="absolute -top-4 -left-4 z-0 opacity-[0.07] pointer-events-none">
-        <IconComponent className="w-32 h-32 text-primary" strokeWidth={1} />
+      <div className="absolute -top-4 -left-4 z-0 opacity-[0.10] pointer-events-none">
+        <IconComponent className="w-40 h-40 text-primary" strokeWidth={1.5} />
       </div>
 
       {/* Shimmer Effect on Hover */}
@@ -416,7 +416,7 @@ const LibraryPopup: React.FC<LibraryPopupProps> = ({ isOpen, onClose, onAddItem 
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -100 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="fixed top-28 bottom-16 left-8 w-96 bg-white rounded-2xl overflow-hidden flex flex-col z-[9999]"
+        className="fixed top-28 bottom-16 left-8 w-96 bg-white rounded-2xl overflow-hidden flex flex-col z-9999"
         style={{ boxShadow: SHADOWS.modal }}
         onPointerDown={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
@@ -629,7 +629,7 @@ const BedroomSlide: React.FC<BedroomSlideProps> = ({
   }, [room?.items]);
 
   return (
-    <div className="min-h-full p-6 md:p-8 bg-gradient-to-br from-accent/30 via-white to-accent/20 pb-24">
+    <div className="min-h-full p-6 md:p-8 bg-linear-to-br from-accent/30 via-white to-accent/20 pb-24">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -644,8 +644,8 @@ const BedroomSlide: React.FC<BedroomSlideProps> = ({
           className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20"
           style={{ boxShadow: SHADOWS.card }}
         >
-          <div className="absolute -top-8 -left-8 opacity-[0.05] pointer-events-none">
-            <Bed className="w-48 h-48 text-primary" strokeWidth={1} />
+          <div className="absolute -top-8 -left-8 opacity-[0.08] pointer-events-none">
+            <Bed className="w-56 h-56 text-primary" strokeWidth={1.5} />
           </div>
 
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -714,7 +714,7 @@ const BedroomSlide: React.FC<BedroomSlideProps> = ({
                   className="relative w-24 h-24 bg-linear-to-br from-primary/30 to-primary/10 rounded-3xl flex items-center justify-center border-2 border-primary/30"
                   style={{ boxShadow: SHADOWS.icon }}
                 >
-                  <Bed className="w-12 h-12 text-primary" strokeWidth={1.5} />
+                  <Bed className="w-16 h-16 text-primary" strokeWidth={1.5} />
                 </div>
               </motion.div>
               
@@ -793,7 +793,7 @@ const BedroomSlide: React.FC<BedroomSlideProps> = ({
             style={{ boxShadow: SHADOWS.modal }}
           >
             <div className="absolute -top-10 -left-10 opacity-10 pointer-events-none">
-              <Bed className="w-40 h-40 text-white" strokeWidth={1} />
+              <Bed className="w-40 h-40 text-white" strokeWidth={1.5} />
             </div>
 
             <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4">

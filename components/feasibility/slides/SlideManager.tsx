@@ -173,7 +173,7 @@ const SlideManager: React.FC<SlideManagerProps> = ({
                   style={{ boxShadow: isActive ? 'rgba(237, 191, 140, 0.25) 0px 4px 20px' : undefined }}
                 >
                   {/* أيقونة خلفية شفافة */}
-                  <div className="absolute -top-1 -left-1 opacity-[0.07] pointer-events-none">
+                  <div className="absolute -top-1 -left-1 opacity-[0.10] pointer-events-none">
                     <Icon className="w-12 h-12 text-primary" />
                   </div>
                   
@@ -265,7 +265,7 @@ const SlideManager: React.FC<SlideManagerProps> = ({
                       className="relative w-full p-3 flex items-center gap-3 text-secondary rounded-xl overflow-hidden border-2 border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all group"
                     >
                       {/* أيقونة خلفية شفافة */}
-                      <div className="absolute -top-1 -left-1 opacity-[0.05] pointer-events-none">
+                      <div className="absolute -top-1 -left-1 opacity-[0.08] pointer-events-none">
                         <Icon className="w-12 h-12 text-primary" />
                       </div>
                       

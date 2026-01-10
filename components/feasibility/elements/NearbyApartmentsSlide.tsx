@@ -20,7 +20,8 @@ import {
   Home,
   ExternalLink,
   Users,
-  Bath
+  Bath,
+  ChevronLeft
 } from 'lucide-react';
 import { NearbyApartmentsSlideData, NearbyApartment, MapSlideData } from '@/types/feasibility';
 
@@ -264,6 +265,7 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
 }) => {
   const [editingDescription, setEditingDescription] = useState(false);
   const [localDescription, setLocalDescription] = useState(apartment.description || '');
+  const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // هل هذه شقة يدوية (قابلة للتعديل)؟
@@ -293,10 +295,40 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
     const filesToProcess = Array.from(files).slice(0, remainingSlots);
     
     filesToProcess.forEach(file => {
+      // ضغط الصورة قبل الحفظ
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = document.createElement('img');
+      
+      img.onload = () => {
+        // تحديد الحجم الأقصى (600px للصور بجودة جيدة)
+        const maxSize = 600;
+        let { width, height } = img;
+        
+        if (width > height) {
+          if (width > maxSize) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width = (width * maxSize) / height;
+            height = maxSize;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // تحويل لـ JPEG بجودة 75% (جودة جيدة)
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+        onUpdateImages(apartment.id, [...(apartment.images || []), compressedBase64]);
+      };
+      
       const reader = new FileReader();
       reader.onload = (event) => {
-        const base64 = event.target?.result as string;
-        onUpdateImages(apartment.id, [...(apartment.images || []), base64]);
+        img.src = event.target?.result as string;
       };
       reader.readAsDataURL(file);
     });
@@ -314,20 +346,48 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
     const file = e.target.files?.[0];
     if (!file || !onUpdateApartment) return;
     
+    // ضغط الصورة قبل التحويل لـ base64
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = document.createElement('img');
+    
+    img.onload = () => {
+      // تحديد الحجم الأقصى (400px للعرض أو الارتفاع)
+      // تحديد الحجم الأقصى (150px للصورة المصغرة)
+      const maxSize = 150;
+      let { width, height } = img;
+      
+      if (width > height) {
+        if (width > maxSize) {
+          height = (height * maxSize) / width;
+          width = maxSize;
+        }
+      } else {
+        if (height > maxSize) {
+          width = (width * maxSize) / height;
+          height = maxSize;
+        }
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      ctx?.drawImage(img, 0, 0, width, height);
+      
+      // تحويل لـ JPEG بجودة 40% (صورة مصغرة خفيفة)
+      const compressedBase64 = canvas.toDataURL('image/jpeg', 0.4);
+      onUpdateApartment(apartment.id, { thumbnailUrl: compressedBase64 });
+    };
+    
     const reader = new FileReader();
     reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      onUpdateApartment(apartment.id, { thumbnailUrl: base64 });
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
-      className="relative bg-white rounded-2xl border-2 border-primary/30 hover:border-primary/50 overflow-hidden group"
+    <div
+      className="relative bg-white rounded-2xl border-2 border-primary/30 hover:border-primary/50 overflow-hidden group transition-[border-color] duration-200"
       style={{ boxShadow: SHADOWS.card }}
     >
       {/* Input مخفي لاختيار صورة */}
@@ -607,31 +667,79 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
           />
 
           {(apartment.images || []).length > 0 ? (
-            <div className="grid grid-cols-4 gap-2">
-              {(apartment.images || []).map((img, i) => (
-                <div 
-                  key={i} 
-                  className="relative aspect-square group/img rounded-lg overflow-hidden border-2 border-primary/40"
-                  style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+            <>
+              <div className="grid grid-cols-4 gap-2">
+                {(apartment.images || []).map((img, i) => (
+                  <div 
+                    key={i} 
+                    className={`relative aspect-square group/img rounded-lg overflow-hidden border-2 border-primary/40 cursor-pointer hover:border-primary transition-[border-color] duration-200 ${
+                      expandedImageIndex !== null && expandedImageIndex !== i ? 'opacity-30' : ''
+                    }`}
+                    style={{ 
+                      boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px',
+                    }}
+                    onClick={() => {
+                      setExpandedImageIndex(expandedImageIndex === i ? null : i);
+                    }}
+                  >
+                    <Image
+                      src={img}
+                      alt={`صورة ${i + 1}`}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                    {isEditing && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveImage(i);
+                        }}
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-primary/80 text-secondary rounded-full flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity border-2 border-primary"
+                        style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              {/* خلفية ضبابية عند التكبير */}
+              {expandedImageIndex !== null && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute inset-0 bg-white/60 backdrop-blur-sm z-40"
+                  onClick={() => setExpandedImageIndex(null)}
+                />
+              )}
+              
+              {/* الصورة المكبرة في مركز البطاقة */}
+              {expandedImageIndex !== null && apartment.images && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.25, ease: 'easeOut' }}
+                  className="absolute inset-0 m-auto w-[85%] aspect-square rounded-lg overflow-hidden border-2 border-primary/40 cursor-pointer z-50"
+                  style={{ 
+                    boxShadow: 'rgba(237, 191, 140, 0.6) 0px 16px 48px',
+                  }}
+                  onClick={() => setExpandedImageIndex(null)}
                 >
                   <Image
-                    src={img}
-                    alt={`صورة ${i + 1}`}
+                    src={apartment.images[expandedImageIndex]}
+                    alt={`صورة ${expandedImageIndex + 1}`}
                     fill
                     className="object-cover"
+                    unoptimized
                   />
-                  {isEditing && (
-                    <button
-                      onClick={() => handleRemoveImage(i)}
-                      className="absolute -top-1 -right-1 w-5 h-5 bg-primary/80 text-secondary rounded-full flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity border-2 border-primary"
-                      style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
+                </motion.div>
+              )}
+            </>
           ) : (
             <div className="h-16 flex items-center justify-center text-secondary/40 text-xs font-dubai bg-primary/10 rounded-lg border-2 border-dashed border-primary/30">
               {isEditing ? 'انقر على "إضافة" لرفع الصور' : 'لا توجد صور'}
@@ -639,7 +747,7 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -789,8 +897,8 @@ export default function NearbyApartmentsSlide({
           className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/30"
           style={{ boxShadow: SHADOWS.card }}
         >
-          <div className="absolute -top-8 -left-8 opacity-[0.05] pointer-events-none">
-            <Building2 className="w-48 h-48 text-primary" strokeWidth={1} />
+          <div className="absolute -top-8 -left-8 opacity-[0.08] pointer-events-none">
+            <Building2 className="w-56 h-56 text-primary" strokeWidth={1.5} />
           </div>
 
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -992,7 +1100,7 @@ export default function NearbyApartmentsSlide({
                   className="relative w-24 h-24 bg-accent/50 rounded-3xl flex items-center justify-center border-2 border-primary/30"
                   style={{ boxShadow: SHADOWS.icon }}
                 >
-                  <MapPin className="w-12 h-12 text-primary" strokeWidth={1.5} />
+                  <MapPin className="w-16 h-16 text-primary" strokeWidth={1.5} />
                 </div>
               </div>
               <h4 className="font-dubai font-bold text-secondary text-xl mb-2">

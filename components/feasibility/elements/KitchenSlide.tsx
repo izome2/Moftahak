@@ -127,8 +127,8 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
       />
 
       {/* Background Icon - Large Transparent */}
-      <div className="absolute -top-4 -left-4 z-0 opacity-[0.07] pointer-events-none">
-        <IconComponent className="w-32 h-32 text-primary" strokeWidth={1} />
+      <div className="absolute -top-4 -left-4 z-0 opacity-[0.10] pointer-events-none">
+        <IconComponent className="w-40 h-40 text-primary" strokeWidth={1.5} />
       </div>
 
       {/* Shimmer Effect on Hover */}
@@ -639,7 +639,7 @@ const KitchenSlide: React.FC<KitchenSlideProps> = ({
   }, [room?.items]);
 
   return (
-    <div className="p-6 md:p-8 bg-gradient-to-br from-accent/30 via-white to-accent/20 pb-24">
+    <div className="p-6 md:p-8 bg-linear-to-br from-accent/30 via-white to-accent/20 pb-24">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -655,8 +655,8 @@ const KitchenSlide: React.FC<KitchenSlideProps> = ({
           style={{ boxShadow: SHADOWS.card }}
         >
           {/* Background Icon */}
-          <div className="absolute -top-8 -left-8 opacity-[0.05] pointer-events-none">
-            <ChefHat className="w-48 h-48 text-primary" strokeWidth={1} />
+          <div className="absolute -top-8 -left-8 opacity-[0.08] pointer-events-none">
+            <ChefHat className="w-56 h-56 text-primary" strokeWidth={1.5} />
           </div>
 
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -699,7 +699,7 @@ const KitchenSlide: React.FC<KitchenSlideProps> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className={`
-            min-h-[400px] p-6 rounded-2xl sm:rounded-3xl border-2
+            min-h-100 p-6 rounded-2xl sm:rounded-3xl border-2
             ${isOver 
               ? 'border-primary bg-primary/5' 
               : 'border-dashed border-secondary/20 bg-white/50'
@@ -712,7 +712,7 @@ const KitchenSlide: React.FC<KitchenSlideProps> = ({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="h-full min-h-[350px] flex flex-col items-center justify-center text-center"
+              className="h-full min-h-87.5 flex flex-col items-center justify-center text-center"
             >
               <motion.div
                 animate={{ 
@@ -727,7 +727,7 @@ const KitchenSlide: React.FC<KitchenSlideProps> = ({
                   className="relative w-24 h-24 bg-linear-to-br from-primary/30 to-primary/10 rounded-3xl flex items-center justify-center border-2 border-primary/30"
                   style={{ boxShadow: SHADOWS.icon }}
                 >
-                  <ChefHat className="w-12 h-12 text-primary" strokeWidth={1.5} />
+                  <ChefHat className="w-16 h-16 text-primary" strokeWidth={1.5} />
                 </div>
               </motion.div>
               
@@ -809,7 +809,7 @@ const KitchenSlide: React.FC<KitchenSlideProps> = ({
           >
             {/* Background Pattern */}
             <div className="absolute -top-10 -left-10 opacity-10 pointer-events-none">
-              <ChefHat className="w-40 h-40 text-white" strokeWidth={1} />
+              <ChefHat className="w-40 h-40 text-white" strokeWidth={1.5} />
             </div>
 
             <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4">

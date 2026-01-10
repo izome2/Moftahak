@@ -130,7 +130,7 @@ const RoomWidget: React.FC<RoomWidgetProps> = ({ icon: Icon, title, count, delay
           whileHover={{ rotate: 5, scale: 1.1 }}
           style={{ boxShadow: SHADOWS.icon }}
         >
-          <Icon className="w-20 h-20 text-primary" strokeWidth={1.5} />
+          <Icon className="w-24 h-24 text-primary" strokeWidth={1.5} />
         </motion.div>
 
         <motion.div 
@@ -213,7 +213,7 @@ const RoomSection: React.FC<RoomSectionProps> = ({ title, icon: Icon, count, roo
             >
               {/* Background Icon */}
               <div className="absolute inset-0 flex items-center justify-center opacity-[0.08] pointer-events-none">
-                <Icon className="w-16 h-16 text-primary" strokeWidth={1} />
+                <Icon className="w-20 h-20 text-primary" strokeWidth={1.5} />
               </div>
 
               {/* Shimmer */}
@@ -387,31 +387,14 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
   const kitchens = generatedRooms.filter(r => r.type === 'kitchen');
   const bathrooms = generatedRooms.filter(r => r.type === 'bathroom');
 
-  // ============================================
-  // 🎯 GENERATED VIEW - عرض بعد الإنشاء
-  // ============================================
+
   if (hasGenerated) {
     return (
-      <div className="relative bg-gradient-to-br from-accent/30 via-white to-accent/20 overflow-hidden" style={{ minHeight: '1200px' }} dir="rtl">
+      <div className="relative bg-linear-to-br from-accent/30 via-white to-accent/20 overflow-hidden" style={{ minHeight: '1200px' }} dir="rtl">
         {/* Background Glow Effects */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-100 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-
-        {/* الشعار */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="absolute top-6 left-6 w-14 h-14"
-        >
-          <Image
-            src="/logos/logo-icon-dark.png"
-            alt="مفتاحك"
-            fill
-            className="object-contain"
-          />
-        </motion.div>
 
         {/* المحتوى الرئيسي */}
         <div className="relative h-full flex flex-col p-6 pt-16">
@@ -424,8 +407,8 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
             style={{ boxShadow: SHADOWS.card }}
           >
             {/* Background Icon */}
-            <div className="absolute -top-8 -left-8 opacity-[0.05] pointer-events-none">
-              <Settings className="w-48 h-48 text-primary" strokeWidth={1} />
+            <div className="absolute -top-8 -left-8 opacity-[0.08] pointer-events-none">
+              <Settings className="w-56 h-56 text-primary" strokeWidth={1.5} />
             </div>
 
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -519,26 +502,11 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
   // 🔧 SETUP VIEW - عرض التكوين
   // ============================================
   return (
-    <div className="relative bg-gradient-to-br from-accent/30 via-white to-accent/20 overflow-hidden" style={{ minHeight: '1200px' }} dir="rtl">
+    <div className="relative bg-linear-to-br from-accent/30 via-white to-accent/20 overflow-hidden" style={{ minHeight: '1200px' }} dir="rtl">
       {/* Background Glow Effects */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-100 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-
-      {/* الشعار */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="absolute top-6 left-6 w-14 h-14"
-      >
-        <Image
-          src="/logos/logo-icon-dark.png"
-          alt="مفتاحك"
-          fill
-          className="object-contain"
-        />
-      </motion.div>
 
       {/* المحتوى الرئيسي */}
       <div className="relative h-full flex flex-col p-6 pt-16">
@@ -551,8 +519,8 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
           style={{ boxShadow: SHADOWS.card }}
         >
           {/* Background Icon */}
-          <div className="absolute -top-6 -left-6 opacity-[0.05] pointer-events-none">
-            <Settings className="w-40 h-40 text-primary" strokeWidth={1} />
+          <div className="absolute -top-6 -left-6 opacity-[0.08] pointer-events-none">
+            <Settings className="w-48 h-48 text-primary" strokeWidth={1.5} />
           </div>
 
           <div className="relative z-10 flex items-center gap-4">
@@ -600,8 +568,8 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
             style={{ boxShadow: SHADOWS.card }}
           >
             {/* Background Icon */}
-            <div className="absolute -bottom-8 -left-8 opacity-[0.05] pointer-events-none">
-              <Home className="w-48 h-48 text-primary" strokeWidth={1} />
+            <div className="absolute -bottom-8 -left-8 opacity-[0.08] pointer-events-none">
+              <Home className="w-56 h-56 text-primary" strokeWidth={1.5} />
             </div>
 
             <div className="relative z-10">
@@ -636,8 +604,8 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
                       style={{ boxShadow: SHADOWS.card }}
                     >
                       {/* Background Icon */}
-                      <div className="absolute -top-2 -left-2 opacity-[0.07] pointer-events-none">
-                        <Icon className="w-16 h-16 text-primary" strokeWidth={1} />
+                      <div className="absolute -top-2 -left-2 opacity-[0.10] pointer-events-none">
+                        <Icon className="w-20 h-20 text-primary" strokeWidth={1.5} />
                       </div>
 
                       {/* Shimmer */}
@@ -674,7 +642,7 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
                             className={`
                               w-10 h-10 flex items-center justify-center rounded-xl
                               ${canDecrease && isEditing
-                                ? 'bg-secondary text-white hover:bg-secondary/80'
+                                ? 'bg-linear-to-br from-secondary to-secondary/80 text-white hover:opacity-90'
                                 : 'bg-secondary/10 text-secondary/30 cursor-not-allowed'
                               }
                             `}
@@ -721,8 +689,8 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
             style={{ boxShadow: SHADOWS.card }}
           >
             {/* Background Icon */}
-            <div className="absolute -bottom-8 -right-8 opacity-[0.05] pointer-events-none">
-              <Sparkles className="w-48 h-48 text-primary" strokeWidth={1} />
+            <div className="absolute -bottom-8 -right-8 opacity-[0.08] pointer-events-none">
+              <Home className="w-56 h-56 text-primary" strokeWidth={1.5} />
             </div>
 
             <div className="relative z-10 flex-1 flex flex-col">
@@ -731,7 +699,7 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
                   className="p-3 rounded-xl bg-primary/20 border-2 border-primary/30"
                   style={{ boxShadow: SHADOWS.icon }}
                 >
-                  <Sparkles className="w-5 h-5 text-primary" />
+                  <Home className="w-5 h-5 text-primary" />
                 </motion.div>
                 <h3 className="text-lg font-dubai font-bold text-secondary">
                   الغرف المُنشأة
@@ -756,7 +724,7 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
                     >
                       <div className="absolute inset-0 bg-primary/20 rounded-3xl blur-xl" />
                       <div 
-                        className="relative w-20 h-20 bg-gradient-to-br from-primary/30 to-primary/10 rounded-3xl flex items-center justify-center border-2 border-primary/30"
+                        className="relative w-20 h-20 bg-linear-to-br from-primary/30 to-primary/10 rounded-3xl flex items-center justify-center border-2 border-primary/30"
                         style={{ boxShadow: SHADOWS.icon }}
                       >
                         <Home className="w-10 h-10 text-primary" strokeWidth={1.5} />
@@ -787,8 +755,8 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
                             style={{ boxShadow: SHADOWS.card }}
                           >
                             {/* Background Icon */}
-                            <div className="absolute -top-1 -left-1 opacity-[0.07] pointer-events-none">
-                              <Icon className="w-12 h-12 text-primary" strokeWidth={1} />
+                            <div className="absolute -top-1 -left-1 opacity-[0.10] pointer-events-none">
+                              <Icon className="w-16 h-16 text-primary" strokeWidth={1.5} />
                             </div>
 
                             {/* Shimmer */}
@@ -838,8 +806,8 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
                       w-full py-4 px-5 rounded-2xl font-dubai font-bold text-base
                       flex items-center justify-center gap-3
                       ${hasGenerated 
-                        ? 'bg-green-500 text-white' 
-                        : 'bg-linear-to-r from-secondary to-secondary/90 text-primary'
+                        ? 'bg-linear-to-l from-green-500 to-green-600 text-white' 
+                        : 'bg-linear-to-l from-secondary to-secondary/80 text-primary'
                       }
                       ${isGenerating ? 'opacity-70 cursor-wait' : ''}
                     `}
@@ -857,7 +825,7 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
                       </>
                     ) : (
                       <>
-                        <Sparkles className="w-6 h-6" />
+                        <Home className="w-6 h-6" />
                         <span>إنشاء شرائح الغرف ({generatedRooms.length} شرائح)</span>
                       </>
                     )}

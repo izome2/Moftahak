@@ -87,7 +87,7 @@ const AreaStudyIntroSlide: React.FC<AreaStudyIntroSlideProps> = ({
   };
 
   return (
-    <div className="p-6 md:p-8 bg-gradient-to-br from-accent/30 via-white to-accent/20 pb-24" dir="rtl">
+    <div className="p-6 md:p-8 bg-linear-to-br from-accent/30 via-white to-accent/20 pb-24" dir="rtl">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -102,8 +102,8 @@ const AreaStudyIntroSlide: React.FC<AreaStudyIntroSlideProps> = ({
           className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20"
           style={{ boxShadow: SHADOWS.card }}
         >
-          <div className="absolute -top-8 -left-8 opacity-[0.05] pointer-events-none">
-            <MapPin className="w-48 h-48 text-primary" strokeWidth={1} />
+          <div className="absolute -top-8 -left-8 opacity-[0.08] pointer-events-none">
+            <MapPin className="w-56 h-56 text-primary" strokeWidth={1.5} />
           </div>
 
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -162,13 +162,13 @@ const AreaStudyIntroSlide: React.FC<AreaStudyIntroSlideProps> = ({
           className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20"
           style={{ boxShadow: SHADOWS.card }}
         >
-          <div className="absolute -top-4 -right-4 opacity-[0.05] pointer-events-none">
-            <Building2 className="w-32 h-32 text-primary" strokeWidth={1} />
+          <div className="absolute -top-4 -right-4 opacity-[0.08] pointer-events-none">
+            <Building2 className="w-40 h-40 text-primary" strokeWidth={1.5} />
           </div>
 
           <div className="relative z-10">
             <h3 className="text-xl font-bold text-secondary font-dubai mb-4 flex items-center gap-3">
-              <div className="w-1.5 h-8 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
+              <div className="w-1.5 h-8 bg-linear-to-b from-primary to-primary/50 rounded-full" />
               في هذا القسم ستتعرف على:
             </h3>
 
@@ -177,7 +177,7 @@ const AreaStudyIntroSlide: React.FC<AreaStudyIntroSlideProps> = ({
                 <textarea
                   value={localDescription}
                   onChange={(e) => setLocalDescription(e.target.value)}
-                  className="w-full min-h-[120px] bg-accent/20 border-2 border-primary/20 px-4 py-3 text-secondary font-dubai focus:outline-none focus:border-primary resize-none rounded-xl"
+                  className="w-full min-h-30 bg-accent/20 border-2 border-primary/20 px-4 py-3 text-secondary font-dubai focus:outline-none focus:border-primary resize-none rounded-xl"
                   autoFocus
                 />
                 <button
@@ -224,7 +224,7 @@ const AreaStudyIntroSlide: React.FC<AreaStudyIntroSlideProps> = ({
               >
                 {/* Background Icon */}
                 <div className="absolute -bottom-4 -right-4 opacity-[0.03] pointer-events-none">
-                  <Icon className="w-32 h-32 text-primary" strokeWidth={1} />
+                  <Icon className="w-40 h-40 text-primary" strokeWidth={1.5} />
                 </div>
 
                 {/* Shimmer Effect - من اليمين لليسار */}
@@ -237,7 +237,7 @@ const AreaStudyIntroSlide: React.FC<AreaStudyIntroSlideProps> = ({
 
                 <div className="flex flex-col items-center text-center gap-4 relative z-10">
                   <div
-                    className="icon-container w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shrink-0 rounded-2xl border-2 border-primary/30 group-hover:border-primary/50"
+                    className="icon-container w-16 h-16 bg-linear-to-br from-primary/20 to-primary/10 flex items-center justify-center shrink-0 rounded-2xl border-2 border-primary/30 group-hover:border-primary/50"
                     style={{ boxShadow: SHADOWS.icon }}
                   >
                     <Icon className="w-8 h-8 text-primary icon-rotate relative z-10" strokeWidth={2.5} />
@@ -249,7 +249,7 @@ const AreaStudyIntroSlide: React.FC<AreaStudyIntroSlideProps> = ({
 
                 {/* Corner Accent */}
                 <div 
-                  className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-3xl opacity-0 group-hover:opacity-100 corner-accent"
+                  className="absolute top-0 right-0 w-12 h-12 bg-linear-to-br from-primary/10 to-transparent rounded-bl-3xl opacity-0 group-hover:opacity-100 corner-accent"
                 />
               </div>
             );

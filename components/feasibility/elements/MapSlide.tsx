@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Plus, Trash2, Edit2, X, Building2, DollarSign, Bed, Star, Hash, Save, Map, Navigation, Sparkles, MousePointer2, Wand2, ExternalLink, Link2, Loader2, AlertCircle, CheckCircle2, Copy, Search, Home, Users, Bath } from 'lucide-react';
+import { MapPin, Plus, Trash2, Edit2, X, Building2, DollarSign, Bed, Star, Hash, Save, Map, Navigation, Sparkles, MousePointer2, Wand2, ExternalLink, Link2, Loader2, AlertCircle, CheckCircle2, Copy, Search, Home, Users, Bath, Layers, Minus, Satellite } from 'lucide-react';
 import { MapSlideData, NearbyApartment } from '@/types/feasibility';
 import dynamic from 'next/dynamic';
 import { formatPrice } from '@/lib/utils';
@@ -197,6 +197,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
   const [pendingClientLocation, setPendingClientLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedPin, setSelectedPin] = useState<string | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
+  const [mapLayer, setMapLayer] = useState<'street' | 'satellite'>('street');
   const mapRef = useRef<any>(null);
   
   
@@ -849,33 +850,24 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
   if (isEditing && additionMode === 'selection' && mapData.pins.length === 0) {
     return (
       <div className="min-h-full p-6 md:p-8 bg-linear-to-br from-accent/30 via-white to-accent/20 pb-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="max-w-4xl mx-auto space-y-8"
-        >
+        <div className="max-w-4xl mx-auto space-y-8">
           {}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+          <div
             className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20"
             style={{ boxShadow: SHADOWS.card }}
           >
-            <div className="absolute -top-8 -left-8 opacity-[0.05] pointer-events-none">
-              <Map className="w-48 h-48 text-primary" strokeWidth={1} />
+            <div className="absolute -top-8 -left-8 opacity-[0.08] pointer-events-none">
+              <Map className="w-56 h-56 text-primary" strokeWidth={1.5} />
             </div>
 
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-4">
-                <motion.div 
+                <div 
                   className="p-4 rounded-2xl bg-primary/20 border-2 border-primary/30"
-                  whileHover={{ scale: 1.05, rotate: 5 }}
                   style={{ boxShadow: SHADOWS.icon }}
                 >
                   <MapPin className="w-8 h-8 text-primary" strokeWidth={2} />
-                </motion.div>
+                </div>
                 <div>
                   <h2 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
                     خريطة المنطقة
@@ -886,42 +878,27 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            whileHover={{ scale: 1.01, y: -2 }}
+          <div
             onClick={() => setAdditionMode('manual')}
-            className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20 cursor-pointer group hover:border-primary/50 transition-all max-w-2xl mx-auto"
+            className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20 cursor-pointer group hover:border-primary/50 max-w-2xl mx-auto"
             style={{ boxShadow: SHADOWS.card }}
           >
             {}
-            <div className="absolute -top-10 -right-10 opacity-[0.05] pointer-events-none group-hover:opacity-[0.1] transition-opacity">
-              <Home className="w-40 h-40 text-primary" strokeWidth={1} />
+            <div className="absolute -top-10 -right-10 opacity-[0.08] pointer-events-none group-hover:opacity-[0.1]">
+              <Home className="w-48 h-48 text-primary" strokeWidth={1.5} />
             </div>
             
             {}
-            <motion.div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: 'linear-gradient(90deg, transparent, rgba(237, 191, 140, 0.3), transparent)',
-              }}
-              initial={{ opacity: 0, x: '-100%' }}
-              whileHover={{ opacity: 1, x: '100%' }}
-              transition={{ duration: 0.6, ease: 'easeInOut' }}
-            />
-
             <div className="relative z-10 text-center">
-              <motion.div 
+              <div 
                 className="w-20 h-20 rounded-2xl bg-primary/20 border-2 border-primary/30 flex items-center justify-center mb-5 mx-auto"
-                whileHover={{ rotate: 5 }}
                 style={{ boxShadow: SHADOWS.icon }}
               >
                 <Home className="w-10 h-10 text-primary" />
-              </motion.div>
+              </div>
               
               <h3 className="text-2xl font-bold text-secondary font-dubai mb-3">
                 حدد موقع شقة العميل
@@ -932,21 +909,13 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
               
               <div className="flex items-center justify-center gap-2 text-primary font-dubai text-sm font-bold">
                 <span>انقر للبدء</span>
-                <motion.span
-                  animate={{ x: [0, 4, 0] }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                >
-                  ←
-                </motion.span>
+                <span>←</span>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+          <div
             className="relative rounded-xl bg-accent/30 border-2 border-primary/10 p-4 flex items-start gap-3 max-w-2xl mx-auto"
           >
             <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
@@ -958,8 +927,8 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                 حدد موقع شقة العميل على الخريطة أولاً. سيتم تمييزها بدبوس أخضر خاص، ثم يمكنك إضافة الشقق المحيطة للمقارنة.
               </p>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -968,33 +937,27 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
   if (isEditing && additionMode === 'selection' && mapData.pins.length === 1) {
     return (
       <div className="min-h-full p-6 md:p-8 bg-linear-to-br from-accent/30 via-white to-accent/20 pb-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="max-w-4xl mx-auto space-y-8"
-        >
+        <div className="max-w-4xl mx-auto space-y-8">
           {}
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
             className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20"
             style={{ boxShadow: SHADOWS.card }}
           >
-            <div className="absolute -top-8 -left-8 opacity-[0.05] pointer-events-none">
-              <Map className="w-48 h-48 text-primary" strokeWidth={1} />
+            <div className="absolute -top-8 -left-8 opacity-[0.08] pointer-events-none">
+              <Map className="w-56 h-56 text-primary" strokeWidth={1.5} />
             </div>
 
             <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-4">
-                <motion.div 
+                <div 
                   className="p-4 rounded-2xl bg-primary/20 border-2 border-primary/30"
-                  whileHover={{ scale: 1.05, rotate: 5 }}
                   style={{ boxShadow: SHADOWS.icon }}
                 >
                   <CheckCircle2 className="w-8 h-8 text-primary" strokeWidth={2} />
-                </motion.div>
+                </div>
                 <div>
                   <h2 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
                     تم تحديد شقة العميل ✓
@@ -1011,38 +974,26 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {}
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              whileHover={{ scale: 1.02, y: -4 }}
+              initial={{ opacity: 0, x: -50, y: 30 }}
+              animate={{ opacity: 1, x: 0, y: 0 }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+              whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
               onClick={() => setAdditionMode('manual')}
-              className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20 cursor-pointer group hover:border-primary/50 transition-all"
+              className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20 cursor-pointer group hover:border-primary/50"
               style={{ boxShadow: SHADOWS.card }}
             >
               {}
-              <div className="absolute -top-10 -right-10 opacity-[0.05] pointer-events-none group-hover:opacity-[0.1] transition-opacity">
-                <MousePointer2 className="w-40 h-40 text-primary" strokeWidth={1} />
+              <div className="absolute -top-10 -right-10 opacity-[0.08] pointer-events-none group-hover:opacity-[0.1]">
+                <MousePointer2 className="w-48 h-48 text-primary" strokeWidth={1.5} />
               </div>
-              
-              {}
-              <motion.div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background: 'linear-gradient(90deg, transparent, rgba(237, 191, 140, 0.3), transparent)',
-                }}
-                initial={{ opacity: 0, x: '-100%' }}
-                whileHover={{ opacity: 1, x: '100%' }}
-                transition={{ duration: 0.6, ease: 'easeInOut' }}
-              />
 
               <div className="relative z-10">
-                <motion.div 
+                <div 
                   className="w-16 h-16 rounded-2xl bg-primary/20 border-2 border-primary/30 flex items-center justify-center mb-5"
-                  whileHover={{ rotate: 5 }}
                   style={{ boxShadow: SHADOWS.icon }}
                 >
                   <MousePointer2 className="w-8 h-8 text-primary" />
-                </motion.div>
+                </div>
                 
                 <h3 className="text-xl font-bold text-secondary font-dubai mb-2">
                   إضافة يدوية
@@ -1053,50 +1004,33 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                 
                 <div className="flex items-center gap-2 text-primary font-dubai text-sm font-bold">
                   <span>ابدأ الآن</span>
-                  <motion.span
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  >
-                    ←
-                  </motion.span>
+                  <span>←</span>
                 </div>
               </div>
             </motion.div>
 
             {}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-              whileHover={{ scale: 1.02, y: -4 }}
+              initial={{ opacity: 0, x: 50, y: 30 }}
+              animate={{ opacity: 1, x: 0, y: 0 }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+              whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
               onClick={() => setAdditionMode('auto')}
-              className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20 cursor-pointer group hover:border-primary/50 transition-all"
+              className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20 cursor-pointer group hover:border-primary/50"
               style={{ boxShadow: SHADOWS.card }}
             >
               {}
-              <div className="absolute -top-10 -right-10 opacity-[0.05] pointer-events-none group-hover:opacity-[0.1] transition-opacity">
-                <Wand2 className="w-40 h-40 text-primary" strokeWidth={1} />
+              <div className="absolute -top-10 -right-10 opacity-[0.08] pointer-events-none group-hover:opacity-[0.1]">
+                <Wand2 className="w-48 h-48 text-primary" strokeWidth={1.5} />
               </div>
-              
-              {}
-              <motion.div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background: 'linear-gradient(90deg, transparent, rgba(237, 191, 140, 0.3), transparent)',
-                }}
-                initial={{ opacity: 0, x: '-100%' }}
-                whileHover={{ opacity: 1, x: '100%' }}
-                transition={{ duration: 0.6, ease: 'easeInOut' }}
-              />
 
               <div className="relative z-10">
-                <motion.div 
+                <div 
                   className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-[#FF5A5F]/30 flex items-center justify-center mb-5"
-                  whileHover={{ rotate: -5 }}
                   style={{ boxShadow: '0 4px 12px rgba(255, 90, 95, 0.3)' }}
                 >
                   <img src="/images/airbnb-logo.jpg" alt="Airbnb" className="w-full h-full object-cover" />
-                </motion.div>
+                </div>
                 
                 <h3 className="text-xl font-bold text-secondary font-dubai mb-2">
                   إضافة من Airbnb
@@ -1107,12 +1041,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                 
                 <div className="flex items-center gap-2 text-secondary font-dubai text-sm font-bold">
                   <span>ابدأ الآن</span>
-                  <motion.span
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  >
-                    ←
-                  </motion.span>
+                  <span>←</span>
                 </div>
               </div>
             </motion.div>
@@ -1120,9 +1049,9 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
 
           {}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
             className="relative rounded-xl bg-accent/30 border-2 border-primary/10 p-4 flex items-start gap-3"
           >
             <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
@@ -1135,7 +1064,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
               </p>
             </div>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
     );
   }
@@ -1197,7 +1126,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                   whileTap={{ scale: 0.98 }}
                   onClick={() => handleSearchAirbnb(airbnbListings.length > 0)}
                   disabled={isLoadingAirbnb}
-                  className="flex items-center gap-2 px-5 py-3 bg-[#FF5A5F] text-white rounded-xl font-dubai font-bold transition-all disabled:opacity-70"
+                  className="flex items-center gap-2 px-5 py-3 bg-[#FF5A5F] text-white rounded-xl font-dubai font-bold transition-[background-color,opacity] duration-200 disabled:opacity-70 hover:bg-[#E04850]"
                   style={{ boxShadow: '0 4px 16px rgba(255, 90, 95, 0.4)' }}
                 >
                   {isLoadingAirbnb ? (
@@ -1225,7 +1154,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleSearchAirbnb(false)}
                     disabled={isLoadingAirbnb}
-                    className="flex items-center gap-2 px-4 py-3 bg-secondary/10 text-secondary rounded-xl font-dubai font-bold transition-all disabled:opacity-70 hover:bg-secondary/20"
+                    className="flex items-center gap-2 px-4 py-3 bg-secondary/10 text-secondary rounded-xl font-dubai font-bold transition-[background-color,opacity] duration-200 disabled:opacity-70 hover:bg-secondary/20"
                   >
                     <Search className="w-4 h-4" />
                     بحث جديد
@@ -1263,7 +1192,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={handleAddLookupResult}
-                        className="flex items-center gap-1 px-2 py-1 bg-[#FF5A5F] hover:bg-[#E04850] text-white rounded font-dubai font-bold text-xs transition-all shrink-0"
+                        className="flex items-center gap-1 px-2 py-1 bg-[#FF5A5F] hover:bg-[#E04850] text-white rounded font-dubai font-bold text-xs transition-colors duration-150 shrink-0"
                       >
                         <Plus className="w-3 h-3" />
                         أضف
@@ -1293,7 +1222,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                     whileTap={{ scale: 0.98 }}
                     onClick={handleLookupApartment}
                     disabled={isLookingUp || !lookupUrl.trim()}
-                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#FF5A5F] hover:bg-[#E04850] text-white rounded-lg font-dubai font-bold text-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#FF5A5F] hover:bg-[#E04850] text-white rounded-lg font-dubai font-bold text-xs transition-[background-color,opacity] duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLookingUp ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1318,7 +1247,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                 </div>
               </div>
             </div>
-            <div style={{ height: '480px' }}>
+            <div style={{ height: '480px' }} className="relative">
               {isMapReady && typeof window !== 'undefined' && (
                 <>
                   <link
@@ -1327,15 +1256,71 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
                     crossOrigin=""
                   />
+                  <style>{`
+                    .leaflet-control-zoom {
+                      display: none !important;
+                    }
+                  `}</style>
+                  
+                  {/* أزرار التحكم المخصصة */}
+                  <div className="absolute top-4 left-4 z-1000 flex flex-col gap-2">
+                    {/* زر تبديل نوع الخريطة */}
+                    <button
+                      onClick={() => setMapLayer(prev => prev === 'street' ? 'satellite' : 'street')}
+                      className="w-10 h-10 bg-white border-2 border-primary rounded-xl flex items-center justify-center text-secondary hover:bg-primary/20 transition-colors"
+                      style={{ boxShadow: SHADOWS.button }}
+                      title={mapLayer === 'street' ? 'عرض القمر الصناعي' : 'عرض الخريطة العادية'}
+                    >
+                      {mapLayer === 'street' ? (
+                        <Satellite className="w-5 h-5" />
+                      ) : (
+                        <Map className="w-5 h-5" />
+                      )}
+                    </button>
+                    
+                    {/* أزرار التكبير والتصغير */}
+                    <div className="flex flex-col bg-white border-2 border-primary rounded-xl overflow-hidden" style={{ boxShadow: SHADOWS.button }}>
+                      <button
+                        onClick={() => {
+                          if (mapRef.current) {
+                            mapRef.current.setZoom(mapRef.current.getZoom() + 1);
+                          }
+                        }}
+                        className="w-10 h-10 flex items-center justify-center text-secondary hover:bg-primary/20 transition-colors border-b border-primary/30"
+                        title="تكبير"
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (mapRef.current) {
+                            mapRef.current.setZoom(mapRef.current.getZoom() - 1);
+                          }
+                        }}
+                        className="w-10 h-10 flex items-center justify-center text-secondary hover:bg-primary/20 transition-colors"
+                        title="تصغير"
+                      >
+                        <Minus className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                  
                   <MapContainer
                     center={[mapData.center.lat, mapData.center.lng]}
                     zoom={mapData.zoom}
                     style={{ width: '100%', height: '100%' }}
                     ref={mapRef}
+                    attributionControl={false}
                   >
                     <TileLayer
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution={mapLayer === 'street' 
+                        ? '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        : '&copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
+                      }
+                      url={mapLayer === 'street'
+                        ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                      }
                     />
                     <MapEventsHandler 
                       onMapClick={handleMapClick} 
@@ -1374,7 +1359,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                               <div className="flex gap-2">
                                 <button
                                   onClick={() => toggleAirbnbListing(listing.id)}
-                                  className={`flex-1 px-3 py-1.5 rounded-lg font-dubai text-xs font-bold transition-all ${
+                                  className={`flex-1 px-3 py-1.5 rounded-lg font-dubai text-xs font-bold transition-colors duration-150 ${
                                     isSelected 
                                       ? 'bg-primary text-secondary' 
                                       : 'bg-secondary/10 text-secondary hover:bg-secondary/20'
@@ -1385,7 +1370,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                                 {listing.airbnbUrl && (
                                   <button
                                     onClick={() => window.open(listing.airbnbUrl, '_blank', 'noopener,noreferrer')}
-                                    className="px-3 py-1.5 bg-[#FF5A5F]/10 hover:bg-[#FF5A5F]/20 text-[#FF5A5F] rounded-lg font-dubai text-xs font-bold transition-all"
+                                    className="px-3 py-1.5 bg-[#FF5A5F]/10 hover:bg-[#FF5A5F]/20 text-[#FF5A5F] rounded-lg font-dubai text-xs font-bold transition-colors duration-150"
                                     title="عرض في Airbnb"
                                   >
                                     <ExternalLink className="w-3.5 h-3.5" />
@@ -1440,7 +1425,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                             </div>
                             <button
                               onClick={handleAddLookupResult}
-                              className="w-full px-3 py-1.5 bg-[#FF5A5F] hover:bg-[#E04850] text-white rounded-lg font-dubai text-xs font-bold transition-all"
+                              className="w-full px-3 py-1.5 bg-[#FF5A5F] hover:bg-[#E04850] text-white rounded-lg font-dubai text-xs font-bold transition-colors duration-150"
                             >
                               <Plus className="w-3.5 h-3.5 inline ml-1" />
                               إضافة للقائمة
@@ -1525,7 +1510,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => toggleAirbnbListing(listing.id)}
-                        className={`relative p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                        className={`relative p-3 rounded-xl border-2 cursor-pointer transition-[border-color,background-color] duration-200 ${
                           isSelected 
                             ? 'border-[#FF5A5F] bg-[#FF5A5F]/10' 
                             : 'border-primary/20 bg-primary/5 hover:border-primary/40'
@@ -1553,7 +1538,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                               e.stopPropagation();
                               window.open(listing.airbnbUrl, '_blank', 'noopener,noreferrer');
                             }}
-                            className="mt-2 w-full flex items-center justify-center gap-1.5 px-2 py-1.5 bg-[#FF5A5F]/10 hover:bg-[#FF5A5F]/20 text-[#FF5A5F] rounded-lg font-dubai text-[10px] font-bold transition-colors"
+                            className="mt-2 w-full flex items-center justify-center gap-1.5 px-2 py-1.5 bg-[#FF5A5F]/10 hover:bg-[#FF5A5F]/20 text-[#FF5A5F] rounded-lg font-dubai text-[10px] font-bold transition-colors duration-150"
                           >
                             <ExternalLink className="w-3 h-3" />
                             عرض في Airbnb
@@ -1573,7 +1558,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                     whileTap={{ scale: isFetchingDetails ? 1 : 0.98 }}
                     onClick={handleAddSelectedAirbnbListings}
                     disabled={isFetchingDetails}
-                    className={`w-full px-6 py-3.5 bg-[#FF5A5F] text-white rounded-xl font-dubai font-bold transition-all flex items-center justify-center gap-2 ${
+                    className={`w-full px-6 py-3.5 bg-[#FF5A5F] text-white rounded-xl font-dubai font-bold transition-[background-color,opacity,transform] duration-200 flex items-center justify-center gap-2 ${
                       isFetchingDetails ? 'opacity-80 cursor-wait' : ''
                     }`}
                     style={{ boxShadow: '0 4px 16px rgba(255, 90, 95, 0.4)' }}
@@ -1640,7 +1625,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                         {apartment.airbnbUrl && (
                           <button
                             onClick={() => window.open(apartment.airbnbUrl, '_blank', 'noopener,noreferrer')}
-                            className="w-8 h-8 bg-[#FF5A5F]/10 hover:bg-[#FF5A5F]/20 rounded-lg flex items-center justify-center text-[#FF5A5F] transition-colors"
+                            className="w-8 h-8 bg-[#FF5A5F]/10 hover:bg-[#FF5A5F]/20 rounded-lg flex items-center justify-center text-[#FF5A5F] transition-colors duration-150"
                             title="عرض في Airbnb"
                           >
                             <ExternalLink className="w-4 h-4" />
@@ -1648,7 +1633,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                         )}
                         <button
                           onClick={() => handleRemoveAutoApartment(apartment.id)}
-                          className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-secondary/60 hover:text-red-500 transition-colors"
+                          className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-secondary/60 hover:text-red-500 transition-colors duration-150"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -1663,7 +1648,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleSaveAutoApartments}
-                  className="w-full px-6 py-3.5 bg-secondary text-white rounded-xl font-dubai font-bold transition-all flex items-center justify-center gap-2"
+                  className="w-full px-6 py-3.5 bg-secondary text-white rounded-xl font-dubai font-bold transition-[background-color,transform] duration-200 flex items-center justify-center gap-2"
                   style={{ boxShadow: '0 4px 16px rgba(16, 48, 43, 0.3)' }}
                 >
                   <Save className="w-5 h-5 text-primary" />
@@ -1709,8 +1694,8 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
           style={{ boxShadow: SHADOWS.card }}
         >
           {}
-          <div className="absolute -top-8 -left-8 opacity-[0.05] pointer-events-none">
-            <Map className="w-48 h-48 text-primary" strokeWidth={1} />
+          <div className="absolute -top-8 -left-8 opacity-[0.08] pointer-events-none">
+            <Map className="w-56 h-56 text-primary" strokeWidth={1.5} />
           </div>
 
           <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -1744,7 +1729,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setAdditionMode('auto')}
-                  className="flex flex-col items-center justify-center gap-1 w-20 h-20 bg-[#FF5A5F] text-white rounded-xl font-dubai font-bold text-xs transition-all text-center leading-tight"
+                  className="flex flex-col items-center justify-center gap-1 w-20 h-20 bg-[#FF5A5F] text-white rounded-xl font-dubai font-bold text-xs transition-[background-color,transform] duration-200 text-center leading-tight"
                   style={{ boxShadow: '0 4px 12px rgba(255, 90, 95, 0.3)' }}
                 >
                   <Wand2 className="w-5 h-5" />
@@ -1772,7 +1757,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
           className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white border-2 border-primary/20"
           style={{ boxShadow: SHADOWS.card }}
         >
-          <div style={{ height: '480px' }}>
+          <div style={{ height: '480px' }} className="relative">
         {isMapReady && typeof window !== 'undefined' && (
           <>
             {}
@@ -1815,27 +1800,69 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                 color: #edbf8c !important;
               }
               .leaflet-control-zoom {
-                border: 2px solid #edbf8c !important;
-                border-radius: 12px !important;
-                overflow: hidden;
-              }
-              .leaflet-control-zoom a {
-                color: #10302b !important;
-                background: white !important;
-              }
-              .leaflet-control-zoom a:hover {
-                background: #ead3b9 !important;
+                display: none !important;
               }
             `}</style>
+            
+            {/* أزرار التحكم المخصصة */}
+            <div className="absolute top-4 left-4 z-1000 flex flex-col gap-2">
+              {/* زر تبديل نوع الخريطة */}
+              <button
+                onClick={() => setMapLayer(prev => prev === 'street' ? 'satellite' : 'street')}
+                className="w-10 h-10 bg-white border-2 border-primary rounded-xl flex items-center justify-center text-secondary hover:bg-primary/20 transition-colors"
+                style={{ boxShadow: SHADOWS.button }}
+                title={mapLayer === 'street' ? 'عرض القمر الصناعي' : 'عرض الخريطة العادية'}
+              >
+                {mapLayer === 'street' ? (
+                  <Satellite className="w-5 h-5" />
+                ) : (
+                  <Map className="w-5 h-5" />
+                )}
+              </button>
+              
+              {/* أزرار التكبير والتصغير */}
+              <div className="flex flex-col bg-white border-2 border-primary rounded-xl overflow-hidden" style={{ boxShadow: SHADOWS.button }}>
+                <button
+                  onClick={() => {
+                    if (mapRef.current) {
+                      mapRef.current.setZoom(mapRef.current.getZoom() + 1);
+                    }
+                  }}
+                  className="w-10 h-10 flex items-center justify-center text-secondary hover:bg-primary/20 transition-colors border-b border-primary/30"
+                  title="تكبير"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => {
+                    if (mapRef.current) {
+                      mapRef.current.setZoom(mapRef.current.getZoom() - 1);
+                    }
+                  }}
+                  className="w-10 h-10 flex items-center justify-center text-secondary hover:bg-primary/20 transition-colors"
+                  title="تصغير"
+                >
+                  <Minus className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            
             <MapContainer
               center={[mapData.center.lat, mapData.center.lng]}
               zoom={mapData.zoom}
               style={{ width: '100%', height: '100%' }}
               ref={mapRef}
+              attributionControl={false}
             >
               <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution={mapLayer === 'street' 
+                  ? '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                  : '&copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
+                }
+                url={mapLayer === 'street'
+                  ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                }
               />
               <MapEventsHandler 
                 onMapClick={handleMapClick} 
@@ -1925,7 +1952,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleSaveClientApartment}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-dubai font-bold text-sm text-secondary transition-all"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-dubai font-bold text-sm text-secondary transition-[background-color,transform] duration-200"
                 style={{
                   background: 'linear-gradient(135deg, #f5d4a8 0%, #edbf8c 50%, #e5b07a 100%)',
                   boxShadow: '0 6px 24px rgba(237, 191, 140, 0.45), 0 3px 12px rgba(16, 48, 43, 0.1)',
@@ -2018,20 +2045,9 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                       />
 
                       {}
-                      <div className="absolute -top-4 -left-4 z-0 opacity-[0.07] pointer-events-none">
-                        <Building2 className="w-24 h-24 text-primary" strokeWidth={1} />
+                      <div className="absolute -top-4 -left-4 z-0 opacity-[0.10] pointer-events-none">
+                        <Building2 className="w-24 h-24 text-primary" strokeWidth={1.5} />
                       </div>
-
-                      {}
-                      <motion.div
-                        className="absolute inset-0 z-20 pointer-events-none"
-                        style={{
-                          background: 'linear-gradient(90deg, transparent, rgba(237, 191, 140, 0.4), transparent)',
-                        }}
-                        initial={{ opacity: 0, x: '-100%' }}
-                        whileHover={{ opacity: 1, x: '100%' }}
-                        transition={{ duration: 0.6, ease: 'easeInOut' }}
-                      />
 
                       {}
                       {isEditing && (
@@ -2135,7 +2151,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
           >
             {}
             <div className="absolute -top-10 -left-10 opacity-10 pointer-events-none">
-              <Map className="w-40 h-40 text-white" strokeWidth={1} />
+              <Map className="w-40 h-40 text-white" strokeWidth={1.5} />
             </div>
 
             <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -2197,139 +2213,139 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden max-w-md w-full"
+              className="bg-white rounded-xl sm:rounded-2xl overflow-hidden max-w-sm w-full"
               style={{ boxShadow: SHADOWS.modal }}
               onClick={e => e.stopPropagation()}
             >
               {}
-              <div className="bg-white p-5 flex items-center justify-between relative overflow-hidden border-b-2 border-primary/20">
+              <div className="bg-white p-3 flex items-center justify-between relative overflow-hidden border-b-2 border-primary/20">
                 <div className="absolute inset-0 opacity-[0.03]">
-                  <Building2 className="absolute -top-10 -right-10 w-40 h-40 text-primary" />
+                  <Building2 className="absolute -top-8 -right-8 w-32 h-32 text-primary" />
                 </div>
                 
-                <div className="flex items-center gap-3 relative z-10">
-                  <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center border-2 border-primary/30" style={{ boxShadow: SHADOWS.icon }}>
-                    <Building2 className="w-6 h-6 text-primary" />
+                <div className="flex items-center gap-2 relative z-10">
+                  <div className="w-9 h-9 bg-primary/20 rounded-xl flex items-center justify-center border-2 border-primary/30" style={{ boxShadow: SHADOWS.icon }}>
+                    <Building2 className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-dubai font-bold text-secondary text-xl">
+                    <h3 className="font-dubai font-bold text-secondary text-base">
                       {editingPin ? 'تعديل معلومات الشقة' : 'إضافة شقة جديدة'}
                     </h3>
-                    <p className="text-secondary/60 text-sm font-dubai">أدخل تفاصيل الشقة المحيطة</p>
+                    <p className="text-secondary/60 text-xs font-dubai">أدخل تفاصيل الشقة المحيطة</p>
                   </div>
                 </div>
                 <motion.button
-                  whileHover={{ scale: 1.1, rotate: 90 }}
+                  whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setShowAddPinModal(false)}
-                  className="w-10 h-10 bg-accent/50 rounded-xl text-secondary flex items-center justify-center hover:bg-accent transition-colors relative z-10" style={{ boxShadow: SHADOWS.card }}
+                  className="w-8 h-8 bg-accent/50 rounded-lg text-secondary flex items-center justify-center hover:bg-accent transition-colors relative z-10" style={{ boxShadow: SHADOWS.card }}
                 >
-                  <X size={20} />
+                  <X size={16} />
                 </motion.button>
               </div>
 
               {}
-              <div className="p-6 space-y-5 bg-linear-to-b from-accent/20 to-white">
+              <div className="p-4 space-y-3 bg-linear-to-b from-accent/20 to-white">
                 {}
                 <div>
-                  <label className="block text-sm font-bold text-secondary mb-2 font-dubai">
-                    <Building2 className="w-4 h-4 inline-block ml-1 text-primary" />
+                  <label className="block text-xs font-bold text-secondary mb-1.5 font-dubai">
+                    <Building2 className="w-3 h-3 inline-block ml-1 text-primary" />
                     اسم الشقة
                   </label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full px-4 py-3 bg-white border-2 border-primary/20 rounded-xl text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    className="w-full px-3 py-2 bg-white border-2 border-primary/20 rounded-lg text-sm text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
                     placeholder="مثال: شقة الزهراء"
                   />
                 </div>
 
                 {}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-sm font-bold text-secondary mb-2 font-dubai">
-                      <DollarSign className="w-4 h-4 inline-block ml-1 text-primary" />
+                    <label className="block text-xs font-bold text-secondary mb-1.5 font-dubai">
+                      <DollarSign className="w-3 h-3 inline-block ml-1 text-primary" />
                       السعر (ج.م)
                     </label>
                     <input
                       type="number"
                       value={formData.price}
                       onChange={e => setFormData(prev => ({ ...prev, price: Number(e.target.value) }))}
-                      className="w-full px-4 py-3 bg-white border-2 border-primary/20 rounded-xl text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                      className="w-full px-3 py-2 bg-white border-2 border-primary/20 rounded-lg text-sm text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
                       placeholder="0"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-secondary mb-2 font-dubai">
-                      <Bed className="w-4 h-4 inline-block ml-1 text-primary" />
+                    <label className="block text-xs font-bold text-secondary mb-1.5 font-dubai">
+                      <Bed className="w-3 h-3 inline-block ml-1 text-primary" />
                       عدد الغرف
                     </label>
                     <input
                       type="number"
                       value={formData.rooms}
                       onChange={e => setFormData(prev => ({ ...prev, rooms: Number(e.target.value) }))}
-                      className="w-full px-4 py-3 bg-white border-2 border-primary/20 rounded-xl text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                      className="w-full px-3 py-2 bg-white border-2 border-primary/20 rounded-lg text-sm text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
                       min="1"
                     />
                   </div>
                 </div>
 
                 {}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-sm font-bold text-secondary mb-2 font-dubai">
-                      <Users className="w-4 h-4 inline-block ml-1 text-primary" />
+                    <label className="block text-xs font-bold text-secondary mb-1.5 font-dubai">
+                      <Users className="w-3 h-3 inline-block ml-1 text-primary" />
                       عدد الضيوف
                     </label>
                     <input
                       type="number"
                       value={formData.guests}
                       onChange={e => setFormData(prev => ({ ...prev, guests: Number(e.target.value) }))}
-                      className="w-full px-4 py-3 bg-white border-2 border-primary/20 rounded-xl text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                      className="w-full px-3 py-2 bg-white border-2 border-primary/20 rounded-lg text-sm text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
                       min="1"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-secondary mb-2 font-dubai">
-                      <Bed className="w-4 h-4 inline-block ml-1 text-primary" />
+                    <label className="block text-xs font-bold text-secondary mb-1.5 font-dubai">
+                      <Bed className="w-3 h-3 inline-block ml-1 text-primary" />
                       عدد الأسرّة
                     </label>
                     <input
                       type="number"
                       value={formData.beds}
                       onChange={e => setFormData(prev => ({ ...prev, beds: Number(e.target.value) }))}
-                      className="w-full px-4 py-3 bg-white border-2 border-primary/20 rounded-xl text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                      className="w-full px-3 py-2 bg-white border-2 border-primary/20 rounded-lg text-sm text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
                       min="1"
                     />
                   </div>
                 </div>
 
                 {}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-sm font-bold text-secondary mb-2 font-dubai">
-                      <Bath className="w-4 h-4 inline-block ml-1 text-primary" />
+                    <label className="block text-xs font-bold text-secondary mb-1.5 font-dubai">
+                      <Bath className="w-3 h-3 inline-block ml-1 text-primary" />
                       عدد الحمامات
                     </label>
                     <input
                       type="number"
                       value={formData.bathrooms}
                       onChange={e => setFormData(prev => ({ ...prev, bathrooms: Number(e.target.value) }))}
-                      className="w-full px-4 py-3 bg-white border-2 border-primary/20 rounded-xl text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                      className="w-full px-3 py-2 bg-white border-2 border-primary/20 rounded-lg text-sm text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
                       min="1"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-secondary mb-2 font-dubai">
-                      <Star className="w-4 h-4 inline-block ml-1 text-primary" />
+                    <label className="block text-xs font-bold text-secondary mb-1.5 font-dubai">
+                      <Star className="w-3 h-3 inline-block ml-1 text-primary" />
                       التقييم (من 5)
                     </label>
                     <input
                       type="number"
                       value={formData.rating}
                       onChange={e => setFormData(prev => ({ ...prev, rating: Number(e.target.value) }))}
-                      className="w-full px-4 py-3 bg-white border-2 border-primary/20 rounded-xl text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                      className="w-full px-3 py-2 bg-white border-2 border-primary/20 rounded-lg text-sm text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
                       min="0"
                       max="5"
                       step="0.1"
@@ -2339,41 +2355,39 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
 
                 {}
                 <div>
-                  <label className="block text-sm font-bold text-secondary mb-2 font-dubai">
-                    <Sparkles className="w-4 h-4 inline-block ml-1 text-primary" />
+                  <label className="block text-xs font-bold text-secondary mb-1.5 font-dubai">
+                    <Sparkles className="w-3 h-3 inline-block ml-1 text-primary" />
                     المميزات (مفصولة بفواصل)
                   </label>
                   <input
                     type="text"
                     value={formData.features}
                     onChange={e => setFormData(prev => ({ ...prev, features: e.target.value }))}
-                    className="w-full px-4 py-3 bg-white border-2 border-primary/20 rounded-xl text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    className="w-full px-3 py-2 bg-white border-2 border-primary/20 rounded-lg text-sm text-secondary font-dubai focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-[border-color,box-shadow] duration-200"
                     placeholder="مثال: مفروشة، تكييف، واي فاي"
                   />
                 </div>
 
                 {}
-                <div className="flex gap-3 pt-5 border-t border-primary/10">
+                <div className="flex gap-2 pt-3 border-t border-primary/10">
                   <motion.button
-                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleSavePin}
                     disabled={!formData.name.trim()}
-                    className="flex-1 px-6 py-3.5 bg-linear-to-r from-primary to-primary/80 text-secondary rounded-xl font-dubai font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border-2 border-primary/30"
+                    className="flex-1 px-4 py-2.5 bg-linear-to-r from-primary to-primary/80 text-secondary rounded-lg text-sm font-dubai font-bold transition-[background-color,opacity] duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 border-2 border-primary/30"
                     style={{ boxShadow: SHADOWS.button }}
                   >
-                    <Save className="w-5 h-5" />
+                    <Save className="w-4 h-4" />
                     {editingPin ? 'حفظ التعديلات' : 'إضافة الشقة'}
                   </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
+                  <button
                     onClick={() => setShowAddPinModal(false)}
-                    className="px-6 py-3.5 bg-white border-2 border-primary/30 text-secondary rounded-xl font-dubai font-bold hover:border-primary/50 hover:bg-accent/30 transition-all"
+                    className="px-4 py-2.5 bg-white border-2 border-primary/30 text-secondary rounded-lg text-sm font-dubai font-bold hover:border-primary/50 hover:bg-accent/30 transition-[border-color,background-color] duration-200"
                     style={{ boxShadow: SHADOWS.card }}
                   >
                     إلغاء
-                  </motion.button>
+                  </button>
                 </div>
               </div>
             </motion.div>
@@ -2492,14 +2506,14 @@ function PinPopupContent({ apartment, isEditing, onEdit, onDelete }: PinPopupCon
           <div className="flex gap-1.5 pt-2 border-t border-primary/10">
             <button
               onClick={onEdit}
-              className="flex-1 px-2 py-1.5 bg-white text-secondary font-dubai text-xs rounded-lg transition-all flex items-center justify-center gap-1 font-bold border border-secondary/20 hover:bg-accent/30"
+              className="flex-1 px-2 py-1.5 bg-white text-secondary font-dubai text-xs rounded-lg transition-[background-color,border-color] duration-150 flex items-center justify-center gap-1 font-bold border border-secondary/20 hover:bg-accent/30"
             >
               <Edit2 className="w-3 h-3" />
               تعديل
             </button>
             <button
               onClick={onDelete}
-              className="flex-1 px-2 py-1.5 bg-white text-secondary font-dubai text-xs rounded-lg transition-all flex items-center justify-center gap-1 font-bold border border-secondary/20 hover:bg-accent/30"
+              className="flex-1 px-2 py-1.5 bg-white text-secondary font-dubai text-xs rounded-lg transition-[background-color,border-color] duration-150 flex items-center justify-center gap-1 font-bold border border-secondary/20 hover:bg-accent/30"
             >
               <Trash2 className="w-3 h-3" />
               حذف
