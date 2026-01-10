@@ -514,6 +514,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
           beds: listing.beds,
           bathrooms: listing.bathrooms,
           rating: listing.rating,
+          thumbnailUrl: listing.thumbnailUrl,
         };
         
         setLookupResult(apartment);
@@ -547,7 +548,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
   }, [lookupResult]);
 
   
-  const [mapBounds, setMapBounds] = useState<{ne_lat: number, ne_lng: number, sw_lat: number, sw_lng: number} | null>(null);
+  const mapBoundsRef = useRef<{ne_lat: number, ne_lng: number, sw_lat: number, sw_lng: number} | null>(null);
 
   
   const handleSearchAirbnb = useCallback(async (loadMore: boolean = false) => {
@@ -561,7 +562,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
     
     try {
       
-      let searchBounds = mapBounds;
+      let searchBounds = mapBoundsRef.current;
       
       
       if (!searchBounds) {
@@ -622,6 +623,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
           subtitle: listing.subtitle,
           rating: listing.rating,
           reviewsCount: listing.reviewsCount,
+          thumbnailUrl: listing.imageUrl,
         }));
         
         
@@ -664,7 +666,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
     } finally {
       setIsLoadingAirbnb(false);
     }
-  }, [mapData, mapBounds, airbnbListings]);
+  }, [mapData, airbnbListings]);
 
   
   const toggleAirbnbListing = useCallback((id: string) => {
@@ -838,7 +840,9 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
         zoom,
       };
     });
-    setMapBounds(bounds);
+    
+    // استخدام ref بدلاً من state لتجنب re-render
+    mapBoundsRef.current = bounds;
   }, []);
 
   
@@ -1475,7 +1479,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
               className="rounded-2xl sm:rounded-3xl overflow-hidden bg-white border-2 border-primary/20"
               style={{ boxShadow: SHADOWS.card }}
             >
-              <div className="bg-linear-to-r from-[#FF5A5F]/20 to-[#FF5A5F]/5 p-4 border-b-2 border-[#FF5A5F]/20">
+              <div className="bg-linear-to-l from-[#FF5A5F]/20 to-[#FF5A5F]/5 p-4 border-b-2 border-[#FF5A5F]/20">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-[#FF5A5F]/20 flex items-center justify-center">

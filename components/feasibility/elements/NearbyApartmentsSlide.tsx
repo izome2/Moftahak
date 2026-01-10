@@ -44,6 +44,112 @@ const defaultData: NearbyApartmentsSlideData = {
   showFromMap: true,
 };
 
+// معالم مصرية مشهورة مع التصنيفات
+type LandmarkCategory = 'tourism' | 'education' | 'transport' | 'shopping' | 'health' | 'park' | 'district' | 'religious';
+
+interface Landmark {
+  name: string;
+  lat: number;
+  lng: number;
+  category: LandmarkCategory;
+}
+
+const LANDMARKS: Landmark[] = [
+  // نهر النيل - نقاط متعددة على طول النهر (كل 2-3 كم تقريباً)
+  { name: 'نهر النيل - الزمالك', lat: 30.0626, lng: 31.2204, category: 'park' },
+  { name: 'نهر النيل - الجزيرة', lat: 30.0444, lng: 31.2240, category: 'park' },
+  { name: 'نهر النيل - جاردن سيتي', lat: 30.0350, lng: 31.2280, category: 'park' },
+  { name: 'نهر النيل - كورنيش النيل', lat: 30.0444, lng: 31.2320, category: 'park' },
+  { name: 'نهر النيل - مصر القديمة', lat: 30.0059, lng: 31.2280, category: 'park' },
+  { name: 'نهر النيل - المعادي', lat: 29.9601, lng: 31.2300, category: 'park' },
+  { name: 'نهر النيل - الدقي', lat: 30.0380, lng: 31.2100, category: 'park' },
+  { name: 'نهر النيل - شبرا', lat: 30.0900, lng: 31.2450, category: 'park' },
+  { name: 'نهر النيل - المنيل', lat: 30.0200, lng: 31.2250, category: 'park' },
+  { name: 'نهر النيل - إمبابة', lat: 30.0750, lng: 31.2050, category: 'park' },
+  
+  // معالم سياحية
+  { name: 'الأهرامات وأبو الهول', lat: 29.9792, lng: 31.1342, category: 'tourism' },
+  { name: 'برج القاهرة', lat: 30.0459, lng: 31.2243, category: 'tourism' },
+  { name: 'المتحف المصري الكبير', lat: 29.9956, lng: 31.1167, category: 'tourism' },
+  { name: 'المتحف المصري بالتحرير', lat: 30.0478, lng: 31.2336, category: 'tourism' },
+  { name: 'قلعة صلاح الدين', lat: 30.0297, lng: 31.2602, category: 'tourism' },
+  { name: 'خان الخليلي', lat: 30.0474, lng: 31.2626, category: 'tourism' },
+  { name: 'قصر البارون', lat: 30.0880, lng: 31.3278, category: 'tourism' },
+  { name: 'قصر عابدين', lat: 30.0426, lng: 31.2489, category: 'tourism' },
+  { name: 'دار الأوبرا المصرية', lat: 30.0429, lng: 31.2247, category: 'tourism' },
+  
+  // جامعات ومؤسسات تعليمية
+  { name: 'جامعة القاهرة', lat: 30.0260, lng: 31.2088, category: 'education' },
+  { name: 'جامعة عين شمس', lat: 30.0783, lng: 31.2815, category: 'education' },
+  { name: 'الجامعة الأمريكية بالقاهرة', lat: 30.0197, lng: 31.4996, category: 'education' },
+  { name: 'جامعة حلوان', lat: 29.8420, lng: 31.3358, category: 'education' },
+  { name: 'جامعة المستقبل', lat: 30.0075, lng: 31.4683, category: 'education' },
+  { name: 'الجامعة الألمانية بالقاهرة', lat: 29.9867, lng: 31.4401, category: 'education' },
+  { name: 'أكاديمية الشروق', lat: 30.1167, lng: 31.6167, category: 'education' },
+  
+  // مواصلات
+  { name: 'مطار القاهرة الدولي', lat: 30.1219, lng: 31.4056, category: 'transport' },
+  { name: 'مطار سفنكس الدولي', lat: 29.9833, lng: 31.0167, category: 'transport' },
+  { name: 'محطة مصر رمسيس', lat: 30.0630, lng: 31.2478, category: 'transport' },
+  { name: 'محطة مترو العتبة', lat: 30.0528, lng: 31.2472, category: 'transport' },
+  { name: 'محطة مترو السادات', lat: 30.0444, lng: 31.2357, category: 'transport' },
+  { name: 'مونوريل العاصمة الإدارية', lat: 30.0275, lng: 31.7467, category: 'transport' },
+  
+  // مراكز تسوق
+  { name: 'مول مصر', lat: 30.0070, lng: 31.0176, category: 'shopping' },
+  { name: 'سيتي ستارز', lat: 30.0727, lng: 31.3449, category: 'shopping' },
+  { name: 'مول العرب', lat: 29.9705, lng: 30.9525, category: 'shopping' },
+  { name: 'كايرو فيستيفال سيتي', lat: 30.0275, lng: 31.4016, category: 'shopping' },
+  { name: 'داون تاون مول', lat: 30.0333, lng: 31.4833, category: 'shopping' },
+  { name: 'الداون تاون العاصمة الإدارية', lat: 30.0167, lng: 31.7333, category: 'shopping' },
+  
+  // مستشفيات
+  { name: 'مستشفى دار الفؤاد', lat: 29.9815, lng: 31.2071, category: 'health' },
+  { name: 'مستشفى القصر العيني', lat: 30.0296, lng: 31.2318, category: 'health' },
+  { name: 'مستشفى 57357', lat: 30.0125, lng: 31.2083, category: 'health' },
+  { name: 'مستشفى السلام الدولي', lat: 30.0500, lng: 31.3667, category: 'health' },
+  { name: 'مستشفى الجلاء العسكري', lat: 30.0667, lng: 31.2500, category: 'health' },
+  
+  // حدائق ومتنزهات
+  { name: 'حديقة الأزهر', lat: 30.0403, lng: 31.2643, category: 'park' },
+  { name: 'حديقة الأورمان', lat: 30.0338, lng: 31.2083, category: 'park' },
+  { name: 'الحديقة الدولية', lat: 30.0833, lng: 31.3333, category: 'park' },
+  { name: 'حديقة الفسطاط', lat: 30.0100, lng: 31.2350, category: 'park' },
+  { name: 'النهر الأخضر العاصمة', lat: 30.0333, lng: 31.7500, category: 'park' },
+  
+  // أحياء رئيسية
+  { name: 'مدينة نصر', lat: 30.0540, lng: 31.3410, category: 'district' },
+  { name: 'المعادي', lat: 29.9601, lng: 31.2504, category: 'district' },
+  { name: 'الزمالك', lat: 30.0626, lng: 31.2204, category: 'district' },
+  { name: 'مدينة الشيخ زايد', lat: 30.0181, lng: 30.9760, category: 'district' },
+  { name: 'السادس من أكتوبر', lat: 29.9544, lng: 31.0036, category: 'district' },
+  { name: 'التجمع الخامس', lat: 30.0300, lng: 31.4294, category: 'district' },
+  { name: 'العاصمة الإدارية الجديدة', lat: 30.0275, lng: 31.7467, category: 'district' },
+  { name: 'الشروق', lat: 30.1167, lng: 31.6167, category: 'district' },
+  { name: 'مدينتي', lat: 30.1000, lng: 31.6333, category: 'district' },
+  { name: 'الرحاب', lat: 30.0667, lng: 31.4833, category: 'district' },
+  { name: 'هليوبوليس الجديدة', lat: 30.1000, lng: 31.3833, category: 'district' },
+  
+  // أماكن دينية بارزة
+  { name: 'مسجد الحسين', lat: 30.0478, lng: 31.2633, category: 'religious' },
+  { name: 'مسجد محمد علي', lat: 30.0288, lng: 31.2596, category: 'religious' },
+  { name: 'الكنيسة المعلقة', lat: 30.0059, lng: 31.2304, category: 'religious' },
+  { name: 'كاتدرائية ميلاد المسيح', lat: 30.0275, lng: 31.7467, category: 'religious' },
+  { name: 'مسجد الفتاح العليم', lat: 30.0275, lng: 31.7467, category: 'religious' },
+];
+
+// دالة حساب المسافة (Haversine)
+const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLng/2) * Math.sin(dLng/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+};
+
 interface EditableWidgetProps {
   icon: React.ReactNode;
   label: string;
@@ -201,6 +307,21 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
     onUpdateImages(apartment.id, newImages);
   };
 
+  // مرجع لـ input اختيار صورة الشقة
+  const thumbnailInputRef = useRef<HTMLInputElement>(null);
+
+  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !onUpdateApartment) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      onUpdateApartment(apartment.id, { thumbnailUrl: base64 });
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -209,11 +330,34 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
       className="relative bg-white rounded-2xl border-2 border-primary/30 hover:border-primary/50 overflow-hidden group"
       style={{ boxShadow: SHADOWS.card }}
     >
+      {/* Input مخفي لاختيار صورة */}
+      <input
+        ref={thumbnailInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleThumbnailUpload}
+        className="hidden"
+      />
+      
       {/* Header - ذهبي موحد */}
       <div 
         className="p-5 relative overflow-hidden bg-primary/20 border-b-2 border-primary/30"
         style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
       >
+        {/* صورة الشقة كخلفية */}
+        {apartment.thumbnailUrl && (
+          <div className="absolute inset-0">
+            <Image
+              src={apartment.thumbnailUrl}
+              alt={apartment.name}
+              fill
+              className="object-cover opacity-40"
+              unoptimized
+            />
+            <div className="absolute inset-0 bg-linear-to-l from-primary/40 via-primary/20 to-primary/40" />
+          </div>
+        )}
+        
         {/* زخرفة خلفية */}
         <div className="absolute top-0 left-0 w-full h-full opacity-10">
           <div className="absolute -top-4 -right-4 w-24 h-24 border-4 border-primary/30 rounded-full" />
@@ -222,10 +366,22 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
         
         <div className="relative z-10 flex items-center gap-4">
           <div 
-            className="w-14 h-14 bg-primary/30 rounded-2xl flex items-center justify-center border-2 border-primary/40"
+            className={`w-14 h-14 rounded-2xl flex items-center justify-center border-2 border-primary/40 backdrop-blur-sm ${
+              !apartment.thumbnailUrl && isEditing ? 'cursor-pointer hover:bg-primary/40 transition-colors' : ''
+            } ${apartment.thumbnailUrl ? 'bg-primary/50' : 'bg-primary/30'}`}
             style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+            onClick={() => {
+              if (!apartment.thumbnailUrl && isEditing) {
+                thumbnailInputRef.current?.click();
+              }
+            }}
+            title={!apartment.thumbnailUrl && isEditing ? 'انقر لإضافة صورة' : undefined}
           >
-            <Building2 className="w-7 h-7 text-secondary" strokeWidth={2} />
+            {!apartment.thumbnailUrl && isEditing ? (
+              <ImagePlus className="w-6 h-6 text-secondary/70" strokeWidth={2} />
+            ) : (
+              <Building2 className="w-7 h-7 text-secondary" strokeWidth={2} />
+            )}
           </div>
           <div className="flex-1">
             <h3 className="text-xl font-bold text-secondary font-dubai">{apartment.name}</h3>
@@ -255,11 +411,13 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
           </div>
           {/* رقم الشقة أو "شقتي" */}
           <div 
-            className="px-3 py-2 bg-primary/30 rounded-xl flex items-center justify-center border-2 border-primary/40"
+            className={`px-3 py-2 rounded-xl flex items-center justify-center border-2 border-primary/40 backdrop-blur-sm ${
+              apartment.thumbnailUrl ? 'bg-primary/50' : 'bg-primary/30'
+            }`}
             style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
           >
             <span className="text-secondary font-bold font-dubai text-sm">
-              {isMyApartment ? 'شقتي' : `#${index + 1}`}
+              {isMyApartment ? 'شقتي' : `${index + 1}`}
             </span>
           </div>
         </div>
@@ -493,12 +651,17 @@ export default function NearbyApartmentsSlide({
 }: NearbyApartmentsSlideProps) {
   const apartments = useMemo(() => {
     if (mapData?.pins && mapData.pins.length > 0) {
-      return mapData.pins.slice(1).map(pin => pin.apartment);
+      // إرجاع كل الشقق (شقة العميل أولاً ثم الشقق المحيطة)
+      return mapData.pins.map(pin => pin.apartment);
     }
     return data.apartments;
   }, [mapData?.pins, data.apartments]);
 
   const [localData, setLocalData] = useState<Record<string, { description?: string; images?: string[] }>>({});
+
+  // حالة تعديل نص المعالم
+  const [editingLandmarks, setEditingLandmarks] = useState(false);
+  const [customLandmarksText, setCustomLandmarksText] = useState('');
 
   const onUpdateRef = useRef(onUpdate);
   onUpdateRef.current = onUpdate;
@@ -535,8 +698,80 @@ export default function NearbyApartmentsSlide({
       beds: (localData[apt.id] as any)?.beds ?? apt.beds,
       bathrooms: (localData[apt.id] as any)?.bathrooms ?? apt.bathrooms,
       rating: (localData[apt.id] as any)?.rating ?? apt.rating,
+      thumbnailUrl: (localData[apt.id] as any)?.thumbnailUrl ?? apt.thumbnailUrl,
     }));
   }, [apartments, localData]);
+
+  // حساب أقرب المعالم مع التنوع في التصنيفات
+  const nearestLandmarks = useMemo(() => {
+    if (!mapData?.pins || mapData.pins.length === 0) return [];
+    
+    // استخدام موقع شقة العميل (أول pin)
+    const clientLocation = mapData.pins[0];
+    
+    // حساب المسافة لكل معلم
+    const landmarksWithDistance = LANDMARKS.map(landmark => ({
+      ...landmark,
+      distance: calculateDistance(
+        clientLocation.lat,
+        clientLocation.lng,
+        landmark.lat,
+        landmark.lng
+      )
+    }))
+    // استبعاد المعالم البعيدة جداً (أكثر من 30 كم)
+    .filter(l => l.distance <= 30)
+    // ترتيب حسب المسافة
+    .sort((a, b) => a.distance - b.distance);
+    
+    // اختيار 3 معالم متنوعة التصنيف
+    const selected: typeof landmarksWithDistance = [];
+    const usedCategories = new Set<LandmarkCategory>();
+    
+    // أولاً: التحقق من القرب من النيل (أقل من 1 كم)
+    const nearbyRiver = landmarksWithDistance.find(l => 
+      l.name.includes('نهر النيل') && l.distance < 1.0
+    );
+    
+    if (nearbyRiver) {
+      // إذا كانت قريبة من النيل، اعرض ذلك كأول معلم
+      selected.push(nearbyRiver);
+      usedCategories.add(nearbyRiver.category);
+    } else {
+      // وإلا اختر أقرب معلم
+      if (landmarksWithDistance.length > 0) {
+        const nearest = landmarksWithDistance[0];
+        selected.push(nearest);
+        usedCategories.add(nearest.category);
+      }
+    }
+    
+    // ثانياً: اختر معلمين آخرين من تصنيفات مختلفة
+    for (const landmark of landmarksWithDistance) {
+      if (selected.length >= 3) break;
+      // تخطى معالم النيل الأخرى إذا كان واحد منها موجود بالفعل
+      if (landmark.name.includes('نهر النيل') && selected.some(s => s.name.includes('نهر النيل'))) {
+        continue;
+      }
+      if (!usedCategories.has(landmark.category)) {
+        selected.push(landmark);
+        usedCategories.add(landmark.category);
+      }
+    }
+    
+    // إذا لم نجد 3 تصنيفات مختلفة، أكمل بأقرب المتاحين
+    if (selected.length < 3) {
+      for (const landmark of landmarksWithDistance) {
+        if (selected.length >= 3) break;
+        if (!selected.includes(landmark) && !landmark.name.includes('نهر النيل')) {
+          selected.push(landmark);
+        }
+      }
+    }
+    
+    // ترتيب النتائج حسب المسافة
+    return selected.sort((a, b) => a.distance - b.distance);
+  }, [mapData?.pins]);
 
   return (
     <div className="p-6 md:p-8 bg-linear-to-br from-accent/30 via-white to-accent/20 pb-24" dir="rtl">
@@ -585,19 +820,19 @@ export default function NearbyApartmentsSlide({
                 <span className="block text-2xl font-bold text-secondary font-bristone">
                   {mergedApartments.length}
                 </span>
-                <span className="text-xs text-secondary/60 font-dubai">شقة محيطة</span>
+                <span className="text-xs text-secondary/60 font-dubai">شقة</span>
               </div>
-              {mergedApartments.length > 0 && (
+              {mergedApartments.length > 1 && (
                 <div 
                   className="text-center px-4 py-2 bg-primary/20 rounded-xl border-2 border-primary/30"
                   style={{ boxShadow: SHADOWS.icon }}
                 >
                   <span className="block text-xl font-bold text-secondary font-bristone">
                     {Math.round(
-                      mergedApartments.reduce((sum, a) => sum + a.price, 0) / mergedApartments.length
+                      mergedApartments.slice(1).reduce((sum, a) => sum + a.price, 0) / (mergedApartments.length - 1)
                     ).toLocaleString('ar-EG')}
                   </span>
-                  <span className="text-xs text-secondary/60 font-dubai">متوسط الإيجار</span>
+                  <span className="text-xs text-secondary/60 font-dubai">متوسط إيجار المحيطة</span>
                 </div>
               )}
             </div>
@@ -616,6 +851,109 @@ export default function NearbyApartmentsSlide({
           <p className="text-secondary text-base font-dubai leading-relaxed">
             عزيزي العميل، إليك تفاصيل الوحدات السكنية القريبة من موقعك مع معلومات شاملة عن الأسعار والمميزات وبعض الصور التوضيحية.
           </p>
+        </motion.div>
+
+        {/* أقرب المعالم */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="bg-primary/20 rounded-xl p-4 border-2 border-primary/30 flex items-center gap-4"
+          style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+        >
+          <span className="w-1 h-5 bg-primary rounded-full shrink-0"></span>
+          <div className="flex items-center justify-between gap-3 flex-1">
+            {editingLandmarks ? (
+              <input
+                type="text"
+                value={customLandmarksText}
+                onChange={(e) => setCustomLandmarksText(e.target.value)}
+                onBlur={() => setEditingLandmarks(false)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') setEditingLandmarks(false);
+                  if (e.key === 'Escape') {
+                    setCustomLandmarksText('');
+                    setEditingLandmarks(false);
+                  }
+                }}
+                placeholder="أضف وصفاً للمعالم والأماكن المميزة في المنطقة..."
+                className="flex-1 bg-transparent text-secondary text-sm font-dubai focus:outline-none placeholder:text-secondary/40"
+                autoFocus
+              />
+            ) : (
+              <p className="text-secondary text-sm font-dubai leading-relaxed flex-1">
+                {customLandmarksText ? (
+                  <span>{customLandmarksText}</span>
+                ) : nearestLandmarks.length > 0 ? (
+                  <>
+                    <span className="font-bold">أقرب المعالم:</span>{' '}
+                    {nearestLandmarks[0].name.includes('نهر النيل') && nearestLandmarks[0].distance < 1.0 ? (
+                      <>
+                        {nearestLandmarks[0].distance < 0.3 ? (
+                          <span>تقع هذه الشقة على ضفاف نهر النيل مباشرةً</span>
+                        ) : nearestLandmarks[0].distance < 0.7 ? (
+                          <span>تقع هذه الشقة بجوار نهر النيل{' '}
+                          <span style={{ color: '#9b774f' }}>
+                            ({Math.round(nearestLandmarks[0].distance * 1000)} متر)
+                          </span></span>
+                        ) : (
+                          <span>تقع هذه الشقة قرب نهر النيل{' '}
+                          <span style={{ color: '#9b774f' }}>
+                            ({Math.round(nearestLandmarks[0].distance * 1000)} متر)
+                          </span></span>
+                        )}
+                        {nearestLandmarks.length > 1 && (
+                          <>, وبالقرب من {nearestLandmarks.slice(1).map((landmark, index) => (
+                            <span key={landmark.name}>
+                              <span className="text-secondary">{landmark.name}</span>
+                              {' '}
+                              <span style={{ color: '#9b774f' }}>
+                                ({landmark.distance < 1 
+                                  ? `${Math.round(landmark.distance * 1000)} متر` 
+                                  : `${landmark.distance.toFixed(1)} كم`})
+                              </span>
+                              {index < nearestLandmarks.slice(1).length - 1 && (index === nearestLandmarks.slice(1).length - 2 ? ' و' : '، ')}
+                            </span>
+                          ))}</>
+                        )}.
+                      </>
+                    ) : (
+                      <>
+                        تقع هذه المنطقة بالقرب من {nearestLandmarks.map((landmark, index) => (
+                          <span key={landmark.name}>
+                            <span className="text-secondary">{landmark.name}</span>
+                            {' '}
+                            <span style={{ color: '#9b774f' }}>
+                              ({landmark.distance < 1 
+                                ? `${Math.round(landmark.distance * 1000)} متر` 
+                                : `${landmark.distance.toFixed(1)} كم`})
+                            </span>
+                            {index < nearestLandmarks.length - 1 && (index === nearestLandmarks.length - 2 ? ' و' : '، ')}
+                          </span>
+                        ))}.
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <span className="font-bold">معالم المنطقة:</span> لم يتم اكتشاف معالم قريبة تلقائياً. يُرجى إضافة أقرب الأماكن العامة التي تتميز بها المنطقة مثل المولات، المدارس، المستشفيات، أو أي معالم مميزة.
+                  </>
+                )}
+              </p>
+            )}
+            {isEditing && !editingLandmarks && (
+              <button
+                onClick={() => {
+                  setEditingLandmarks(true);
+                  setCustomLandmarksText('');
+                }}
+                className="p-1.5 bg-primary/30 hover:bg-primary/40 rounded-lg transition-colors border border-primary/40 shrink-0"
+                style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+              >
+                <Edit3 className="w-3.5 h-3.5 text-secondary" />
+              </button>
+            )}
+          </div>
         </motion.div>
 
         {/* Apartments Grid */}

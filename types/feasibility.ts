@@ -103,7 +103,8 @@ export interface NearbyApartment {
   bathrooms?: number; 
   subtitle?: string; 
   rating?: number; 
-  reviewsCount?: number; 
+  reviewsCount?: number;
+  thumbnailUrl?: string;
 }
 
 
