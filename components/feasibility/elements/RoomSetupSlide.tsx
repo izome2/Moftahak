@@ -432,7 +432,10 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
 
               {/* Stats */}
               <div className="flex items-center gap-4">
-                <div className="text-center px-4 py-2 bg-accent/30 rounded-xl">
+                <div 
+                  className="text-center px-4 py-2 bg-accent/40 rounded-xl border-2 border-primary/20"
+                  style={{ boxShadow: SHADOWS.card }}
+                >
                   <span className="block text-2xl font-bold text-secondary font-bristone">{totalRooms}</span>
                   <span className="text-xs text-secondary/60 font-dubai">غرفة</span>
                 </div>
@@ -441,7 +444,7 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
           </motion.div>
 
           {/* الودجات - شبكة بسيطة */}
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex items-center justify-center py-8">
             <div className="grid grid-cols-2 gap-6 w-full max-w-3xl">
               <RoomWidget
                 icon={Sofa}
@@ -478,7 +481,7 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="mt-4 flex items-center justify-between"
+            className="mt-2 flex items-center justify-between"
           >
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 bg-green-500 rounded-full" />
@@ -505,7 +508,6 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
     <div className="relative bg-linear-to-br from-accent/30 via-white to-accent/20 overflow-hidden" style={{ minHeight: '1200px' }} dir="rtl">
       {/* Background Glow Effects */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-100 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* المحتوى الرئيسي */}
@@ -542,7 +544,10 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
             
             {/* Stats */}
             <div className="mr-auto flex items-center gap-3">
-              <div className="text-center px-4 py-2 bg-accent/30 rounded-xl">
+              <div 
+                className="text-center px-4 py-2 bg-accent/40 rounded-xl border-2 border-primary/20"
+                style={{ boxShadow: SHADOWS.card }}
+              >
                 <span className="block text-2xl font-bold text-secondary font-bristone">{totalRooms}</span>
                 <span className="text-xs text-secondary/60 font-dubai">غرفة</span>
               </div>

@@ -43,6 +43,7 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
     duplicateSlide,
     canRemoveSlide,
     generateRoomSlides,
+    setSlideOrder,
   } = useSlides({ clientName });
   
   // الحصول على العناصر للشريحة الحالية
@@ -194,6 +195,7 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
             onRemoveSlide={handleRemoveSlide}
             onDuplicateSlide={handleDuplicateSlide}
             onReorderSlides={handleReorderSlides}
+            onSetSlideOrder={setSlideOrder}
             canRemoveSlide={canRemoveSlide}
           />
         </motion.div>

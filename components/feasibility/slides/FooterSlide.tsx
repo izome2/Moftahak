@@ -131,8 +131,11 @@ export default function FooterSlide({
 
   return (
     <div 
-      className="relative bg-secondary flex flex-col overflow-hidden"
-      style={{ minHeight: '600px' }}
+      className="relative bg-secondary flex flex-col overflow-hidden rounded-2xl border-2 border-primary/30 mx-4 sm:mx-6 my-6"
+      style={{ 
+        minHeight: '400px',
+        boxShadow: 'rgba(16, 48, 43, 0.2) 0px 15px 40px -10px, rgba(237, 191, 140, 0.15) 0px 0px 0px 1px',
+      }}
       dir="rtl"
     >
       {/* النمط الخلفي - نفس المقدمة */}
@@ -151,14 +154,14 @@ export default function FooterSlide({
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="relative z-10 flex flex-col items-center justify-center h-full py-10 px-8 text-center"
+        className="relative z-10 flex flex-col items-center justify-center h-full py-8 px-6 text-center"
       >
         {/* الشعار */}
         <motion.div
           variants={fadeInUp}
-          className="mb-6"
+          className="mb-4"
         >
-          <div className="relative w-40 h-40 mx-auto">
+          <div className="relative w-28 h-28 mx-auto">
             <Image
               src="/logos/logo-white.png"
               alt="مفتاحك"
@@ -174,7 +177,7 @@ export default function FooterSlide({
 
         {/* الخط الفاصل العلوي */}
         <motion.div 
-          className="w-24 h-px bg-primary/30 mb-6"
+          className="w-20 h-px bg-primary/30 mb-4"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
@@ -183,7 +186,7 @@ export default function FooterSlide({
         {/* الرسالة الرئيسية */}
         <motion.div
           variants={fadeInUp}
-          className="mb-6"
+          className="mb-4"
         >
           {isEditing && editingField === 'message' ? (
             <div className="flex items-center justify-center gap-3">
@@ -191,7 +194,7 @@ export default function FooterSlide({
                 type="text"
                 value={slideData.message}
                 onChange={e => handleFieldUpdate('message', e.target.value)}
-                className="text-3xl font-bold text-primary bg-transparent border-b-2 border-primary/50 text-center focus:outline-none focus:border-primary font-dubai"
+                className="text-2xl font-bold text-primary bg-transparent border-b-2 border-primary/50 text-center focus:outline-none focus:border-primary font-dubai"
                 autoFocus
                 onBlur={() => setEditingField(null)}
                 onKeyDown={e => e.key === 'Enter' && setEditingField(null)}
@@ -199,7 +202,7 @@ export default function FooterSlide({
             </div>
           ) : (
             <h2 
-              className={`text-3xl font-bold text-primary font-dubai ${isEditing ? 'cursor-pointer hover:opacity-80' : ''}`}
+              className={`text-2xl font-bold text-primary font-dubai ${isEditing ? 'cursor-pointer hover:opacity-80' : ''}`}
               onClick={() => isEditing && setEditingField('message')}
             >
               {slideData.message}
@@ -211,13 +214,13 @@ export default function FooterSlide({
         {/* الخط الفاصل */}
         <motion.div
           variants={fadeInUp}
-          className="w-48 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent mb-8"
+          className="w-40 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent mb-6"
         />
 
         {/* معلومات التواصل - على خط واحد */}
         <motion.div
           variants={fadeInUp}
-          className="flex flex-wrap items-center justify-center gap-6 text-white/80 mb-8"
+          className="flex flex-wrap items-center justify-center gap-4 text-white/80 mb-6"
         >
           {(slideData.contactInfo.phone || isEditing) && (
             <div className="flex items-center gap-2">
@@ -349,19 +352,19 @@ export default function FooterSlide({
 
         {/* القسم السفلي - الفوتر */}
         <motion.div 
-          className="mt-auto pt-8 text-center"
+          className="mt-auto pt-4 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
         >
           {/* زخرفة */}
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <div className="w-12 h-px bg-primary/20" />
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="w-10 h-px bg-primary/20" />
             <div className="w-2 h-2 bg-primary/30 rotate-45 rounded-sm" />
-            <div className="w-12 h-px bg-primary/20" />
+            <div className="w-10 h-px bg-primary/20" />
           </div>
           
-          <p className="text-primary/50 text-sm flex items-center justify-center gap-2 font-dubai mb-1">
+          <p className="text-primary/50 text-xs flex items-center justify-center gap-2 font-dubai mb-1">
             صُنع بـ <Heart className="w-3 h-3 text-red-400 fill-red-400" /> من فريق مفتاحك
           </p>
           <p className="text-primary/40 text-xs font-dubai">
@@ -371,7 +374,7 @@ export default function FooterSlide({
       </motion.div>
 
       {/* تأثير التدرج السفلي */}
-      <div className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-secondary-dark/50 to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-12 bg-linear-to-t from-secondary-dark/50 to-transparent pointer-events-none rounded-b-2xl" />
     </div>
   );
 }

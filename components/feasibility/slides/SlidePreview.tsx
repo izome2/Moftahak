@@ -14,7 +14,8 @@ import {
   DollarSign,
   Settings,
   Lock,
-  GripVertical
+  GripVertical,
+  Building2
 } from 'lucide-react';
 import type { Slide, SlideType } from '@/types/feasibility';
 
@@ -30,6 +31,7 @@ const slideIcons: Record<SlideType, React.ElementType> = {
   'cost-summary': DollarSign,
   'area-study': MapPin,
   map: MapPin,
+  'nearby-apartments': Building2,
   statistics: BarChart3,
   footer: FileText,
 };
@@ -46,6 +48,7 @@ const slidePreviewColors: Record<SlideType, { bg: string; iconBg: string }> = {
   'cost-summary': { bg: 'bg-yellow-50', iconBg: 'bg-yellow-200' },
   'area-study': { bg: 'bg-rose-50', iconBg: 'bg-rose-200' },
   map: { bg: 'bg-emerald-50', iconBg: 'bg-emerald-200' },
+  'nearby-apartments': { bg: 'bg-teal-50', iconBg: 'bg-teal-200' },
   statistics: { bg: 'bg-indigo-50', iconBg: 'bg-indigo-200' },
   footer: { bg: 'bg-secondary', iconBg: 'bg-primary/30' },
 };
@@ -161,6 +164,7 @@ function getSlideTypeLabel(type: SlideType): string {
     'cost-summary': 'تكاليف',
     'area-study': 'دراسة',
     map: 'خريطة',
+    'nearby-apartments': 'شقق محيطة',
     statistics: 'إحصائيات',
     footer: 'خاتمة',
   };

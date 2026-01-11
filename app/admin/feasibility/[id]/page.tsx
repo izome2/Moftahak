@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback, use } from 'react';
 import { useFeasibilityEditor } from '@/contexts/FeasibilityEditorContext';
 import EditorCanvas from '@/components/feasibility/editor/EditorCanvas';
 import EditorToolbar from '@/components/feasibility/editor/EditorToolbar';
+import ShareModal from '@/components/feasibility/shared/ShareModal';
 import type { TextOverlayItem } from '@/components/feasibility/editor/EditableTextOverlay';
 import type { ImageOverlayItem } from '@/components/feasibility/editor/EditableImageOverlay';
 import type { Slide, SlideData } from '@/types/feasibility';
@@ -26,6 +27,7 @@ export default function EditFeasibilityStudyPage({ params }: PageProps) {
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [showSavedMessage, setShowSavedMessage] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   
   // بيانات الدراسة من قاعدة البيانات
   const [studyData, setStudyData] = useState<{
@@ -270,7 +272,7 @@ export default function EditFeasibilityStudyPage({ params }: PageProps) {
             window.open(`/study/${studyData.id}`, '_blank');
           }
         }}
-        onShare={() => console.log('مشاركة الدراسة...')}
+        onShare={() => setShowShareModal(true)}
         onAddText={handleAddText}
         onAddImage={handleAddImage}
         isSaving={saving}
@@ -294,6 +296,14 @@ export default function EditFeasibilityStudyPage({ params }: PageProps) {
           onDeleteOverlayItem={handleDeleteOverlayItem}
         />
       </div>
+
+      {/* مودال المشاركة */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        studyId={studyData?.id || id}
+        clientName={studyData?.clientName || editor.clientName}
+      />
     </div>
   );
 }

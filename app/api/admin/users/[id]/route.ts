@@ -2,12 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+interface RouteParams {
+  params: Promise<{ id: string }>;
+}
+
 // PATCH - تحديث دور المستخدم
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
 
     if (!session || session.user.role !== 'ADMIN') {
@@ -27,7 +32,7 @@ export async function PATCH(
     }
 
     // منع المستخدم من تغيير دوره الخاص
-    if (params.id === session.user.id) {
+    if (id === session.user.id) {
       return NextResponse.json(
         { error: 'لا يمكنك تغيير دورك الخاص' },
         { status: 400 }
@@ -35,7 +40,7 @@ export async function PATCH(
     }
 
     const user = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: { role },
       select: {
         id: true,
@@ -59,9 +64,10 @@ export async function PATCH(
 // DELETE - حذف المستخدم
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
 
     if (!session || session.user.role !== 'ADMIN') {
@@ -72,7 +78,7 @@ export async function DELETE(
     }
 
     // منع المستخدم من حذف نفسه
-    if (params.id === session.user.id) {
+    if (id === session.user.id) {
       return NextResponse.json(
         { error: 'لا يمكنك حذف حسابك الخاص' },
         { status: 400 }
@@ -80,7 +86,7 @@ export async function DELETE(
     }
 
     await prisma.user.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: 'تم حذف المستخدم بنجاح' });

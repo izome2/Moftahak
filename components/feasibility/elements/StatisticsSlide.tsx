@@ -216,6 +216,7 @@ export default function StatisticsSlide({
             transition={{ delay: 0.15 }}
             className="relative rounded-2xl overflow-hidden bg-white p-5 border-2 border-primary/20"
             style={{ boxShadow: SHADOWS.card }}
+            whileHover={{ scale: 1.02, boxShadow: SHADOWS.cardHover }}
           >
             <div className="absolute -top-4 -left-4 opacity-[0.08] pointer-events-none">
               <DollarSign className="w-24 h-24 text-primary" strokeWidth={1.5} />
@@ -241,6 +242,7 @@ export default function StatisticsSlide({
             transition={{ delay: 0.2 }}
             className="relative rounded-2xl overflow-hidden bg-white p-5 border-2 border-primary/20"
             style={{ boxShadow: SHADOWS.card }}
+            whileHover={{ scale: 1.02, boxShadow: SHADOWS.cardHover }}
           >
             <div className="absolute -top-4 -left-4 opacity-[0.08] pointer-events-none">
               <TrendingUp className="w-24 h-24 text-primary" strokeWidth={1.5} />
@@ -275,6 +277,7 @@ export default function StatisticsSlide({
             transition={{ delay: 0.25 }}
             className="relative rounded-2xl overflow-hidden bg-white p-5 border-2 border-primary/20"
             style={{ boxShadow: SHADOWS.card }}
+            whileHover={{ scale: 1.02, boxShadow: SHADOWS.cardHover }}
           >
             <div className="absolute -top-4 -left-4 opacity-[0.08] pointer-events-none">
               <Calendar className="w-24 h-24 text-primary" strokeWidth={1.5} />

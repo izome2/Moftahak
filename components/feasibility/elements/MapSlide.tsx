@@ -1737,11 +1737,17 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                 </motion.button>
               )}
               
-              <div className="text-center px-4 py-2 bg-accent/30 rounded-xl">
+              <div 
+                className="text-center px-4 py-2 bg-accent/40 rounded-xl border-2 border-primary/20"
+                style={{ boxShadow: SHADOWS.card }}
+              >
                 <span className="block text-2xl font-bold text-secondary font-bristone">{Math.max(0, mapData.pins.length - 1)}</span>
                 <span className="text-xs text-secondary/60 font-dubai">شقة محيطة</span>
               </div>
-              <div className="text-center px-4 py-2 bg-primary/20 rounded-xl">
+              <div 
+                className="text-center px-4 py-2 bg-primary/20 rounded-xl border-2 border-primary/30"
+                style={{ boxShadow: SHADOWS.icon }}
+              >
                 <span className="block text-xl font-bold text-primary font-bristone">9</span>
                 <span className="text-xs text-secondary/60 font-dubai">الحد الأقصى</span>
               </div>

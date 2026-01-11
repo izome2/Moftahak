@@ -198,6 +198,15 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
         <IconComponent className="w-40 h-40 text-primary" strokeWidth={1.5} />
       </div>
 
+      {/* Image Display - يظهر على اليسار */}
+      {item.image && !isEditing && (
+        <div className="absolute top-4 left-4 z-20">
+          <div className="w-28 h-28 rounded-xl border-2 border-primary/50 overflow-hidden bg-accent/30">
+            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+          </div>
+        </div>
+      )}
+
       {/* Image Upload Box - يظهر على اليسار */}
       {isEditing && (
         <div 
@@ -284,33 +293,37 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
         <div className="flex items-center justify-between py-3 border-t border-secondary/10 mt-3">
           <span className="text-sm text-secondary/60 font-dubai">الكمية</span>
           <div className="flex items-center gap-3">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (item.quantity > 1) onQuantityChange(item.id, item.quantity - 1);
-              }}
-              disabled={!isEditing || item.quantity <= 1}
-              className="w-8 h-8 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-secondary/20 transition-colors"
-            >
-              <Minus size={14} />
-            </motion.button>
+            {isEditing && (
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (item.quantity > 1) onQuantityChange(item.id, item.quantity - 1);
+                }}
+                disabled={!isEditing || item.quantity <= 1}
+                className="w-8 h-8 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-secondary/20 transition-colors"
+              >
+                <Minus size={14} />
+              </motion.button>
+            )}
             <span className="font-dubai font-bold text-secondary text-lg min-w-8 text-center">
               {item.quantity}
             </span>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onQuantityChange(item.id, item.quantity + 1);
-              }}
-              disabled={!isEditing}
-              className="w-8 h-8 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-secondary/20 transition-colors"
-            >
-              <Plus size={14} />
-            </motion.button>
+            {isEditing && (
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onQuantityChange(item.id, item.quantity + 1);
+                }}
+                disabled={!isEditing}
+                className="w-8 h-8 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-secondary/20 transition-colors"
+              >
+                <Plus size={14} />
+              </motion.button>
+            )}
           </div>
         </div>
 
@@ -921,11 +934,17 @@ const BathroomSlide: React.FC<BathroomSlideProps> = ({
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="text-center px-4 py-2 bg-accent/30 rounded-xl">
+              <div 
+                className="text-center px-4 py-2 bg-accent/40 rounded-xl border-2 border-primary/20"
+                style={{ boxShadow: SHADOWS.card }}
+              >
                 <span className="block text-2xl font-bold text-secondary font-bristone">{items.length}</span>
                 <span className="text-xs text-secondary/60 font-dubai">عنصر</span>
               </div>
-              <div className="text-center px-4 py-2 bg-primary/20 rounded-xl">
+              <div 
+                className="text-center px-4 py-2 bg-primary/20 rounded-xl border-2 border-primary/30"
+                style={{ boxShadow: SHADOWS.icon }}
+              >
                 <span className="block text-xl font-bold text-primary font-bristone">{formatPrice(totalCost)}</span>
                 <span className="text-xs text-secondary/60 font-dubai">ج.م</span>
               </div>
