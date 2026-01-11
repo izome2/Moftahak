@@ -3,6 +3,11 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { SlideCanvas } from '@/components/feasibility/slides';
 import type { Slide, SlideData } from '@/types/feasibility';
+import EditableTextOverlay, { type TextOverlayItem } from './EditableTextOverlay';
+import EditableImageOverlay, { type ImageOverlayItem } from './EditableImageOverlay';
+
+// نوع العناصر المضافة
+type OverlayItem = TextOverlayItem | ImageOverlayItem;
 
 interface EditorCanvasWrapperProps {
   zoom: number;
@@ -15,6 +20,9 @@ interface EditorCanvasWrapperProps {
   onUpdateSlideData?: (data: Partial<SlideData>) => void;
   onGenerateRoomSlides?: (roomCounts: { bedrooms: number; livingRooms: number; kitchens: number; bathrooms: number }) => void;
   onZoomChange?: (zoom: number) => void;
+  overlayItems?: OverlayItem[];
+  onUpdateOverlayItem?: (item: OverlayItem) => void;
+  onDeleteOverlayItem?: (id: string) => void;
 }
 
 const EditorCanvasWrapper: React.FC<EditorCanvasWrapperProps> = ({
@@ -28,8 +36,12 @@ const EditorCanvasWrapper: React.FC<EditorCanvasWrapperProps> = ({
   onUpdateSlideData,
   onGenerateRoomSlides,
   onZoomChange,
+  overlayItems = [],
+  onUpdateOverlayItem,
+  onDeleteOverlayItem,
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const slideContainerRef = useRef<HTMLDivElement>(null);
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
@@ -131,7 +143,7 @@ const EditorCanvasWrapper: React.FC<EditorCanvasWrapperProps> = ({
         >
           {/* عرض الشريحة بأبعاد ثابتة */}
           {slide ? (
-            <div className="relative slide-canvas-container" style={{ pointerEvents: 'auto' }}>
+            <div ref={slideContainerRef} className="relative slide-canvas-container" style={{ pointerEvents: 'auto' }}>
               <div
                 style={{
                   width: `${SLIDE_WIDTH}px`,
@@ -147,6 +159,34 @@ const EditorCanvasWrapper: React.FC<EditorCanvasWrapperProps> = ({
                   onGenerateRoomSlides={onGenerateRoomSlides}
                 />
               </div>
+              
+              {/* العناصر المضافة (نصوص وصور) */}
+              {overlayItems.map((item) => {
+                if (item.type === 'text') {
+                  return (
+                    <EditableTextOverlay
+                      key={item.id}
+                      item={item as TextOverlayItem}
+                      scale={scale}
+                      containerRef={slideContainerRef}
+                      onUpdate={(updated) => onUpdateOverlayItem?.(updated)}
+                      onDelete={(id) => onDeleteOverlayItem?.(id)}
+                    />
+                  );
+                } else if (item.type === 'image') {
+                  return (
+                    <EditableImageOverlay
+                      key={item.id}
+                      item={item as ImageOverlayItem}
+                      scale={scale}
+                      containerRef={slideContainerRef}
+                      onUpdate={(updated) => onUpdateOverlayItem?.(updated)}
+                      onDelete={(id) => onDeleteOverlayItem?.(id)}
+                    />
+                  );
+                }
+                return null;
+              })}
             </div>
           ) : (
             <div 

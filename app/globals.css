@@ -498,3 +498,43 @@ img[loading="eager"] {
   animation-delay: 15s, 15s;
   opacity: 0;
 }
+
+/* ============================================
+   Custom Cursor for Feasibility Editor
+   ============================================ */
+.editor-cursor,
+.editor-cursor *,
+.editor-cursor button,
+.editor-cursor input,
+.editor-cursor textarea,
+.editor-cursor select {
+  cursor: url("/images/editor-cursor.svg") 4 4, auto !important;
+}
+
+.editor-cursor .cursor-pointer,
+.editor-cursor button:hover,
+.editor-cursor a:hover {
+  cursor: url("/images/editor-cursor.svg") 4 4, pointer !important;
+}
+
+.editor-cursor .cursor-grab {
+  cursor: url("/images/editor-cursor.svg") 4 4, grab !important;
+}
+
+.editor-cursor .cursor-grabbing {
+  cursor: url("/images/editor-cursor.svg") 4 4, grabbing !important;
+}
+
+.editor-cursor .cursor-text,
+.editor-cursor input:focus,
+.editor-cursor textarea:focus {
+  cursor: url("/images/editor-cursor.svg") 4 4, text !important;
+}
+
+.editor-cursor .cursor-move {
+  cursor: url("/images/editor-cursor.svg") 4 4, move !important;
+}
+
+.editor-cursor .cursor-default {
+  cursor: url("/images/editor-cursor.svg") 4 4, default !important;
+}

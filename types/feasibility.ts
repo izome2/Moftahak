@@ -26,6 +26,7 @@ export interface RoomItem {
   icon: string;
   price: number;
   quantity: number;
+  image?: string; // صورة العنصر (اختياري)
 }
 
 
@@ -47,6 +48,8 @@ export interface CoverSlideData {
   clientName: string;
   studyTitle?: string;
   date?: string;
+  backgroundImage?: string;
+  imageOpacity?: number;
 }
 
 

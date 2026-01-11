@@ -8,16 +8,13 @@ import {
   Save, 
   Eye, 
   Share2, 
-  Undo2, 
-  Redo2,
   ZoomIn,
   ZoomOut,
-  ArrowRight,
   MoreVertical,
-  Download,
-  Printer,
   MousePointer2,
-  Move
+  Move,
+  Type,
+  ImagePlus
 } from 'lucide-react';
 
 interface EditorToolbarProps {
@@ -29,6 +26,8 @@ interface EditorToolbarProps {
   onSave: () => void;
   onPreview: () => void;
   onShare: () => void;
+  onAddText?: () => void;
+  onAddImage?: (imageSrc: string) => void;
 }
 
 const SHADOWS = {
@@ -45,9 +44,78 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
   onSave,
   onPreview,
   onShare,
+  onAddText,
+  onAddImage,
 }) => {
   const [showMoreMenu, setShowMoreMenu] = React.useState(false);
   const [activeTool, setActiveTool] = React.useState<'select' | 'move'>('select');
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // ضغط الصورة وتقليل حجمها
+  const compressImage = (file: File, maxWidth: number = 800, quality: number = 0.7): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new window.Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let { width, height } = img;
+          
+          // تقليل الحجم إذا كان أكبر من الحد الأقصى
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Could not get canvas context'));
+            return;
+          }
+          
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // تحويل إلى JPEG مع ضغط
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedDataUrl);
+        };
+        img.onerror = () => reject(new Error('Could not load image'));
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error('Could not read file'));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // التعامل مع اختيار ملف الصورة
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onAddImage) {
+      try {
+        // ضغط الصورة قبل إضافتها
+        const compressedImage = await compressImage(file, 800, 0.7);
+        onAddImage(compressedImage);
+      } catch (error) {
+        console.error('Error compressing image:', error);
+        // في حالة الفشل، استخدم الصورة الأصلية
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const imageSrc = event.target?.result as string;
+          if (imageSrc) {
+            onAddImage(imageSrc);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+    // إعادة تعيين الـ input للسماح باختيار نفس الملف مرة أخرى
+    if (e.target) {
+      e.target.value = '';
+    }
+  };
 
   // اختصارات الكيبورد للتكبير والتصغير
   React.useEffect(() => {
@@ -88,26 +156,6 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
           />
           
           <div className="flex items-center gap-2 relative z-10">
-            {/* التراجع والإعادة */}
-            <div className="flex items-center gap-1">
-              <button
-                className="p-2 text-secondary/60 hover:text-secondary hover:bg-primary/10 rounded-lg transition-colors"
-                title="تراجع"
-                disabled
-              >
-                <Undo2 className="w-4 h-4" />
-              </button>
-              <button
-                className="p-2 text-secondary/60 hover:text-secondary hover:bg-primary/10 rounded-lg transition-colors"
-                title="إعادة"
-                disabled
-              >
-                <Redo2 className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="h-6 w-px bg-primary/20" />
-
             {/* زر المعاينة */}
             <motion.button
               onClick={onPreview}
@@ -144,8 +192,8 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
               <span className="font-dubai text-sm font-medium">حفظ</span>
             </motion.button>
 
-            {/* قائمة المزيد */}
-            <div className="relative">
+            {/* قائمة المزيد للموبايل فقط */}
+            <div className="relative sm:hidden">
               <button
                 onClick={() => setShowMoreMenu(!showMoreMenu)}
                 className="p-2 text-secondary/60 hover:text-secondary hover:bg-primary/10 rounded-lg transition-colors"
@@ -158,7 +206,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="absolute left-0 top-full mt-2 w-48 bg-white shadow-lg border border-primary/20 rounded-2xl overflow-hidden z-50"
+                  className="absolute left-0 top-full mt-2 w-48 bg-white shadow-lg border border-primary/20 rounded-2xl overflow-hidden z-50 editor-cursor"
                   style={{ boxShadow: SHADOWS.toolbar }}
                 >
                   <button
@@ -166,7 +214,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
                       onPreview();
                       setShowMoreMenu(false);
                     }}
-                    className="sm:hidden w-full p-3 flex items-center gap-3 hover:bg-accent/50 transition-colors text-secondary"
+                    className="w-full p-3 flex items-center gap-3 hover:bg-accent/50 transition-colors text-secondary"
                   >
                     <Eye className="w-4 h-4" />
                     <span className="font-dubai text-sm">معاينة</span>
@@ -176,22 +224,10 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
                       onShare();
                       setShowMoreMenu(false);
                     }}
-                    className="sm:hidden w-full p-3 flex items-center gap-3 hover:bg-accent/50 transition-colors text-secondary"
+                    className="w-full p-3 flex items-center gap-3 hover:bg-accent/50 transition-colors text-secondary"
                   >
                     <Share2 className="w-4 h-4" />
                     <span className="font-dubai text-sm">مشاركة</span>
-                  </button>
-                  <button
-                    className="w-full p-3 flex items-center gap-3 hover:bg-accent/50 transition-colors text-secondary"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span className="font-dubai text-sm">تحميل PDF</span>
-                  </button>
-                  <button
-                    className="w-full p-3 flex items-center gap-3 hover:bg-accent/50 transition-colors text-secondary"
-                  >
-                    <Printer className="w-4 h-4" />
-                    <span className="font-dubai text-sm">طباعة</span>
                   </button>
                 </motion.div>
                 <div 
@@ -248,6 +284,35 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
           >
             <Move className="w-5 h-5" />
           </button>
+
+          <div className="h-6 w-px bg-primary/20" />
+
+          {/* إضافة نص */}
+          <button
+            onClick={() => onAddText?.()}
+            className="p-2.5 rounded-lg transition-colors text-secondary/60 hover:text-secondary hover:bg-primary/10"
+            title="إضافة نص"
+          >
+            <Type className="w-5 h-5" />
+          </button>
+
+          {/* إضافة صورة */}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="p-2.5 rounded-lg transition-colors text-secondary/60 hover:text-secondary hover:bg-primary/10"
+            title="إضافة صورة"
+          >
+            <ImagePlus className="w-5 h-5" />
+          </button>
+          
+          {/* حقل إدخال الصورة المخفي */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageSelect}
+            className="hidden"
+          />
 
           <div className="h-6 w-px bg-primary/20" />
 

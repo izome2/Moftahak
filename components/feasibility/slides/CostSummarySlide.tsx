@@ -464,14 +464,14 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
             style={{ boxShadow: SHADOWS.card }}
           >
             {/* Section Header */}
-            <div className="bg-linear-to-r from-green-500/20 to-green-500/10 px-6 py-4 border-b-2 border-green-500/20">
+            <div className="bg-linear-to-r from-primary/20 to-primary/10 px-6 py-4 border-b-2 border-primary/20">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-green-500/30 border border-green-500/40">
-                  <Percent className="w-5 h-5 text-green-700" />
+                <div className="p-2 rounded-xl bg-primary/30 border border-primary/40">
+                  <Percent className="w-5 h-5 text-secondary" />
                 </div>
                 <div>
-                  <h3 className="font-dubai font-bold text-green-800 text-lg">خصم</h3>
-                  <p className="text-green-700/70 text-xs font-dubai">تخفيض على الإجمالي</p>
+                  <h3 className="font-dubai font-bold text-secondary text-lg">خصم</h3>
+                  <p className="text-secondary/60 text-xs font-dubai">تخفيض على الإجمالي</p>
                 </div>
               </div>
             </div>

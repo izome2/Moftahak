@@ -7,6 +7,11 @@ import EditorCanvas from './EditorCanvas';
 import { SlideManager } from '@/components/feasibility/slides';
 import { useSlides } from '@/hooks/useSlides';
 import type { SlideType, SlideData } from '@/types/feasibility';
+import type { TextOverlayItem } from './EditableTextOverlay';
+import type { ImageOverlayItem } from './EditableImageOverlay';
+
+// نوع العناصر المضافة
+export type OverlayItem = TextOverlayItem | ImageOverlayItem;
 
 interface EditorLayoutProps {
   studyId: string;
@@ -21,6 +26,9 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [zoom, setZoom] = useState(100);
+  
+  // العناصر المضافة (نصوص وصور) - مخزنة حسب معرف الشريحة
+  const [overlayItems, setOverlayItems] = useState<Record<string, OverlayItem[]>>({});
 
   // استخدام hook الشرائح
   const {
@@ -36,6 +44,74 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
     canRemoveSlide,
     generateRoomSlides,
   } = useSlides({ clientName });
+  
+  // الحصول على العناصر للشريحة الحالية
+  const currentSlideItems = activeSlide ? (overlayItems[activeSlide.id] || []) : [];
+  
+  // إضافة نص جديد
+  const handleAddText = () => {
+    if (!activeSlide) return;
+    
+    const newTextItem: TextOverlayItem = {
+      id: `text-${Date.now()}`,
+      type: 'text',
+      content: 'نص جديد',
+      x: 100,
+      y: 100,
+      fontSize: 24,
+      color: '#10302b',
+      fontWeight: 'bold',
+    };
+    
+    setOverlayItems(prev => ({
+      ...prev,
+      [activeSlide.id]: [...(prev[activeSlide.id] || []), newTextItem],
+    }));
+  };
+  
+  // إضافة صورة جديدة
+  const handleAddImage = (imageSrc: string) => {
+    if (!activeSlide) return;
+    if (!imageSrc) return;
+    
+    const newImageItem: ImageOverlayItem = {
+      id: `image-${Date.now()}`,
+      type: 'image',
+      src: imageSrc,
+      x: 350, // في منتصف الصفحة تقريباً
+      y: 250,
+      width: 300,
+      height: 200,
+      rotation: 0,
+    };
+    
+    setOverlayItems(prev => ({
+      ...prev,
+      [activeSlide.id]: [...(prev[activeSlide.id] || []), newImageItem],
+    }));
+  };
+  
+  // تحديث عنصر
+  const handleUpdateOverlayItem = (updatedItem: OverlayItem) => {
+    if (!activeSlide) return;
+    
+    setOverlayItems(prev => ({
+      ...prev,
+      [activeSlide.id]: (prev[activeSlide.id] || []).map(item =>
+        item.id === updatedItem.id ? updatedItem : item
+      ),
+    }));
+  };
+  
+  // حذف عنصر
+  const handleDeleteOverlayItem = (itemId: string) => {
+    if (!activeSlide) return;
+    
+    setOverlayItems(prev => ({
+      ...prev,
+      [activeSlide.id]: (prev[activeSlide.id] || []).filter(item => item.id !== itemId),
+    }));
+  };
 
   const handleZoomIn = () => {
     setZoom(prev => Math.min(prev + 10, 200));
@@ -83,7 +159,7 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
   };
 
   return (
-    <div className="h-screen flex flex-col bg-accent overflow-hidden relative" dir="rtl">
+    <div className="h-screen flex flex-col bg-accent overflow-hidden relative editor-cursor" dir="rtl">
       {/* شريط الأدوات العائم */}
       <EditorToolbar
         studyId={studyId}
@@ -94,6 +170,8 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
         onSave={handleSave}
         onPreview={handlePreview}
         onShare={handleShare}
+        onAddText={handleAddText}
+        onAddImage={handleAddImage}
       />
 
       {/* المحتوى الرئيسي */}
@@ -133,6 +211,9 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
             onUpdateSlideData={handleUpdateSlideData}
             onGenerateRoomSlides={generateRoomSlides}
             onZoomChange={setZoom}
+            overlayItems={currentSlideItems}
+            onUpdateOverlayItem={handleUpdateOverlayItem}
+            onDeleteOverlayItem={handleDeleteOverlayItem}
           />
         </div>
       </div>

@@ -66,7 +66,7 @@ export default function CostChart({ data }: CostChartProps) {
       variants={fadeInUp}
       initial="hidden"
       animate="visible"
-      className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-soft border border-black/5"
+      className="bg-transparent p-4"
     >
       <h3 className="text-sm font-bold text-secondary font-dubai text-center mb-4">
         توزيع التكاليف

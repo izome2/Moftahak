@@ -80,6 +80,7 @@ interface SlideManagerProps {
   onRemoveSlide: (id: string) => void;
   onDuplicateSlide: (id: string) => void;
   onReorderSlides: (fromIndex: number, toIndex: number) => void;
+  onSetSlideOrder: (newOrder: Slide[]) => void;
   canRemoveSlide: (id: string) => boolean;
   compact?: boolean;
 }
@@ -92,6 +93,7 @@ const SlideManager: React.FC<SlideManagerProps> = ({
   onRemoveSlide,
   onDuplicateSlide,
   onReorderSlides,
+  onSetSlideOrder,
   canRemoveSlide,
   compact = false,
 }) => {
@@ -102,13 +104,9 @@ const SlideManager: React.FC<SlideManagerProps> = ({
     y: number;
   } | null>(null);
 
-  // معالجة إعادة الترتيب
+  // معالجة إعادة الترتيب - Reorder من Framer Motion يمرر الترتيب الجديد
   const handleReorder = (newOrder: Slide[]) => {
-    const fromIndex = slides.findIndex(s => s.id === newOrder[0]?.id);
-    const toIndex = 0;
-    if (fromIndex !== toIndex) {
-      onReorderSlides(fromIndex, toIndex);
-    }
+    onSetSlideOrder(newOrder);
   };
 
   // معالجة النقر بزر الفأرة الأيمن
@@ -125,7 +123,7 @@ const SlideManager: React.FC<SlideManagerProps> = ({
   const closeContextMenu = () => setContextMenu(null);
 
   return (
-    <div className={`h-full flex flex-col ${compact ? 'bg-transparent' : 'bg-secondary/95 backdrop-blur-sm'}`}>
+    <div className={`h-full flex flex-col editor-cursor ${compact ? 'bg-transparent' : 'bg-secondary/95 backdrop-blur-sm'}`}>
       {/* رأس الشريط الجانبي */}
       <div className={`px-4 py-2.5 ${compact ? 'bg-linear-to-br from-accent/30 to-transparent' : 'border-b border-secondary-light/50'}`}>
         <div className="flex items-center gap-2.5">
@@ -242,7 +240,7 @@ const SlideManager: React.FC<SlideManagerProps> = ({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              className="absolute bottom-full right-0 left-0 mb-2 mx-3 bg-white shadow-[0_8px_30px_rgba(237,191,140,0.3)] border-2 border-primary/20 overflow-hidden z-50 rounded-xl"
+              className="absolute bottom-full right-0 left-0 mb-2 mx-3 bg-white shadow-[0_8px_30px_rgba(237,191,140,0.3)] border-2 border-primary/20 overflow-hidden z-50 rounded-xl editor-cursor"
             >
               <div className="p-4 border-b-2 border-primary/20 bg-primary/5">
                 <span className="text-sm text-secondary font-dubai font-bold">اختر نوع الشريحة</span>
@@ -314,7 +312,7 @@ const SlideManager: React.FC<SlideManagerProps> = ({
                 left: contextMenu.x,
                 top: contextMenu.y,
               }}
-              className="bg-white shadow-large border border-accent/50 z-50 min-w-37.5 rounded-xl overflow-hidden"
+              className="bg-white shadow-large border border-accent/50 z-50 min-w-37.5 rounded-xl overflow-hidden editor-cursor"
             >
               <button
                 onClick={() => {

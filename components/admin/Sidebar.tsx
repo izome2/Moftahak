@@ -217,6 +217,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onClose, onOpen }) => {
                 onRemoveSlide={editorContext.removeSlide}
                 onDuplicateSlide={editorContext.duplicateSlide}
                 onReorderSlides={editorContext.reorderSlides}
+                onSetSlideOrder={editorContext.setSlideOrder}
                 canRemoveSlide={editorContext.canRemoveSlide}
                 compact
               />

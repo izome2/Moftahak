@@ -188,15 +188,18 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
       case 'kitchen':
         return (
           <KitchenSlide
-            data={slide.data.room ? { room: slide.data.room, showImage: false, imagePosition: 'right' } : defaultKitchenData}
+            key={slide.id}
+            data={slide.data.room || defaultKitchenData}
             isEditing={isEditing}
             onUpdate={onUpdateSlideData}
+            roomNumber={slide.data.room?.room?.number || 1}
           />
         );
       case 'bedroom':
         return (
           <BedroomSlide
-            data={slide.data.room ? { room: slide.data.room, showImage: false, imagePosition: 'right' } : defaultBedroomData}
+            key={slide.id}
+            data={slide.data.room || defaultBedroomData}
             isEditing={isEditing}
             onUpdate={onUpdateSlideData}
             roomNumber={slide.data.room?.room?.number || 1}
@@ -205,7 +208,8 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
       case 'living-room':
         return (
           <LivingRoomSlide
-            data={slide.data.room ? { room: slide.data.room, showImage: false, imagePosition: 'right' } : defaultLivingRoomData}
+            key={slide.id}
+            data={slide.data.room || defaultLivingRoomData}
             isEditing={isEditing}
             onUpdate={onUpdateSlideData}
             roomNumber={slide.data.room?.room?.number || 1}
@@ -214,16 +218,30 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
       case 'bathroom':
         return (
           <BathroomSlide
-            data={slide.data.room ? { room: slide.data.room, showImage: false, imagePosition: 'right' } : defaultBathroomData}
+            key={slide.id}
+            data={slide.data.room || defaultBathroomData}
             isEditing={isEditing}
             onUpdate={onUpdateSlideData}
             roomNumber={slide.data.room?.room?.number || 1}
           />
         );
       case 'cost-summary':
+        // جمع بيانات الغرف من جميع شرائح الغرف تلقائياً
+        const roomSlides = allSlides.filter(s => 
+          ['kitchen', 'bedroom', 'living-room', 'bathroom'].includes(s.type) && s.data.room?.room
+        );
+        const collectedRooms = roomSlides.map(s => s.data.room!.room);
+        
+        // دمج الغرف المجمعة مع البيانات الموجودة (التكاليف الإضافية والخصم)
+        const costSummaryWithRooms = {
+          ...defaultCostSummaryData,
+          ...slide.data.costSummary,
+          rooms: collectedRooms,
+        };
+        
         return (
           <CostSummarySlide
-            data={slide.data.costSummary || defaultCostSummaryData}
+            data={costSummaryWithRooms}
             isEditing={isEditing}
             onUpdate={onUpdateSlideData}
           />
@@ -257,9 +275,49 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
           />
         );
       case 'statistics':
+        // جمع بيانات الغرف تلقائياً للإحصائيات
+        const roomSlidesForStats = allSlides.filter(s => 
+          ['kitchen', 'bedroom', 'living-room', 'bathroom'].includes(s.type) && s.data.room?.room
+        );
+        const roomsCostForStats = roomSlidesForStats.map(s => ({
+          name: s.data.room!.room.name,
+          cost: s.data.room!.room.totalCost,
+        }));
+        const totalCostFromRooms = roomsCostForStats.reduce((sum, r) => sum + r.cost, 0);
+        
+        // جمع بيانات الشقق المحيطة للمقارنة - من الخريطة
+        const mapSlideForStats = allSlides.find(s => s.type === 'map');
+        const apartmentsFromMap = mapSlideForStats?.data?.map?.pins?.map((pin: { apartment: { price: number; name: string } }) => pin.apartment) || [];
+        
+        // حساب متوسط الإيجار من الشقق المحيطة (استبعاد شقة العميل - أول شقة غالباً)
+        const nearbyApartmentsForAverage = apartmentsFromMap.slice(1); // تجاهل شقة العميل الأولى
+        const apartmentPrices = nearbyApartmentsForAverage.filter((a: { price: number }) => a.price > 0).map((a: { price: number }) => a.price);
+        const averageRentFromApartments = apartmentPrices.length > 0 
+          ? Math.round(apartmentPrices.reduce((sum: number, p: number) => sum + p, 0) / apartmentPrices.length)
+          : 0;
+        
+        // إنشاء بيانات المقارنة من الشقق المحيطة
+        const comparisonFromApartments = nearbyApartmentsForAverage
+          .filter((a: { price: number; name: string }) => a.price > 0)
+          .slice(0, 6) // أقصى 6 شقق للمقارنة
+          .map((a: { name: string; price: number }) => ({
+            label: a.name,
+            value: a.price,
+          }));
+        
+        // دمج البيانات المحسوبة مع البيانات المحفوظة
+        const statisticsWithData = {
+          totalCost: totalCostFromRooms,
+          averageRent: slide.data.statistics?.averageRent || averageRentFromApartments,
+          roomsCost: roomsCostForStats,
+          comparisonData: comparisonFromApartments.length > 0 
+            ? comparisonFromApartments 
+            : (slide.data.statistics?.comparisonData || []),
+        };
+        
         return (
           <StatisticsSlide
-            data={slide.data.statistics || { totalCost: 0, averageRent: 0, roomsCost: [], comparisonData: [] }}
+            data={statisticsWithData}
             isEditing={isEditing}
             onUpdate={(data) => onUpdateSlideData?.({ statistics: data })}
           />
@@ -321,7 +379,7 @@ const PlaceholderSlideContent: React.FC<PlaceholderProps> = ({ slide }) => {
   const Icon = slideIcons[slide.type];
 
   return (
-    <div className="absolute inset-0 bg-gradient-to-br from-accent/40 to-accent/20 flex flex-col items-center justify-center p-8" dir="rtl">
+    <div className="absolute inset-0 bg-linear-to-br from-accent/40 to-accent/20 flex flex-col items-center justify-center p-8" dir="rtl">
       <div className="text-center">
         <div className="w-20 h-20 mx-auto mb-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-medium flex items-center justify-center">
           <Icon className="w-10 h-10 text-secondary/50" />

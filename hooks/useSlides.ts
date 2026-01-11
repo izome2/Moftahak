@@ -214,6 +214,23 @@ const createDefaultSlides = (clientName: string): Slide[] => [
     },
     isLocked: true,
   },
+  {
+    id: 'room-setup-1',
+    type: 'room-setup',
+    title: 'تكوين الشقة',
+    order: 2,
+    data: {
+      roomSetup: {
+        rooms: {
+          bedrooms: 1,
+          livingRooms: 1,
+          kitchens: 1,
+          bathrooms: 1,
+        },
+        slidesGenerated: false,
+      },
+    },
+  },
 ];
 
 // توليد ID فريد
@@ -234,6 +251,7 @@ interface UseSlidesReturn {
   updateSlide: (id: string, updates: Partial<Slide>) => void;
   updateSlideData: (id: string, data: Partial<SlideData>) => void;
   reorderSlides: (fromIndex: number, toIndex: number) => void;
+  setSlideOrder: (newOrder: Slide[]) => void;
   duplicateSlide: (id: string) => Slide | null;
   getSlideByType: (type: SlideType) => Slide[];
   canRemoveSlide: (id: string) => boolean;
@@ -347,14 +365,61 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
     setActiveSlideIndex(toIndex);
   }, [slides]);
 
+  // تعيين ترتيب الشرائح مباشرة (لـ Framer Motion Reorder)
+  const setSlideOrder = useCallback((newOrder: Slide[]) => {
+    // التحقق من أن الشرائح المقفلة لم تتحرك
+    const lockedSlides = slides.filter(s => s.isLocked);
+    const newLockedPositions = lockedSlides.map(ls => newOrder.findIndex(s => s.id === ls.id));
+    const oldLockedPositions = lockedSlides.map(ls => slides.findIndex(s => s.id === ls.id));
+    
+    // إذا تحركت شريحة مقفلة، لا نقبل التغيير
+    const lockedMoved = newLockedPositions.some((pos, i) => pos !== oldLockedPositions[i]);
+    if (lockedMoved) return;
+
+    setSlides(newOrder.map((slide, index) => ({ ...slide, order: index })));
+  }, [slides]);
+
   // تكرار شريحة
   const duplicateSlide = useCallback((id: string): Slide | null => {
     const slide = slides.find(s => s.id === id);
     if (!slide || slide.isLocked) return null;
 
     const slideIndex = slides.findIndex(s => s.id === id);
-    return addSlide(slide.type, slideIndex);
-  }, [slides, addSlide]);
+    const existingOfType = slides.filter(s => s.type === slide.type).length;
+    
+    // إنشاء نسخة عميقة من بيانات الشريحة
+    const duplicatedData = JSON.parse(JSON.stringify(slide.data));
+    
+    const newSlide: Slide = {
+      id: generateId(),
+      type: slide.type,
+      title: `${slide.title} (نسخة)`,
+      order: slideIndex + 1,
+      data: duplicatedData,
+      isLocked: false, // النسخ لا تكون مقفلة
+    };
+
+    // تحديث ID الغرفة إذا كانت شريحة غرفة
+    if (newSlide.data.room) {
+      newSlide.data.room.room.id = newSlide.id;
+      newSlide.data.room.room.number = existingOfType + 1;
+      // إنشاء IDs جديدة لكل العناصر لتجنب التكرار
+      newSlide.data.room.room.items = newSlide.data.room.room.items.map((item: { id: string; name: string; icon: string; price: number; quantity: number }) => ({
+        ...item,
+        id: `${item.id.split('-')[0]}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      }));
+    }
+
+    setSlides(prev => {
+      const newSlides = [...prev];
+      newSlides.splice(slideIndex + 1, 0, newSlide);
+      return newSlides.map((s, index) => ({ ...s, order: index }));
+    });
+
+    setActiveSlideIndex(slideIndex + 1);
+
+    return newSlide;
+  }, [slides]);
 
   // الحصول على شرائح من نوع معين
   const getSlideByType = useCallback((type: SlideType): Slide[] => {
@@ -389,18 +454,20 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
     const roomSetupIndex = slides.findIndex(s => s.type === 'room-setup');
     if (roomSetupIndex === -1) return;
 
-    // حذف الشرائح القديمة للغرف (kitchen, bedroom, living-room, bathroom)
-    const roomTypes: SlideType[] = ['kitchen', 'bedroom', 'living-room', 'bathroom'];
-    const slidesWithoutRooms = slides.filter(s => !roomTypes.includes(s.type));
+    // حذف الشرائح القديمة للغرف وجميع الشرائح اللاحقة (سنعيد إنشاءها)
+    const slidesToRemove: SlideType[] = [
+      'kitchen', 'bedroom', 'living-room', 'bathroom',
+      'cost-summary', 'area-study', 'map', 'nearby-apartments', 'statistics', 'footer'
+    ];
+    const slidesWithoutRoomsAndOthers = slides.filter(s => !slidesToRemove.includes(s.type));
 
     // إنشاء الشرائح الجديدة
-    const newRoomSlides: Slide[] = [];
+    const newSlides: Slide[] = [];
     let slideOrder = roomSetupIndex + 1;
 
     // المطابخ
     for (let i = 1; i <= roomCounts.kitchens; i++) {
-      const template = defaultSlideTemplates['kitchen'];
-      newRoomSlides.push({
+      newSlides.push({
         id: generateId(),
         type: 'kitchen',
         title: roomCounts.kitchens === 1 ? 'المطبخ' : `المطبخ ${i}`,
@@ -424,7 +491,7 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
 
     // غرف النوم
     for (let i = 1; i <= roomCounts.bedrooms; i++) {
-      newRoomSlides.push({
+      newSlides.push({
         id: generateId(),
         type: 'bedroom',
         title: `غرفة نوم ${i}`,
@@ -448,7 +515,7 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
 
     // الصالات
     for (let i = 1; i <= roomCounts.livingRooms; i++) {
-      newRoomSlides.push({
+      newSlides.push({
         id: generateId(),
         type: 'living-room',
         title: roomCounts.livingRooms === 1 ? 'الصالة' : `الصالة ${i}`,
@@ -472,7 +539,7 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
 
     // الحمامات
     for (let i = 1; i <= roomCounts.bathrooms; i++) {
-      newRoomSlides.push({
+      newSlides.push({
         id: generateId(),
         type: 'bathroom',
         title: roomCounts.bathrooms === 1 ? 'الحمام' : `الحمام ${i}`,
@@ -494,20 +561,113 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
       });
     }
 
-    // دمج الشرائح: قبل room-setup + room-setup + شرائح الغرف الجديدة + الباقي
-    const beforeRoomSetup = slidesWithoutRooms.slice(0, roomSetupIndex + 1);
-    const afterRoomSetup = slidesWithoutRooms.slice(roomSetupIndex + 1);
+    // إضافة شريحة ملخص التكاليف
+    newSlides.push({
+      id: generateId(),
+      type: 'cost-summary',
+      title: 'ملخص التكاليف',
+      order: slideOrder++,
+      data: {
+        costSummary: {
+          rooms: [],
+          additionalCosts: [],
+          discount: 0,
+        },
+      },
+    });
+
+    // إضافة شريحة دراسة المنطقة
+    newSlides.push({
+      id: generateId(),
+      type: 'area-study',
+      title: 'دراسة المنطقة',
+      order: slideOrder++,
+      data: {
+        areaStudy: {
+          title: 'دراسة المناطق المحيطة',
+          description: 'تحليل شامل للشقق المحيطة وأسعار الإيجار في المنطقة.',
+        },
+      },
+    });
+
+    // إضافة شريحة الخريطة
+    newSlides.push({
+      id: generateId(),
+      type: 'map',
+      title: 'الخريطة',
+      order: slideOrder++,
+      data: {
+        map: {
+          center: { lat: 30.0444, lng: 31.2357 }, // القاهرة افتراضياً
+          zoom: 14,
+          pins: [],
+        },
+      },
+    });
+
+    // إضافة شريحة الشقق المحيطة
+    newSlides.push({
+      id: generateId(),
+      type: 'nearby-apartments',
+      title: 'الشقق المحيطة',
+      order: slideOrder++,
+      data: {
+        nearbyApartments: {
+          apartments: [],
+          showFromMap: true,
+        },
+      },
+    });
+
+    // إضافة شريحة الإحصائيات
+    newSlides.push({
+      id: generateId(),
+      type: 'statistics',
+      title: 'الإحصائيات',
+      order: slideOrder++,
+      data: {
+        statistics: {
+          totalCost: 0,
+          averageRent: 0,
+          roomsCost: [],
+          comparisonData: [],
+        },
+      },
+    });
+
+    // إضافة شريحة الخاتمة
+    newSlides.push({
+      id: generateId(),
+      type: 'footer',
+      title: 'الخاتمة',
+      order: slideOrder++,
+      data: {
+        footer: {
+          message: 'شكراً لثقتكم بنا',
+          contactInfo: {
+            phone: '',
+            email: 'info@moftahak.com',
+            website: 'www.moftahak.com',
+            whatsapp: '',
+          },
+          socialLinks: {},
+        },
+      },
+      isLocked: true,
+    });
+
+    // دمج الشرائح: قبل room-setup + room-setup + شرائح الغرف الجديدة + الشرائح الأخرى
+    const beforeRoomSetup = slidesWithoutRoomsAndOthers.slice(0, roomSetupIndex + 1);
 
     const finalSlides = [
       ...beforeRoomSetup,
-      ...newRoomSlides,
-      ...afterRoomSetup,
+      ...newSlides,
     ].map((slide, index) => ({ ...slide, order: index }));
 
     setSlides(finalSlides);
 
     // الانتقال لأول شريحة غرفة
-    if (newRoomSlides.length > 0) {
+    if (newSlides.length > 0) {
       setActiveSlideIndex(roomSetupIndex + 1);
     }
   }, [slides]);
@@ -522,6 +682,7 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
     updateSlide,
     updateSlideData,
     reorderSlides,
+    setSlideOrder,
     duplicateSlide,
     getSlideByType,
     canRemoveSlide,

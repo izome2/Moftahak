@@ -42,6 +42,10 @@ import {
   livingRoomCategories, 
   type LivingRoomItemDefinition 
 } from '@/lib/feasibility/living-room-items';
+import AddCustomItemModal, { getCustomIcon, type CustomItemData } from '@/components/feasibility/shared/AddCustomItemModal';
+
+// مفتاح التخزين المحلي للعناصر المخصصة
+const CUSTOM_LIVING_ROOM_ITEMS_KEY = 'moftahak_custom_living_room_items';
 
 // ============================================
 // 🎨 DESIGN TOKENS
@@ -93,7 +97,35 @@ interface ItemWidgetProps {
   onRemove: (id: string) => void;
   onPriceChange: (id: string, price: number) => void;
   onQuantityChange: (id: string, quantity: number) => void;
+  onImageChange: (id: string, image: string | undefined) => void;
 }
+
+// دالة ضغط الصورة
+const compressImage = (file: File, maxWidth: number = 200, quality: number = 0.7): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        } else {
+          reject(new Error('Could not get canvas context'));
+        }
+      };
+      img.onerror = reject;
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
 
 const ItemWidget: React.FC<ItemWidgetProps> = ({
   item,
@@ -101,10 +133,36 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
   onRemove,
   onPriceChange,
   onQuantityChange,
+  onImageChange,
 }) => {
   const itemKey = item.id.split('-')[0];
-  const IconComponent = livingRoomIcons[itemKey] || Package;
+  // التحقق إذا كان العنصر مخصص (id يبدأ بـ custom)
+  const isCustomItem = item.id.startsWith('custom-');
+  // للعناصر المخصصة، نستخدم الأيقونة المحفوظة، للعادية نستخدم livingRoomIcons
+  const IconComponent = isCustomItem 
+    ? getCustomIcon(item.icon) 
+    : (livingRoomIcons[itemKey] || Package);
   const unitPrice = Math.round(item.price / item.quantity);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // معالج اختيار الصورة
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const compressedImage = await compressImage(file, 300, 0.85);
+        onImageChange(item.id, compressedImage);
+      } catch (error) {
+        console.error('Error compressing image:', error);
+      }
+    }
+  };
+
+  // معالج إزالة الصورة
+  const handleRemoveImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onImageChange(item.id, undefined);
+  };
 
   return (
     <motion.div
@@ -117,6 +175,15 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
       className="relative rounded-xl sm:rounded-2xl bg-white p-4 sm:p-5 border-2 border-primary/20 cursor-pointer group"
       style={{ boxShadow: SHADOWS.card, willChange: 'auto' }}
     >
+      {/* Hidden File Input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageSelect}
+        className="hidden"
+      />
+
       {/* Hover Glow Effect */}
       <motion.div 
         className="absolute inset-0 rounded-2xl pointer-events-none"
@@ -131,6 +198,32 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
       <div className="absolute -top-4 -left-4 z-0 opacity-[0.10] pointer-events-none">
         <IconComponent className="w-40 h-40 text-primary" strokeWidth={1.5} />
       </div>
+
+      {/* Image Upload Box - يظهر على اليسار */}
+      {isEditing && (
+        <div 
+          className={`absolute top-4 left-4 z-20 transition-opacity ${item.image ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {item.image ? (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="relative w-28 h-28 rounded-xl border-2 border-primary/50 overflow-hidden bg-accent/30 hover:border-primary transition-all cursor-pointer"
+              title="تغيير الصورة"
+            >
+              <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+            </button>
+          ) : (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="w-28 h-28 rounded-xl border-2 border-dashed border-primary/40 bg-white/80 flex items-center justify-center hover:border-primary hover:bg-primary/10 transition-all"
+              title="إضافة صورة"
+            >
+              <Plus size={32} className="text-primary" />
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Shimmer Effect on Hover */}
       <motion.div
@@ -260,14 +353,22 @@ interface LibraryPopupProps {
   isOpen: boolean;
   onClose: () => void;
   onAddItem: (item: LivingRoomItemDefinition) => void;
+  customItems: LivingRoomItemDefinition[];
+  onAddCustomItem: (item: CustomItemData) => void;
+  onDeleteCustomItem: (itemId: string) => void;
 }
 
 // مكون العنصر القابل للسحب
 const DraggableLibraryItem: React.FC<{ 
   item: LivingRoomItemDefinition; 
   onAddItem: (item: LivingRoomItemDefinition) => void;
-}> = ({ item, onAddItem }) => {
-  const IconComponent = livingRoomIcons[item.id] || item.icon || Package;
+  isCustom?: boolean;
+  onDelete?: (itemId: string) => void;
+}> = ({ item, onAddItem, isCustom = false, onDelete }) => {
+  // استخدام الأيقونة المناسبة حسب نوع العنصر
+  const IconComponent = isCustom 
+    ? getCustomIcon((item as unknown as CustomItemData).icon || 'package')
+    : (livingRoomIcons[item.id] || Package);
   
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `library-${item.id}`,
@@ -283,17 +384,38 @@ const DraggableLibraryItem: React.FC<{
     onAddItem(item);
   };
 
+  // معالج الحذف
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (onDelete) {
+      onDelete(item.id);
+    }
+  };
+
   return (
     <motion.div
       ref={setNodeRef}
       whileHover={!isDragging ? { scale: 1.03, y: -2 } : undefined}
       whileTap={!isDragging ? { scale: 0.97 } : undefined}
       className={`relative p-3 bg-white rounded-xl border-2 border-secondary/10 text-right 
-        hover:border-primary hover:shadow-lg group overflow-hidden w-full select-none
+        hover:border-primary hover:shadow-lg group w-full select-none
         ${isDragging ? 'opacity-30 cursor-grabbing' : 'cursor-pointer'}`}
       onPointerDown={(e) => e.stopPropagation()}
       onClick={handleClick}
     >
+      {/* زر الحذف للعناصر المخصصة */}
+      {isCustom && onDelete && (
+        <button
+          className="absolute -top-2 -right-2 w-6 h-6 text-secondary rounded-md flex items-center justify-center border border-primary/30 hover:scale-110 active:scale-95 transition-all z-50 opacity-0 group-hover:opacity-100"
+          style={{ backgroundColor: 'rgb(250, 238, 226)', boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+          onClick={handleDelete}
+        >
+          <Trash2 size={12} />
+        </button>
+      )}
+      
+      {/* طبقة السحب - تغطي العنصر للسحب فقط */}
       <div 
         {...attributes}
         {...listeners}
@@ -351,10 +473,11 @@ const DragOverlayItem: React.FC<{ item: LivingRoomItemDefinition }> = ({ item })
   );
 };
 
-const LibraryPopup: React.FC<LibraryPopupProps> = ({ isOpen, onClose, onAddItem }) => {
+const LibraryPopup: React.FC<LibraryPopupProps> = ({ isOpen, onClose, onAddItem, customItems, onAddCustomItem, onDeleteCustomItem }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<LivingRoomCategory | 'all'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<LivingRoomCategory | 'all' | 'custom'>('all');
   const [activeItem, setActiveItem] = useState<LivingRoomItemDefinition | null>(null);
+  const [showAddCustomModal, setShowAddCustomModal] = useState(false);
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: { distance: 8 },
@@ -382,15 +505,28 @@ const LibraryPopup: React.FC<LibraryPopupProps> = ({ isOpen, onClose, onAddItem 
     }
   }, [onAddItem]);
 
+  // تصفية العناصر
   const filteredItems = useMemo(() => {
+    if (selectedCategory === 'custom') {
+      return customItems.filter((item) => item.name.includes(searchTerm));
+    }
     return livingRoomItems.filter((item) => {
       const matchesSearch = item.name.includes(searchTerm) || item.description?.includes(searchTerm);
       const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [searchTerm, selectedCategory]);
+  }, [searchTerm, selectedCategory, customItems]);
+
+  // تصفية العناصر المخصصة
+  const filteredCustomItems = useMemo(() => {
+    if (selectedCategory !== 'all' && selectedCategory !== 'custom') return [];
+    return customItems.filter((item) => item.name.includes(searchTerm));
+  }, [searchTerm, selectedCategory, customItems]);
 
   const groupedItems = useMemo(() => {
+    if (selectedCategory === 'custom') {
+      return {};
+    }
     if (selectedCategory !== 'all') {
       return { [selectedCategory]: filteredItems };
     }
@@ -416,7 +552,7 @@ const LibraryPopup: React.FC<LibraryPopupProps> = ({ isOpen, onClose, onAddItem 
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -100 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="fixed top-28 bottom-16 left-8 w-96 bg-white rounded-2xl overflow-hidden flex flex-col z-9999"
+        className="fixed top-28 bottom-16 left-8 w-96 bg-white rounded-2xl overflow-hidden flex flex-col z-9999 editor-cursor"
         style={{ boxShadow: SHADOWS.modal }}
         onPointerDown={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
@@ -487,12 +623,59 @@ const LibraryPopup: React.FC<LibraryPopupProps> = ({ isOpen, onClose, onAddItem 
                 {livingRoomCategories[cat].name}
               </motion.button>
             ))}
+            {/* زر العناصر المخصصة */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setSelectedCategory('custom')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-dubai font-bold ${
+                selectedCategory === 'custom'
+                  ? 'bg-secondary text-white shadow-md'
+                  : 'bg-white text-secondary border border-secondary/10 hover:border-secondary/30'
+              }`}
+            >
+              مخصص ({customItems.length})
+            </motion.button>
           </div>
         </div>
 
         {/* Items Grid */}
         <div className="flex-1 overflow-y-auto p-3 space-y-4 bg-accent/10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          {Object.entries(groupedItems).map(([category, items]) => (
+          {/* عناصر مخصصة - أول قسم */}
+          <div>
+            <h4 className="font-dubai font-bold text-secondary text-sm mb-3 flex items-center gap-2">
+              <span className="w-1 h-5 bg-primary rounded-full" />
+              عناصر مخصصة
+              <span className="text-xs text-secondary/40 font-normal">({filteredCustomItems.length})</span>
+            </h4>
+            <div className="grid grid-cols-2 gap-2">
+              {/* زر إضافة عنصر مخصص */}
+              <motion.button
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setShowAddCustomModal(true)}
+                className="p-3 bg-white rounded-xl border-2 border-dashed border-primary/40 hover:border-primary hover:bg-primary/5 transition-all group flex flex-col items-center justify-center gap-2"
+              >
+                <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center group-hover:bg-primary/30 transition-colors">
+                  <Plus className="w-5 h-5 text-primary" strokeWidth={2} />
+                </div>
+                <span className="text-xs text-primary font-dubai font-bold">إضافة</span>
+              </motion.button>
+              {/* العناصر المخصصة المضافة */}
+              {filteredCustomItems.map((item) => (
+                <DraggableLibraryItem 
+                  key={item.id} 
+                  item={item} 
+                  onAddItem={onAddItem}
+                  isCustom={true}
+                  onDelete={onDeleteCustomItem}
+                />
+              ))}
+            </div>
+          </div>
+          
+          {/* عرض العناصر العادية */}
+          {selectedCategory !== 'custom' && Object.entries(groupedItems).map(([category, items]) => (
             <div key={category}>
               <h4 className="font-dubai font-bold text-secondary text-sm mb-3 flex items-center gap-2">
                 <span className="w-1 h-5 bg-primary rounded-full" />
@@ -511,6 +694,15 @@ const LibraryPopup: React.FC<LibraryPopupProps> = ({ isOpen, onClose, onAddItem 
             </div>
           ))}
         </div>
+        
+        {/* نافذة إضافة عنصر مخصص */}
+        <AddCustomItemModal
+          isOpen={showAddCustomModal}
+          onClose={() => setShowAddCustomModal(false)}
+          onAdd={onAddCustomItem}
+          roomType="living-room"
+          defaultCategory="custom"
+        />
       </motion.div>
     </AnimatePresence>
     
@@ -526,6 +718,39 @@ const LibraryPopup: React.FC<LibraryPopupProps> = ({ isOpen, onClose, onAddItem 
 // 🛋️ MAIN COMPONENT
 // ============================================
 
+// دالة لتحميل العناصر المخصصة من التخزين المحلي
+const loadCustomItems = (): LivingRoomItemDefinition[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const saved = localStorage.getItem(CUSTOM_LIVING_ROOM_ITEMS_KEY);
+    if (saved) {
+      const items = JSON.parse(saved);
+      // تحويل العناصر المخصصة إلى LivingRoomItemDefinition
+      return items.map((item: CustomItemData) => ({
+        id: item.id,
+        name: item.name,
+        icon: item.icon,
+        category: 'custom' as LivingRoomCategory,
+        defaultPrice: item.defaultPrice,
+        isCustom: true,
+      }));
+    }
+  } catch (e) {
+    console.error('Error loading custom items:', e);
+  }
+  return [];
+};
+
+// دالة لحفظ العناصر المخصصة في التخزين المحلي
+const saveCustomItems = (items: LivingRoomItemDefinition[]) => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(CUSTOM_LIVING_ROOM_ITEMS_KEY, JSON.stringify(items));
+  } catch (e) {
+    console.error('Error saving custom items:', e);
+  }
+};
+
 const LivingRoomSlide: React.FC<LivingRoomSlideProps> = ({
   data,
   isEditing = false,
@@ -535,6 +760,37 @@ const LivingRoomSlide: React.FC<LivingRoomSlideProps> = ({
   const room = data.room;
   const [items, setItems] = useState<RoomItem[]>(room?.items || []);
   const [showLibrary, setShowLibrary] = useState(false);
+  const [customItems, setCustomItems] = useState<LivingRoomItemDefinition[]>([]);
+  
+  // تحميل العناصر المخصصة عند التحميل
+  useEffect(() => {
+    setCustomItems(loadCustomItems());
+  }, []);
+
+  // إضافة عنصر مخصص جديد
+  const handleAddCustomItem = useCallback((newItem: CustomItemData) => {
+    // للعناصر المخصصة نحفظ الأيقونة كـ string ونستخدم type assertion
+    const livingRoomItem = {
+      id: newItem.id,
+      name: newItem.name,
+      nameEn: newItem.name,
+      icon: newItem.icon,
+      emoji: newItem.icon,
+      category: 'custom',
+      defaultPrice: newItem.defaultPrice,
+      isCustom: true,
+    } as unknown as LivingRoomItemDefinition;
+    const updatedItems = [...customItems, livingRoomItem];
+    setCustomItems(updatedItems);
+    saveCustomItems(updatedItems);
+  }, [customItems]);
+
+  // حذف عنصر مخصص
+  const handleDeleteCustomItem = useCallback((itemId: string) => {
+    const updatedItems = customItems.filter(item => item.id !== itemId);
+    setCustomItems(updatedItems);
+    saveCustomItems(updatedItems);
+  }, [customItems]);
 
   const { setNodeRef, isOver } = useDroppable({
     id: `livingRoom-${roomNumber}`,
@@ -566,6 +822,9 @@ const LivingRoomSlide: React.FC<LivingRoomSlideProps> = ({
   const handleAddItem = (itemDef: LivingRoomItemDefinition) => {
     const existingItem = items.find((i) => i.name === itemDef.name);
     
+    // تحديد إذا كان العنصر مخصص
+    const isCustomItem = itemDef.id.startsWith('custom-');
+    
     if (existingItem) {
       const newItems = items.map((i) =>
         i.id === existingItem.id 
@@ -575,10 +834,15 @@ const LivingRoomSlide: React.FC<LivingRoomSlideProps> = ({
       setItems(newItems);
       updateParent(newItems);
     } else {
+      // للعناصر المخصصة نستخدم الأيقونة كـ string، للعادية نستخدم emoji
+      const iconValue = isCustomItem 
+        ? ((itemDef as unknown as CustomItemData).icon || 'package')
+        : (itemDef.emoji || itemDef.id);
+      
       const newItem: RoomItem = {
         id: `${itemDef.id}-${Date.now()}`,
         name: itemDef.name,
-        icon: itemDef.emoji,
+        icon: iconValue,
         price: itemDef.defaultPrice,
         quantity: 1,
       };
@@ -616,6 +880,14 @@ const LivingRoomSlide: React.FC<LivingRoomSlideProps> = ({
       }
       return item;
     });
+    setItems(newItems);
+    updateParent(newItems);
+  };
+
+  const handleImageChange = (itemId: string, image: string | undefined) => {
+    const newItems = items.map((item) =>
+      item.id === itemId ? { ...item, image } : item
+    );
     setItems(newItems);
     updateParent(newItems);
   };
@@ -760,6 +1032,7 @@ const LivingRoomSlide: React.FC<LivingRoomSlideProps> = ({
                         onRemove={handleRemoveItem}
                         onPriceChange={handlePriceChange}
                         onQuantityChange={handleQuantityChange}
+                        onImageChange={handleImageChange}
                       />
                     </motion.div>
                   ))}
@@ -827,6 +1100,9 @@ const LivingRoomSlide: React.FC<LivingRoomSlideProps> = ({
         isOpen={showLibrary}
         onClose={() => setShowLibrary(false)}
         onAddItem={handleAddItem}
+        customItems={customItems}
+        onAddCustomItem={handleAddCustomItem}
+        onDeleteCustomItem={handleDeleteCustomItem}
       />
     </div>
   );

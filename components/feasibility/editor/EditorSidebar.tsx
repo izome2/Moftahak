@@ -149,7 +149,7 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute bottom-full right-0 left-0 mb-2 mx-3 bg-white shadow-lg border border-accent overflow-hidden z-50"
+            className="absolute bottom-full right-0 left-0 mb-2 mx-3 bg-white shadow-lg border border-accent overflow-hidden z-50 editor-cursor"
           >
             <div className="p-2 border-b border-accent">
               <span className="text-xs text-secondary/60 font-dubai">اختر نوع الشريحة</span>

@@ -113,7 +113,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({
             animate="visible"
             exit="exit"
             className="fixed top-4 bottom-4 left-4 w-96 max-w-[calc(100vw-2rem)] 
-                       bg-white rounded-2xl z-9999 flex flex-col overflow-hidden"
+                       bg-white rounded-2xl z-9999 flex flex-col overflow-hidden editor-cursor"
             style={{ boxShadow: SHADOWS.popup }}
           >
             {/* Header */}

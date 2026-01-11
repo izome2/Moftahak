@@ -24,6 +24,7 @@ interface FeasibilityEditorContextType {
   removeSlide: (id: string) => boolean;
   updateSlideData: (id: string, data: Partial<SlideData>) => void;
   reorderSlides: (fromIndex: number, toIndex: number) => void;
+  setSlideOrder: (newOrder: Slide[]) => void;
   duplicateSlide: (id: string) => Slide | null;
   canRemoveSlide: (id: string) => boolean;
   generateRoomSlides: (roomCounts: { bedrooms: number; livingRooms: number; kitchens: number; bathrooms: number }) => void;
@@ -86,6 +87,7 @@ export function FeasibilityEditorProvider({
     removeSlide: slidesHook.removeSlide,
     updateSlideData: slidesHook.updateSlideData,
     reorderSlides: slidesHook.reorderSlides,
+    setSlideOrder: slidesHook.setSlideOrder,
     duplicateSlide: slidesHook.duplicateSlide,
     canRemoveSlide: slidesHook.canRemoveSlide,
     generateRoomSlides: slidesHook.generateRoomSlides,

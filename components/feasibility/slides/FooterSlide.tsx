@@ -5,8 +5,7 @@ import { motion } from 'framer-motion';
 import { 
   Phone, 
   Mail, 
-  Globe, 
-  MessageCircle,
+  Globe,
   Facebook,
   Instagram,
   Twitter,
@@ -131,56 +130,68 @@ export default function FooterSlide({
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-secondary relative overflow-hidden">
-      {/* خلفية مزخرفة */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-primary rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary rounded-full blur-3xl" />
-      </div>
+    <div 
+      className="relative bg-secondary flex flex-col overflow-hidden"
+      style={{ minHeight: '600px' }}
+      dir="rtl"
+    >
+      {/* النمط الخلفي - نفس المقدمة */}
+      <div 
+        className="absolute inset-0 opacity-5"
+        style={{
+          backgroundImage: `url('/patterns/pattern-vertical-white.png')`,
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
 
       {/* المحتوى */}
       <motion.div
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="relative z-10 flex flex-col items-center justify-center h-full p-8 text-center"
+        className="relative z-10 flex flex-col items-center justify-center h-full py-10 px-8 text-center"
       >
         {/* الشعار */}
         <motion.div
           variants={fadeInUp}
           className="mb-6"
         >
-          <div className="relative w-32 h-32 mx-auto">
+          <div className="relative w-40 h-40 mx-auto">
             <Image
-              src="/logos/logo-light.png"
+              src="/logos/logo-white.png"
               alt="مفتاحك"
               fill
               className="object-contain"
               onError={(e) => {
-                // إذا لم يكن الشعار موجوداً، اعرض نص بديل
                 const target = e.target as HTMLImageElement;
                 target.style.display = 'none';
               }}
             />
-            {/* نص بديل إذا لم يكن الشعار موجوداً */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-3xl font-bold text-primary font-bristone">مفتاحك</span>
-            </div>
           </div>
         </motion.div>
+
+        {/* الخط الفاصل العلوي */}
+        <motion.div 
+          className="w-24 h-px bg-primary/30 mb-6"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        />
 
         {/* الرسالة الرئيسية */}
         <motion.div
           variants={fadeInUp}
-          className="mb-8"
+          className="mb-6"
         >
           {isEditing && editingField === 'message' ? (
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-3">
               <input
                 type="text"
                 value={slideData.message}
                 onChange={e => handleFieldUpdate('message', e.target.value)}
-                className="text-2xl font-bold text-primary bg-transparent border-b-2 border-primary/50 text-center focus:outline-none focus:border-primary"
+                className="text-3xl font-bold text-primary bg-transparent border-b-2 border-primary/50 text-center focus:outline-none focus:border-primary font-dubai"
                 autoFocus
                 onBlur={() => setEditingField(null)}
                 onKeyDown={e => e.key === 'Enter' && setEditingField(null)}
@@ -188,7 +199,7 @@ export default function FooterSlide({
             </div>
           ) : (
             <h2 
-              className={`text-2xl font-bold text-primary font-dubai ${isEditing ? 'cursor-pointer hover:opacity-80' : ''}`}
+              className={`text-3xl font-bold text-primary font-dubai ${isEditing ? 'cursor-pointer hover:opacity-80' : ''}`}
               onClick={() => isEditing && setEditingField('message')}
             >
               {slideData.message}
@@ -203,51 +214,49 @@ export default function FooterSlide({
           className="w-48 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent mb-8"
         />
 
-        {/* معلومات التواصل */}
+        {/* معلومات التواصل - على خط واحد */}
         <motion.div
           variants={fadeInUp}
-          className="space-y-3 text-white/80 mb-8"
+          className="flex flex-wrap items-center justify-center gap-6 text-white/80 mb-8"
         >
-          {(slideData.contactInfo.whatsapp || isEditing) && (
-            <div className="flex items-center justify-center gap-3">
-              <MessageCircle className="w-4 h-4 text-primary" />
-              <EditableField
-                field="contact.whatsapp"
-                value={slideData.contactInfo.whatsapp || ''}
-                placeholder="رقم الواتساب"
-              />
-            </div>
-          )}
-          
           {(slideData.contactInfo.phone || isEditing) && (
-            <div className="flex items-center justify-center gap-3">
-              <Phone className="w-4 h-4 text-primary" />
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center">
+                <Phone className="w-4 h-4 text-primary" />
+              </div>
               <EditableField
                 field="contact.phone"
                 value={slideData.contactInfo.phone || ''}
                 placeholder="رقم الهاتف"
+                className="text-sm"
               />
             </div>
           )}
           
           {(slideData.contactInfo.email || isEditing) && (
-            <div className="flex items-center justify-center gap-3">
-              <Mail className="w-4 h-4 text-primary" />
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center">
+                <Mail className="w-4 h-4 text-primary" />
+              </div>
               <EditableField
                 field="contact.email"
                 value={slideData.contactInfo.email || ''}
                 placeholder="البريد الإلكتروني"
+                className="text-sm"
               />
             </div>
           )}
           
           {(slideData.contactInfo.website || isEditing) && (
-            <div className="flex items-center justify-center gap-3">
-              <Globe className="w-4 h-4 text-primary" />
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center">
+                <Globe className="w-4 h-4 text-primary" />
+              </div>
               <EditableField
                 field="contact.website"
                 value={slideData.contactInfo.website || ''}
                 placeholder="الموقع الإلكتروني"
+                className="text-sm"
               />
             </div>
           )}
@@ -263,7 +272,7 @@ export default function FooterSlide({
               href={slideData.socialLinks.facebook || '#'}
               target="_blank"
               rel="noopener noreferrer"
-              className={`w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors ${isEditing ? 'cursor-pointer' : ''}`}
+              className={`w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 hover:bg-primary/30 flex items-center justify-center transition-colors ${isEditing ? 'cursor-pointer' : ''}`}
               onClick={e => {
                 if (isEditing) {
                   e.preventDefault();
@@ -280,7 +289,7 @@ export default function FooterSlide({
               href={slideData.socialLinks.instagram || '#'}
               target="_blank"
               rel="noopener noreferrer"
-              className={`w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors ${isEditing ? 'cursor-pointer' : ''}`}
+              className={`w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 hover:bg-primary/30 flex items-center justify-center transition-colors ${isEditing ? 'cursor-pointer' : ''}`}
               onClick={e => {
                 if (isEditing) {
                   e.preventDefault();
@@ -297,7 +306,7 @@ export default function FooterSlide({
               href={slideData.socialLinks.twitter || '#'}
               target="_blank"
               rel="noopener noreferrer"
-              className={`w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors ${isEditing ? 'cursor-pointer' : ''}`}
+              className={`w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 hover:bg-primary/30 flex items-center justify-center transition-colors ${isEditing ? 'cursor-pointer' : ''}`}
               onClick={e => {
                 if (isEditing) {
                   e.preventDefault();
@@ -315,7 +324,7 @@ export default function FooterSlide({
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-4 bg-white/10 backdrop-blur-sm rounded-xl p-4"
+            className="mt-6 bg-white/10 backdrop-blur-sm rounded-xl p-5"
           >
             <input
               type="text"
@@ -325,7 +334,7 @@ export default function FooterSlide({
                 slideData.socialLinks.twitter || ''
               }
               onChange={e => handleFieldUpdate(editingField, e.target.value)}
-              className="bg-white/20 border border-white/30 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 w-64"
+              className="bg-white/20 border border-white/30 rounded-lg px-5 py-3 text-white text-base focus:outline-none focus:ring-2 focus:ring-primary/50 w-72"
               placeholder={
                 editingField === 'social.facebook' ? 'رابط فيسبوك' :
                 editingField === 'social.instagram' ? 'رابط انستجرام' :
@@ -338,19 +347,31 @@ export default function FooterSlide({
           </motion.div>
         )}
 
-        {/* نص الحقوق */}
-        <motion.div
-          variants={fadeInUp}
-          className="absolute bottom-6 left-0 right-0 text-center"
+        {/* القسم السفلي - الفوتر */}
+        <motion.div 
+          className="mt-auto pt-8 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.7 }}
         >
-          <p className="text-white/40 text-xs flex items-center justify-center gap-1 font-dubai">
+          {/* زخرفة */}
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="w-12 h-px bg-primary/20" />
+            <div className="w-2 h-2 bg-primary/30 rotate-45 rounded-sm" />
+            <div className="w-12 h-px bg-primary/20" />
+          </div>
+          
+          <p className="text-primary/50 text-sm flex items-center justify-center gap-2 font-dubai mb-1">
             صُنع بـ <Heart className="w-3 h-3 text-red-400 fill-red-400" /> من فريق مفتاحك
           </p>
-          <p className="text-white/30 text-xs mt-1 font-dubai">
+          <p className="text-primary/40 text-xs font-dubai">
             © {new Date().getFullYear()} جميع الحقوق محفوظة
           </p>
         </motion.div>
       </motion.div>
+
+      {/* تأثير التدرج السفلي */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-linear-to-t from-secondary-dark/50 to-transparent pointer-events-none" />
     </div>
   );
 }
