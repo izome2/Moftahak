@@ -22,6 +22,9 @@ model User {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
+  // العلاقات
+  feasibilityStudies FeasibilityStudy[] @relation("AdminStudies")
+
   @@map("users")
 }
 
@@ -29,4 +32,87 @@ model User {
 enum Role {
   USER  // مستخدم عادي
   ADMIN // مدير
+}
+
+// Consultation Status - حالات طلب الاستشارة
+enum ConsultationStatus {
+  PENDING   // في انتظار المراجعة
+  ACCEPTED  // تم القبول وإنشاء دراسة
+  REJECTED  // مرفوض
+  COMPLETED // مكتمل
+}
+
+// Feasibility Study Status - حالات دراسة الجدوى
+enum StudyStatus {
+  DRAFT     // مسودة
+  SENT      // تم الإرسال
+  VIEWED    // تمت المشاهدة
+}
+
+// Consultation Model - نموذج طلب الاستشارة
+model Consultation {
+  id          String             @id @default(cuid())
+  firstName   String             @map("first_name")
+  lastName    String             @map("last_name")
+  email       String
+  phone       String?
+  message     String
+  
+  // تكوين الشقة (اختياري)
+  bedrooms    Int?               @default(0)
+  livingRooms Int?               @default(0) @map("living_rooms")
+  kitchens    Int?               @default(0)
+  bathrooms   Int?               @default(0)
+  
+  status      ConsultationStatus @default(PENDING)
+  
+  // العلاقة مع دراسة الجدوى (اختيارية)
+  feasibilityStudy   FeasibilityStudy? @relation("ConsultationStudy")
+  feasibilityStudyId String?           @unique @map("feasibility_study_id")
+  
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+
+  @@map("consultations")
+}
+
+// Feasibility Study Model - نموذج دراسة الجدوى
+model FeasibilityStudy {
+  id          String      @id @default(cuid())
+  title       String
+  clientName  String      @map("client_name")
+  clientEmail String?     @map("client_email")
+  
+  // بيانات الشرائح (JSON)
+  slides      Json
+  
+  // تكوين الغرف
+  bedrooms    Int         @default(1)
+  livingRooms Int         @default(1) @map("living_rooms")
+  kitchens    Int         @default(1)
+  bathrooms   Int         @default(1)
+  
+  // التكلفة الإجمالية
+  totalCost   Float       @default(0) @map("total_cost")
+  
+  // الحالة
+  status      StudyStatus @default(DRAFT)
+  
+  // رابط المشاركة
+  shareId     String?     @unique @map("share_id")
+  
+  // الأدمن المسؤول
+  admin       User        @relation("AdminStudies", fields: [adminId], references: [id])
+  adminId     String      @map("admin_id")
+  
+  // طلب الاستشارة المرتبط (اختياري)
+  consultation   Consultation? @relation("ConsultationStudy", fields: [consultationId], references: [id])
+  consultationId String?       @unique @map("consultation_id")
+  
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  sentAt      DateTime?   @map("sent_at")
+  viewedAt    DateTime?   @map("viewed_at")
+
+  @@map("feasibility_studies")
 }

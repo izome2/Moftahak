@@ -13,6 +13,7 @@ interface StatsCardProps {
   suffix?: string;
   iconBgColor?: string;
   iconColor?: string;
+  index?: number;
 }
 
 const StatsCard: React.FC<StatsCardProps> = ({
@@ -22,6 +23,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
   suffix = '',
   iconBgColor = 'bg-primary/10',
   iconColor = 'text-primary',
+  index = 0,
 }) => {
   const ref = useRef(null);
   const isInView = useScrollAnimation(ref, { threshold: 0.3, once: true });
@@ -72,59 +74,31 @@ const StatsCard: React.FC<StatsCardProps> = ({
     setIsHovered(false);
   };
 
-  const cardVariants = {
-    hidden: { 
-      opacity: 0, 
-      y: 50,
-      scale: 0.9,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.6,
-        ease: [0.22, 1, 0.36, 1],
-      },
-    },
-  };
-
-  const iconVariants = {
-    hidden: { 
-      scale: 0,
-      rotate: -180,
-    },
-    visible: {
-      scale: 1,
-      rotate: 0,
-      transition: {
-        type: "spring",
-        stiffness: 200,
-        damping: 15,
-        delay: 0.2,
-      },
-    },
-  };
-
   return (
     <motion.div
       ref={ref}
-      variants={cardVariants}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
+      initial={{ opacity: 0, y: 20 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+      transition={{ 
+        duration: 0.4,
+        delay: index * 0.1,
+        ease: [0.25, 0.1, 0.25, 1],
+      }}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
-      className="relative rounded-xl sm:rounded-2xl overflow-hidden bg-white p-4 sm:p-6 border-2 border-primary/20 cursor-pointer group"
+      className="relative rounded-xl sm:rounded-2xl overflow-hidden bg-white p-4 sm:p-6 border-2 border-primary/20 cursor-pointer group will-change-transform"
       style={{
         x: smoothMouseX,
         y: smoothMouseY,
         boxShadow: '0 4px 20px rgba(237, 191, 140, 0.15)',
+        transform: 'translateZ(0)',
+        backfaceVisibility: 'hidden',
       }}
     >
       {/* Hover Glow Effect */}
       <motion.div
-        className="absolute inset-0 rounded-2xl"
+        className="absolute inset-0 rounded-2xl pointer-events-none"
         initial={{ opacity: 0 }}
         animate={isHovered ? {
           opacity: 1,
@@ -135,14 +109,12 @@ const StatsCard: React.FC<StatsCardProps> = ({
 
       {/* Background Icon (Large) */}
       <motion.div 
-        className="absolute -top-4 -left-4 z-0 opacity-[0.07]"
+        className="absolute -top-4 -left-4 z-0 opacity-[0.07] pointer-events-none"
         animate={isHovered ? {
           scale: 1.1,
-          rotate: 5,
           opacity: 0.1,
         } : {
           scale: 1,
-          rotate: 0,
           opacity: 0.07,
         }}
         transition={{ duration: 0.4, ease: "easeOut" }}
@@ -157,14 +129,19 @@ const StatsCard: React.FC<StatsCardProps> = ({
       <div className="relative z-10">
         {/* Icon */}
         <motion.div
-          variants={iconVariants}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+          transition={{ 
+            duration: 0.3,
+            delay: index * 0.1 + 0.1,
+            ease: [0.25, 0.1, 0.25, 1],
+          }}
           className={`mb-4 p-4 rounded-xl inline-flex ${iconBgColor} shadow-md border-2 border-primary/30`}
           style={{
             x: iconX,
             y: iconY,
           }}
-          whileHover={{ scale: 1.1, rotate: 5 }}
-          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          whileHover={{ scale: 1.1 }}
         >
           <Icon size={28} className={iconColor} strokeWidth={2} />
         </motion.div>
@@ -172,9 +149,13 @@ const StatsCard: React.FC<StatsCardProps> = ({
         {/* Value */}
         <motion.h3 
           className="text-3xl sm:text-4xl font-bold text-secondary mb-2 font-bristone"
-          initial={{ opacity: 0, y: 10 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ 
+            duration: 0.3,
+            delay: index * 0.1 + 0.15,
+            ease: [0.25, 0.1, 0.25, 1],
+          }}
         >
           {isInView ? count : 0}{suffix}
         </motion.h3>
@@ -184,7 +165,11 @@ const StatsCard: React.FC<StatsCardProps> = ({
           className="text-secondary/60 font-dubai text-xs sm:text-sm"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
+          transition={{ 
+            duration: 0.3,
+            delay: index * 0.1 + 0.2,
+            ease: [0.25, 0.1, 0.25, 1],
+          }}
         >
           {label}
         </motion.p>

@@ -1,76 +1,127 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, use } from 'react';
 import { useFeasibilityEditor } from '@/contexts/FeasibilityEditorContext';
 import EditorCanvas from '@/components/feasibility/editor/EditorCanvas';
 import EditorToolbar from '@/components/feasibility/editor/EditorToolbar';
 import type { TextOverlayItem } from '@/components/feasibility/editor/EditableTextOverlay';
 import type { ImageOverlayItem } from '@/components/feasibility/editor/EditableImageOverlay';
+import type { Slide, SlideData } from '@/types/feasibility';
+import { Loader2, AlertCircle } from 'lucide-react';
 
 // نوع العناصر المضافة
 type OverlayItem = TextOverlayItem | ImageOverlayItem;
 
-export default function NewFeasibilityStudyPage() {
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function EditFeasibilityStudyPage({ params }: PageProps) {
+  const { id } = use(params);
   const editor = useFeasibilityEditor();
   
-  // حالة الحفظ
+  // حالة التحميل والخطأ
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [showSavedMessage, setShowSavedMessage] = useState(false);
-  const [createdStudyId, setCreatedStudyId] = useState<string | null>(null);
   
-  // العناصر المضافة (نصوص وصور) - مخزنة حسب معرف الشريحة
+  // بيانات الدراسة من قاعدة البيانات
+  const [studyData, setStudyData] = useState<{
+    id: string;
+    title: string;
+    clientName: string;
+    clientEmail: string | null;
+    slides: Slide[];
+    totalCost: number;
+    status: string;
+  } | null>(null);
+  
+  // العناصر المضافة (نصوص وصور)
   const [overlayItems, setOverlayItems] = useState<Record<string, OverlayItem[]>>({});
 
-  // تفعيل المحرر عند الدخول
+  // جلب بيانات الدراسة من قاعدة البيانات
   useEffect(() => {
+    const fetchStudy = async () => {
+      try {
+        const response = await fetch(`/api/admin/feasibility/${id}`);
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'حدث خطأ أثناء جلب الدراسة');
+        }
+        
+        setStudyData({
+          id: data.study.id,
+          title: data.study.title,
+          clientName: data.study.clientName,
+          clientEmail: data.study.clientEmail,
+          slides: data.study.slides as Slide[],
+          totalCost: data.study.totalCost,
+          status: data.study.status,
+        });
+        
+        // تحديث المحرر بالشرائح من قاعدة البيانات
+        editor.setStudyId(data.study.id);
+        editor.setClientName(data.study.clientName);
+        editor.setSlides(data.study.slides as Slide[]);
+        
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStudy();
     editor.setIsEditorActive(true);
-    editor.setStudyId('new');
-    editor.setClientName('عميل جديد');
-    
-    // إنشاء شرائح افتراضية بسيطة (غلاف ومقدمة فقط)
-    const initialSlides = [
-      {
-        id: 'cover-1',
-        type: 'cover' as const,
-        title: 'الغلاف',
-        order: 0,
-        data: {
-          cover: {
-            clientName: 'عميل جديد',
-            studyTitle: 'دراسة جدوى',
-            date: new Date().toLocaleDateString('ar-EG'),
-          },
-        },
-        isLocked: true,
-      },
-      {
-        id: 'introduction-1',
-        type: 'introduction' as const,
-        title: 'المقدمة',
-        order: 1,
-        data: {
-          introduction: {
-            title: 'مرحباً بك في دراسة الجدوى',
-            description: 'تم إعداد هذه الدراسة خصيصاً لمساعدتك في تجهيز شقتك للإيجار السياحي.',
-            bulletPoints: [
-              'تحليل شامل لاحتياجات الشقة',
-              'تكلفة تقديرية للتجهيزات',
-              'دراسة المنطقة المحيطة',
-              'إحصائيات وتوقعات الإيجار',
-            ],
-          },
-        },
-        isLocked: true,
-      },
-    ];
-    
-    editor.setSlides(initialSlides);
 
     return () => {
       editor.setIsEditorActive(false);
     };
-  }, []);
+  }, [id]);
+
+  // حفظ الدراسة
+  const handleSave = useCallback(async () => {
+    if (!studyData) return;
+    
+    setSaving(true);
+    try {
+      // حساب التكلفة الإجمالية من الشرائح
+      let totalCost = 0;
+      editor.slides.forEach(slide => {
+        if (slide.data.room?.room.totalCost) {
+          totalCost += slide.data.room.room.totalCost;
+        }
+      });
+
+      const response = await fetch(`/api/admin/feasibility/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slides: editor.slides,
+          totalCost,
+          clientName: editor.clientName,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'حدث خطأ أثناء الحفظ');
+      }
+      
+      setLastSaved(new Date());
+      setShowSavedMessage(true);
+      setStudyData(prev => prev ? { ...prev, slides: editor.slides, totalCost } : null);
+      
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'حدث خطأ أثناء الحفظ');
+    } finally {
+      setSaving(false);
+    }
+  }, [id, editor.slides, editor.clientName, studyData]);
 
   // إخفاء رسالة الحفظ بعد 3 ثواني
   useEffect(() => {
@@ -83,68 +134,16 @@ export default function NewFeasibilityStudyPage() {
     }
   }, [showSavedMessage]);
 
-  // حفظ الدراسة
-  const handleSave = useCallback(async () => {
-    setSaving(true);
-    try {
-      // حساب التكلفة الإجمالية من الشرائح
-      let totalCost = 0;
-      editor.slides.forEach(slide => {
-        if (slide.data.room?.room.totalCost) {
-          totalCost += slide.data.room.room.totalCost;
-        }
-      });
+  // الحفظ التلقائي كل دقيقة
+  useEffect(() => {
+    if (!studyData) return;
+    
+    const autoSaveInterval = setInterval(() => {
+      handleSave();
+    }, 60000); // كل دقيقة
 
-      // إذا كانت الدراسة موجودة بالفعل، قم بتحديثها
-      if (createdStudyId) {
-        const response = await fetch(`/api/admin/feasibility/${createdStudyId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            slides: editor.slides,
-            totalCost,
-            clientName: editor.clientName,
-          }),
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(data.error || 'حدث خطأ أثناء الحفظ');
-        }
-      } else {
-        // إنشاء دراسة جديدة
-        const response = await fetch('/api/admin/feasibility', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: `دراسة جدوى - ${editor.clientName}`,
-            clientName: editor.clientName,
-            slides: editor.slides,
-            totalCost,
-          }),
-        });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-          throw new Error(data.error || 'حدث خطأ أثناء الحفظ');
-        }
-        
-        // حفظ معرف الدراسة للحفظ التالي
-        setCreatedStudyId(data.study.id);
-        editor.setStudyId(data.study.id);
-      }
-      
-      setLastSaved(new Date());
-      setShowSavedMessage(true);
-      
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'حدث خطأ أثناء الحفظ');
-    } finally {
-      setSaving(false);
-    }
-  }, [editor.slides, editor.clientName, createdStudyId]);
+    return () => clearInterval(autoSaveInterval);
+  }, [handleSave, studyData]);
 
   // الحصول على العناصر للشريحة الحالية
   const currentSlideItems = editor.activeSlide ? (overlayItems[editor.activeSlide.id] || []) : [];
@@ -214,7 +213,7 @@ export default function NewFeasibilityStudyPage() {
     }));
   };
 
-  const handleUpdateSlideData = (data: Parameters<typeof editor.updateSlideData>[1]) => {
+  const handleUpdateSlideData = (data: Partial<SlideData>) => {
     if (editor.activeSlide) {
       editor.updateSlideData(editor.activeSlide.id, data);
       
@@ -225,17 +224,52 @@ export default function NewFeasibilityStudyPage() {
     }
   };
 
+  // حالة التحميل
+  if (loading) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-secondary/60">جاري تحميل الدراسة...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // حالة الخطأ
+  if (error) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="text-center max-w-md">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-secondary mb-2">حدث خطأ</h2>
+          <p className="text-secondary/60 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-secondary text-primary rounded-lg hover:bg-secondary/90 transition-colors"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden relative editor-cursor">
       {/* شريط الأدوات العائم */}
       <EditorToolbar
-        studyId={editor.studyId}
-        clientName={editor.clientName}
+        studyId={studyData?.id || id}
+        clientName={studyData?.clientName || editor.clientName}
         zoom={editor.zoom}
         onZoomIn={editor.zoomIn}
         onZoomOut={editor.zoomOut}
         onSave={handleSave}
-        onPreview={() => console.log('معاينة الدراسة...')}
+        onPreview={() => {
+          if (studyData?.id) {
+            window.open(`/study/${studyData.id}`, '_blank');
+          }
+        }}
         onShare={() => console.log('مشاركة الدراسة...')}
         onAddText={handleAddText}
         onAddImage={handleAddImage}

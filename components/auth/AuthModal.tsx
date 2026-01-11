@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import LoginForm from './LoginForm';
@@ -70,7 +71,10 @@ const AuthModal: React.FC<AuthModalProps> = ({
     setMode('login');
   };
 
-  return (
+  // Don't render on server
+  if (typeof window === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence mode="wait">
       {isOpen && (
         <>
@@ -81,13 +85,13 @@ const AuthModal: React.FC<AuthModalProps> = ({
             animate="visible"
             exit="exit"
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-md z-50"
+            className="fixed inset-0 bg-black/40 backdrop-blur-md z-[9998]"
             style={{ touchAction: 'none' }}
           />
 
           {/* Modal Container */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-            <div className="w-full max-w-6xl h-[90vh] max-h-200 flex relative pointer-events-auto">
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 overflow-y-auto">
+            <div className="w-full max-w-6xl min-h-0 h-auto max-h-[90vh] flex relative my-auto">
               
               {/* Left Side - Background (Desktop only) */}
               <AuthBackground />
@@ -219,7 +223,8 @@ const AuthModal: React.FC<AuthModalProps> = ({
           </div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 

@@ -18,7 +18,8 @@ export default function AdminLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // كشف صفحة المحرر لتوسيع مساحة العمل
-  const isEditorPage = (pathname?.includes('/admin/feasibility/') && pathname?.includes('/edit')) || pathname === '/admin/feasibility/new';
+  const isEditorPage = pathname === '/admin/feasibility/new' || 
+    (pathname?.startsWith('/admin/feasibility/') && pathname !== '/admin/feasibility');
 
   // حماية الصفحة
   useEffect(() => {

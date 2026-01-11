@@ -243,6 +243,7 @@ interface UseSlidesOptions {
 
 interface UseSlidesReturn {
   slides: Slide[];
+  setSlides: React.Dispatch<React.SetStateAction<Slide[]>>;
   activeSlideIndex: number;
   activeSlide: Slide | null;
   setActiveSlideIndex: (index: number) => void;
@@ -674,6 +675,7 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
 
   return {
     slides,
+    setSlides,
     activeSlideIndex,
     activeSlide,
     setActiveSlideIndex,

@@ -28,6 +28,8 @@ interface EditorToolbarProps {
   onShare: () => void;
   onAddText?: () => void;
   onAddImage?: (imageSrc: string) => void;
+  isSaving?: boolean;
+  lastSaved?: Date | null;
 }
 
 const SHADOWS = {
@@ -46,6 +48,8 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
   onShare,
   onAddText,
   onAddImage,
+  isSaving = false,
+  lastSaved = null,
 }) => {
   const [showMoreMenu, setShowMoreMenu] = React.useState(false);
   const [activeTool, setActiveTool] = React.useState<'select' | 'move'>('select');
@@ -183,14 +187,29 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
             {/* زر الحفظ */}
             <motion.button
               onClick={onSave}
-              className="flex items-center gap-2 px-5 py-2 bg-primary text-secondary hover:bg-primary/90 rounded-lg transition-colors"
+              disabled={isSaving}
+              className="flex items-center gap-2 px-5 py-2 bg-primary text-secondary hover:bg-primary/90 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ boxShadow: 'rgba(237, 191, 140, 0.25) 0px 4px 12px' }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: isSaving ? 1 : 1.02 }}
+              whileTap={{ scale: isSaving ? 1 : 0.98 }}
             >
               <Save className="w-4 h-4" />
-              <span className="font-dubai text-sm font-medium">حفظ</span>
+              <span className="font-dubai text-sm font-medium">
+                {isSaving ? 'جاري الحفظ...' : 'حفظ'}
+              </span>
             </motion.button>
+            
+            {/* وقت آخر حفظ - يظهر ويختفي */}
+            {lastSaved && !isSaving && (
+              <motion.span 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                className="hidden lg:block text-xs text-secondary/50"
+              >
+                تم الحفظ ✓
+              </motion.span>
+            )}
 
             {/* قائمة المزيد للموبايل فقط */}
             <div className="relative sm:hidden">

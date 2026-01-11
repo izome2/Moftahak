@@ -1,6 +1,5 @@
 // تصدير مكونات المحرر
 export { default as EditorLayout } from './EditorLayout';
-export { default as EditorSidebar } from './EditorSidebar';
 export { default as EditorCanvas } from './EditorCanvas';
 export { default as EditorToolbar } from './EditorToolbar';
 

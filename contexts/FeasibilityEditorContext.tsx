@@ -17,6 +17,7 @@ interface FeasibilityEditorContextType {
   
   // الشرائح
   slides: Slide[];
+  setSlides: React.Dispatch<React.SetStateAction<Slide[]>>;
   activeSlideIndex: number;
   activeSlide: Slide | null;
   setActiveSlideIndex: (index: number) => void;
@@ -80,6 +81,7 @@ export function FeasibilityEditorProvider({
     clientName,
     setClientName,
     slides: slidesHook.slides,
+    setSlides: slidesHook.setSlides,
     activeSlideIndex: slidesHook.activeSlideIndex,
     activeSlide: slidesHook.activeSlide,
     setActiveSlideIndex: slidesHook.setActiveSlideIndex,

@@ -1,15 +1,125 @@
 # Moftahak - AI Coding Agent Instructions
 
 ## Project Overview
-Next.js 16 real estate landing page for "مفتاحك" (Moftahak) - a luxury Egyptian property and hotel apartment services platform. **Bilingual (Arabic primary, English secondary)** with heavy Framer Motion animations and custom Tailwind design system.
+Next.js 16 full-stack application for "مفتاحك" (Moftahak) - a luxury Egyptian real estate and hotel apartment services platform. **Bilingual (Arabic primary, English secondary)** with:
+- Public landing page with heavy Framer Motion animations
+- NextAuth v5 authentication system (JWT strategy)
+- PostgreSQL database via Prisma (User model with ADMIN/USER roles)
+- Admin dashboard for managing users, consultations, and feasibility studies
+- **Feasibility Study Editor** - drag-and-drop slide-based study builder with room items libraries
 
 ## Architecture & Key Patterns
 
 ### App Structure (Next.js App Router)
-- **Single-page landing**: All content in `app/page.tsx` as section imports
-- **Section components**: `HeroSection`, `AboutSection`, `FeaturesSection`, `ServicesSection`, `PremiumSection`, `TestimonialsSection`, `ContentSection`, `CTASection`
-- **All interactive components require `'use client'`** directive (14/14 components use it)
-- No API routes currently (`app/api/` is empty)
+**Public Routes:**
+- Landing page (`app/page.tsx`): Section imports (`HeroSection`, `AboutSection`, `FeaturesSection`, etc.)
+- All interactive components require `'use client'` directive
+
+**Protected Routes** (via `middleware.ts`):
+- `/admin/*` - Admin dashboard (ADMIN role only)
+  - `admin/users` - User management
+  - `admin/consultations` - Consultation requests
+  - `admin/feasibility` - Feasibility study creator/editor
+- `/profile` - User profile settings (authenticated users)
+
+**API Routes** (`app/api/`):
+- `auth/[...nextauth]` - NextAuth handlers
+- `admin/*` - Admin operations (role-checked)
+- `user/*` - User profile/avatar management
+- `feasibility/*` - Airbnb data lookup for study research
+- `consultations/*` - Contact form submissions
+- All sensitive routes protected by `checkRateLimit()` from `lib/rate-limit.ts`
+
+### Authentication System (NextAuth v5)
+**Setup** (`lib/auth.ts`):
+- **Strategy**: JWT with Credentials provider
+- **Session duration**: 30 days
+- **Password**: bcryptjs hashing (10 rounds)
+- Custom callbacks extend JWT token with `role`, `firstName`, `lastName`, `image`
+
+**Middleware** (`middleware.ts`):
+- Runs on Edge Runtime (uses `getToken()` not `auth()`)
+- Protected paths: `/admin/*`, `/profile/*`, matching API routes
+- Admin-only enforcement via `token.role !== 'ADMIN'` check
+
+**Validation**: Zod schemas in `lib/validations/auth.ts`:
+```typescript
+registerSchema // firstName, lastName, email, password (8+ chars, 1 upper, 1 lower, 1 number)
+loginSchema    // email, password
+updateProfileSchema, changePasswordSchema
+```
+
+**Creating Admin**: Run `node scripts/create-admin.js` (default: `admin@moftahak.com` / `Admin@2026`)
+
+### Database (Prisma + PostgreSQL)
+**Connection** (`lib/prisma.ts`):
+- Uses `@prisma/adapter-pg` with `pg` Pool
+- Global singleton pattern prevents connection exhaustion in dev
+- Connection string from `process.env.DATABASE_URL`
+
+**Schema** (`prisma/schema.prisma`):
+```prisma
+model User {
+  id            String   @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String   @unique
+  password      String
+  role          Role     @default(USER)  // USER | ADMIN
+  image         String?  @default("/images/default-avatar.svg")
+  emailVerified DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+```
+
+**Migration workflow**:
+```bash
+npx prisma migrate dev --name description  # Create migration
+npx prisma db push                          # Quick schema sync (no migration)
+npx prisma studio                           # Browse database
+```
+
+### Feasibility Study Editor
+**Complex Context-Driven Feature** - Full slide-based study creator for real estate feasibility reports.
+
+**Architecture**:
+- **Context**: `FeasibilityEditorContext` wraps editor, provides state management
+- **Hook**: `useSlides` (696 lines) - manages slide CRUD, room generation, reordering
+- **Slide Types**: 13 types (`cover`, `introduction`, `room-setup`, `bedroom`, `kitchen`, `bathroom`, `living-room`, `cost-summary`, `area-study`, `map`, `nearby-apartments`, `statistics`, `footer`)
+- **Libraries**: Pre-defined item catalogs in `lib/feasibility/` (bedroom/kitchen/bathroom/living-room items with prices)
+
+**Design System** (`lib/feasibility/design-system.ts`):
+- **Colors**: Same brand palette but additional transparency variants
+- **Shadows**: 8 predefined levels (`widget`, `widgetHover`, `widgetElevated`, `card`, `soft`, `inner`, `icon`, `popup`)
+- **Widget Classes**: Tailwind class combinations for interactive elements
+- **Sharp corners preserved** (widgets use `rounded-2xl` for softer feel in editor context)
+
+**Key Components** (`components/feasibility/`):
+- `editor/EditorLayout.tsx` - Main editor container with toolbar, canvas, sidebar
+- `editor/EditorCanvas.tsx` - Slide rendering area with zoom
+- `editor/EditableTextOverlay.tsx`, `editor/EditableImageOverlay.tsx` - Drag-and-drop text/image widgets
+- `slides/SlideManager.tsx` - Sidebar slide thumbnails with reordering (@dnd-kit)
+- `slides/RoomSlide.tsx` - Room-specific slide with item selection
+- `viewer/` - Read-only study viewer for client-facing links
+
+**Room Item Pattern**:
+```typescript
+// lib/feasibility/kitchen-items.ts example
+export interface KitchenItemDefinition {
+  id: string;
+  name: string;
+  category: KitchenCategory;
+  price: number;
+  icon: string;
+}
+export const createKitchenRoomItem = (item, quantity) => ({ ...item, quantity });
+```
+
+**Slide Data Flow**:
+1. User adds slide via `addSlide(type)` → Hook creates slide from template
+2. User updates slide → `updateSlideData(id, partialData)` → Merges into slide's data object
+3. Room setup slide generates child slides → `generateRoomSlides({ bedrooms: 2, ... })` → Auto-creates bedroom/kitchen/etc. slides
 
 ### Styling Architecture
 **CRITICAL: This project has a ZERO border-radius policy**
@@ -118,7 +228,7 @@ formatNumber(number)    // Format with Arabic numerals
 truncateText(str, max)  // Truncate with ellipsis
 ```
 
-## Development Workflow
+### Development Workflow
 
 ### Commands
 ```bash
@@ -126,6 +236,49 @@ npm run dev    # Start dev server (Next.js 16.1.1)
 npm run build  # Production build
 npm start      # Start production server
 npm run lint   # ESLint (using new flat config)
+
+# Database
+npx prisma migrate dev --name description  # Create migration
+npx prisma db push                          # Quick schema sync
+npx prisma studio                           # Database GUI
+node scripts/create-admin.js                # Create admin user
+```
+
+### Security Patterns
+**Rate Limiting** (`lib/rate-limit.ts`):
+```typescript
+import { checkRateLimit } from '@/lib/rate-limit';
+
+const { allowed, remaining } = checkRateLimit(ip, {
+  windowMs: 15 * 60 * 1000,  // 15 min
+  maxRequests: 5              // 5 attempts
+});
+if (!allowed) return NextResponse.json({ error: 'Too many attempts' }, { status: 429 });
+```
+
+**Security Headers** (`lib/security-headers.ts`):
+- Auto-applied: `X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy`
+- Usage: `import { addSecurityHeaders } from '@/lib/security-headers'; return addSecurityHeaders(response);`
+
+**API Route Pattern** (with auth + rate limit):
+```typescript
+import { auth } from '@/lib/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { addSecurityHeaders } from '@/lib/security-headers';
+
+export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+  const ip = request.ip || 'unknown';
+  const { allowed } = checkRateLimit(ip, { maxRequests: 10 });
+  if (!allowed) return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  
+  // ... business logic
+  
+  const response = NextResponse.json({ success: true });
+  return addSecurityHeaders(response);
+}
 ```
 
 ### Build Configuration
@@ -190,6 +343,63 @@ Rich metadata in `app/layout.tsx`:
 
 ## Common Tasks
 
+### Creating Admin-Only API Routes
+1. Place in `app/api/admin/[feature]/route.ts`
+2. Check role in middleware (auto-protected by path `/api/admin/*`)
+3. Add rate limiting for sensitive operations
+4. Return JSON with security headers
+
+**Example** (`app/api/admin/users/route.ts`):
+```typescript
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
+export async function GET() {
+  const session = await auth();
+  if (session?.user?.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+  
+  const users = await prisma.user.findMany({
+    select: { id: true, firstName: true, lastName: true, email: true, role: true }
+  });
+  
+  return NextResponse.json({ users });
+}
+```
+
+### Adding a Feasibility Slide Type
+1. Add type to `SlideType` union in `types/feasibility.ts`
+2. Create slide data interface (e.g., `MyNewSlideData`)
+3. Add to `SlideData` type union
+4. Create template in `useSlides.ts` → `defaultSlideTemplates`
+5. Create slide component in `components/feasibility/slides/MyNewSlide.tsx`
+6. Import and render in `EditorCanvas.tsx` switch statement
+
+### Handling User Avatars
+**Upload**: POST to `/api/user/upload` with FormData
+- Saves to `/public/uploads/avatars/[userId]/[filename]`
+- Returns path: `/uploads/avatars/[userId]/[filename]`
+- Updates user record via Prisma
+
+**Delete**: DELETE to `/api/user/upload`
+- Removes file from filesystem
+- Resets to default: `/images/default-avatar.svg`
+
+### Working with Framer Motion Stagger
+```tsx
+import { staggerContainer, fadeInUp } from '@/lib/animations/variants';
+
+<motion.div variants={staggerContainer} initial="hidden" whileInView="visible">
+  {items.map((item, i) => (
+    <motion.div key={i} variants={fadeInUp}>
+      {item}
+    </motion.div>
+  ))}
+</motion.div>
+```
+**Note**: Children automatically inherit stagger delays from parent with matching `initial`/`animate` states.
+
 ### Adding a New Section
 1. Create `components/NewSection.tsx` with `'use client'`
 2. Import animation variants from `lib/animations/variants`
@@ -232,9 +442,15 @@ className="bg-pattern-vertical-white"        // Custom pattern background
 
 ## Dependencies
 **Core**: Next.js 16.1.1, React 19.2.3, TypeScript 5
+**Auth**: NextAuth v5.0.0-beta.30, bcryptjs
+**Database**: Prisma 7.2.0, PostgreSQL (via pg + @prisma/adapter-pg)
 **Styling**: Tailwind CSS 4, clsx, tailwind-merge
 **Animation**: framer-motion 12.23.26
+**Drag-and-Drop**: @dnd-kit (core, sortable, modifiers, utilities)
+**Maps**: Leaflet 1.9.4, react-leaflet 5.0.0
+**Charts**: recharts 3.6.0
 **Icons**: lucide-react, react-icons
+**Validation**: zod 4.3.4
 **Build**: @netlify/plugin-nextjs
 
 ## Performance Considerations
@@ -243,3 +459,4 @@ className="bg-pattern-vertical-white"        // Custom pattern background
 - CSS: No border-radius (improves render performance)
 - Animations: Hardware-accelerated (transform/opacity only)
 - Reduced motion: Respected via `prefers-reduced-motion` media query
+- Database: Connection pooling with singleton pattern in dev
