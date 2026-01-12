@@ -398,17 +398,12 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
     reader.readAsDataURL(file);
   };
 
-  // هل الشقة من Airbnb؟
-  const isFromAirbnb = !!apartment.airbnbUrl;
-
   return (
     <motion.div
       className={`relative rounded-2xl border-2 overflow-hidden group ${
         isMyApartment 
           ? 'border-secondary/30' 
-          : isFromAirbnb
-            ? 'bg-white border-[#FF5A5F]/30'
-            : 'bg-white border-primary/30'
+          : 'bg-white border-primary/30'
       }`}
       style={{ 
         boxShadow: SHADOWS.card,
@@ -417,7 +412,7 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
       whileHover={{ 
         scale: 1.01,
         boxShadow: SHADOWS.cardHover,
-        borderColor: isMyApartment ? 'rgba(16, 48, 43, 0.5)' : isFromAirbnb ? 'rgba(255, 90, 95, 0.5)' : 'rgba(237, 191, 140, 0.5)',
+        borderColor: isMyApartment ? 'rgba(16, 48, 43, 0.5)' : 'rgba(237, 191, 140, 0.5)',
       }}
       transition={{ duration: 0.25 }}
     >
@@ -435,18 +430,10 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
         className={`p-5 relative overflow-hidden border-b-2 ${
           isMyApartment 
             ? 'border-secondary/40' 
-            : isFromAirbnb
-              ? 'bg-[#FF5A5F]/10 border-[#FF5A5F]/30'
-              : isFromAirbnb
-                ? 'bg-[#FF5A5F]/10 border-[#FF5A5F]/30'
-                : 'bg-primary/20 border-primary/30'
+            : 'bg-primary/20 border-primary/30'
         }`}
         style={{ 
-          boxShadow: isMyApartment 
-            ? 'rgba(16, 48, 43, 0.3) 0px 4px 12px' 
-            : isFromAirbnb 
-              ? 'rgba(255, 90, 95, 0.2) 0px 4px 12px'
-              : 'rgba(237, 191, 140, 0.3) 0px 4px 12px',
+          boxShadow: isMyApartment ? 'rgba(16, 48, 43, 0.3) 0px 4px 12px' : 'rgba(237, 191, 140, 0.3) 0px 4px 12px',
           backgroundColor: isMyApartment ? '#10302b' : undefined,
         }}
       >
@@ -456,26 +443,16 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
             <img
               src={apartment.thumbnailUrl}
               alt={apartment.name}
-              className="absolute inset-0 w-full h-full object-cover opacity-50"
+              className="absolute inset-0 w-full h-full object-cover opacity-40"
             />
-            <div className={`absolute inset-0 ${isFromAirbnb ? 'bg-linear-to-l from-[#FF5A5F]/30 via-[#FF5A5F]/10 to-[#FF5A5F]/30' : 'bg-linear-to-l from-primary/40 via-primary/20 to-primary/40'}`} />
-          </div>
-        )}
-        
-        {/* شارة Airbnb */}
-        {isFromAirbnb && (
-          <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 px-2.5 py-1 bg-[#FF5A5F] rounded-full shadow-lg">
-            <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.5 14.5c-1.5 0-2.75-1.25-2.75-2.75 0-1.5 1.25-2.75 2.75-2.75h3c1.5 0 2.75 1.25 2.75 2.75 0 1.5-1.25 2.75-2.75 2.75h-3z"/>
-            </svg>
-            <span className="text-white text-xs font-bold font-dubai">Airbnb</span>
+            <div className="absolute inset-0 bg-linear-to-l from-primary/40 via-primary/20 to-primary/40" />
           </div>
         )}
         
         {/* زخرفة خلفية */}
         <div className="absolute top-0 left-0 w-full h-full opacity-10">
-          <div className={`absolute -top-4 -right-4 w-24 h-24 border-4 ${isFromAirbnb ? 'border-[#FF5A5F]/30' : 'border-primary/30'} rounded-full`} />
-          <div className={`absolute -bottom-6 -left-6 w-32 h-32 border-4 ${isFromAirbnb ? 'border-[#FF5A5F]/20' : 'border-primary/20'} rounded-full`} />
+          <div className="absolute -top-4 -right-4 w-24 h-24 border-4 border-primary/30 rounded-full" />
+          <div className="absolute -bottom-6 -left-6 w-32 h-32 border-4 border-primary/20 rounded-full" />
         </div>
         
         <div className="relative z-10 flex items-center gap-4">
@@ -483,16 +460,10 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
             className={`w-14 h-14 rounded-2xl flex items-center justify-center border-2 backdrop-blur-sm ${
               isMyApartment 
                 ? 'border-secondary/60' 
-                : isFromAirbnb
-                  ? `border-[#FF5A5F]/40 ${apartment.thumbnailUrl ? 'bg-[#FF5A5F]/30' : 'bg-[#FF5A5F]/20'}`
-                  : `border-primary/40 ${!apartment.thumbnailUrl && isEditing ? 'cursor-pointer hover:bg-primary/40 transition-colors' : ''} ${apartment.thumbnailUrl ? 'bg-primary/50' : 'bg-primary/30'}`
+                : `border-primary/40 ${!apartment.thumbnailUrl && isEditing ? 'cursor-pointer hover:bg-primary/40 transition-colors' : ''} ${apartment.thumbnailUrl ? 'bg-primary/50' : 'bg-primary/30'}`
             }`}
             style={{ 
-              boxShadow: isMyApartment 
-                ? 'rgba(16, 48, 43, 0.4) 0px 4px 12px' 
-                : isFromAirbnb
-                  ? 'rgba(255, 90, 95, 0.3) 0px 4px 12px'
-                  : 'rgba(237, 191, 140, 0.3) 0px 4px 12px',
+              boxShadow: isMyApartment ? 'rgba(16, 48, 43, 0.4) 0px 4px 12px' : 'rgba(237, 191, 140, 0.3) 0px 4px 12px',
               backgroundColor: isMyApartment ? '#0d2622' : undefined,
             }}
             onClick={() => {
@@ -503,9 +474,9 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
             title={!apartment.thumbnailUrl && isEditing ? 'انقر لإضافة صورة' : undefined}
           >
             {!apartment.thumbnailUrl && isEditing ? (
-              <ImagePlus className={`w-6 h-6 ${isMyApartment ? 'text-[#fdf5ed]' : isFromAirbnb ? 'text-[#FF5A5F]' : 'text-secondary/70'}`} strokeWidth={2} />
+              <ImagePlus className={`w-6 h-6 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary/70'}`} strokeWidth={2} />
             ) : (
-              <Building2 className={`w-7 h-7 ${isMyApartment ? 'text-[#fdf5ed]' : isFromAirbnb ? 'text-[#FF5A5F]' : 'text-secondary'}`} strokeWidth={2} />
+              <Building2 className={`w-7 h-7 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} strokeWidth={2} />
             )}
           </div>
           <div className="flex-1">
@@ -516,11 +487,11 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
                   href={apartment.airbnbUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-[#FF5A5F] hover:text-[#E04850] transition-colors font-medium"
+                  className="flex items-center gap-2 hover:text-[#FF5A5F] transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="w-4 h-4 bg-[#FF5A5F] rounded-full flex items-center justify-center">
-                    <ExternalLink className="w-2.5 h-2.5 text-white" />
+                  <div className="w-4 h-4 bg-[#FF5A5F]/20 rounded-full flex items-center justify-center border border-[#FF5A5F]/40">
+                    <ExternalLink className="w-2.5 h-2.5 text-[#FF5A5F]" />
                   </div>
                   <span className="font-dubai">عرض في Airbnb</span>
                 </a>
@@ -539,20 +510,14 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
             className={`px-3 py-2 rounded-xl flex items-center justify-center border-2 backdrop-blur-sm ${
               isMyApartment 
                 ? 'border-secondary/60' 
-                : isFromAirbnb
-                  ? `border-[#FF5A5F]/40 ${apartment.thumbnailUrl ? 'bg-[#FF5A5F]/30' : 'bg-[#FF5A5F]/20'}`
-                  : `border-primary/40 ${apartment.thumbnailUrl ? 'bg-primary/50' : 'bg-primary/30'}`
+                : `border-primary/40 ${apartment.thumbnailUrl ? 'bg-primary/50' : 'bg-primary/30'}`
             }`}
             style={{ 
-              boxShadow: isMyApartment 
-                ? 'rgba(16, 48, 43, 0.4) 0px 4px 12px' 
-                : isFromAirbnb
-                  ? 'rgba(255, 90, 95, 0.3) 0px 4px 12px'
-                  : 'rgba(237, 191, 140, 0.3) 0px 4px 12px',
+              boxShadow: isMyApartment ? 'rgba(16, 48, 43, 0.4) 0px 4px 12px' : 'rgba(237, 191, 140, 0.3) 0px 4px 12px',
               backgroundColor: isMyApartment ? '#0d2622' : undefined,
             }}
           >
-            <span className={`font-bold font-dubai text-sm ${isMyApartment ? 'text-[#fdf5ed]' : isFromAirbnb ? 'text-[#FF5A5F]' : 'text-secondary'}`}>
+            <span className={`font-bold font-dubai text-sm ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`}>
               {isMyApartment ? 'شقتي' : `${index + 1}`}
             </span>
           </div>
