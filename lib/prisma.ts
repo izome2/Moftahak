@@ -6,9 +6,25 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// Create PostgreSQL connection pool
+// Check if DATABASE_URL is set
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    'DATABASE_URL is not defined in environment variables. ' +
+    'Please set it in your .env file or Vercel environment variables.'
+  );
+}
+
+// Create PostgreSQL connection pool with error handling
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+});
+
+// Handle pool errors
+pool.on('error', (err) => {
+  console.error('Unexpected database pool error:', err);
 });
 
 const adapter = new PrismaPg(pool);
