@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { put, del } from '@vercel/blob';
 
 // POST - Upload user avatar
 export async function POST(request: NextRequest) {
@@ -44,42 +43,45 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const extension = file.type.split('/')[1];
-    const filename = `${session.user.id}-${timestamp}.${extension}`;
+    // Get current user to check for old avatar
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { image: true },
+    });
 
-    // Define upload directory
-    const uploadDir = path.join(process.cwd(), 'public', 'images', 'avatars');
-    
-    // Create directory if it doesn't exist
-    try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch (error) {
-      console.error('Error creating directory:', error);
+    // Delete old avatar from Vercel Blob if exists and not default
+    if (currentUser?.image && 
+        !currentUser.image.startsWith('/images/default-avatar') &&
+        currentUser.image.startsWith('https://')) {
+      try {
+        await del(currentUser.image);
+      } catch (error) {
+        console.error('Error deleting old avatar:', error);
+        // Continue anyway, don't block upload
+      }
     }
 
-    // Convert file to buffer
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    // Generate unique filename with path
+    const timestamp = Date.now();
+    const extension = file.type.split('/')[1];
+    const filename = `avatars/${session.user.id}-${timestamp}.${extension}`;
 
-    // Save file
-    const filepath = path.join(uploadDir, filename);
-    await writeFile(filepath, buffer);
+    // Upload to Vercel Blob
+    const blob = await put(filename, file, {
+      access: 'public',
+      addRandomSuffix: false,
+    });
 
-    // Generate URL
-    const imageUrl = `/images/avatars/${filename}`;
-
-    // Update user profile with new image
+    // Update user profile with new image URL
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { image: imageUrl },
+      data: { image: blob.url },
     });
 
     return NextResponse.json({
       success: true,
       message: 'تم رفع الصورة بنجاح',
-      imageUrl,
+      imageUrl: blob.url,
     });
   } catch (error) {
     console.error('Upload error:', error);
@@ -100,6 +102,24 @@ export async function DELETE(request: NextRequest) {
         { success: false, message: 'غير مصرح بالوصول' },
         { status: 401 }
       );
+    }
+
+    // Get current user avatar
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { image: true },
+    });
+
+    // Delete from Vercel Blob if exists and not default
+    if (currentUser?.image && 
+        !currentUser.image.startsWith('/images/default-avatar') &&
+        currentUser.image.startsWith('https://')) {
+      try {
+        await del(currentUser.image);
+      } catch (error) {
+        console.error('Error deleting avatar from blob:', error);
+        // Continue anyway
+      }
     }
 
     // Reset to default avatar
