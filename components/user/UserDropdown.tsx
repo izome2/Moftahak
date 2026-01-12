@@ -75,6 +75,27 @@ const UserDropdown: React.FC = () => {
     await signOut({ callbackUrl: '/' });
   };
 
+  const handleAdminNavigation = () => {
+    console.log('Navigating to admin dashboard');
+    setIsOpen(false);
+    
+    // محاولة استخدام router أولاً
+    try {
+      router.push('/admin');
+      // إذا لم ينجح بعد 100ms، استخدم window.location
+      setTimeout(() => {
+        if (window.location.pathname !== '/admin') {
+          console.log('Router.push failed, using window.location');
+          window.location.href = '/admin';
+        }
+      }, 100);
+    } catch (error) {
+      console.error('Router error:', error);
+      // استخدام window.location كـ fallback
+      window.location.href = '/admin';
+    }
+  };
+
   return (
     <>
       <div className="relative">
@@ -163,11 +184,9 @@ const UserDropdown: React.FC = () => {
                 {/* Admin Dashboard - للأدمن فقط */}
                 {session.user.role === 'ADMIN' && (
                   <button
-                    onClick={() => {
-                      setIsOpen(false);
-                      router.push('/admin');
-                    }}
-                    className="w-full flex items-center gap-3 px-5 py-3 text-secondary hover:bg-primary/10 rounded-xl mx-2 transition-all duration-300 group"
+                    type="button"
+                    onClick={handleAdminNavigation}
+                    className="w-full flex items-center gap-3 px-5 py-3 text-secondary hover:bg-primary/10 rounded-xl mx-2 transition-all duration-300 group cursor-pointer"
                   >
                     <LayoutDashboard 
                       size={20} 
