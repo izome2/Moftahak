@@ -256,7 +256,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
           <div 
             className="absolute inset-0 w-full h-full animate-slideshow-1"
             style={{
-              backgroundImage: `url('/images/hero/hero-bg.jpg')`,
+              backgroundImage: `url('/images/hero/hero-1.jpg')`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
