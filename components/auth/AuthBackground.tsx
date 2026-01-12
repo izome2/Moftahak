@@ -18,7 +18,7 @@ const AuthBackground: React.FC = () => {
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
-          src="/images/hero/hero-bg.jpg"
+          src="/images/hero/Backgroud_hero.jpg"
           alt="خلفية"
           fill
           className="object-cover"

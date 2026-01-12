@@ -211,11 +211,11 @@ const AuthModal: React.FC<AuthModalProps> = ({
                   </div>
 
                   {/* Terms & Privacy */}
-                  <p className="text-xs text-secondary/60 text-center mt-6 font-dubai leading-relaxed">
+                  <p className="text-xs text-secondary text-center mt-6 font-dubai leading-relaxed">
                     بالمتابعة، أنت توافق على{' '}
-                    <a href="#" className="text-primary hover:underline">شروط الخدمة</a>
+                    <a href="#" className="text-secondary hover:text-secondary/70 font-semibold hover:underline">شروط الخدمة</a>
                     {' '}و{' '}
-                    <a href="#" className="text-primary hover:underline">سياسة الخصوصية</a>
+                    <a href="#" className="text-secondary hover:text-secondary/70 font-semibold hover:underline">سياسة الخصوصية</a>
                   </p>
                 </div>
               </motion.div>

@@ -118,7 +118,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onSuccess }) 
       <motion.div variants={fieldVariant} className="text-left">
         <button
           type="button"
-          className="text-sm text-primary hover:text-primary/80 font-semibold transition-colors font-dubai"
+          className="text-sm text-secondary hover:text-secondary/70 font-semibold transition-colors font-dubai"
         >
           نسيت كلمة المرور؟
         </button>
@@ -148,12 +148,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onSuccess }) 
 
       {/* Switch to Register */}
       <motion.div variants={fieldVariant} className="text-center pt-4">
-        <p className="text-secondary/70 font-dubai">
+        <p className="text-secondary font-dubai">
           ليس لديك حساب؟{' '}
           <button
             type="button"
             onClick={onSwitchToRegister}
-            className="text-primary hover:text-primary/80 font-bold transition-colors"
+            className="text-secondary hover:text-secondary/70 font-bold transition-colors"
           >
             إنشاء حساب جديد
           </button>

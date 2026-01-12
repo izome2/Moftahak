@@ -345,12 +345,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin, onSuccess 
 
       {/* Switch to Login */}
       <motion.div variants={fieldVariant} className="text-center pt-2">
-        <p className="text-secondary/70 font-dubai">
+        <p className="text-secondary font-dubai">
           لديك حساب بالفعل؟{' '}
           <button
             type="button"
             onClick={onSwitchToLogin}
-            className="text-primary hover:text-primary/80 font-bold transition-colors"
+            className="text-secondary hover:text-secondary/70 font-bold transition-colors"
           >
             تسجيل الدخول
           </button>
