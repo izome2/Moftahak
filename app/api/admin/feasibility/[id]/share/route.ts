@@ -55,8 +55,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    // بناء الرابط الكامل
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    // بناء الرابط الكامل - استخدام headers للحصول على الدومين الصحيح
+    const host = request.headers.get('host') || 'moftahak.vercel.app';
+    const protocol = request.headers.get('x-forwarded-proto') || 'https';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`;
     const fullShareUrl = `${baseUrl}/study/${shareId}`;
 
     const response = NextResponse.json({ 
@@ -114,7 +116,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // بناء الرابط الكامل إذا وجد
     let fullShareUrl = null;
     if (study.shareId) {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+      // استخدام headers للحصول على الدومين الصحيح
+      const host = request.headers.get('host') || 'moftahak.vercel.app';
+      const protocol = request.headers.get('x-forwarded-proto') || 'https';
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`;
       fullShareUrl = `${baseUrl}/study/${study.shareId}`;
     }
 
