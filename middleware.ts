@@ -12,10 +12,19 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // الحصول على التوكن بدلاً من الجلسة الكاملة (يعمل في Edge Runtime)
+  // NextAuth v5 يدعم كلاً من AUTH_SECRET و NEXTAUTH_SECRET
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+  
   const token = await getToken({ 
     req: request,
-    secret: process.env.NEXTAUTH_SECRET 
+    secret: secret,
+    secureCookie: process.env.NODE_ENV === 'production',
   });
+  
+  // Log للتشخيص في بيئة الإنتاج
+  console.log('Middleware - Path:', pathname);
+  console.log('Middleware - Token exists:', !!token);
+  console.log('Middleware - Token role:', token?.role);
   
   // التحقق من المسارات المحمية
   const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path));
@@ -23,12 +32,14 @@ export async function middleware(request: NextRequest) {
   
   // إذا كان المسار محمي ولا يوجد مستخدم مسجل
   if (isProtectedPath && !token) {
+    console.log('Middleware - Redirecting: No token for protected path');
     const url = new URL('/', request.url);
     return NextResponse.redirect(url);
   }
   
   // إذا كان المسار خاص بالأدمن والمستخدم ليس أدمن
   if (isAdminPath && token?.role !== 'ADMIN') {
+    console.log('Middleware - Redirecting: Not admin, role is:', token?.role);
     const url = new URL('/', request.url);
     return NextResponse.redirect(url);
   }
