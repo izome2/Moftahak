@@ -76,22 +76,11 @@ export async function POST(request: NextRequest) {
 
     // Database error
     console.error('Registration error:', error);
-    
-    // Log detailed error for debugging
-    if (error instanceof Error) {
-      console.error('Error name:', error.name);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-    }
-    
     return NextResponse.json(
       {
         success: false,
         message: 'حدث خطأ أثناء إنشاء الحساب. يرجى المحاولة مرة أخرى',
         error: 'SERVER_ERROR',
-        ...(process.env.NODE_ENV === 'development' && {
-          debug: error instanceof Error ? error.message : String(error)
-        })
       },
       { status: 500 }
     );

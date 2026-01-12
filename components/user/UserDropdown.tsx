@@ -3,14 +3,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
-import Link from 'next/link';
 import Image from 'next/image';
 import { User, Settings, LogOut, ChevronDown, LayoutDashboard } from 'lucide-react';
 import SettingsModal from './SettingsModal';
 
 const UserDropdown: React.FC = () => {
   const { data: session } = useSession();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -22,6 +23,13 @@ const UserDropdown: React.FC = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Prefetch admin page for better performance when user is admin
+  useEffect(() => {
+    if (session?.user?.role === 'ADMIN') {
+      router.prefetch('/admin');
+    }
+  }, [session?.user?.role, router]);
 
   // حساب موقع القائمة
   useEffect(() => {
@@ -154,17 +162,19 @@ const UserDropdown: React.FC = () => {
               <div className="py-2">
                 {/* Admin Dashboard - للأدمن فقط */}
                 {session.user.role === 'ADMIN' && (
-                  <Link
-                    href="/admin"
-                    onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-3 px-5 py-3 text-secondary hover:bg-primary/10 rounded-xl mx-2 transition-all duration-300 group"
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      router.push('/admin');
+                    }}
+                    className="w-full flex items-center gap-3 px-5 py-3 text-secondary hover:bg-primary/10 rounded-xl mx-2 transition-all duration-300 group"
                   >
                     <LayoutDashboard 
                       size={20} 
                       className="text-secondary group-hover:scale-110 transition-transform duration-300"
                     />
                     <span className="font-semibold font-dubai text-base flex-1 text-right">لوحة التحكم</span>
-                  </Link>
+                  </button>
                 )}
 
                 {/* Settings */}
