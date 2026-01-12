@@ -327,7 +327,7 @@ const ImageWith3D: React.FC<{ isImageInView: boolean }> = ({ isImageInView }) =>
           whileHover={{ scale: 1.02 }}
         >
           <Image
-            src="/images/hero/abdullah-profile.jpg"
+            src="/images/hero/abdullah-profile.png"
             alt="عبد الله الخضر"
             width={800}
             height={800}
