@@ -32,7 +32,6 @@ import {
   AlertCircle,
   RefreshCw,
   MessageSquare,
-  FolderOpen,
   Funnel,
   MoreVertical,
   Trash2
@@ -278,13 +277,13 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
                   whileTap={{ scale: 0.95 }}
                   onClick={() => onAccept(consultation.id)}
                   disabled={actionLoading === consultation.id}
-                  className="p-2.5 bg-emerald-400/15 hover:bg-emerald-400/25 rounded-xl transition-colors disabled:opacity-50 border border-emerald-500/30"
+                  className="p-2.5 bg-primary/20 hover:bg-primary/30 rounded-xl transition-colors disabled:opacity-50 border border-primary/40"
                   title="قبول وإنشاء دراسة"
                 >
                   {actionLoading === consultation.id ? (
-                    <Loader2 className="w-5 h-5 text-emerald-700 animate-spin" />
+                    <Loader2 className="w-5 h-5 text-secondary animate-spin" />
                   ) : (
-                    <Check className="w-5 h-5 text-emerald-700" />
+                    <Check className="w-5 h-5 text-secondary" />
                   )}
                 </motion.button>
                 <motion.button
@@ -292,10 +291,10 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
                   whileTap={{ scale: 0.95 }}
                   onClick={() => onReject(consultation.id)}
                   disabled={actionLoading === consultation.id}
-                  className="p-2.5 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors disabled:opacity-50 border border-red-500/30"
+                  className="p-2.5 bg-primary/20 hover:bg-primary/30 rounded-xl transition-colors disabled:opacity-50 border border-primary/40"
                   title="رفض"
                 >
-                  <X className="w-5 h-5 text-red-700" />
+                  <X className="w-5 h-5 text-secondary" />
                 </motion.button>
               </>
             )}
@@ -375,9 +374,9 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
                             onDelete(consultation.id);
                             setMenuOpen(null);
                           }}
-                          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-dubai text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-50/50 transition-all group/item"
+                          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-dubai text-secondary hover:bg-gradient-to-r hover:from-primary/10 hover:to-primary/5 transition-all group/item"
                         >
-                          <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center group-hover/item:bg-red-100 transition-colors">
+                          <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center group-hover/item:bg-primary/30 transition-colors">
                             <Trash2 className="w-4 h-4" />
                           </div>
                           <span className="flex-1 text-right">حذف الطلب</span>
@@ -465,9 +464,6 @@ export default function ConsultationsPage() {
       // تحديث القائمة
       fetchConsultations(pagination?.page || 1);
       setSelectedConsultation(null);
-      
-      // يمكن إضافة إشعار نجاح هنا
-      alert(`تم قبول الاستشارة وإنشاء دراسة الجدوى: ${data.feasibilityStudy.title}`);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'حدث خطأ');
     } finally {
@@ -927,7 +923,8 @@ export default function ConsultationsPage() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleAccept(selectedConsultation.id)}
                     disabled={actionLoading === selectedConsultation.id}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-dubai font-medium transition-colors disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-secondary hover:bg-secondary/90 text-accent rounded-xl font-dubai font-medium transition-colors disabled:opacity-50"
+                    style={{ boxShadow: SHADOWS.button }}
                   >
                     {actionLoading === selectedConsultation.id ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -941,7 +938,7 @@ export default function ConsultationsPage() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleReject(selectedConsultation.id)}
                     disabled={actionLoading === selectedConsultation.id}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-dubai font-medium transition-colors disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary/30 hover:bg-primary/40 text-secondary border-2 border-primary/40 rounded-xl font-dubai font-medium transition-colors disabled:opacity-50"
                   >
                     <X className="w-5 h-5" />
                     رفض
@@ -966,7 +963,7 @@ export default function ConsultationsPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleDelete(selectedConsultation.id)}
-                className="w-full mt-4 py-2.5 text-red-600 hover:bg-red-50 rounded-xl text-sm font-dubai transition-colors border-2 border-red-200"
+                className="w-full mt-4 py-2.5 text-secondary hover:bg-primary/10 rounded-xl text-sm font-dubai transition-colors border-2 border-primary/30"
               >
                 حذف الطلب نهائياً
               </motion.button>

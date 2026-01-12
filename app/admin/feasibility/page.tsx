@@ -30,8 +30,7 @@ import {
   ChefHat, 
   Sofa,
   Search,
-  MessageSquare,
-  FolderOpen
+  MessageSquare
 } from 'lucide-react';
 
 // ============================================
@@ -489,11 +488,6 @@ export default function FeasibilityStudiesPage() {
             className="relative bg-white border-2 border-primary/20 rounded-2xl p-12 text-center overflow-hidden"
             style={{ boxShadow: SHADOWS.card }}
           >
-            {/* أيقونة خلفية كبيرة */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
-              <FolderOpen className="w-64 h-64 text-secondary" strokeWidth={0.5} />
-            </div>
-            
             <div className="relative z-10">
               <motion.div 
                 className="w-20 h-20 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-6 border-2 border-primary/30"
