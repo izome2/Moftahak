@@ -4,9 +4,11 @@
 Next.js 16 full-stack application for "مفتاحك" (Moftahak) - a luxury Egyptian real estate and hotel apartment services platform. **Bilingual (Arabic primary, English secondary)** with:
 - Public landing page with heavy Framer Motion animations
 - NextAuth v5 authentication system (JWT strategy)
-- PostgreSQL database via Prisma (User model with ADMIN/USER roles)
+- PostgreSQL database via Prisma (User, Consultation, FeasibilityStudy models)
 - Admin dashboard for managing users, consultations, and feasibility studies
 - **Feasibility Study Editor** - drag-and-drop slide-based study builder with room items libraries
+- **Public Study Viewer** - Shareable feasibility study links (`/study/[shareId]`)
+- **Vercel Blob Storage** - Avatar uploads via `@vercel/blob`
 
 ## Architecture & Key Patterns
 
@@ -18,15 +20,20 @@ Next.js 16 full-stack application for "مفتاحك" (Moftahak) - a luxury Egypt
 **Protected Routes** (via `middleware.ts`):
 - `/admin/*` - Admin dashboard (ADMIN role only)
   - `admin/users` - User management
-  - `admin/consultations` - Consultation requests
+  - `admin/consultations` - Consultation requests (can accept → create study)
   - `admin/feasibility` - Feasibility study creator/editor
 - `/profile` - User profile settings (authenticated users)
+
+**Public Shareable Routes**:
+- `/study/[shareId]` - Read-only feasibility study viewer (no auth required)
 
 **API Routes** (`app/api/`):
 - `auth/[...nextauth]` - NextAuth handlers
 - `admin/*` - Admin operations (role-checked)
-- `user/*` - User profile/avatar management
-- `feasibility/*` - Airbnb data lookup for study research
+- `user/*` - User profile/avatar management (Vercel Blob upload)
+- `feasibility/[id]` - CRUD operations for studies (admin-only)
+- `feasibility/[shareId]` - Public study fetch by shareId (no auth)
+- `feasibility/airbnb-*` - Airbnb data lookup APIs for study research
 - `consultations/*` - Contact form submissions
 - All sensitive routes protected by `checkRateLimit()` from `lib/rate-limit.ts`
 
@@ -70,6 +77,48 @@ model User {
   emailVerified DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  feasibilityStudies FeasibilityStudy[]
+}
+
+model Consultation {
+  id          String             @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String
+  phone       String?
+  message     String
+  bedrooms    Int?               @default(0)
+  livingRooms Int?               @default(0)
+  kitchens    Int?               @default(0)
+  bathrooms   Int?               @default(0)
+  status      ConsultationStatus @default(PENDING) // PENDING | ACCEPTED | REJECTED | COMPLETED
+  feasibilityStudy   FeasibilityStudy?
+  feasibilityStudyId String?           @unique
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model FeasibilityStudy {
+  id          String      @id @default(cuid())
+  title       String
+  clientName  String
+  clientEmail String?
+  slides      Json        // Slide array stored as JSON
+  bedrooms    Int         @default(1)
+  livingRooms Int         @default(1)
+  kitchens    Int         @default(1)
+  bathrooms   Int         @default(1)
+  totalCost   Float       @default(0)
+  status      StudyStatus @default(DRAFT) // DRAFT | SENT | VIEWED
+  shareId     String?     @unique          // Public sharing link identifier
+  admin       User        @relation(fields: [adminId], references: [id])
+  adminId     String
+  consultation   Consultation?
+  consultationId String?       @unique
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  sentAt      DateTime?
+  viewedAt    DateTime?
 }
 ```
 
@@ -93,7 +142,7 @@ npx prisma studio                           # Browse database
 - **Colors**: Same brand palette but additional transparency variants
 - **Shadows**: 8 predefined levels (`widget`, `widgetHover`, `widgetElevated`, `card`, `soft`, `inner`, `icon`, `popup`)
 - **Widget Classes**: Tailwind class combinations for interactive elements
-- **Sharp corners preserved** (widgets use `rounded-2xl` for softer feel in editor context)
+- **Rounded corners**: Feasibility widgets use `rounded-2xl` for softer feel in editor context
 
 **Key Components** (`components/feasibility/`):
 - `editor/EditorLayout.tsx` - Main editor container with toolbar, canvas, sidebar
@@ -122,12 +171,19 @@ export const createKitchenRoomItem = (item, quantity) => ({ ...item, quantity })
 3. Room setup slide generates child slides → `generateRoomSlides({ bedrooms: 2, ... })` → Auto-creates bedroom/kitchen/etc. slides
 
 ### Styling Architecture
-**CRITICAL: This project has a ZERO border-radius policy**
+**Modern Border Radius System**
 ```javascript
-// tailwind.config.js - ALL borders are sharp corners
+// tailwind.config.js - Rounded corners are allowed
 borderRadius: {
   'none': '0',
-  DEFAULT: '0',  // Even default is 0!
+  'sm': '0.25rem',    // 4px
+  DEFAULT: '0.5rem',  // 8px
+  'md': '0.625rem',   // 10px
+  'lg': '0.75rem',    // 12px
+  'xl': '1rem',       // 16px
+  '2xl': '1.25rem',   // 20px - used in feasibility editor widgets
+  '3xl': '1.5rem',    // 24px
+  'full': '9999px',   // circles
 }
 ```
 
@@ -184,14 +240,14 @@ import { fadeInUp, staggerContainer } from '@/lib/animations/variants';
 - Variants: `primary`, `secondary`, `outline`, `ghost`
 - Sizes: `sm`, `md`, `lg`
 - **All buttons have shimmer effect** via `before:` pseudo-element with gradient sweep
-- Sharp corners enforced (no border-radius)
+- Uses modern border radius system
 
 **Container Component** (`components/ui/Container.tsx`):
 - Standardizes max-width and padding across sections
 
 **Card Component** (`components/ui/Card.tsx`):
 - Base styling for feature cards, service cards
-- Sharp corners, shadow styles with beige tones
+- Modern rounded corners with shadow styles and beige tones
 
 ### Image Management
 **IMPORTANT**: Many images are placeholders from Unsplash/Pravatar
@@ -378,12 +434,12 @@ export async function GET() {
 
 ### Handling User Avatars
 **Upload**: POST to `/api/user/upload` with FormData
-- Saves to `/public/uploads/avatars/[userId]/[filename]`
-- Returns path: `/uploads/avatars/[userId]/[filename]`
-- Updates user record via Prisma
+- Saves to Vercel Blob Storage via `@vercel/blob`
+- Returns blob URL (e.g., `https://[blob-id].public.blob.vercel-storage.com/[filename]`)
+- Updates user record via Prisma with blob URL
 
 **Delete**: DELETE to `/api/user/upload`
-- Removes file from filesystem
+- Removes file from Vercel Blob Storage
 - Resets to default: `/images/default-avatar.svg`
 
 ### Working with Framer Motion Stagger
@@ -405,7 +461,7 @@ import { staggerContainer, fadeInUp } from '@/lib/animations/variants';
 2. Import animation variants from `lib/animations/variants`
 3. Use `useScrollAnimation` hook for viewport detection
 4. Import in `app/page.tsx` and add to component tree
-5. Ensure sharp corners (no border-radius)
+5. Ensure modern rounded corners (no strict policy)
 6. Use brand colors from Tailwind config
 
 ### Creating Animated Components
@@ -456,7 +512,7 @@ className="bg-pattern-vertical-white"        // Custom pattern background
 ## Performance Considerations
 - Images: AVIF/WebP, lazy loading via next/image
 - Fonts: Preloaded with `display: swap`
-- CSS: No border-radius (improves render performance)
+- CSS: Modern border radius system with hardware-accelerated rendering
 - Animations: Hardware-accelerated (transform/opacity only)
 - Reduced motion: Respected via `prefers-reduced-motion` media query
 - Database: Connection pooling with singleton pattern in dev
