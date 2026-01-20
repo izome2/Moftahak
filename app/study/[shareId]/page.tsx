@@ -17,6 +17,7 @@ interface StudyData {
   slides: Slide[];
   totalCost: number;
   createdAt: string;
+  studyType?: 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT';
 }
 
 export default function ViewStudyPage({ params }: PageProps) {
@@ -42,6 +43,7 @@ export default function ViewStudyPage({ params }: PageProps) {
           slides: data.study.slides as Slide[],
           totalCost: data.study.totalCost,
           createdAt: data.study.createdAt,
+          studyType: data.study.studyType,
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');

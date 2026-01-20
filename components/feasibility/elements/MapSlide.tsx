@@ -273,6 +273,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
       rentCount: 0,
       highestRent: 0,
       location: pendingClientLocation,
+      isClientApartment: true, // تمييز شقة العميل
     };
     
     setMapData(prev => ({
@@ -295,6 +296,10 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
   const handleSavePin = () => {
     if (!formData.name.trim()) return;
 
+    // الحصول على بيانات الشقة الأصلية إذا كنا نعدل pin موجود
+    const existingPin = editingPin ? mapData.pins.find(p => p.id === editingPin) : null;
+    const existingApartment = existingPin?.apartment;
+
     const newApartment: NearbyApartment = {
       id: editingPin || `pin-${Date.now()}`,
       name: formData.name,
@@ -307,7 +312,15 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
       features: formData.features.split(',').map(f => f.trim()).filter(Boolean),
       rentCount: formData.rentCount,
       highestRent: formData.highestRent,
-      location: pendingLocation || { lat: mapData.center.lat, lng: mapData.center.lng },
+      location: pendingLocation || existingApartment?.location || { lat: mapData.center.lat, lng: mapData.center.lng },
+      // الحفاظ على الخصائص الأصلية عند التعديل
+      airbnbUrl: existingApartment?.airbnbUrl,
+      thumbnailUrl: existingApartment?.thumbnailUrl,
+      images: existingApartment?.images,
+      description: existingApartment?.description,
+      isClientApartment: existingApartment?.isClientApartment,
+      subtitle: existingApartment?.subtitle,
+      reviewsCount: existingApartment?.reviewsCount,
     };
 
     if (editingPin) {
@@ -345,19 +358,19 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
   
   const handleEditPin = (pinId: string) => {
     const pin = mapData.pins.find(p => p.id === pinId);
-    if (!pin) return;
+    if (!pin || !pin.apartment) return;
 
     setFormData({
-      name: pin.apartment.name,
-      price: pin.apartment.price,
-      rooms: pin.apartment.rooms,
+      name: pin.apartment.name || '',
+      price: pin.apartment.price || 0,
+      rooms: pin.apartment.rooms || 1,
       guests: pin.apartment.guests || 2,
       beds: pin.apartment.beds || 1,
       bathrooms: pin.apartment.bathrooms || 1,
       rating: pin.apartment.rating || 0,
-      features: pin.apartment.features.join(', '),
-      rentCount: pin.apartment.rentCount,
-      highestRent: pin.apartment.highestRent,
+      features: (pin.apartment.features || []).join(', '),
+      rentCount: pin.apartment.rentCount || 0,
+      highestRent: pin.apartment.highestRent || 0,
     });
     setPendingLocation({ lat: pin.lat, lng: pin.lng });
     setEditingPin(pinId);
@@ -601,7 +614,8 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
       
       if (data.listings && data.listings.length > 0) {
         
-        const clientApartment = mapData.pins[0];
+        const clientPin = mapData.pins.find(p => p.apartment.isClientApartment === true);
+        const clientApartment = clientPin || mapData.pins[0];
         
         
         let newApartments: NearbyApartment[] = data.listings.map((listing: any) => ({
@@ -1327,19 +1341,22 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                       onMapChange={handleMapChange}
                     />
                     {}
-                    {mapData.pins.length > 0 && (
-                      <Marker
-                        position={[mapData.pins[0].lat, mapData.pins[0].lng]}
-                        icon={createCustomIcon('my')}
-                      >
-                        <Popup>
-                          <div className="min-w-40 p-2 text-right" dir="rtl">
-                            <h4 className="font-dubai font-bold text-secondary text-sm">🏠 شقة العميل</h4>
-                            <p className="font-dubai text-secondary/60 text-xs">الموقع المرجعي للبحث</p>
-                          </div>
-                        </Popup>
-                      </Marker>
-                    )}
+                    {(() => {
+                      const clientPin = mapData.pins.find(p => p.apartment?.isClientApartment === true) || mapData.pins[0];
+                      return clientPin ? (
+                        <Marker
+                          position={[clientPin.lat, clientPin.lng]}
+                          icon={createCustomIcon('my')}
+                        >
+                          <Popup>
+                            <div className="min-w-40 p-2 text-right" dir="rtl">
+                              <h4 className="font-dubai font-bold text-secondary text-sm">🏠 شقة العميل</h4>
+                              <p className="font-dubai text-secondary/60 text-xs">الموقع المرجعي للبحث</p>
+                            </div>
+                          </Popup>
+                        </Marker>
+                      ) : null;
+                    })()}
                     {}
                     {airbnbListings.map((listing) => {
                       const customIcon = createCustomIcon('airbnb');
@@ -1891,13 +1908,14 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
               )}
               
               {}
-              {mapData.pins.map((pin, index) => {
-                
-                const isMyApartment = index === 0;
+              {mapData.pins.filter(p => p.apartment).map((pin, index) => {
+                // تحقق من وجود apartment وخاصية isClientApartment
+                const isMyApartment = pin.apartment?.isClientApartment === true || 
+                  (index === 0 && !pin.apartment?.airbnbUrl); // fallback للـ pins القديمة
                 
                 const pinType: 'my' | 'airbnb' | 'manual' = isMyApartment 
                   ? 'my' 
-                  : pin.apartment.airbnbUrl 
+                  : pin.apartment?.airbnbUrl 
                     ? 'airbnb' 
                     : 'manual';
                 const customIcon = createCustomIcon(pinType);
@@ -2023,11 +2041,11 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-4">
                 <span className="w-1 h-5 bg-primary rounded-full" />
-                <h4 className="font-dubai font-bold text-secondary text-sm">الشقق المحيطة ({Math.max(0, mapData.pins.length - 1)})</h4>
+                <h4 className="font-dubai font-bold text-secondary text-sm">الشقق المحيطة ({Math.max(0, mapData.pins.filter(p => p.apartment && !p.apartment.isClientApartment).length)})</h4>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <AnimatePresence mode="popLayout">
-                  {mapData.pins.slice(1).map((pin, index) => (
+                  {mapData.pins.filter(p => p.apartment && !p.apartment.isClientApartment).map((pin, index) => (
                     <motion.div
                       key={pin.id}
                       layout="position"
@@ -2119,9 +2137,9 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                         </div>
 
                         {}
-                        {pin.apartment.features.length > 0 && (
+                        {(pin.apartment.features?.length || 0) > 0 && (
                           <div className="flex flex-wrap gap-1 mt-3">
-                            {pin.apartment.features.slice(0, 3).map((feature, idx) => (
+                            {(pin.apartment.features || []).slice(0, 3).map((feature, idx) => (
                               <span
                                 key={idx}
                                 className="px-2 py-0.5 bg-accent/50 text-secondary/70 font-dubai text-[10px] rounded-md"
@@ -2129,9 +2147,9 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                                 {feature}
                               </span>
                             ))}
-                            {pin.apartment.features.length > 3 && (
+                            {(pin.apartment.features?.length || 0) > 3 && (
                               <span className="px-2 py-0.5 bg-primary/20 text-primary font-dubai text-[10px] rounded-md">
-                                +{pin.apartment.features.length - 3}
+                                +{(pin.apartment.features?.length || 0) - 3}
                               </span>
                             )}
                           </div>

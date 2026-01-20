@@ -73,8 +73,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onClose, onOpen }) => {
   const menuItems = [
     { icon: LayoutDashboard, label: 'لوحة التحكم', href: '/admin' },
     { icon: FileText, label: 'دراسات الجدوى', href: '/admin/feasibility' },
+    { icon: Building2, label: 'طلبات الدراسات', href: '/admin/feasibility-requests' },
     { icon: Users, label: 'المستخدمين', href: '/admin/users' },
-    { icon: Building2, label: 'العقارات', href: '/admin/properties' },
     { icon: Settings, label: 'الإعدادات', href: '/admin/settings' },
   ];
 

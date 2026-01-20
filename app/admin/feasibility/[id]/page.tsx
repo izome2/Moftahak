@@ -38,6 +38,7 @@ export default function EditFeasibilityStudyPage({ params }: PageProps) {
     slides: Slide[];
     totalCost: number;
     status: string;
+    studyType: 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT';
   } | null>(null);
   
   // العناصر المضافة (نصوص وصور)
@@ -62,11 +63,13 @@ export default function EditFeasibilityStudyPage({ params }: PageProps) {
           slides: data.study.slides as Slide[],
           totalCost: data.study.totalCost,
           status: data.study.status,
+          studyType: data.study.studyType || 'WITH_FIELD_VISIT',
         });
         
         // تحديث المحرر بالشرائح من قاعدة البيانات
         editor.setStudyId(data.study.id);
         editor.setClientName(data.study.clientName);
+        editor.setStudyType(data.study.studyType || 'WITH_FIELD_VISIT');
         editor.setSlides(data.study.slides as Slide[]);
         
       } catch (err) {

@@ -27,8 +27,9 @@ export default function NewFeasibilityStudyPage() {
     editor.setIsEditorActive(true);
     editor.setStudyId('new');
     editor.setClientName('عميل جديد');
+    editor.setStudyType('WITH_FIELD_VISIT'); // الدراسات اليدوية تكون مع نزول ميداني افتراضياً
     
-    // إنشاء شرائح افتراضية بسيطة (غلاف ومقدمة فقط)
+    // إنشاء شرائح افتراضية (غلاف، مقدمة، تكوين الشقة)
     const initialSlides = [
       {
         id: 'cover-1',
@@ -62,6 +63,23 @@ export default function NewFeasibilityStudyPage() {
           },
         },
         isLocked: true,
+      },
+      {
+        id: 'room-setup-1',
+        type: 'room-setup' as const,
+        title: 'تكوين الشقة',
+        order: 2,
+        data: {
+          roomSetup: {
+            rooms: {
+              bedrooms: 1,
+              livingRooms: 1,
+              kitchens: 1,
+              bathrooms: 1,
+            },
+            slidesGenerated: false,
+          },
+        },
       },
     ];
     

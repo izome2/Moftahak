@@ -258,7 +258,7 @@ interface UseSlidesReturn {
   canRemoveSlide: (id: string) => boolean;
   getTotalCost: () => number;
   getRooms: () => RoomData[];
-  generateRoomSlides: (roomCounts: { bedrooms: number; livingRooms: number; kitchens: number; bathrooms: number }) => void;
+  generateRoomSlides: (roomCounts: { bedrooms: number; livingRooms: number; kitchens: number; bathrooms: number }, studyType?: 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT') => void;
 }
 
 export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
@@ -444,13 +444,15 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
       .map(s => s.data.room!.room);
   }, [slides]);
 
-  // إنشاء شرائح الغرف بناءً على تكوين الشقة
+  // إنشاء شرائح الغرف بناءً على تكوين الشقة ونوع الدراسة
   const generateRoomSlides = useCallback((roomCounts: { 
     bedrooms: number; 
     livingRooms: number; 
     kitchens: number; 
     bathrooms: number 
-  }) => {
+  }, studyType: 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT' = 'WITH_FIELD_VISIT') => {
+    const isWithFieldVisit = studyType === 'WITH_FIELD_VISIT';
+    
     // البحث عن موقع شريحة room-setup لإضافة الشرائح بعدها
     const roomSetupIndex = slides.findIndex(s => s.type === 'room-setup');
     if (roomSetupIndex === -1) return;
@@ -466,13 +468,15 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
     const newSlides: Slide[] = [];
     let slideOrder = roomSetupIndex + 1;
 
-    // المطابخ
-    for (let i = 1; i <= roomCounts.kitchens; i++) {
-      newSlides.push({
-        id: generateId(),
-        type: 'kitchen',
-        title: roomCounts.kitchens === 1 ? 'المطبخ' : `المطبخ ${i}`,
-        order: slideOrder++,
+    // شرائح الغرف فقط مع نزول ميداني
+    if (isWithFieldVisit) {
+      // المطابخ
+      for (let i = 1; i <= roomCounts.kitchens; i++) {
+        newSlides.push({
+          id: generateId(),
+          type: 'kitchen',
+          title: roomCounts.kitchens === 1 ? 'المطبخ' : `المطبخ ${i}`,
+          order: slideOrder++,
         data: {
           room: {
             room: {
@@ -560,22 +564,23 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
           },
         },
       });
-    }
+      }
 
-    // إضافة شريحة ملخص التكاليف
-    newSlides.push({
-      id: generateId(),
-      type: 'cost-summary',
-      title: 'ملخص التكاليف',
-      order: slideOrder++,
-      data: {
-        costSummary: {
-          rooms: [],
-          additionalCosts: [],
-          discount: 0,
+      // إضافة شريحة ملخص التكاليف (فقط مع نزول ميداني)
+      newSlides.push({
+        id: generateId(),
+        type: 'cost-summary',
+        title: 'ملخص التكاليف',
+        order: slideOrder++,
+        data: {
+          costSummary: {
+            rooms: [],
+            additionalCosts: [],
+            discount: 0,
+          },
         },
-      },
-    });
+      });
+    } // نهاية if (isWithFieldVisit)
 
     // إضافة شريحة دراسة المنطقة
     newSlides.push({

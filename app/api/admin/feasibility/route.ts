@@ -91,7 +91,26 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, clientName, clientEmail, slides, totalCost = 0, bedrooms = 0, livingRooms = 0, kitchens = 0, bathrooms = 0 } = body;
+    const { 
+      title, 
+      clientName, 
+      clientEmail, 
+      slides, 
+      totalCost = 0, 
+      bedrooms = 0, 
+      livingRooms = 0, 
+      kitchens = 0, 
+      bathrooms = 0, 
+      studyType = 'WITH_FIELD_VISIT',
+      // بيانات الموقع والعقار
+      latitude,
+      longitude,
+      city,
+      district,
+      propertyType,
+      // ربط بطلب دراسة الجدوى
+      feasibilityRequestId,
+    } = body;
 
     if (!clientName) {
       const response = NextResponse.json(
@@ -101,14 +120,22 @@ export async function POST(request: NextRequest) {
       return addSecurityHeaders(response);
     }
 
-    // استخدام الشرائح المرسلة أو إنشاء شرائح افتراضية
-    const finalSlides = slides || createDefaultSlides(clientName, { bedrooms, livingRooms, kitchens, bathrooms });
+    // استخدام الشرائح المرسلة أو إنشاء شرائح افتراضية حسب نوع الدراسة
+    const locationData = {
+      latitude: latitude || null,
+      longitude: longitude || null,
+      city: city || null,
+      district: district || null,
+      propertyType: propertyType || null,
+    };
+    const finalSlides = slides || createDefaultSlides(clientName, { bedrooms, livingRooms, kitchens, bathrooms }, studyType, locationData);
 
     const study = await prisma.feasibilityStudy.create({
       data: {
         title: title || `دراسة جدوى - ${clientName}`,
         clientName,
         clientEmail: clientEmail || null,
+        studyType: studyType as 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT',
         slides: finalSlides,
         bedrooms,
         livingRooms,
@@ -118,6 +145,8 @@ export async function POST(request: NextRequest) {
         status: 'DRAFT',
         shareId: nanoid(12),
         adminId: session.user.id!,
+        // ربط بطلب دراسة الجدوى إن وجد
+        ...(feasibilityRequestId && { feasibilityRequestId }),
       },
     });
 
@@ -142,14 +171,40 @@ export async function POST(request: NextRequest) {
 }
 
 // دالة إنشاء الشرائح الافتراضية
-function createDefaultSlides(clientName: string, roomConfig: { 
-  bedrooms: number; 
-  livingRooms: number; 
-  kitchens: number; 
-  bathrooms: number 
-}) {
+function createDefaultSlides(
+  clientName: string, 
+  roomConfig: { 
+    bedrooms: number; 
+    livingRooms: number; 
+    kitchens: number; 
+    bathrooms: number 
+  },
+  studyType: string = 'WITH_FIELD_VISIT',
+  locationData: {
+    latitude: number | null;
+    longitude: number | null;
+    city: string | null;
+    district: string | null;
+    propertyType: string | null;
+  } = { latitude: null, longitude: null, city: null, district: null, propertyType: null }
+) {
   const slides = [];
+  const isWithFieldVisit = studyType === 'WITH_FIELD_VISIT';
   let order = 0;
+
+  // تحويل نوع العقار للعربية
+  const propertyTypeLabels: Record<string, string> = {
+    APARTMENT: 'شقة',
+    VILLA: 'فيلا',
+    STUDIO: 'استوديو',
+    DUPLEX: 'دوبلكس',
+    PENTHOUSE: 'بنتهاوس',
+    CHALET: 'شاليه',
+    OTHER: 'عقار',
+  };
+  const propertyTypeArabic = locationData.propertyType 
+    ? propertyTypeLabels[locationData.propertyType] || 'عقار'
+    : 'شقة';
 
   // شريحة الغلاف
   slides.push({
@@ -162,12 +217,22 @@ function createDefaultSlides(clientName: string, roomConfig: {
         clientName,
         studyTitle: 'دراسة جدوى',
         date: new Date().toLocaleDateString('ar-EG'),
+        // معلومات إضافية عن العقار
+        propertyInfo: {
+          type: propertyTypeArabic,
+          city: locationData.city || null,
+          district: locationData.district || null,
+        },
       },
     },
     isLocked: true,
   });
 
   // شريحة المقدمة
+  const locationText = locationData.city && locationData.district 
+    ? `في ${locationData.district}، ${locationData.city}`
+    : '';
+  
   slides.push({
     id: `introduction-${Date.now()}`,
     type: 'introduction',
@@ -176,12 +241,19 @@ function createDefaultSlides(clientName: string, roomConfig: {
     data: {
       introduction: {
         title: `مرحباً بك ${clientName} في دراسة الجدوى`,
-        description: 'تم إعداد هذه الدراسة خصيصاً لمساعدتك في تجهيز شقتك للإيجار السياحي.',
-        bulletPoints: [
+        description: locationText 
+          ? `تم إعداد هذه الدراسة خصيصاً لمساعدتك في تجهيز ${propertyTypeArabic}ك ${locationText} للإيجار السياحي.`
+          : `تم إعداد هذه الدراسة خصيصاً لمساعدتك في تجهيز ${propertyTypeArabic}ك للإيجار السياحي.`,
+        bulletPoints: isWithFieldVisit ? [
           'تحليل شامل لاحتياجات الشقة',
           'تكلفة تقديرية للتجهيزات',
           'دراسة المنطقة المحيطة',
           'إحصائيات وتوقعات الإيجار',
+        ] : [
+          'دراسة المنطقة المحيطة',
+          'تحليل الشقق المنافسة',
+          'إحصائيات وتوقعات الإيجار',
+          'توصيات عامة',
         ],
       },
     },
@@ -207,116 +279,119 @@ function createDefaultSlides(clientName: string, roomConfig: {
     },
   });
 
-  // المطابخ
-  for (let i = 1; i <= roomConfig.kitchens; i++) {
+  // شرائح الغرف وملخص التكاليف فقط مع نزول ميداني
+  if (isWithFieldVisit) {
+    // المطابخ
+    for (let i = 1; i <= roomConfig.kitchens; i++) {
+      slides.push({
+        id: `kitchen-${Date.now()}-${i}`,
+        type: 'kitchen',
+        title: roomConfig.kitchens === 1 ? 'المطبخ' : `المطبخ ${i}`,
+        order: order++,
+        data: {
+          room: {
+            room: {
+              id: `kitchen-${i}`,
+              type: 'kitchen',
+              name: roomConfig.kitchens === 1 ? 'المطبخ' : `مطبخ ${i}`,
+              number: roomConfig.kitchens === 1 ? 0 : i,
+              items: [],
+              totalCost: 0,
+            },
+            showImage: false,
+            imagePosition: 'right',
+          },
+        },
+      });
+    }
+
+    // غرف النوم
+    for (let i = 1; i <= roomConfig.bedrooms; i++) {
+      slides.push({
+        id: `bedroom-${Date.now()}-${i}`,
+        type: 'bedroom',
+        title: `غرفة نوم ${i}`,
+        order: order++,
+        data: {
+          room: {
+            room: {
+              id: `bedroom-${i}`,
+              type: 'bedroom',
+              name: `غرفة نوم ${i}`,
+              number: i,
+              items: [],
+              totalCost: 0,
+            },
+            showImage: false,
+            imagePosition: 'right',
+          },
+        },
+      });
+    }
+
+    // الصالات
+    for (let i = 1; i <= roomConfig.livingRooms; i++) {
+      slides.push({
+        id: `living-room-${Date.now()}-${i}`,
+        type: 'living-room',
+        title: roomConfig.livingRooms === 1 ? 'الصالة' : `الصالة ${i}`,
+        order: order++,
+        data: {
+          room: {
+            room: {
+              id: `living-room-${i}`,
+              type: 'living-room',
+              name: roomConfig.livingRooms === 1 ? 'الصالة' : `صالة ${i}`,
+              number: roomConfig.livingRooms === 1 ? 0 : i,
+              items: [],
+              totalCost: 0,
+            },
+            showImage: false,
+            imagePosition: 'right',
+          },
+        },
+      });
+    }
+
+    // الحمامات
+    for (let i = 1; i <= roomConfig.bathrooms; i++) {
+      slides.push({
+        id: `bathroom-${Date.now()}-${i}`,
+        type: 'bathroom',
+        title: roomConfig.bathrooms === 1 ? 'الحمام' : `الحمام ${i}`,
+        order: order++,
+        data: {
+          room: {
+            room: {
+              id: `bathroom-${i}`,
+              type: 'bathroom',
+              name: roomConfig.bathrooms === 1 ? 'الحمام' : `حمام ${i}`,
+              number: roomConfig.bathrooms === 1 ? 0 : i,
+              items: [],
+              totalCost: 0,
+            },
+            showImage: false,
+            imagePosition: 'right',
+          },
+        },
+      });
+    }
+
+    // ملخص التكاليف
     slides.push({
-      id: `kitchen-${Date.now()}-${i}`,
-      type: 'kitchen',
-      title: roomConfig.kitchens === 1 ? 'المطبخ' : `المطبخ ${i}`,
+      id: `cost-summary-${Date.now()}`,
+      type: 'cost-summary',
+      title: 'ملخص التكاليف',
       order: order++,
       data: {
-        room: {
-          room: {
-            id: `kitchen-${i}`,
-            type: 'kitchen',
-            name: roomConfig.kitchens === 1 ? 'المطبخ' : `مطبخ ${i}`,
-            number: roomConfig.kitchens === 1 ? 0 : i,
-            items: [],
-            totalCost: 0,
-          },
-          showImage: false,
-          imagePosition: 'right',
+        costSummary: {
+          rooms: [],
+          additionalCosts: [],
+          discount: 0,
         },
       },
     });
-  }
-
-  // غرف النوم
-  for (let i = 1; i <= roomConfig.bedrooms; i++) {
-    slides.push({
-      id: `bedroom-${Date.now()}-${i}`,
-      type: 'bedroom',
-      title: `غرفة نوم ${i}`,
-      order: order++,
-      data: {
-        room: {
-          room: {
-            id: `bedroom-${i}`,
-            type: 'bedroom',
-            name: `غرفة نوم ${i}`,
-            number: i,
-            items: [],
-            totalCost: 0,
-          },
-          showImage: false,
-          imagePosition: 'right',
-        },
-      },
-    });
-  }
-
-  // الصالات
-  for (let i = 1; i <= roomConfig.livingRooms; i++) {
-    slides.push({
-      id: `living-room-${Date.now()}-${i}`,
-      type: 'living-room',
-      title: roomConfig.livingRooms === 1 ? 'الصالة' : `الصالة ${i}`,
-      order: order++,
-      data: {
-        room: {
-          room: {
-            id: `living-room-${i}`,
-            type: 'living-room',
-            name: roomConfig.livingRooms === 1 ? 'الصالة' : `صالة ${i}`,
-            number: roomConfig.livingRooms === 1 ? 0 : i,
-            items: [],
-            totalCost: 0,
-          },
-          showImage: false,
-          imagePosition: 'right',
-        },
-      },
-    });
-  }
-
-  // الحمامات
-  for (let i = 1; i <= roomConfig.bathrooms; i++) {
-    slides.push({
-      id: `bathroom-${Date.now()}-${i}`,
-      type: 'bathroom',
-      title: roomConfig.bathrooms === 1 ? 'الحمام' : `الحمام ${i}`,
-      order: order++,
-      data: {
-        room: {
-          room: {
-            id: `bathroom-${i}`,
-            type: 'bathroom',
-            name: roomConfig.bathrooms === 1 ? 'الحمام' : `حمام ${i}`,
-            number: roomConfig.bathrooms === 1 ? 0 : i,
-            items: [],
-            totalCost: 0,
-          },
-          showImage: false,
-          imagePosition: 'right',
-        },
-      },
-    });
-  }
-
-  // ملخص التكاليف
-  slides.push({
-    id: `cost-summary-${Date.now()}`,
-    type: 'cost-summary',
-    title: 'ملخص التكاليف',
-    order: order++,
-    data: {
-      costSummary: {
-        rooms: [],
-        additionalCosts: [],
-        discount: 0,
-      },
-    },
-  });
+  } // نهاية if (isWithFieldVisit)
 
   // دراسة المنطقة
   slides.push({
@@ -327,12 +402,35 @@ function createDefaultSlides(clientName: string, roomConfig: {
     data: {
       areaStudy: {
         title: 'دراسة المناطق المحيطة',
-        description: 'تحليل شامل للشقق المحيطة وأسعار الإيجار في المنطقة.',
+        description: 'تحليل شامل للشقق المحيطة وأسعار الإيجار في منطقة شقتك الخاصه',
       },
     },
   });
 
-  // الخريطة
+  // الخريطة - استخدام موقع العميل إذا كان متوفراً
+  const mapCenter = locationData.latitude && locationData.longitude 
+    ? { lat: locationData.latitude, lng: locationData.longitude }
+    : { lat: 30.0444, lng: 31.2357 }; // القاهرة كموقع افتراضي
+    
+  const propertyPin = locationData.latitude && locationData.longitude 
+    ? [{
+        id: 'property-location',
+        lat: locationData.latitude,
+        lng: locationData.longitude,
+        apartment: {
+          id: 'property-location',
+          name: 'شقتي',
+          price: 0,
+          rooms: roomConfig.bedrooms,
+          features: [],
+          rentCount: 0,
+          highestRent: 0,
+          location: { lat: locationData.latitude, lng: locationData.longitude },
+          isClientApartment: true, // تمييز شقة العميل
+        },
+      }]
+    : [];
+
   slides.push({
     id: `map-${Date.now()}`,
     type: 'map',
@@ -340,9 +438,15 @@ function createDefaultSlides(clientName: string, roomConfig: {
     order: order++,
     data: {
       map: {
-        center: { lat: 30.0444, lng: 31.2357 },
-        zoom: 14,
-        pins: [],
+        center: mapCenter,
+        zoom: 15,
+        pins: propertyPin,
+        propertyLocation: locationData.latitude && locationData.longitude ? {
+          lat: locationData.latitude,
+          lng: locationData.longitude,
+          city: locationData.city,
+          district: locationData.district,
+        } : null,
       },
     },
   });

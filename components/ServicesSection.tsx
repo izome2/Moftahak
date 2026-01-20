@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect, useMemo } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 import Container from './ui/Container';
@@ -28,6 +29,7 @@ interface Service {
   buttonText: string;
   studentsCount?: string;
   studentImages?: string[];
+  href: string;
 }
 
 const ServicesSection: React.FC = () => {
@@ -86,10 +88,10 @@ const ServicesSection: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
       badge: 'الأكثر طلباً',
       badgeVariant: 'info',
-      title: 'استشارة إعداد وحدة جديدة',
-      description: 'خطة كاملة لتحويل شقتك إلى وحدة إيجار قصير احترافية',
-      price: '2,500 جنيه',
-      buttonText: 'احجز الآن',
+      title: 'دراسة جدوى بدون نزول ميداني',
+      description: 'تحليل شامل للسوق والمنطقة وتوقعات الإيرادات بدون الحاجة لزيارة العقار',
+      price: '٢,٥٠٠ جنيه',
+      buttonText: 'اطلب الآن',
       studentsCount: '2K+',
       studentImages: [
         'https://i.pravatar.cc/150?img=1',
@@ -97,16 +99,17 @@ const ServicesSection: React.FC = () => {
         'https://i.pravatar.cc/150?img=3',
         'https://i.pravatar.cc/150?img=4',
       ],
+      href: '/feasibility-request?type=without-field',
     },
     {
       id: 2,
-      image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop',
-      badge: 'جديد',
+      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop',
+      badge: 'شامل',
       badgeVariant: 'success',
-      title: 'برنامج إدارة العمليات الكاملة',
-      description: 'نظام شامل لإدارة حجوزاتك وفريقك ومالياتك بشفافية',
-      price: '5,000 جنيه',
-      buttonText: 'سجل الآن',
+      title: 'دراسة جدوى مع نزول ميداني',
+      description: 'دراسة شاملة تتضمن زيارة ميدانية للعقار وخطة تجهيز كاملة مع التكاليف',
+      price: '٥,٠٠٠ جنيه',
+      buttonText: 'اطلب الآن',
       studentsCount: '1.5K+',
       studentImages: [
         'https://i.pravatar.cc/150?img=5',
@@ -114,72 +117,7 @@ const ServicesSection: React.FC = () => {
         'https://i.pravatar.cc/150?img=7',
         'https://i.pravatar.cc/150?img=8',
       ],
-    },
-    {
-      id: 3,
-      image: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&h=600&fit=crop',
-      badge: 'Online',
-      badgeVariant: 'warning',
-      title: 'دورة استضافة Airbnb للمبتدئين',
-      description: 'تعلم أساسيات بدء مشروع إيجار قصير ناجح من الصفر',
-      price: '999 جنيه',
-      buttonText: 'ابدأ التعلم',
-      studentsCount: '3K+',
-      studentImages: [
-        'https://i.pravatar.cc/150?img=9',
-        'https://i.pravatar.cc/150?img=10',
-        'https://i.pravatar.cc/150?img=11',
-        'https://i.pravatar.cc/150?img=12',
-      ],
-    },
-    {
-      id: 4,
-      image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop',
-      badge: 'شخصياً',
-      badgeVariant: 'primary',
-      title: 'تدريب الفرق الميدانية',
-      description: 'تدريب عملي على معايير الخدمة الفندقية والتعامل مع الضيوف',
-      price: '4,000 جنيه',
-      buttonText: 'اطلب تدريب',
-      studentsCount: '800+',
-      studentImages: [
-        'https://i.pravatar.cc/150?img=13',
-        'https://i.pravatar.cc/150?img=14',
-        'https://i.pravatar.cc/150?img=15',
-        'https://i.pravatar.cc/150?img=16',
-      ],
-    },
-    {
-      id: 5,
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
-      title: 'استشارة التسعير والأداء',
-      description: 'تحليل شامل لأداء وحدتك واستراتيجية تسعير ديناميكية',
-      price: '1,500 جنيه',
-      buttonText: 'احجز الآن',
-      studentsCount: '1.2K+',
-      studentImages: [
-        'https://i.pravatar.cc/150?img=17',
-        'https://i.pravatar.cc/150?img=18',
-        'https://i.pravatar.cc/150?img=19',
-        'https://i.pravatar.cc/150?img=20',
-      ],
-    },
-    {
-      id: 6,
-      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop',
-      badge: 'VIP',
-      badgeVariant: 'primary',
-      title: 'حزمة الإدارة الكاملة',
-      description: 'ندير عقارك بالكامل من التسويق حتى استقبال الضيوف',
-      price: 'من 15% من الإيرادات',
-      buttonText: 'استفسر الآن',
-      studentsCount: '500+',
-      studentImages: [
-        'https://i.pravatar.cc/150?img=21',
-        'https://i.pravatar.cc/150?img=22',
-        'https://i.pravatar.cc/150?img=23',
-        'https://i.pravatar.cc/150?img=24',
-      ],
+      href: '/feasibility-request?type=with-field',
     },
   ], []);
 
@@ -275,7 +213,7 @@ const ServicesSection: React.FC = () => {
           </motion.p>
         </motion.div>
 
-        {}
+        {/* Services Grid */}
         <motion.div 
           ref={gridRef}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
@@ -430,7 +368,7 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
           />
         </motion.div>
         
-        {}
+        {/* Badge */}
         {service.badge && (
           <motion.div 
             className="absolute top-4 right-4 z-10"
@@ -446,7 +384,7 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
         )}
       </div>
 
-      {}
+      {/* Student Count Badge */}
       {service.studentImages && service.studentsCount && (
         <div className="absolute right-6 z-50 pointer-events-none" style={{ top: 'calc(18rem - 1rem)', transform: 'translateZ(40px)' }}>
           <motion.div 
@@ -475,7 +413,7 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
               ))}
             </div>
             <span className="text-sm font-bold text-secondary mr-1">
-              {service.studentsCount} طالب
+              {service.studentsCount} عميل
             </span>
           </div>
           </motion.div>
@@ -515,22 +453,24 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
           <span className="text-2xl font-bold text-secondary font-bristone">
             {service.price}
           </span>
-          <motion.button
-            className="shrink-0 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-secondary bg-linear-to-tl from-[#e5b483] to-[#edc49f] rounded-lg shadow-[0_0_15px_rgba(180,130,80,0.25)] relative overflow-hidden"
-            whileHover={{ 
-              scale: 1.05,
-              boxShadow: '0 0 20px rgba(180,130,80,0.35)'
-            }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <span className="relative z-10">{service.buttonText}</span>
-            <motion.div
-              animate={{ x: [0, 5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
+          <Link href={service.href}>
+            <motion.span
+              className="shrink-0 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-secondary bg-linear-to-tl from-[#e5b483] to-[#edc49f] rounded-lg shadow-[0_0_15px_rgba(180,130,80,0.25)] relative overflow-hidden cursor-pointer"
+              whileHover={{ 
+                scale: 1.05,
+                boxShadow: '0 0 20px rgba(180,130,80,0.35)'
+              }}
+              whileTap={{ scale: 0.95 }}
             >
-              <ArrowLeft size={16} className="relative z-10" />
-            </motion.div>
-          </motion.button>
+              <span className="relative z-10">{service.buttonText}</span>
+              <motion.span
+                animate={{ x: [0, 5, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <ArrowLeft size={16} className="relative z-10" />
+              </motion.span>
+            </motion.span>
+          </Link>
         </motion.div>
       </div>
     </motion.div>

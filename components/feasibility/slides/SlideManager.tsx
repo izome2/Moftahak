@@ -83,6 +83,7 @@ interface SlideManagerProps {
   onSetSlideOrder: (newOrder: Slide[]) => void;
   canRemoveSlide: (id: string) => boolean;
   compact?: boolean;
+  studyType?: 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT';
 }
 
 const SlideManager: React.FC<SlideManagerProps> = ({
@@ -96,6 +97,7 @@ const SlideManager: React.FC<SlideManagerProps> = ({
   onSetSlideOrder,
   canRemoveSlide,
   compact = false,
+  studyType = 'WITH_FIELD_VISIT',
 }) => {
   const [showAddMenu, setShowAddMenu] = React.useState(false);
   const [contextMenu, setContextMenu] = React.useState<{
@@ -103,6 +105,16 @@ const SlideManager: React.FC<SlideManagerProps> = ({
     x: number;
     y: number;
   } | null>(null);
+
+  // فلترة أنواع الشرائح حسب نوع الدراسة
+  const filteredSlideTypes = React.useMemo(() => {
+    if (studyType === 'WITHOUT_FIELD_VISIT') {
+      // إخفاء شرائح الغرف وملخص التكاليف
+      const hiddenTypes: SlideType[] = ['kitchen', 'bedroom', 'living-room', 'bathroom', 'cost-summary'];
+      return availableSlideTypes.filter(st => !hiddenTypes.includes(st.type));
+    }
+    return availableSlideTypes;
+  }, [studyType]);
 
   // معالجة إعادة الترتيب - Reorder من Framer Motion يمرر الترتيب الجديد
   const handleReorder = (newOrder: Slide[]) => {
@@ -251,7 +263,7 @@ const SlideManager: React.FC<SlideManagerProps> = ({
                     display: none;
                   }
                 `}</style>
-                {availableSlideTypes.map((slideType) => {
+                {filteredSlideTypes.map((slideType) => {
                   const Icon = slideIcons[slideType.type];
                   return (
                     <button

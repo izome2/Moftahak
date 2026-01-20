@@ -4,14 +4,22 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { Menu, X, Phone, User, ShoppingCart } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Menu, X, Phone, User, ShoppingCart, FileText } from 'lucide-react';
 import Button from './ui/Button';
 import Container from './ui/Container';
 import AuthModal from './auth/AuthModal';
 import UserDropdown from './user/UserDropdown';
 
+interface NavLink {
+  label: string;
+  href: string;
+  isPage?: boolean; // true إذا كان الرابط لصفحة منفصلة وليس قسم في الصفحة الرئيسية
+}
+
 const Navbar: React.FC = () => {
   const { data: session } = useSession();
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOutOfHero, setIsOutOfHero] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -34,13 +42,25 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
+  const navLinks: NavLink[] = [
     { label: 'الرئيسية', href: '#home' },
     { label: 'من أنا', href: '#about' },
     { label: 'الخدمات', href: '#services' },
+    { label: 'دراسة الجدوى', href: '/feasibility-request', isPage: true },
     { label: 'المحتوى', href: '#content' },
     { label: 'تواصل معي', href: '#contact' },
   ];
+
+  const handleNavClick = (link: NavLink) => {
+    if (link.isPage) {
+      // الانتقال لصفحة منفصلة
+      router.push(link.href);
+    } else {
+      // التمرير لقسم في الصفحة الرئيسية
+      scrollToSection(link.href);
+    }
+    setIsMobileMenuOpen(false);
+  };
 
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
@@ -85,8 +105,12 @@ const Navbar: React.FC = () => {
             {navLinks.map((link) => (
               <button
                 key={link.href}
-                onClick={() => scrollToSection(link.href)}
-                className="text-secondary hover:text-primary font-semibold text-base transition-colors duration-300 relative group"
+                onClick={() => handleNavClick(link)}
+                className={`font-semibold text-base transition-colors duration-300 relative group ${
+                  link.isPage 
+                    ? 'text-primary hover:text-primary/80' 
+                    : 'text-secondary hover:text-primary'
+                }`}
               >
                 {link.label}
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
@@ -141,8 +165,12 @@ const Navbar: React.FC = () => {
               {navLinks.map((link) => (
                 <button
                   key={link.href}
-                  onClick={() => scrollToSection(link.href)}
-                  className="text-right text-secondary hover:text-primary font-semibold py-2 transition-colors duration-300"
+                  onClick={() => handleNavClick(link)}
+                  className={`text-right font-semibold py-2 transition-colors duration-300 ${
+                    link.isPage 
+                      ? 'text-primary hover:text-primary/80' 
+                      : 'text-secondary hover:text-primary'
+                  }`}
                 >
                   {link.label}
                 </button>

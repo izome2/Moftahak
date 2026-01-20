@@ -863,24 +863,29 @@ export default function NearbyApartmentsSlide({
   const apartments = useMemo(() => {
     if (mapData?.pins && mapData.pins.length > 0) {
       // إرجاع كل الشقق من الخريطة مع دمج البيانات المحفوظة
-      return mapData.pins.map(pin => {
-        // البحث عن بيانات محفوظة لهذه الشقة
-        const savedApartment = data.apartments.find(a => a.id === pin.apartment.id);
-        return {
-          ...pin.apartment,
-          // دمج الصور والوصف والصورة المصغرة من البيانات المحفوظة
-          images: savedApartment?.images || pin.apartment.images,
-          description: savedApartment?.description || pin.apartment.description,
-          thumbnailUrl: savedApartment?.thumbnailUrl || pin.apartment.thumbnailUrl,
-          // دمج باقي البيانات القابلة للتعديل
-          price: savedApartment?.price ?? pin.apartment.price,
-          rooms: savedApartment?.rooms ?? pin.apartment.rooms,
-          guests: savedApartment?.guests ?? pin.apartment.guests,
-          beds: savedApartment?.beds ?? pin.apartment.beds,
-          bathrooms: savedApartment?.bathrooms ?? pin.apartment.bathrooms,
-          rating: savedApartment?.rating ?? pin.apartment.rating,
-        };
-      });
+      return mapData.pins
+        .filter(pin => pin.apartment) // تصفية الـ pins التي ليس لديها apartment
+        .map(pin => {
+          // البحث عن بيانات محفوظة لهذه الشقة
+          const savedApartment = data.apartments.find(a => a.id === pin.apartment.id);
+          return {
+            ...pin.apartment,
+            // دمج الصور والوصف والصورة المصغرة من البيانات المحفوظة
+            images: savedApartment?.images || pin.apartment.images || [],
+            description: savedApartment?.description || pin.apartment.description || '',
+            thumbnailUrl: savedApartment?.thumbnailUrl || pin.apartment.thumbnailUrl || '',
+            // دمج باقي البيانات القابلة للتعديل
+            price: savedApartment?.price ?? pin.apartment.price ?? 0,
+            rooms: savedApartment?.rooms ?? pin.apartment.rooms ?? 0,
+            guests: savedApartment?.guests ?? pin.apartment.guests ?? 0,
+            beds: savedApartment?.beds ?? pin.apartment.beds ?? 0,
+            bathrooms: savedApartment?.bathrooms ?? pin.apartment.bathrooms ?? 0,
+            rating: savedApartment?.rating ?? pin.apartment.rating ?? 0,
+            // الحفاظ على الخصائص الأصلية المهمة
+            airbnbUrl: pin.apartment.airbnbUrl,
+            isClientApartment: pin.apartment.isClientApartment,
+          };
+        });
     }
     return data.apartments;
   }, [mapData?.pins, data.apartments]);
@@ -916,7 +921,7 @@ export default function NearbyApartmentsSlide({
   };
 
   const mergedApartments = useMemo(() => {
-    return apartments.map(apt => ({
+    const merged = apartments.map(apt => ({
       ...apt,
       description: localData[apt.id]?.description ?? apt.description,
       images: localData[apt.id]?.images ?? apt.images,
@@ -927,7 +932,17 @@ export default function NearbyApartmentsSlide({
       bathrooms: (localData[apt.id] as any)?.bathrooms ?? apt.bathrooms,
       rating: (localData[apt.id] as any)?.rating ?? apt.rating,
       thumbnailUrl: (localData[apt.id] as any)?.thumbnailUrl ?? apt.thumbnailUrl,
+      // الحفاظ على الخصائص الأصلية
+      airbnbUrl: apt.airbnbUrl,
+      isClientApartment: apt.isClientApartment,
     }));
+    
+    // ترتيب الشقق: شقة العميل أولاً دائماً
+    return merged.sort((a, b) => {
+      if (a.isClientApartment && !b.isClientApartment) return -1;
+      if (!a.isClientApartment && b.isClientApartment) return 1;
+      return 0;
+    });
   }, [apartments, localData]);
 
   // حفظ التغييرات تلقائياً عند تعديل localData
@@ -946,6 +961,9 @@ export default function NearbyApartmentsSlide({
         bathrooms: (localData[apt.id] as any)?.bathrooms ?? apt.bathrooms,
         rating: (localData[apt.id] as any)?.rating ?? apt.rating,
         thumbnailUrl: (localData[apt.id] as any)?.thumbnailUrl ?? apt.thumbnailUrl,
+        // الحفاظ على الخصائص الأصلية
+        airbnbUrl: apt.airbnbUrl,
+        isClientApartment: apt.isClientApartment,
       }));
       
       onUpdateRef.current({
@@ -960,15 +978,16 @@ export default function NearbyApartmentsSlide({
   const nearestLandmarks = useMemo(() => {
     if (!mapData?.pins || mapData.pins.length === 0) return [];
     
-    // استخدام موقع شقة العميل (أول pin)
-    const clientLocation = mapData.pins[0];
+    // استخدام موقع شقة العميل (البحث بخاصية isClientApartment أو أول pin كـ fallback)
+    const clientPin = mapData.pins.find(p => p.apartment?.isClientApartment === true) || mapData.pins[0];
+    if (!clientPin) return [];
     
     // حساب المسافة لكل معلم
     const landmarksWithDistance = LANDMARKS.map(landmark => ({
       ...landmark,
       distance: calculateDistance(
-        clientLocation.lat,
-        clientLocation.lng,
+        clientPin.lat,
+        clientPin.lng,
         landmark.lat,
         landmark.lng
       )
@@ -1230,7 +1249,7 @@ export default function NearbyApartmentsSlide({
                       apartment={apartment}
                       index={originalIndex}
                       isEditing={isEditing}
-                      isMyApartment={originalIndex === 0}
+                      isMyApartment={apartment.isClientApartment === true}
                       onUpdateDescription={handleUpdateDescription}
                       onUpdateImages={handleUpdateImages}
                       onUpdateApartment={handleUpdateApartment}
@@ -1250,7 +1269,7 @@ export default function NearbyApartmentsSlide({
                       apartment={apartment}
                       index={originalIndex}
                       isEditing={isEditing}
-                      isMyApartment={originalIndex === 0}
+                      isMyApartment={apartment.isClientApartment === true}
                       onUpdateDescription={handleUpdateDescription}
                       onUpdateImages={handleUpdateImages}
                       onUpdateApartment={handleUpdateApartment}

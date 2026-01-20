@@ -49,6 +49,31 @@ enum StudyStatus {
   VIEWED    // تمت المشاهدة
 }
 
+// نوع العقار - Property Type
+enum PropertyType {
+  APARTMENT     // شقة
+  VILLA         // فيلا
+  STUDIO        // استوديو
+  DUPLEX        // دوبلكس
+  PENTHOUSE     // بنتهاوس
+  CHALET        // شاليه
+  OTHER         // أخرى
+}
+
+// نوع دراسة الجدوى - Study Request Type
+enum StudyRequestType {
+  WITHOUT_FIELD_VISIT   // بدون نزول ميداني
+  WITH_FIELD_VISIT      // مع نزول ميداني
+}
+
+// حالة طلب دراسة الجدوى - Feasibility Request Status
+enum FeasibilityRequestStatus {
+  PENDING       // في الانتظار
+  IN_PROGRESS   // قيد المعالجة
+  COMPLETED     // مكتمل
+  REJECTED      // مرفوض
+}
+
 // Consultation Model - نموذج طلب الاستشارة
 model Consultation {
   id          String             @id @default(cuid())
@@ -82,6 +107,10 @@ model FeasibilityStudy {
   title       String
   clientName  String      @map("client_name")
   clientEmail String?     @map("client_email")
+  clientPhone String?     @map("client_phone")
+  
+  // نوع الدراسة
+  studyType   StudyRequestType  @default(WITH_FIELD_VISIT) @map("study_type")
   
   // بيانات الشرائح (JSON)
   slides      Json
@@ -105,9 +134,13 @@ model FeasibilityStudy {
   admin       User        @relation("AdminStudies", fields: [adminId], references: [id])
   adminId     String      @map("admin_id")
   
-  // طلب الاستشارة المرتبط (اختياري)
+  // طلب الاستشارة المرتبط (اختياري) - النظام القديم
   consultation   Consultation? @relation("ConsultationStudy", fields: [consultationId], references: [id])
   consultationId String?       @unique @map("consultation_id")
+  
+  // طلب دراسة الجدوى المرتبط (اختياري) - النظام الجديد
+  feasibilityRequest   FeasibilityRequest? @relation("RequestStudy", fields: [feasibilityRequestId], references: [id])
+  feasibilityRequestId String?             @unique @map("feasibility_request_id")
   
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
@@ -115,4 +148,62 @@ model FeasibilityStudy {
   viewedAt    DateTime?   @map("viewed_at")
 
   @@map("feasibility_studies")
+}
+
+// Feasibility Request Model - نموذج طلب دراسة الجدوى (النظام الجديد)
+model FeasibilityRequest {
+  id              String                    @id @default(cuid())
+  
+  // نوع الدراسة
+  studyType       StudyRequestType          @map("study_type")
+  
+  // بيانات العميل
+  fullName        String                    @map("full_name")
+  email           String
+  emailVerified   Boolean                   @default(false) @map("email_verified")
+  phone           String?                   // رقم للتواصل فقط (اختياري)
+  
+  // بيانات العقار
+  propertyType    PropertyType              @map("property_type")
+  bedrooms        Int                       @default(1)
+  livingRooms     Int                       @default(1) @map("living_rooms")
+  kitchens        Int                       @default(1)
+  bathrooms       Int                       @default(1)
+  
+  // بيانات الموقع
+  city            String
+  district        String
+  googleMapsUrl   String?                   @map("google_maps_url")
+  latitude        Float?
+  longitude       Float?
+  
+  // الحالة
+  status          FeasibilityRequestStatus  @default(PENDING)
+  
+  // ملاحظات الأدمن
+  adminNotes      String?                   @map("admin_notes")
+  
+  // العلاقة مع دراسة الجدوى (عند إنشائها)
+  feasibilityStudy FeasibilityStudy?        @relation("RequestStudy")
+  
+  createdAt       DateTime                  @default(now()) @map("created_at")
+  updatedAt       DateTime                  @updatedAt @map("updated_at")
+
+  @@map("feasibility_requests")
+}
+
+// Email Verification Model - نموذج التحقق من البريد الإلكتروني
+model EmailVerification {
+  id          String    @id @default(cuid())
+  email       String
+  code        String
+  expiresAt   DateTime  @map("expires_at")
+  verified    Boolean   @default(false)
+  verifiedAt  DateTime? @map("verified_at")
+  attempts    Int       @default(0)
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([email, code])
+  @@index([email, expiresAt])
+  @@map("email_verifications")
 }

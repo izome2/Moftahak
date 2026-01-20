@@ -30,6 +30,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         slides: true,
         totalCost: true,
         status: true,
+        studyType: true,
         createdAt: true,
       },
     });

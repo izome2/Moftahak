@@ -27,6 +27,7 @@ import {
   Minus
 } from 'lucide-react';
 import type { RoomSetupSlideData, SlideData, RoomData, RoomType } from '@/types/feasibility';
+import { useFeasibilityEditorSafe } from '@/contexts/FeasibilityEditorContext';
 
 // ============================================
 // 🎨 DESIGN TOKENS
@@ -49,7 +50,8 @@ interface RoomSetupSlideProps {
   isEditing?: boolean;
   onUpdate?: (data: Partial<SlideData>) => void;
   onRoomsGenerated?: (rooms: RoomData[]) => void;
-  onGenerateRoomSlides?: (roomCounts: { bedrooms: number; livingRooms: number; kitchens: number; bathrooms: number }) => void;
+  onGenerateRoomSlides?: (roomCounts: { bedrooms: number; livingRooms: number; kitchens: number; bathrooms: number }, studyType?: 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT') => void;
+  studyType?: 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT';
 }
 
 interface RoomCounts {
@@ -257,7 +259,12 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
   onUpdate,
   onRoomsGenerated,
   onGenerateRoomSlides,
+  studyType: propStudyType,
 }) => {
+  // جلب studyType من context إذا كان متاحاً
+  const editorContext = useFeasibilityEditorSafe();
+  const studyType = propStudyType || editorContext?.studyType || 'WITH_FIELD_VISIT';
+  
   const [roomCounts, setRoomCounts] = useState<RoomCounts>({
     bedroom: data.rooms?.bedrooms || 1,
     'living-room': data.rooms?.livingRooms || 1,
@@ -358,7 +365,7 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
         livingRooms: roomCounts['living-room'],
         kitchens: roomCounts.kitchen,
         bathrooms: roomCounts.bathroom,
-      });
+      }, studyType);
       setIsGenerating(false);
       setHasGenerated(true);
       

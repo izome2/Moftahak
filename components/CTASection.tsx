@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, ArrowLeft, Sparkles, TrendingUp, CheckCircle2, User, MessageSquare, Facebook, Instagram, Youtube, Linkedin, Twitter, Phone, MapPin, Home, Bed, Bath, ChefHat, Sofa, Plus, Minus, Loader2 } from 'lucide-react';
+import { Mail, ArrowLeft, Sparkles, TrendingUp, CheckCircle2, User, MessageSquare, Facebook, Instagram, Youtube, Linkedin, Twitter, Phone, MapPin, Loader2 } from 'lucide-react';
 import Container from './ui/Container';
 import Input from './ui/Input';
 import Button from './ui/Button';
@@ -21,15 +21,6 @@ const CTASection: React.FC = () => {
     lastName: '',
     email: '',
     message: '',
-  });
-  
-  // حالة تكوين الشقة
-  const [showRoomConfig, setShowRoomConfig] = useState(false);
-  const [roomConfig, setRoomConfig] = useState({
-    bedrooms: 0,
-    livingRooms: 0,
-    kitchens: 0,
-    bathrooms: 0,
   });
   
   // حالات الإرسال
@@ -69,14 +60,6 @@ const CTASection: React.FC = () => {
     }
   };
 
-  // تحديث عدد الغرف
-  const updateRoomCount = (room: keyof typeof roomConfig, delta: number) => {
-    setRoomConfig(prev => ({
-      ...prev,
-      [room]: Math.max(0, Math.min(prev[room] + delta, room === 'bedrooms' ? 10 : room === 'bathrooms' ? 5 : room === 'livingRooms' ? 5 : 3)),
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -86,10 +69,7 @@ const CTASection: React.FC = () => {
       const response = await fetch('/api/consultations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          ...(showRoomConfig ? roomConfig : {}),
-        }),
+        body: JSON.stringify(formData),
       });
       
       const data = await response.json();
@@ -100,8 +80,6 @@ const CTASection: React.FC = () => {
       
       setSubmitSuccess(true);
       setFormData({ firstName: '', lastName: '', email: '', message: '' });
-      setRoomConfig({ bedrooms: 0, livingRooms: 0, kitchens: 0, bathrooms: 0 });
-      setShowRoomConfig(false);
       
       // إخفاء رسالة النجاح بعد 5 ثوان
       setTimeout(() => setSubmitSuccess(false), 5000);
@@ -118,47 +96,6 @@ const CTASection: React.FC = () => {
       [e.target.name]: e.target.value,
     });
   };
-  
-  // عداد الغرفة
-  const RoomCounter = ({ 
-    icon: Icon, 
-    label, 
-    value, 
-    roomKey,
-    max
-  }: { 
-    icon: React.ElementType; 
-    label: string; 
-    value: number; 
-    roomKey: keyof typeof roomConfig;
-    max: number;
-  }) => (
-    <div className="flex items-center justify-between bg-white/50 rounded-lg p-2 border border-primary/20">
-      <div className="flex items-center gap-2">
-        <Icon className="w-4 h-4 text-secondary" />
-        <span className="text-sm text-secondary font-medium">{label}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => updateRoomCount(roomKey, -1)}
-          disabled={value === 0}
-          className="w-6 h-6 rounded-md bg-secondary/10 hover:bg-secondary/20 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
-        >
-          <Minus className="w-3 h-3 text-secondary" />
-        </button>
-        <span className="w-6 text-center font-bold text-secondary">{value}</span>
-        <button
-          type="button"
-          onClick={() => updateRoomCount(roomKey, 1)}
-          disabled={value >= max}
-          className="w-6 h-6 rounded-md bg-secondary/10 hover:bg-secondary/20 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
-        >
-          <Plus className="w-3 h-3 text-secondary" />
-        </button>
-      </div>
-    </div>
-  );
 
   return (
     <section className="pt-24 relative overflow-visible bg-linear-to-b from-[#fdf6ee] via-[#f5e6d3] to-[#f0dcc4]" id="cta">
@@ -278,70 +215,6 @@ const CTASection: React.FC = () => {
                     className="w-full pr-10 pl-4 py-3 bg-[#fdf6ee] border-2 border-primary/20 focus:border-primary rounded-xl text-secondary placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                     required
                   />
-                </motion.div>
-
-                {/* خيار تكوين الشقة */}
-                <motion.div variants={fadeInUp}>
-                  <button
-                    type="button"
-                    onClick={() => setShowRoomConfig(!showRoomConfig)}
-                    className="flex items-center gap-2 text-sm text-secondary/70 hover:text-secondary transition-colors"
-                  >
-                    <Home className="w-4 h-4" />
-                    <span>{showRoomConfig ? 'إخفاء تكوين الشقة' : 'أضف تفاصيل شقتك (اختياري)'}</span>
-                    <motion.div
-                      animate={{ rotate: showRoomConfig ? 180 : 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Plus className={`w-4 h-4 transition-transform ${showRoomConfig ? 'rotate-45' : ''}`} />
-                    </motion.div>
-                  </button>
-                  
-                  <AnimatePresence>
-                    {showRoomConfig && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="grid grid-cols-2 gap-2 mt-3 p-3 bg-accent/30 rounded-xl border border-primary/20">
-                          <RoomCounter 
-                            icon={Bed} 
-                            label="غرف النوم" 
-                            value={roomConfig.bedrooms} 
-                            roomKey="bedrooms"
-                            max={10}
-                          />
-                          <RoomCounter 
-                            icon={Sofa} 
-                            label="الصالات" 
-                            value={roomConfig.livingRooms} 
-                            roomKey="livingRooms"
-                            max={5}
-                          />
-                          <RoomCounter 
-                            icon={ChefHat} 
-                            label="المطابخ" 
-                            value={roomConfig.kitchens} 
-                            roomKey="kitchens"
-                            max={3}
-                          />
-                          <RoomCounter 
-                            icon={Bath} 
-                            label="الحمامات" 
-                            value={roomConfig.bathrooms} 
-                            roomKey="bathrooms"
-                            max={5}
-                          />
-                        </div>
-                        <p className="text-xs text-secondary/50 mt-2">
-                          هذه المعلومات تساعدنا في تجهيز دراسة جدوى مخصصة لشقتك
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </motion.div>
 
                 {/* رسائل النجاح والخطأ */}

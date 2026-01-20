@@ -4,6 +4,9 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useSlides } from '@/hooks/useSlides';
 import type { Slide, SlideType, SlideData, RoomData } from '@/types/feasibility';
 
+// نوع دراسة الجدوى
+export type StudyType = 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT';
+
 interface FeasibilityEditorContextType {
   // حالة المحرر
   isEditorActive: boolean;
@@ -14,6 +17,8 @@ interface FeasibilityEditorContextType {
   setStudyId: (id: string) => void;
   clientName: string;
   setClientName: (name: string) => void;
+  studyType: StudyType;
+  setStudyType: (type: StudyType) => void;
   
   // الشرائح
   slides: Slide[];
@@ -28,7 +33,7 @@ interface FeasibilityEditorContextType {
   setSlideOrder: (newOrder: Slide[]) => void;
   duplicateSlide: (id: string) => Slide | null;
   canRemoveSlide: (id: string) => boolean;
-  generateRoomSlides: (roomCounts: { bedrooms: number; livingRooms: number; kitchens: number; bathrooms: number }) => void;
+  generateRoomSlides: (roomCounts: { bedrooms: number; livingRooms: number; kitchens: number; bathrooms: number }, studyType?: StudyType) => void;
   
   // التكبير
   zoom: number;
@@ -56,16 +61,19 @@ interface FeasibilityEditorProviderProps {
   children: ReactNode;
   initialStudyId?: string;
   initialClientName?: string;
+  initialStudyType?: StudyType;
 }
 
 export function FeasibilityEditorProvider({
   children,
   initialStudyId = 'new',
   initialClientName = 'العميل',
+  initialStudyType = 'WITH_FIELD_VISIT',
 }: FeasibilityEditorProviderProps) {
   const [isEditorActive, setIsEditorActive] = useState(false);
   const [studyId, setStudyId] = useState(initialStudyId);
   const [clientName, setClientName] = useState(initialClientName);
+  const [studyType, setStudyType] = useState<StudyType>(initialStudyType);
   const [zoom, setZoom] = useState(100);
 
   const slidesHook = useSlides({ clientName });
@@ -80,6 +88,8 @@ export function FeasibilityEditorProvider({
     setStudyId,
     clientName,
     setClientName,
+    studyType,
+    setStudyType,
     slides: slidesHook.slides,
     setSlides: slidesHook.setSlides,
     activeSlideIndex: slidesHook.activeSlideIndex,

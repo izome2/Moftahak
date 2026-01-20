@@ -31,6 +31,7 @@ interface StudyViewerProps {
     slides: Slide[];
     totalCost: number;
     createdAt: string;
+    studyType?: 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT';
   };
 }
 
@@ -47,10 +48,16 @@ const SHADOWS = {
 // ============================================
 
 const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
-  const { slides } = study;
+  const { slides, studyType = 'WITH_FIELD_VISIT' } = study;
+  const isWithFieldVisit = studyType === 'WITH_FIELD_VISIT';
   
-  // ترتيب الشرائح حسب الترتيب
-  const sortedSlides = [...slides].sort((a, b) => a.order - b.order);
+  // أنواع الشرائح المخفية للنوع بدون نزول ميداني
+  const hiddenSlideTypes = isWithFieldVisit ? [] : ['kitchen', 'bedroom', 'living-room', 'bathroom', 'cost-summary'];
+  
+  // ترتيب الشرائح حسب الترتيب وفلترة حسب النوع
+  const sortedSlides = [...slides]
+    .filter(slide => !hiddenSlideTypes.includes(slide.type))
+    .sort((a, b) => a.order - b.order);
 
   // عرض محتوى الشريحة
   const renderSlideContent = (slide: Slide, index: number) => {
@@ -248,6 +255,7 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
           <StatisticsSlide
             data={statisticsWithData}
             isEditing={false}
+            studyType={studyType}
           />
         );
       

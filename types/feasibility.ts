@@ -108,6 +108,7 @@ export interface NearbyApartment {
   rating?: number; 
   reviewsCount?: number;
   thumbnailUrl?: string;
+  isClientApartment?: boolean; // هل هذه شقة العميل؟
 }
 
 

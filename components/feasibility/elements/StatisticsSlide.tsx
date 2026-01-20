@@ -19,6 +19,7 @@ import {
 import { StatisticsSlideData } from '@/types/feasibility';
 import CostChart from './CostChart';
 import ComparisonChart from './ComparisonChart';
+import { useFeasibilityEditorSafe } from '@/contexts/FeasibilityEditorContext';
 
 // الظلال المتناسقة
 const SHADOWS = {
@@ -33,6 +34,7 @@ interface StatisticsSlideProps {
   data?: StatisticsSlideData;
   isEditing?: boolean;
   onUpdate?: (data: StatisticsSlideData) => void;
+  studyType?: 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT';
 }
 
 const defaultData: StatisticsSlideData = {
@@ -51,7 +53,13 @@ export default function StatisticsSlide({
   data = defaultData,
   isEditing = false,
   onUpdate,
+  studyType: propStudyType,
 }: StatisticsSlideProps) {
+  // جلب studyType من context إذا كان متاحاً
+  const editorContext = useFeasibilityEditorSafe();
+  const studyType = propStudyType || editorContext?.studyType || 'WITH_FIELD_VISIT';
+  const isWithFieldVisit = studyType === 'WITH_FIELD_VISIT';
+  
   const [slideData, setSlideData] = useState<StatisticsSlideData>(data);
   const [showAddCostModal, setShowAddCostModal] = useState(false);
   const [showAddComparisonModal, setShowAddComparisonModal] = useState(false);
@@ -193,21 +201,24 @@ export default function StatisticsSlide({
                   الإحصائيات والملخص
                 </h2>
                 <p className="text-secondary/60 font-dubai text-sm">
-                  ملخص شامل للتكاليف ومقارنة الأسعار
+                  {isWithFieldVisit ? 'ملخص شامل للتكاليف ومقارنة الأسعار' : 'مقارنة الأسعار في المنطقة'}
                 </p>
               </div>
             </div>
 
-            {/* Total Summary Badge */}
-            <div className="text-center px-6 py-3 bg-primary/20 rounded-2xl border-2 border-primary/30">
-              <span className="block text-xs text-secondary/60 font-dubai mb-1">إجمالي التكلفة</span>
-              <span className="block text-2xl font-bold text-primary font-bristone">{formatPrice(totalFromRooms)}</span>
-              <span className="text-xs text-secondary/60 font-dubai">ج.م</span>
-            </div>
+            {/* Total Summary Badge - فقط مع نزول ميداني */}
+            {isWithFieldVisit && (
+              <div className="text-center px-6 py-3 bg-primary/20 rounded-2xl border-2 border-primary/30">
+                <span className="block text-xs text-secondary/60 font-dubai mb-1">إجمالي التكلفة</span>
+                <span className="block text-2xl font-bold text-primary font-bristone">{formatPrice(totalFromRooms)}</span>
+                <span className="text-xs text-secondary/60 font-dubai">ج.م</span>
+              </div>
+            )}
           </div>
         </motion.div>
 
-        {/* Statistics Cards */}
+        {/* Statistics Cards - فقط مع نزول ميداني */}
+        {isWithFieldVisit && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {/* إجمالي التكلفة */}
           <motion.div
@@ -296,8 +307,10 @@ export default function StatisticsSlide({
             </div>
           </motion.div>
         </div>
+        )}
 
-        {/* Rooms Cost Section */}
+        {/* Rooms Cost Section - فقط مع نزول ميداني */}
+        {isWithFieldVisit && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -442,6 +455,7 @@ export default function StatisticsSlide({
             )}
           </div>
         </motion.div>
+        )}
 
         {/* Comparison Section */}
         <motion.div
@@ -589,7 +603,8 @@ export default function StatisticsSlide({
           </div>
         </motion.div>
 
-        {/* Grand Total Card */}
+        {/* Grand Total Card - فقط مع نزول ميداني */}
+        {isWithFieldVisit && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -639,6 +654,7 @@ export default function StatisticsSlide({
             </div>
           </div>
         </motion.div>
+        )}
       </motion.div>
 
       {/* Modal إضافة تكلفة */}
