@@ -59,8 +59,8 @@ function FeasibilityRequestContent() {
         />
       </div>
       
-      <main className="relative z-10 pt-20 pb-8">
-        <Container>
+      <main className="relative z-10 min-h-[calc(100vh-64px)] flex items-center py-8">
+        <Container className="w-full">
           <AnimatePresence mode="wait">
             {!showForm ? (
               <motion.div

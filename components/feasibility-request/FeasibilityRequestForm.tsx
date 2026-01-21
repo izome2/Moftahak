@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Send } from 'lucide-react';
 import FormStepper from './FormStepper';
@@ -39,6 +39,33 @@ export default function FeasibilityRequestForm({
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showEmailVerificationInStep2, setShowEmailVerificationInStep2] = useState(false);
+  
+  // Ref for the scrollable content area
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const formContainerRef = useRef<HTMLDivElement>(null);
+
+  // Handle wheel events anywhere on the page to scroll the form content
+  useEffect(() => {
+    const handleGlobalWheel = (e: WheelEvent) => {
+      const scrollContainer = scrollContainerRef.current;
+      
+      if (!scrollContainer) return;
+      
+      // Check if target is inside an input that should handle its own scroll (like map)
+      const target = e.target as HTMLElement;
+      const isInsideMap = target.closest('.leaflet-container');
+      
+      if (isInsideMap) return; // Let map handle its own zoom
+      
+      // Prevent default page scroll and scroll the form content instead
+      e.preventDefault();
+      scrollContainer.scrollTop += e.deltaY;
+    };
+
+    // Use capture phase to intercept before other handlers
+    window.addEventListener('wheel', handleGlobalWheel, { passive: false, capture: true });
+    return () => window.removeEventListener('wheel', handleGlobalWheel, { capture: true });
+  }, []);
 
   const updateFormData = (data: Partial<FeasibilityRequestFormData>) => {
     setFormData((prev: FeasibilityRequestFormData) => ({ ...prev, ...data }));
@@ -54,8 +81,6 @@ export default function FeasibilityRequestForm({
   const validateStep1 = (): boolean => {
     const result = step1Schema.safeParse({
       fullName: formData.fullName,
-      email: formData.email,
-      isEmailVerified: formData.isEmailVerified,
       propertyType: formData.propertyType,
       city: formData.city,
       district: formData.district,
@@ -87,6 +112,7 @@ export default function FeasibilityRequestForm({
       latitude: formData.latitude,
       longitude: formData.longitude,
       phoneNumber: formData.phoneNumber || '',
+      email: formData.email,
     });
 
     if (!result.success) {
@@ -207,24 +233,32 @@ export default function FeasibilityRequestForm({
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Header - Compact */}
-      <div className="text-center mb-2">
-        <h1 className="text-lg md:text-xl font-bold text-secondary mb-0.5 font-dubai">
+    <div className={`max-w-4xl mx-auto transition-all duration-500 ease-in-out ${
+      currentStep === 1 ? '' : 'pt-4 md:pt-10'
+    }`}>
+      {/* Header - Hidden in step 2 */}
+      <div className={`text-center transition-all duration-300 overflow-hidden ${
+        currentStep === 1 ? 'mb-4 max-h-20 opacity-100' : 'mb-0 max-h-0 opacity-0'
+      }`}>
+        <h1 className="text-2xl md:text-3xl font-bold text-secondary font-dubai">
           طلب دراسة جدوى
         </h1>
-        <p className="text-secondary/70 font-dubai text-xs">
-          {studyTypeLabels[studyType]}
-        </p>
       </div>
 
-      {/* Stepper - Compact */}
+      {/* Stepper */}
       <FormStepper currentStep={currentStep} steps={steps} />
 
-      {/* Form Container - Scrollable Inside */}
-      <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-secondary/10 flex flex-col" style={{ height: 'calc(100vh - 220px)', minHeight: '500px' }}>
+      {/* Form Container - Fixed heights for smooth transition */}
+      <div 
+        ref={formContainerRef}
+        className={`bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-secondary/10 flex flex-col transition-all duration-500 ease-in-out overflow-hidden ${
+          currentStep === 1 
+            ? 'h-[480px]' 
+            : 'h-[calc(100vh-140px)] md:h-[calc(100vh-180px)]'
+        }`}
+      >
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 scrollbar-hide">
+        <div ref={scrollContainerRef} className="flex-1 p-4 md:p-6 lg:p-8 scrollbar-hide overflow-y-auto">
           <AnimatePresence mode="wait">
           {currentStep === 1 ? (
             <motion.div
@@ -253,14 +287,6 @@ export default function FeasibilityRequestForm({
                 errors={errors}
                 studyType={studyType}
                 onChange={updateFormData}
-                showEmailVerification={showEmailVerificationInStep2}
-                onEmailVerified={(verified) => {
-                  updateFormData({ isEmailVerified: verified });
-                  if (verified) {
-                    setShowEmailVerificationInStep2(false);
-                    setSubmitError(null);
-                  }
-                }}
               />
             </motion.div>
           )}
@@ -279,20 +305,20 @@ export default function FeasibilityRequestForm({
         </div>
 
         {/* Navigation Buttons - Fixed at bottom */}
-        <div className="flex items-center justify-between p-6 border-t border-secondary/10 bg-white/50 rounded-b-2xl shrink-0">
+        <div className="flex items-center justify-between p-3 md:p-6 border-t border-secondary/10 bg-white/50 rounded-b-2xl shrink-0">
           <button
             type="button"
             onClick={handlePrevious}
             disabled={currentStep === 1 && !onBack}
             className={`
-              flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all font-dubai
+              flex items-center gap-1.5 md:gap-2 px-3 md:px-6 py-2.5 md:py-3 rounded-xl font-medium transition-all font-dubai text-sm md:text-base
               ${currentStep === 1 && !onBack
                 ? 'opacity-50 cursor-not-allowed text-secondary/40'
                 : 'text-secondary hover:bg-secondary/5'
               }
             `}
           >
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
             <span>السابق</span>
           </button>
 
@@ -300,27 +326,27 @@ export default function FeasibilityRequestForm({
             <button
               type="button"
               onClick={handleNext}
-              className="flex items-center gap-2 px-8 py-3 bg-primary text-secondary rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl font-dubai"
+              className="flex items-center gap-1.5 md:gap-2 px-5 md:px-8 py-2.5 md:py-3 bg-primary text-secondary rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl font-dubai text-sm md:text-base"
             >
               <span>التالي</span>
-              <ArrowRight className="w-5 h-5 rotate-180" />
+              <ArrowRight className="w-4 h-4 md:w-5 md:h-5 rotate-180" />
             </button>
           ) : (
             <button
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-8 py-3 bg-secondary text-white rounded-xl font-bold hover:bg-secondary/90 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed font-dubai"
+              className="flex items-center gap-1.5 md:gap-2 px-5 md:px-8 py-2.5 md:py-3 bg-secondary text-white rounded-xl font-bold hover:bg-secondary/90 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed font-dubai text-sm md:text-base"
             >
               {isSubmitting ? (
                 <>
-                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="w-4 h-4 md:w-5 md:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   <span>جاري الإرسال...</span>
                 </>
               ) : (
                 <>
                   <span>إرسال الطلب</span>
-                  <Send className="w-5 h-5" />
+                  <Send className="w-4 h-4 md:w-5 md:h-5" />
                 </>
               )}
             </button>

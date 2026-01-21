@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { SlideCanvas } from '@/components/feasibility/slides';
 import type { Slide, SlideData } from '@/types/feasibility';
 import EditableTextOverlay, { type TextOverlayItem } from './EditableTextOverlay';
@@ -42,55 +42,13 @@ const EditorCanvasWrapper: React.FC<EditorCanvasWrapperProps> = ({
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const slideContainerRef = useRef<HTMLDivElement>(null);
-  const [isPanning, setIsPanning] = useState(false);
-  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
-  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
 
   // أبعاد الشريحة الثابتة (عمودي قليلاً)
   const SLIDE_WIDTH = 1100; // عرض ثابت
   const SLIDE_HEIGHT = 1200; // ارتفاع ثابت (عمودي قليلاً)
 
-  // التعامل مع بداية السحب
-  const handleMouseDown = (e: React.MouseEvent) => {
-    // السماح بالسحب فقط على الخلفية، ليس على الشريحة أو المكتبة
-    const target = e.target as HTMLElement;
-    
-    // تجاهل النقر على الشريحة
-    if (target.closest('.slide-canvas-container')) {
-      return;
-    }
-    
-    // تجاهل النقر على المكتبة (Portal)
-    if (target.closest('[data-library-popup]')) {
-      return;
-    }
-    
-    // تجاهل أي عنصر بـ z-index عالي (مثل المكتبة)
-    const zIndex = window.getComputedStyle(target).zIndex;
-    if (zIndex && parseInt(zIndex) > 1000) {
-      return;
-    }
-
-    setIsPanning(true);
-    setPanStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
-  };
-
-  // التعامل مع السحب
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isPanning) return;
-
-    const newX = e.clientX - panStart.x;
-    const newY = e.clientY - panStart.y;
-    setPanOffset({ x: newX, y: newY });
-  };
-
-  // التعامل مع نهاية السحب
-  const handleMouseUp = () => {
-    setIsPanning(false);
-  };
-
   // التعامل مع التكبير بعجلة الماوس (Ctrl/Cmd + Scroll)
-  const handleWheel = (e: React.WheelEvent) => {
+  const handleWheel = useCallback((e: React.WheelEvent) => {
     if (e.ctrlKey || e.metaKey) {
       e.preventDefault();
       
@@ -102,43 +60,67 @@ const EditorCanvasWrapper: React.FC<EditorCanvasWrapperProps> = ({
         onZoomChange(newZoom);
       }
     }
-  };
+  }, [zoom, onZoomChange]);
 
-  // إضافة مستمع عالمي لـ mouseup
+  // التعامل مع أزرار الكيبورد للتمرير
   useEffect(() => {
-    const handleGlobalMouseUp = () => {
-      setIsPanning(false);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!canvasRef.current) return;
+      
+      const scrollAmount = 100;
+      
+      switch (e.key) {
+        case 'ArrowUp':
+          canvasRef.current.scrollTop -= scrollAmount;
+          e.preventDefault();
+          break;
+        case 'ArrowDown':
+          canvasRef.current.scrollTop += scrollAmount;
+          e.preventDefault();
+          break;
+        case 'PageUp':
+          canvasRef.current.scrollTop -= canvasRef.current.clientHeight * 0.8;
+          e.preventDefault();
+          break;
+        case 'PageDown':
+          canvasRef.current.scrollTop += canvasRef.current.clientHeight * 0.8;
+          e.preventDefault();
+          break;
+        case 'Home':
+          canvasRef.current.scrollTop = 0;
+          e.preventDefault();
+          break;
+        case 'End':
+          canvasRef.current.scrollTop = canvasRef.current.scrollHeight;
+          e.preventDefault();
+          break;
+      }
     };
 
-    document.addEventListener('mouseup', handleGlobalMouseUp);
-    return () => document.removeEventListener('mouseup', handleGlobalMouseUp);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // حساب التحويل (transform) بناءً على الزوم والإزاحة
+  // حساب التحويل (transform) بناءً على الزوم
   const scale = zoom / 100;
-  const cursor = isPanning ? 'grabbing' : 'grab';
 
   return (
     <div 
       ref={canvasRef}
-      className="h-full flex flex-col bg-accent/20 relative"
+      className="h-full flex flex-col bg-accent/20 relative overflow-y-auto overflow-x-hidden"
       style={{ 
-        cursor,
-        userSelect: 'none',
+        scrollBehavior: 'smooth',
       }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
       onWheel={handleWheel}
     >
-      {/* منطقة العمل - بدون scrollbars */}
-      <div className="flex-1 overflow-hidden pt-24 pb-24 flex items-center justify-center">
-        {/* Canvas Container مع التحويل */}
+      {/* منطقة العمل - تمرير عمودي فقط */}
+      <div className="flex-1 pt-24 pb-24 flex justify-center min-h-max">
+        {/* Canvas Container مع التحويل - ثابت في المنتصف أفقياً */}
         <div
           style={{
-            transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${scale})`,
-            transformOrigin: 'center center',
-            willChange: isPanning ? 'transform' : 'auto',
+            transform: `scale(${scale})`,
+            transformOrigin: 'top center',
+            willChange: 'transform',
           }}
         >
           {/* عرض الشريحة بأبعاد ثابتة */}

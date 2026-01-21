@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   DollarSign, 
@@ -15,7 +15,8 @@ import {
   Edit3,
   Sparkles,
   Plus,
-  X
+  X,
+  Check
 } from 'lucide-react';
 import type { SlideData, CostSummarySlideData, RoomData } from '@/types/feasibility';
 
@@ -23,6 +24,7 @@ interface CostSummarySlideProps {
   data: CostSummarySlideData;
   isEditing?: boolean;
   onUpdate?: (data: Partial<SlideData>) => void;
+  slideTitle?: string;
 }
 
 // الظلال المتناسقة
@@ -54,8 +56,17 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
   data,
   isEditing = false,
   onUpdate,
+  slideTitle,
 }) => {
   const { rooms = [], additionalCosts = [], discount = 0 } = data;
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [localTitle, setLocalTitle] = useState(slideTitle || 'ملخص التكاليف');
+
+  // حفظ العنوان
+  const handleSaveTitle = () => {
+    setEditingTitle(false);
+    // يمكن إضافة منطق الحفظ هنا إذا لزم الأمر
+  };
 
   // حساب إجمالي تكلفة الغرف
   const roomsTotalCost = rooms.reduce((sum, room) => sum + (room.totalCost || 0), 0);
@@ -163,9 +174,37 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
                 <Calculator className="w-8 h-8 text-primary" strokeWidth={2} />
               </motion.div>
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
-                  ملخص التكاليف
-                </h2>
+                {isEditing && editingTitle ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={localTitle}
+                      onChange={(e) => setLocalTitle(e.target.value)}
+                      className="text-2xl sm:text-3xl font-bold text-secondary font-dubai bg-white/50 border border-primary/30 px-3 py-1 rounded-xl focus:outline-none focus:border-primary"
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleSaveTitle}
+                      className="p-2 bg-primary/20 hover:bg-primary/30 transition-colors rounded-xl"
+                    >
+                      <Check className="w-5 h-5 text-primary" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="group relative flex items-center gap-2">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
+                      {localTitle}
+                    </h2>
+                    {isEditing && (
+                      <button
+                        onClick={() => setEditingTitle(true)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Edit3 className="w-5 h-5 text-primary/60" />
+                      </button>
+                    )}
+                  </div>
+                )}
                 <p className="text-secondary/60 font-dubai text-sm">
                   إجمالي تكاليف تجهيز الشقة
                 </p>

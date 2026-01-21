@@ -57,12 +57,26 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
     }
   };
 
-  // التاريخ
-  const currentDate = data.date || new Date().toLocaleDateString('ar-EG', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  // التاريخ بالتنسيق العربي
+  const formatArabicDate = (date: Date) => {
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const months = [
+      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+    const month = months[date.getMonth()];
+    
+    // تحويل الأرقام للعربية
+    const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    const toArabicNumerals = (num: number) => {
+      return num.toString().split('').map(d => arabicNumerals[parseInt(d)]).join('');
+    };
+    
+    return `${toArabicNumerals(day)} ${month} ${toArabicNumerals(year)}`;
+  };
+  
+  const currentDate = data.date || formatArabicDate(new Date());
 
   // معالجة رفع صورة الخلفية
   const handleBackgroundClick = () => {
@@ -308,7 +322,7 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
             )}
           </motion.div>
 
-          {/* اسم العميل - في المنتصف مع "أُعدت خصيصاً لـ" على اليمين */}
+          {/* اسم العميل - "أُعدت خصيصاً للعميل:" أعلى الاسم */}
           <motion.div 
             className="text-center mb-4"
             initial={{ opacity: 0, scale: 0.9 }}
@@ -316,32 +330,34 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
             transition={{ delay: 0.4 }}
           >
             {isEditing && editingField === 'clientName' ? (
-              <div className="flex items-center justify-center gap-3">
-                <span className={`text-primary text-lg font-dubai ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>أُعدت خصيصاً لـ</span>
-                <input
-                  type="text"
-                  value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  className="text-4xl font-dubai font-bold text-primary bg-white/10 backdrop-blur-sm border-b-2 border-primary outline-none text-center px-4 py-2 rounded-t-xl"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSave('clientName');
-                    if (e.key === 'Escape') handleCancel('clientName');
-                  }}
-                />
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => handleSave('clientName')}
-                    className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
-                  >
-                    <Check className="w-5 h-5 text-green-400" />
-                  </button>
-                  <button
-                    onClick={() => handleCancel('clientName')}
-                    className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
-                  >
-                    <X className="w-5 h-5 text-red-400" />
-                  </button>
+              <div className="flex flex-col items-center gap-3">
+                <span className={`text-primary text-lg font-dubai ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>أُعدت خصيصاً للعميل:</span>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    className="text-4xl font-dubai font-bold text-primary bg-white/10 backdrop-blur-sm border-b-2 border-primary outline-none text-center px-4 py-2 rounded-t-xl"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSave('clientName');
+                      if (e.key === 'Escape') handleCancel('clientName');
+                    }}
+                  />
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleSave('clientName')}
+                      className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
+                    >
+                      <Check className="w-5 h-5 text-green-400" />
+                    </button>
+                    <button
+                      onClick={() => handleCancel('clientName')}
+                      className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
+                    >
+                      <X className="w-5 h-5 text-red-400" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -349,14 +365,14 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
                 className={`relative group ${isEditing ? 'cursor-pointer' : ''}`}
                 onClick={() => isEditing && setEditingField('clientName')}
               >
-                {/* اسم العميل في المنتصف */}
+                {/* "أُعدت خصيصاً للعميل:" أعلى الاسم */}
+                <span className={`block text-primary text-lg font-dubai mb-2 ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>
+                  أُعدت خصيصاً للعميل:
+                </span>
+                {/* اسم العميل */}
                 <h2 className={`text-4xl font-dubai font-bold text-primary ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>
                   {clientName}
                 </h2>
-                {/* "أُعدت خصيصاً لـ" على يمين الاسم */}
-                <span className={`absolute -right-32 top-1/2 -translate-y-1/2 text-primary text-base font-dubai whitespace-nowrap ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>
-                  أُعدت خصيصاً لـ
-                </span>
                 {isEditing && (
                   <Edit3 className="w-5 h-5 absolute -left-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-primary/40" />
                 )}

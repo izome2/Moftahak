@@ -20,6 +20,7 @@ import { StatisticsSlideData } from '@/types/feasibility';
 import CostChart from './CostChart';
 import ComparisonChart from './ComparisonChart';
 import { useFeasibilityEditorSafe } from '@/contexts/FeasibilityEditorContext';
+import EditableSectionTitle from '@/components/feasibility/shared/EditableSectionTitle';
 
 // الظلال المتناسقة
 const SHADOWS = {
@@ -197,12 +198,11 @@ export default function StatisticsSlide({
                 <BarChart3 className="w-8 h-8 text-primary" strokeWidth={2} />
               </motion.div>
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
-                  الإحصائيات والملخص
-                </h2>
-                <p className="text-secondary/60 font-dubai text-sm">
-                  {isWithFieldVisit ? 'ملخص شامل للتكاليف ومقارنة الأسعار' : 'مقارنة الأسعار في المنطقة'}
-                </p>
+                <EditableSectionTitle
+                  title="الإحصائيات والملخص"
+                  subtitle={isWithFieldVisit ? 'ملخص شامل للتكاليف ومقارنة الأسعار' : 'مقارنة الأسعار في المنطقة'}
+                  isEditing={isEditing}
+                />
               </div>
             </div>
 

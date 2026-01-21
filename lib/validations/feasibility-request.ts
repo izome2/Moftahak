@@ -34,17 +34,12 @@ export const studyTypeLabels: Record<string, string> = {
   WITH_FIELD_VISIT: 'مع نزول ميداني',
 };
 
-// مخطط التحقق من الخطوة 1 - البيانات الأساسية مع التحقق من البريد
-// مخطط الخطوة 1 للتنقل (بدون التحقق الإلزامي من البريد)
+// مخطط التحقق من الخطوة 1 - البيانات الأساسية
 export const step1Schema = z.object({
   fullName: z
     .string()
     .min(4, 'الاسم يجب أن يكون 4 أحرف على الأقل')
     .max(100, 'الاسم طويل جداً'),
-  email: z
-    .string()
-    .email('البريد الإلكتروني غير صالح'),
-  isEmailVerified: z.boolean(), // لا يتم التحقق هنا - يتم عند الإرسال
   propertyType: PropertyTypeEnum,
   city: z
     .string()
@@ -56,7 +51,7 @@ export const step1Schema = z.object({
     .max(100, 'اسم الحي طويل جداً'),
 });
 
-// مخطط التحقق من الخطوة 2 - بيانات الشقة والموقع
+// مخطط التحقق من الخطوة 2 - بيانات الشقة والموقع وبيانات التواصل
 export const step2Schema = z.object({
   bedrooms: z.number().min(0, 'الحد الأدنى 0').max(10, 'الحد الأقصى 10'),
   livingRooms: z.number().min(0, 'الحد الأدنى 0').max(5, 'الحد الأقصى 5'),
@@ -69,6 +64,9 @@ export const step2Schema = z.object({
     .regex(/^(01[0125][0-9]{8})?$/, 'رقم هاتف مصري غير صالح')
     .optional()
     .or(z.literal('')),
+  email: z
+    .string()
+    .email('البريد الإلكتروني غير صالح'),
 });
 
 // مخطط التحقق الكامل لطلب دراسة الجدوى

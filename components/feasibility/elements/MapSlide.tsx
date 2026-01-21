@@ -6,6 +6,7 @@ import { MapPin, Plus, Trash2, Edit2, X, Building2, DollarSign, Bed, Star, Hash,
 import { MapSlideData, NearbyApartment } from '@/types/feasibility';
 import dynamic from 'next/dynamic';
 import { formatPrice } from '@/lib/utils';
+import EditableSectionTitle from '@/components/feasibility/shared/EditableSectionTitle';
 
 
 type AdditionMode = 'selection' | 'manual' | 'auto';
@@ -883,12 +884,11 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                   <MapPin className="w-8 h-8 text-primary" strokeWidth={2} />
                 </div>
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
-                    خريطة المنطقة
-                  </h2>
-                  <p className="text-secondary/60 font-dubai text-sm">
-                    حدد موقع شقة العميل أولاً على الخريطة
-                  </p>
+                  <EditableSectionTitle
+                    title="خريطة المنطقة"
+                    subtitle="حدد موقع شقة العميل أولاً على الخريطة"
+                    isEditing={isEditing}
+                  />
                 </div>
               </div>
             </div>
@@ -973,12 +973,11 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                   <CheckCircle2 className="w-8 h-8 text-primary" strokeWidth={2} />
                 </div>
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
-                    تم تحديد شقة العميل ✓
-                  </h2>
-                  <p className="text-secondary/60 font-dubai text-sm">
-                    اختر الآن طريقة إضافة الشقق المحيطة للمقارنة
-                  </p>
+                  <EditableSectionTitle
+                    title="تم تحديد شقة العميل ✓"
+                    subtitle="اختر الآن طريقة إضافة الشقق المحيطة للمقارنة"
+                    isEditing={isEditing}
+                  />
                 </div>
               </div>
             </div>
@@ -1725,16 +1724,15 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                 <MapPin className="w-8 h-8 text-primary" strokeWidth={2} />
               </motion.div>
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
-                  خريطة المنطقة
-                </h2>
-                <p className="text-secondary/60 font-dubai text-sm">
-                  {isEditing 
+                <EditableSectionTitle
+                  title="خريطة المنطقة"
+                  subtitle={isEditing 
                     ? (mapData.pins.length === 0 
                         ? 'انقر على الخريطة لتحديد موقع شقة العميل' 
                         : 'انقر على الخريطة لإضافة شقق محيطة')
                     : 'عرض الشقق المحيطة بالموقع'}
-                </p>
+                  isEditing={isEditing}
+                />
               </div>
             </div>
 

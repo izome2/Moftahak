@@ -90,7 +90,7 @@ const IntroductionSlide: React.FC<IntroductionSlideProps> = ({
   };
 
   return (
-    <div className="relative bg-linear-to-br from-accent/30 via-white to-accent/20 overflow-hidden" style={{ minHeight: '1200px' }} dir="rtl">
+    <div className="relative overflow-hidden" style={{ minHeight: '1200px', background: 'linear-gradient(135deg, #f8eddf 0%, #fdfbf7 50%, #faf0e5 100%)' }} dir="rtl">
       {/* Background Glow Effects */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />

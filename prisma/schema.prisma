@@ -207,3 +207,26 @@ model EmailVerification {
   @@index([email, expiresAt])
   @@map("email_verifications")
 }
+
+// Library Item Customization - تخصيصات عناصر المكتبة (الأسعار والصور)
+model LibraryItemCustomization {
+  id           String   @id @default(cuid())
+  
+  // معرف العنصر في المكتبة (مثل: fridge, double-bed, toilet)
+  itemId       String   @unique @map("item_id")
+  
+  // نوع الغرفة (bedroom, kitchen, bathroom, living-room)
+  roomType     String   @map("room_type")
+  
+  // السعر المخصص (آخر سعر تم إدخاله)
+  customPrice  Float?   @map("custom_price")
+  
+  // صورة العنصر (Base64 أو رابط Vercel Blob)
+  image        String?  @db.Text
+  
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([roomType])
+  @@map("library_item_customizations")
+}

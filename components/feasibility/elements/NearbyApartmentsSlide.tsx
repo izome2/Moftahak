@@ -23,6 +23,7 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { NearbyApartmentsSlideData, NearbyApartment, MapSlideData } from '@/types/feasibility';
+import EditableSectionTitle from '@/components/feasibility/shared/EditableSectionTitle';
 
 const SHADOWS = {
   card: '0 4px 20px rgba(16, 48, 43, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)',
@@ -1075,12 +1076,11 @@ export default function NearbyApartmentsSlide({
                 <Building2 className="w-8 h-8 text-primary" strokeWidth={2} />
               </div>
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
-                  الشقق المحيطة
-                </h2>
-                <p className="text-secondary/60 font-dubai text-sm mt-1">
-                  مقارنة تفصيلية للشقق في منطقتك
-                </p>
+                <EditableSectionTitle
+                  title="الشقق المحيطة"
+                  subtitle="مقارنة تفصيلية للشقق في منطقتك"
+                  isEditing={isEditing}
+                />
               </div>
             </div>
 

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Home, ClipboardCheck, MapPin, Users, CheckCircle } from 'lucide-react';
+import { ClipboardCheck, MapPin, Users, CheckCircle } from 'lucide-react';
 import { StudyRequestType, studyTypeLabels } from '@/lib/validations/feasibility-request';
 import { fadeInUp, staggerContainer } from '@/lib/animations/variants';
 
@@ -63,21 +63,18 @@ export default function StudyTypeSelector({ onSelect, preselectedType }: StudyTy
   const isSingleOption = displayOptions.length === 1;
 
   return (
-    <div className="max-w-5xl mx-auto py-8">
+    <div className="max-w-5xl mx-auto py-18">
       {/* Header */}
       <motion.div 
-        className="text-center mb-12"
+        className="text-center mb-8"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-secondary/10 mb-6">
-          <Home className="w-10 h-10 text-secondary" />
-        </div>
-        <h1 className="text-3xl md:text-4xl font-bold text-secondary mb-4 font-dubai">
+        <h1 className="text-2xl md:text-3xl font-bold text-secondary mb-3 font-dubai">
           {isSingleOption ? displayOptions[0].title : 'اختر نوع دراسة الجدوى'}
         </h1>
-        <p className="text-lg text-secondary/70 max-w-2xl mx-auto font-dubai">
+        <p className="text-base text-secondary/70 max-w-2xl mx-auto font-dubai">
           {isSingleOption 
             ? displayOptions[0].subtitle
             : 'نقدم لك خيارين مختلفين لدراسة جدوى مشروعك العقاري. اختر النوع المناسب لاحتياجاتك.'

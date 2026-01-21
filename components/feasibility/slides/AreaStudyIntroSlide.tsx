@@ -87,7 +87,7 @@ const AreaStudyIntroSlide: React.FC<AreaStudyIntroSlideProps> = ({
   };
 
   return (
-    <div className="p-6 md:p-8 bg-linear-to-br from-accent/30 via-white to-accent/20 pb-24" dir="rtl">
+    <div className="p-6 md:p-8 pb-24" style={{ background: 'linear-gradient(135deg, #f8eddf 0%, #fdfbf7 50%, #faf0e5 100%)' }} dir="rtl">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

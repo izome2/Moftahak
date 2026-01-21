@@ -1,8 +1,25 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import type { Slide, SlideData } from '@/types/feasibility';
+import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
+import { 
+  Menu, 
+  X,
+  FileText,
+  Home,
+  ChefHat,
+  Bed,
+  Sofa,
+  Bath,
+  DollarSign,
+  MapPin,
+  Building2,
+  BarChart3,
+  Settings,
+  Layers
+} from 'lucide-react';
+import type { Slide, SlideData, SlideType } from '@/types/feasibility';
 import CoverSlide from '@/components/feasibility/slides/CoverSlide';
 import IntroductionSlide from '@/components/feasibility/slides/IntroductionSlide';
 import CostSummarySlide from '@/components/feasibility/slides/CostSummarySlide';
@@ -41,6 +58,43 @@ interface StudyViewerProps {
 
 const SHADOWS = {
   document: 'rgba(16, 48, 43, 0.15) 0px 25px 50px -12px, rgba(237, 191, 140, 0.1) 0px 0px 0px 1px',
+  slide: 'rgba(16, 48, 43, 0.12) 0px 10px 30px -5px, rgba(237, 191, 140, 0.1) 0px 0px 0px 1px',
+  slideHover: 'rgba(16, 48, 43, 0.18) 0px 15px 40px -5px, rgba(237, 191, 140, 0.15) 0px 0px 0px 1px',
+  sidebar: 'rgba(16, 48, 43, 0.15) 0px 10px 40px -10px',
+};
+
+// أيقونات أنواع الشرائح (نفس المحرر)
+const slideIcons: Record<SlideType, React.ElementType> = {
+  cover: FileText,
+  introduction: Home,
+  'room-setup': Settings,
+  kitchen: ChefHat,
+  bathroom: Bath,
+  bedroom: Bed,
+  'living-room': Sofa,
+  'cost-summary': DollarSign,
+  'area-study': MapPin,
+  map: MapPin,
+  'nearby-apartments': Building2,
+  statistics: BarChart3,
+  footer: FileText,
+};
+
+// ألوان الشرائح (نفس المحرر)
+const slideColors: Record<SlideType, string> = {
+  cover: 'bg-secondary',
+  introduction: 'bg-primary/20',
+  'room-setup': 'bg-blue-100',
+  kitchen: 'bg-orange-100',
+  bathroom: 'bg-cyan-100',
+  bedroom: 'bg-purple-100',
+  'living-room': 'bg-green-100',
+  'cost-summary': 'bg-yellow-100',
+  'area-study': 'bg-rose-100',
+  map: 'bg-emerald-100',
+  'nearby-apartments': 'bg-teal-100',
+  statistics: 'bg-indigo-100',
+  footer: 'bg-secondary',
 };
 
 // ============================================
@@ -51,13 +105,78 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
   const { slides, studyType = 'WITH_FIELD_VISIT' } = study;
   const isWithFieldVisit = studyType === 'WITH_FIELD_VISIT';
   
+  // حالة الشريط الجانبي
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeSlideId, setActiveSlideId] = useState<string | null>(null);
+  
   // أنواع الشرائح المخفية للنوع بدون نزول ميداني
   const hiddenSlideTypes = isWithFieldVisit ? [] : ['kitchen', 'bedroom', 'living-room', 'bathroom', 'cost-summary'];
   
   // ترتيب الشرائح حسب الترتيب وفلترة حسب النوع
-  const sortedSlides = [...slides]
+  const sortedSlides = useMemo(() => [...slides]
     .filter(slide => !hiddenSlideTypes.includes(slide.type))
-    .sort((a, b) => a.order - b.order);
+    .sort((a, b) => a.order - b.order), [slides, hiddenSlideTypes]);
+
+  // التمرير إلى شريحة معينة
+  const scrollToSlide = (slideId: string) => {
+    const element = document.getElementById(`slide-${slideId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setActiveSlideId(slideId);
+      setIsSidebarOpen(false);
+    }
+  };
+
+  // مكون عنصر الشريحة في القائمة (نفس تصميم المحرر)
+  const SlideItem: React.FC<{ slide: Slide; index: number }> = ({ slide, index }) => {
+    const Icon = slideIcons[slide.type];
+    const isActive = activeSlideId === slide.id;
+
+    return (
+      <div
+        onClick={() => scrollToSlide(slide.id)}
+        className={`
+          relative w-full p-3 lg:p-2.5 flex items-center gap-3 lg:gap-2.5 cursor-pointer group rounded-xl overflow-hidden border-2 transition-all duration-200
+          ${isActive 
+            ? 'bg-primary/10 border-primary/30 shadow-[0_4px_20px_rgba(237,191,140,0.25)]' 
+            : 'bg-white border-primary/20 hover:shadow-[0_4px_20px_rgba(237,191,140,0.15)] hover:scale-[1.02] active:scale-[0.98]'
+          }
+        `}
+        style={{ boxShadow: isActive ? 'rgba(237, 191, 140, 0.25) 0px 4px 20px' : undefined }}
+      >
+        {/* أيقونة خلفية شفافة */}
+        <div className="absolute -top-1 -left-1 opacity-[0.10] pointer-events-none">
+          <Icon className="w-14 h-14 lg:w-12 lg:h-12 text-primary" />
+        </div>
+        
+        {/* تأثير التحويم */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          style={{ 
+            background: 'linear-gradient(90deg, transparent, rgba(237, 191, 140, 0.4), transparent)',
+            transform: 'translateX(-100%)',
+          }}
+        />
+        
+        <div className="flex items-center gap-3 lg:gap-2.5 relative z-10 w-full">
+          {/* معاينة الشريحة */}
+          <div className="w-12 h-12 lg:w-9 lg:h-9 bg-primary/20 flex items-center justify-center rounded-lg border border-primary/30 shrink-0">
+            <Icon className="w-6 h-6 lg:w-4 lg:h-4 text-primary" />
+          </div>
+
+          {/* معلومات الشريحة */}
+          <div className="flex-1 min-w-0 text-right">
+            <span className="text-base lg:text-sm font-dubai font-bold block truncate text-secondary">
+              {slide.title}
+            </span>
+            <span className="text-sm lg:text-xs text-secondary/60 block">
+              شريحة {index + 1}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // عرض محتوى الشريحة
   const renderSlideContent = (slide: Slide, index: number) => {
@@ -283,96 +402,206 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
 
   return (
     <div 
-      className="min-h-screen py-8 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen"
       style={{ backgroundColor: '#ead3b9' }}
       dir="rtl"
     >
-      {/* الوثيقة / PDF */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
+      {/* زر فتح الشريط الجانبي - للهاتف فقط */}
+      <motion.button
+        initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-275 mx-auto overflow-hidden study-viewer-document border-2"
-        style={{
-          boxShadow: SHADOWS.document,
-          borderRadius: '16px',
-          backgroundColor: '#fdf6ee',
-          borderColor: '#d4b896',
-        }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        onClick={() => setIsSidebarOpen(true)}
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 px-6 py-3 rounded-full bg-white text-secondary hover:bg-primary/10 transition-all duration-300 hover:scale-105 lg:hidden flex items-center gap-2"
+        style={{ boxShadow: 'rgba(16, 48, 43, 0.15) 0px 10px 40px, rgba(237, 191, 140, 0.3) 0px 0px 0px 1px' }}
+        aria-label="فتح قائمة التنقل"
       >
-        <style jsx global>{`
-          .study-viewer-document [class*="bg-linear-to-br"][class*="from-accent"] {
-            background-image: none !important;
-            background-color: transparent !important;
-          }
-          .study-viewer-document .pb-24 {
-            padding-bottom: 2rem !important;
-          }
-        `}</style>
-        {/* الشرائح */}
-        {sortedSlides.map((slide, index) => (
-          <motion.div
-            key={slide.id}
-            className="relative"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ 
-              duration: 0.5, 
-              delay: index === 0 ? 0 : 0.1,
-              ease: [0.25, 0.46, 0.45, 0.94]
-            }}
-          >
-            {/* دوائر زخرفية خلف القسم */}
-            {slide.type !== 'cover' && slide.type !== 'footer' && (
-              <>
-                <motion.div 
-                  className="absolute -top-16 -right-16 w-72 h-72 bg-primary/30 rounded-full blur-3xl pointer-events-none"
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                />
-                <motion.div 
-                  className="absolute -bottom-16 -left-16 w-80 h-80 bg-primary/25 rounded-full blur-3xl pointer-events-none"
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                />
-              </>
-            )}
-            {/* الغلاف بتنسيق خاص */}
-            {slide.type === 'cover' ? (
-              <div
-                className="overflow-hidden"
-                style={{
-                  margin: '16px',
-                  borderRadius: '16px',
-                  boxShadow: 'rgba(16, 48, 43, 0.2) 0px 15px 40px -10px, rgba(237, 191, 140, 0.15) 0px 0px 0px 1px',
-                }}
-              >
-                {renderSlideContent(slide, index)}
-              </div>
-            ) : (
-              <div>
-                {renderSlideContent(slide, index)}
-              </div>
-            )}
-          </motion.div>
-        ))}
-      </motion.div>
+        <Layers className="w-5 h-5" />
+        <span className="font-dubai text-sm font-medium">الشرائح</span>
+      </motion.button>
 
-      {/* Footer */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="text-center mt-8 text-secondary/50 font-dubai text-sm"
-      >
-        <p>تم إنشاء هذه الدراسة بواسطة منصة مفتاحك</p>
-        <p className="mt-1">© {new Date().getFullYear()} Moftahak. جميع الحقوق محفوظة</p>
-      </motion.div>
+      {/* الشريط الجانبي - ثابت على الشاشات الكبيرة في منتصف Y على اليمين */}
+      <aside className="hidden lg:flex fixed right-8 top-1/2 -translate-y-1/2 h-[75vh] max-h-175 w-72 bg-white shadow-[0_8px_30px_rgba(237,191,140,0.5)] border-2 border-primary/20 flex-col overflow-hidden z-40 rounded-2xl">
+        {/* رأس الشريط الجانبي مع الشعار واسم العميل */}
+        <div className="px-4 py-6 border-b border-primary/20 bg-linear-to-br from-accent/30 to-transparent">
+          <div className="flex items-center gap-3">
+            {/* شعار المنصة */}
+            <div className="w-7 h-7 relative shrink-0">
+              <Image
+                src="/logos/logo-dark-icon.png"
+                alt="مفتاحك"
+                fill
+                className="object-contain"
+                sizes="28px"
+              />
+            </div>
+            {/* اسم الدراسة والعميل */}
+            <div className="flex flex-col min-w-0 flex-1 mr-1">
+              <span className="text-secondary font-dubai text-base truncate">دراسة جدوى</span>
+              <span className="text-secondary/60 text-sm font-dubai truncate">{study.clientName}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* قسم الشرائح */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* عنوان الشرائح */}
+          <div className="px-4 py-2.5 bg-linear-to-br from-accent/30 to-transparent">
+            <div className="flex items-center gap-2.5">
+              <Layers className="w-5 h-5 text-secondary" />
+              <h3 className="font-dubai font-medium text-base text-secondary">الشرائح</h3>
+              <span className="text-sm mr-auto text-secondary/60 bg-primary/20 px-2.5 py-0.5 rounded-full">
+                {sortedSlides.length}
+              </span>
+            </div>
+          </div>
+          
+          {/* قائمة الشرائح */}
+          <div className="flex-1 overflow-y-auto px-2.5 py-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <style jsx>{`
+              div::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
+            <ul className="space-y-1.5">
+              {sortedSlides.map((slide, index) => (
+                <li key={slide.id}>
+                  <SlideItem slide={slide} index={index} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </aside>
+
+      {/* الشريط الجانبي المنبثق من الأسفل - للهاتف فقط */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <>
+            {/* خلفية داكنة مع بلور خفيف */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 bg-black/25 z-40 lg:hidden backdrop-blur-[2px]"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+            
+            {/* Bottom Sheet مع إمكانية السحب - منبثق مع مسافة من الجوانب */}
+            <motion.aside
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.5 }}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 100 || info.velocity.y > 500) {
+                  setIsSidebarOpen(false);
+                }
+              }}
+              transition={{ type: 'spring', damping: 30, stiffness: 400 }}
+              className="fixed bottom-4 left-4 right-4 h-[60vh] bg-white/95 shadow-[0_-4px_30px_rgba(16,48,43,0.15)] flex flex-col overflow-hidden z-50 lg:hidden rounded-[1.5rem] touch-none"
+            >
+              {/* مقبض السحب */}
+              <div className="flex justify-center py-4">
+                <div className="w-20 h-1.5 bg-primary rounded-full" />
+              </div>
+
+              {/* رأس الشريط الجانبي مع الشعار واسم العميل */}
+              <div className="px-5 py-5 border-b border-primary/20 bg-linear-to-br from-accent/30 to-transparent">
+                <div className="flex items-center gap-4">
+                  {/* شعار المنصة */}
+                  <div className="w-9 h-9 relative shrink-0">
+                    <Image
+                      src="/logos/logo-dark-icon.png"
+                      alt="مفتاحك"
+                      fill
+                      className="object-contain"
+                      sizes="36px"
+                    />
+                  </div>
+                  {/* اسم الدراسة والعميل */}
+                  <div className="flex flex-col min-w-0 flex-1 mr-1">
+                    <span className="text-secondary font-dubai text-lg truncate">دراسة جدوى</span>
+                    <span className="text-secondary/60 text-base font-dubai truncate">{study.clientName}</span>
+                  </div>
+                  {/* عدد الشرائح */}
+                  <span className="text-base text-secondary/60 bg-primary/20 px-3 py-1 rounded-full">
+                    {sortedSlides.length}
+                  </span>
+                </div>
+              </div>
+
+              {/* قائمة الشرائح */}
+              <div className="flex-1 overflow-y-auto px-4 py-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                <style jsx>{`
+                  div::-webkit-scrollbar {
+                    display: none;
+                  }
+                `}</style>
+                <ul className="space-y-3">
+                  {sortedSlides.map((slide, index) => (
+                    <li key={slide.id}>
+                      <SlideItem slide={slide} index={index} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* المحتوى الرئيسي - في منتصف الشاشة */}
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        {/* الوثيقة */}
+        <div className="max-w-275 mx-auto">
+          <style jsx global>{`
+            .study-viewer-document .pb-24 {
+              padding-bottom: 2rem !important;
+            }
+            .study-viewer-document [class*="bg-linear-to-br"][class*="from-accent"] {
+              background-image: none !important;
+              background-color: transparent !important;
+            }
+          `}</style>
+          
+          {/* الشرائح */}
+          <div className="space-y-8">
+            {sortedSlides.map((slide) => (
+              <div
+                key={slide.id}
+                id={`slide-${slide.id}`}
+                className="relative"
+              >
+                {/* حاوية الشريحة مع خلفية تدريجية بيج خفيفة */}
+                <div
+                  className="relative overflow-hidden study-viewer-document border transition-shadow duration-300 hover:shadow-[rgba(16,48,43,0.18)_0px_15px_40px_-5px,rgba(237,191,140,0.15)_0px_0px_0px_1px]"
+                  style={{
+                    borderRadius: '20px',
+                    background: 'linear-gradient(135deg, #f8eddf 0%, #fdfbf7 50%, #faf0e5 100%)',
+                    borderColor: 'rgba(212, 184, 150, 0.5)',
+                    boxShadow: SHADOWS.slide,
+                  }}
+                >
+                  {/* محتوى الشريحة */}
+                  <div>
+                    {renderSlideContent(slide, sortedSlides.indexOf(slide))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-12 text-secondary/50 font-dubai text-sm">
+          <p>تم إنشاء هذه الدراسة بواسطة منصة مفتاحك</p>
+          <p className="mt-1">© {new Date().getFullYear()} Moftahak. جميع الحقوق محفوظة</p>
+        </div>
+      </div>
     </div>
   );
 };

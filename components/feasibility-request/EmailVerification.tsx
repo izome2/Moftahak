@@ -211,14 +211,14 @@ export default function EmailVerification({
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="p-4 rounded-xl bg-primary/10 border-2 border-primary/30"
+        className="p-3 md:p-4 rounded-xl bg-primary/10 border-2 border-primary/30"
       >
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-            <CheckCircle className="w-6 h-6 text-secondary" />
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/20 flex items-center justify-center">
+            <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-secondary" />
           </div>
           <div className="flex-1">
-            <p className="font-medium text-secondary font-dubai">تم التحقق من البريد الإلكتروني</p>
+            <p className="font-medium text-secondary font-dubai text-sm md:text-base">تم التحقق من البريد الإلكتروني</p>
           </div>
         </div>
       </motion.div>
@@ -232,18 +232,18 @@ export default function EmailVerification({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-4 rounded-xl bg-primary/10 border border-primary/20"
+          className="p-3 md:p-4 rounded-xl bg-primary/10 border border-primary/20"
         >
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-start gap-3 flex-1">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-5 h-5 text-secondary" />
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
+            <div className="flex items-start gap-2 md:gap-3 flex-1">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 text-secondary" />
               </div>
               <div>
-                <p className="font-medium text-secondary font-dubai text-sm">
+                <p className="font-medium text-secondary font-dubai text-xs md:text-sm">
                   التحقق من البريد الإلكتروني مطلوب
                 </p>
-                <p className="text-secondary/60 text-xs font-dubai mt-1">
+                <p className="text-secondary/60 text-[10px] md:text-xs font-dubai mt-0.5 md:mt-1">
                   سنرسل رمز تحقق مكون من 6 أرقام إلى بريدك الإلكتروني
                 </p>
               </div>
@@ -254,8 +254,8 @@ export default function EmailVerification({
               onClick={handleSendOtp}
               disabled={isSending || !isValidEmail}
               className={`
-                px-4 py-3 rounded-xl font-bold transition-all font-dubai
-                flex items-center justify-center gap-2 shrink-0
+                w-full md:w-auto px-4 py-2.5 md:py-3 rounded-xl font-bold transition-all font-dubai text-sm
+                flex items-center justify-center gap-2 md:shrink-0
                 ${isValidEmail 
                   ? 'bg-primary text-secondary hover:bg-primary/90' 
                   : 'bg-secondary/10 text-secondary/40 cursor-not-allowed'
@@ -265,12 +265,12 @@ export default function EmailVerification({
             >
               {isSending ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
                   جاري الإرسال...
                 </>
               ) : (
                 <>
-                  <Mail className="w-5 h-5" />
+                  <Mail className="w-4 h-4 md:w-5 md:h-5" />
                   إرسال رمز التحقق
                 </>
               )}
@@ -292,17 +292,17 @@ export default function EmailVerification({
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="p-5 rounded-xl bg-secondary/5 border border-secondary/10">
-              <p className="text-sm text-secondary/70 mb-4 text-center font-dubai">
+            <div className="p-3 md:p-5 rounded-xl bg-secondary/5 border border-secondary/10">
+              <p className="text-xs md:text-sm text-secondary/70 mb-3 md:mb-4 text-center font-dubai">
                 أدخل رمز التحقق المكون من 6 أرقام المرسل إلى
-                <span className="font-bold text-secondary block mt-1 font-bristone" dir="ltr">
+                <span className="font-bold text-secondary block mt-1 font-bristone text-xs md:text-sm" dir="ltr">
                   {email}
                 </span>
               </p>
 
               {/* OTP Boxes */}
               <div 
-                className="flex justify-center gap-2 mb-4" 
+                className="flex justify-center gap-1.5 md:gap-2 mb-3 md:mb-4" 
                 dir="ltr"
                 onPaste={handlePaste}
               >
@@ -318,8 +318,8 @@ export default function EmailVerification({
                     onKeyDown={(e) => handleKeyDown(index, e)}
                     disabled={isVerifying}
                     className={`
-                      w-11 h-14 text-center text-xl font-bold rounded-lg border-2
-                      focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
+                      w-9 h-11 md:w-11 md:h-14 text-center text-lg md:text-xl font-bold rounded-lg border-2
+                      focus:outline-none focus:border-primary
                       transition-all font-bristone
                       disabled:bg-secondary/10 disabled:cursor-not-allowed
                       ${otpError ? 'border-red-400' : 'border-secondary/20'}

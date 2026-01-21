@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import type { RoomSetupSlideData, SlideData, RoomData, RoomType } from '@/types/feasibility';
 import { useFeasibilityEditorSafe } from '@/contexts/FeasibilityEditorContext';
+import EditableSectionTitle from '@/components/feasibility/shared/EditableSectionTitle';
 
 // ============================================
 // 🎨 DESIGN TOKENS
@@ -428,12 +429,10 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
                   <Settings className="w-8 h-8 text-primary" strokeWidth={2} />
                 </motion.div>
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
-                    تكوين الشقة
-                  </h2>
-                  <p className="text-secondary/60 font-dubai text-sm">
-                    تم إنشاء {totalRooms} غرفة بنجاح
-                  </p>
+                  <EditableSectionTitle
+                    title="تكوين الشقة"
+                    isEditing={isEditing}
+                  />
                 </div>
               </div>
 
@@ -483,26 +482,6 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
             </div>
           </div>
 
-          {/* النص السفلي */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="mt-2 flex items-center justify-between"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 bg-green-500 rounded-full" />
-              <span className="text-sm font-dubai font-bold text-secondary/60">
-                تم تكوين الشقة بنجاح ✓
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-1.5">
-              <div className="w-10 h-1 bg-primary/30 rounded-full" />
-              <div className="w-5 h-1 bg-primary/50 rounded-full" />
-              <div className="w-3 h-1 bg-primary rounded-full" />
-            </div>
-          </motion.div>
         </div>
       </div>
     );
@@ -541,12 +520,11 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
               <Settings className="w-7 h-7 text-primary" strokeWidth={2} />
             </motion.div>
             <div>
-              <h1 className="text-2xl font-dubai font-bold text-secondary">
-                تكوين شقة العميل
-              </h1>
-              <p className="text-sm text-secondary/60 font-dubai">
-                حدد عدد ونوع الغرف في الشقة
-              </p>
+              <EditableSectionTitle
+                title="تكوين شقة العميل"
+                subtitle="حدد عدد ونوع الغرف في الشقة"
+                isEditing={isEditing}
+              />
             </div>
             
             {/* Stats */}

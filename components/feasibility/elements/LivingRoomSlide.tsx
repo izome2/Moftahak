@@ -43,6 +43,8 @@ import {
   type LivingRoomItemDefinition 
 } from '@/lib/feasibility/living-room-items';
 import AddCustomItemModal, { getCustomIcon, type CustomItemData } from '@/components/feasibility/shared/AddCustomItemModal';
+import EditableSectionTitle from '@/components/feasibility/shared/EditableSectionTitle';
+import { useLibraryCustomizations } from '@/hooks/useLibraryCustomizations';
 
 // مفتاح التخزين المحلي للعناصر المخصصة
 const CUSTOM_LIVING_ROOM_ITEMS_KEY = 'moftahak_custom_living_room_items';
@@ -215,13 +217,31 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
           onClick={(e) => e.stopPropagation()}
         >
           {item.image ? (
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="relative w-28 h-28 rounded-xl border-2 border-primary/50 overflow-hidden bg-accent/30 hover:border-primary transition-all cursor-pointer"
-              title="تغيير الصورة"
-            >
-              <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-            </button>
+            <div className="relative group/image">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="relative w-28 h-28 rounded-xl border-2 border-primary/50 overflow-hidden bg-accent/30 hover:border-primary transition-all cursor-pointer"
+                title="تغيير الصورة"
+              >
+                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+              </button>
+              {/* Clear Image Button - positioned on image top-right */}
+              <motion.button
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onImageChange(item.id, undefined);
+                }}
+                title="مسح الصورة من هذه الدراسة فقط"
+                className="absolute -top-2 -right-2 w-6 h-6 text-secondary rounded-md flex items-center justify-center border border-primary/30 hover:opacity-80 transition-all z-40 opacity-0 group-hover/image:opacity-100"
+                style={{ backgroundColor: '#faeee2', boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+              >
+                <X size={12} />
+              </motion.button>
+            </div>
           ) : (
             <button
               onClick={() => fileInputRef.current?.click()}
@@ -369,6 +389,7 @@ interface LibraryPopupProps {
   customItems: LivingRoomItemDefinition[];
   onAddCustomItem: (item: CustomItemData) => void;
   onDeleteCustomItem: (itemId: string) => void;
+  getCustomPrice?: (itemId: string, defaultPrice: number) => number;
 }
 
 // مكون العنصر القابل للسحب
@@ -377,7 +398,8 @@ const DraggableLibraryItem: React.FC<{
   onAddItem: (item: LivingRoomItemDefinition) => void;
   isCustom?: boolean;
   onDelete?: (itemId: string) => void;
-}> = ({ item, onAddItem, isCustom = false, onDelete }) => {
+  displayPrice?: number;
+}> = ({ item, onAddItem, isCustom = false, onDelete, displayPrice }) => {
   // استخدام الأيقونة المناسبة حسب نوع العنصر
   const IconComponent = isCustom 
     ? getCustomIcon((item as unknown as CustomItemData).icon || 'package')
@@ -455,7 +477,7 @@ const DraggableLibraryItem: React.FC<{
             {item.name}
           </h5>
           <span className="text-xs text-primary font-dubai font-bold">
-            {formatPrice(item.defaultPrice)} ج.م
+            {formatPrice(displayPrice ?? item.defaultPrice)} ج.م
           </span>
         </div>
       </div>
@@ -486,7 +508,7 @@ const DragOverlayItem: React.FC<{ item: LivingRoomItemDefinition }> = ({ item })
   );
 };
 
-const LibraryPopup: React.FC<LibraryPopupProps> = ({ isOpen, onClose, onAddItem, customItems, onAddCustomItem, onDeleteCustomItem }) => {
+const LibraryPopup: React.FC<LibraryPopupProps> = ({ isOpen, onClose, onAddItem, customItems, onAddCustomItem, onDeleteCustomItem, getCustomPrice }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<LivingRoomCategory | 'all' | 'custom'>('all');
   const [activeItem, setActiveItem] = useState<LivingRoomItemDefinition | null>(null);
@@ -682,6 +704,7 @@ const LibraryPopup: React.FC<LibraryPopupProps> = ({ isOpen, onClose, onAddItem,
                   onAddItem={onAddItem}
                   isCustom={true}
                   onDelete={onDeleteCustomItem}
+                  displayPrice={getCustomPrice ? getCustomPrice(item.id, item.defaultPrice) : item.defaultPrice}
                 />
               ))}
             </div>
@@ -700,7 +723,8 @@ const LibraryPopup: React.FC<LibraryPopupProps> = ({ isOpen, onClose, onAddItem,
                   <DraggableLibraryItem 
                     key={item.id} 
                     item={item} 
-                    onAddItem={onAddItem} 
+                    onAddItem={onAddItem}
+                    displayPrice={getCustomPrice ? getCustomPrice(item.id, item.defaultPrice) : item.defaultPrice}
                   />
                 ))}
               </div>
@@ -775,6 +799,9 @@ const LivingRoomSlide: React.FC<LivingRoomSlideProps> = ({
   const [showLibrary, setShowLibrary] = useState(false);
   const [customItems, setCustomItems] = useState<LivingRoomItemDefinition[]>([]);
   
+  // Hook لتخصيصات المكتبة (الأسعار والصور)
+  const { getCustomPrice, getCustomImage, updateItemPrice, updateItemImage } = useLibraryCustomizations();
+  
   // تحميل العناصر المخصصة عند التحميل
   useEffect(() => {
     setCustomItems(loadCustomItems());
@@ -838,6 +865,10 @@ const LivingRoomSlide: React.FC<LivingRoomSlideProps> = ({
     // تحديد إذا كان العنصر مخصص
     const isCustomItem = itemDef.id.startsWith('custom-');
     
+    // الحصول على السعر والصورة المخصصة من قاعدة البيانات
+    const customPrice = getCustomPrice(itemDef.id, itemDef.defaultPrice);
+    const customImage = getCustomImage(itemDef.id);
+    
     if (existingItem) {
       const newItems = items.map((i) =>
         i.id === existingItem.id 
@@ -856,8 +887,9 @@ const LivingRoomSlide: React.FC<LivingRoomSlideProps> = ({
         id: `${itemDef.id}-${Date.now()}`,
         name: itemDef.name,
         icon: iconValue,
-        price: itemDef.defaultPrice,
+        price: customPrice,
         quantity: 1,
+        image: customImage || undefined,
       };
       const newItems = [...items, newItem];
       setItems(newItems);
@@ -879,6 +911,10 @@ const LivingRoomSlide: React.FC<LivingRoomSlideProps> = ({
     );
     setItems(newItems);
     updateParent(newItems);
+    
+    // تحديث السعر في قاعدة البيانات (استخراج id العنصر الأصلي بدون timestamp)
+    const originalItemId = itemId.split('-').slice(0, -1).join('-') || itemId.split('-')[0];
+    updateItemPrice(originalItemId, 'living-room', newUnitPrice);
   };
 
   const handleQuantityChange = (itemId: string, newQuantity: number) => {
@@ -903,6 +939,10 @@ const LivingRoomSlide: React.FC<LivingRoomSlideProps> = ({
     );
     setItems(newItems);
     updateParent(newItems);
+    
+    // تحديث الصورة في قاعدة البيانات (استخراج id العنصر الأصلي بدون timestamp)
+    const originalItemId = itemId.split('-').slice(0, -1).join('-') || itemId.split('-')[0];
+    updateItemImage(originalItemId, 'living-room', image || null);
   };
 
   const totalCost = items.reduce((sum, item) => sum + item.price, 0);
@@ -943,12 +983,11 @@ const LivingRoomSlide: React.FC<LivingRoomSlideProps> = ({
                 <Sofa className="w-8 h-8 text-primary" strokeWidth={2} />
               </motion.div>
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
-                  {roomNumber > 1 ? `الصالة ${roomNumber}` : 'الصالة'}
-                </h2>
-                <p className="text-secondary/60 font-dubai text-sm">
-                  أضف وعدّل عناصر ومستلزمات الصالة
-                </p>
+                <EditableSectionTitle
+                  title={roomNumber > 1 ? `الصالة ${roomNumber}` : 'الصالة'}
+                  subtitle="أضف وعدّل عناصر ومستلزمات الصالة"
+                  isEditing={isEditing}
+                />
               </div>
             </div>
 
@@ -1122,6 +1161,7 @@ const LivingRoomSlide: React.FC<LivingRoomSlideProps> = ({
         customItems={customItems}
         onAddCustomItem={handleAddCustomItem}
         onDeleteCustomItem={handleDeleteCustomItem}
+        getCustomPrice={getCustomPrice}
       />
     </div>
   );

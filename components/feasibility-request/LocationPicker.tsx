@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Navigation, Loader2, AlertCircle, Link2, Crosshair, Plus } from 'lucide-react';
+import { MapPin, Navigation, Loader2, AlertCircle, Link2, Plus, Layers } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 
@@ -53,32 +53,38 @@ const createMarkerIcon = () => {
     className: 'custom-location-pin',
     html: `
       <div style="
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, #10302b, #1a4a42);
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(180deg, #1a4a42, #10302b);
         border-radius: 50% 50% 50% 0;
         transform: rotate(-45deg);
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 16px rgba(16, 48, 43, 0.5);
-        border: 3px solid #edbf8c;
-        animation: fadeUp 0.5s ease-out;
+        box-shadow: 0 4px 12px rgba(16, 48, 43, 0.5);
+        border: 2px solid #edbf8c;
+        animation: pinDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
       ">
-        <svg style="transform: rotate(45deg);" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#edbf8c" stroke-width="2.5">
+        <svg style="transform: rotate(45deg);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#edbf8c" stroke-width="2.5">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
           <polyline points="9 22 9 12 15 12 15 22"/>
         </svg>
       </div>
       <style>
-        @keyframes fadeUp {
-          0% { transform: rotate(-45deg) translateY(20px); opacity: 0; }
-          100% { transform: rotate(-45deg) translateY(0); opacity: 1; }
+        @keyframes pinDrop {
+          0% { 
+            opacity: 0;
+            margin-top: -10px;
+          }
+          100% { 
+            opacity: 1;
+            margin-top: 0;
+          }
         }
       </style>
     `,
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
   });
 };
 
@@ -93,6 +99,7 @@ export default function LocationPicker({
   const [locationError, setLocationError] = useState<string | null>(null);
   const [linkInput, setLinkInput] = useState('');
   const [isAddingLink, setIsAddingLink] = useState(false);
+  const [isSatellite, setIsSatellite] = useState(false);
   const mapRef = useRef<any>(null);
 
   // Check if location is selected
@@ -255,21 +262,21 @@ export default function LocationPicker({
   }, []);
 
   return (
-    <div className="p-6 rounded-2xl bg-linear-to-br from-white/80 to-accent/30 border-2 border-secondary/10 shadow-[0_4px_24px_rgba(16,48,43,0.08)]">
+    <div className="md:p-6 md:rounded-2xl md:bg-linear-to-br md:from-white/80 md:to-accent/30 md:border-2 md:border-secondary/10 md:shadow-[0_4px_24px_rgba(16,48,43,0.08)]">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
-          <MapPin className="w-6 h-6 text-secondary" />
+      <div className="flex items-center gap-3 mb-3 md:mb-4">
+        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
+          <MapPin className="w-5 h-5 md:w-6 md:h-6 text-secondary" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-secondary font-dubai">موقع الشقة</h3>
-          <p className="text-sm text-secondary/60 font-dubai">انقر على الخريطة أو أضف رابط الموقع</p>
+          <h3 className="text-base md:text-lg font-bold text-secondary font-dubai">موقع الشقة</h3>
+          <p className="text-xs md:text-sm text-secondary/60 font-dubai">انقر على الخريطة أو أضف رابط الموقع</p>
         </div>
       </div>
 
       {/* Link Input & Action Buttons */}
-      <div className="mb-4">
-        <div className="flex gap-2">
+      <div className="mb-3 md:mb-4">
+        <div className="flex flex-col md:flex-row gap-2">
           <div className="relative flex-1">
             <input
               type="url"
@@ -278,19 +285,20 @@ export default function LocationPicker({
               onChange={(e) => setLinkInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && addLocationFromLink()}
               placeholder="https://maps.google.com/..."
-              className="w-full pr-10 pl-4 py-2 rounded-lg border-2 border-secondary/20 bg-white/70 
-                focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
+              className="w-full pr-10 pl-4 py-2.5 md:py-2 rounded-lg border-2 border-secondary/20 bg-white/70 
+                focus:outline-none focus:border-primary
                 transition-all font-dubai text-sm text-left"
             />
             <Link2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary/40" />
           </div>
+          <div className="flex gap-2">
           <button
             type="button"
             onClick={addLocationFromLink}
             disabled={isAddingLink || !linkInput.trim()}
-            className="px-3 py-2 rounded-lg bg-secondary text-white font-dubai text-sm
+            className="flex-1 md:flex-none px-3 py-2.5 md:py-2 rounded-lg bg-secondary text-white font-dubai text-sm
               hover:bg-secondary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed
-              flex items-center gap-1.5 shrink-0"
+              flex items-center justify-center gap-1.5"
           >
             {isAddingLink ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -305,24 +313,25 @@ export default function LocationPicker({
             type="button"
             onClick={getCurrentLocation}
             disabled={isLocating}
-            className="px-3 py-2 rounded-lg bg-primary text-secondary font-dubai text-sm
+            className="flex-1 md:flex-none px-3 py-2.5 md:py-2 rounded-lg bg-primary text-secondary font-dubai text-sm
               hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed
-              flex items-center gap-1.5 shrink-0"
+              flex items-center justify-center gap-1.5"
           >
             {isLocating ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <>
-                <Crosshair className="w-4 h-4" />
+                <Navigation className="w-4 h-4" />
                 موقعي
               </>
             )}
           </button>
+          </div>
         </div>
       </div>
 
       {/* Map Container */}
-      <div className="relative rounded-xl overflow-hidden border-2 border-secondary/10" style={{ height: '400px' }}>
+      <div className="relative rounded-xl overflow-hidden border-2 border-secondary/10 h-[280px] md:h-[400px]">
         {isMapReady ? (
           <MapContainer
             center={hasLocation ? [latitude!, longitude!] : [EGYPT_CENTER.lat, EGYPT_CENTER.lng]}
@@ -330,9 +339,13 @@ export default function LocationPicker({
             style={{ height: '100%', width: '100%' }}
             ref={mapRef}
             attributionControl={false}
+            zoomControl={false}
           >
             <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              url={isSatellite 
+                ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              }
             />
             
             {/* Click Handler */}
@@ -349,6 +362,43 @@ export default function LocationPicker({
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-secondary/5">
             <Loader2 className="w-8 h-8 animate-spin text-secondary" />
+          </div>
+        )}
+
+        {/* Map Controls */}
+        {isMapReady && (
+          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-[1000]">
+            {/* Zoom In */}
+            <button
+              type="button"
+              onClick={() => mapRef.current?.zoomIn()}
+              className="w-8 h-8 bg-white/95 backdrop-blur-sm rounded-lg shadow-md flex items-center justify-center text-secondary hover:bg-white transition-all border border-secondary/10"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+            {/* Zoom Out */}
+            <button
+              type="button"
+              onClick={() => mapRef.current?.zoomOut()}
+              className="w-8 h-8 bg-white/95 backdrop-blur-sm rounded-lg shadow-md flex items-center justify-center text-secondary hover:bg-white transition-all border border-secondary/10"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button>
+            {/* Toggle Satellite */}
+            <button
+              type="button"
+              onClick={() => setIsSatellite(!isSatellite)}
+              className={`w-8 h-8 backdrop-blur-sm rounded-lg shadow-md flex items-center justify-center transition-all border ${
+                isSatellite 
+                  ? 'bg-secondary text-white border-secondary' 
+                  : 'bg-white/95 text-secondary hover:bg-white border-secondary/10'
+              }`}
+              title={isSatellite ? 'عرض الخريطة' : 'عرض القمر الصناعي'}
+            >
+              <Layers className="w-4 h-4" />
+            </button>
           </div>
         )}
 
