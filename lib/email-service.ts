@@ -1,7 +1,9 @@
 import { Resend } from 'resend';
 
-// Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend client only if API key is available
+const resend = process.env.RESEND_API_KEY 
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
 
 // Get base URL for email assets
 const getBaseUrl = () => {
@@ -152,6 +154,15 @@ export async function sendOTPEmail(
   code: string
 ): Promise<SendOTPEmailResult> {
   try {
+    // Check if Resend is configured
+    if (!resend) {
+      console.warn('Resend API key not configured. Skipping email send.');
+      return {
+        success: false,
+        error: 'خدمة البريد الإلكتروني غير متاحة حالياً',
+      };
+    }
+
     const { data, error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'مفتاحك <noreply@moftahak.com>',
       to: [to],
