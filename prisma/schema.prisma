@@ -37,6 +37,8 @@ enum Role {
 // Consultation Status - حالات طلب الاستشارة
 enum ConsultationStatus {
   PENDING   // جديد - في انتظار المراجعة
+  ACCEPTED  // مقبول (قيمة قديمة - محفوظة للتوافق)
+  REJECTED  // مرفوض (قيمة قديمة - محفوظة للتوافق)
   READ      // تم القراءة
   COMPLETED // مكتمل
 }
