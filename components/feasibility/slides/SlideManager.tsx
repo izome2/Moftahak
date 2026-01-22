@@ -148,12 +148,12 @@ const SlideManager: React.FC<SlideManagerProps> = ({
       </div>
 
       {/* قائمة الشرائح */}
-      <div className={`flex-1 overflow-y-auto px-2.5 py-2 ${compact ? 'custom-scrollbar' : ''}`}>
+      <div className={`flex-1 overflow-y-auto px-3 sm:px-2.5 py-3 sm:py-2 scrollbar-hide`}>
         <Reorder.Group
           axis="y"
           values={slides}
           onReorder={handleReorder}
-          className="space-y-1.5"
+          className="space-y-2 sm:space-y-1.5"
         >
           {slides.map((slide, index) => {
             const Icon = slideIcons[slide.type];
@@ -172,7 +172,7 @@ const SlideManager: React.FC<SlideManagerProps> = ({
                   onClick={() => onSlideSelect(index)}
                   onContextMenu={(e) => handleContextMenu(e, slide.id)}
                   className={`
-                    relative w-full p-2.5 flex items-center gap-2.5 cursor-pointer group rounded-xl overflow-hidden border-2
+                    relative w-full p-3 sm:p-2.5 flex items-center gap-3 sm:gap-2.5 cursor-pointer group rounded-xl overflow-hidden border-2
                     ${isActive 
                       ? 'bg-primary/10 border-primary/30 shadow-[0_4px_20px_rgba(237,191,140,0.25)]' 
                       : 'bg-white border-primary/20 hover:shadow-[0_4px_20px_rgba(237,191,140,0.15)]'
@@ -196,32 +196,32 @@ const SlideManager: React.FC<SlideManagerProps> = ({
                     }}
                   />
                   
-                  <div className="flex items-center gap-2.5 relative z-10 w-full">
+                  <div className="flex items-center gap-3 sm:gap-2.5 relative z-10 w-full">
                     {/* مقبض السحب */}
                     {!isLocked && (
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
-                        <GripVertical className="w-4 h-4 text-secondary/60" />
+                      <div className="opacity-40 sm:opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
+                        <GripVertical className="w-5 h-5 sm:w-4 sm:h-4 text-secondary/60" />
                       </div>
                     )}
                     
                     {/* أيقونة القفل للشرائح المقفلة */}
                     {isLocked && (
                       <div className="opacity-60">
-                        <Lock className="w-4 h-4 text-secondary/60" />
+                        <Lock className="w-5 h-5 sm:w-4 sm:h-4 text-secondary/60" />
                       </div>
                     )}
 
                     {/* معاينة الشريحة */}
-                    <div className="w-9 h-9 bg-primary/20 flex items-center justify-center rounded-lg border border-primary/30 shrink-0">
-                      <Icon className="w-4 h-4 text-primary" />
+                    <div className="w-11 h-11 sm:w-9 sm:h-9 bg-primary/20 flex items-center justify-center rounded-lg border border-primary/30 shrink-0">
+                      <Icon className="w-5 h-5 sm:w-4 sm:h-4 text-primary" />
                     </div>
 
                     {/* معلومات الشريحة */}
                     <div className="flex-1 min-w-0 text-right">
-                      <span className="text-sm font-dubai font-bold block truncate text-secondary">
+                      <span className="text-base sm:text-sm font-dubai font-bold block truncate text-secondary">
                         {slide.title}
                       </span>
-                      <span className="text-xs text-secondary/60 block">
+                      <span className="text-sm sm:text-xs text-secondary/60 block">
                         شريحة {index + 1}
                       </span>
                     </div>
@@ -234,15 +234,15 @@ const SlideManager: React.FC<SlideManagerProps> = ({
       </div>
 
       {/* زر إضافة شريحة */}
-      <div className="p-2.5 relative">
+      <div className="p-3 sm:p-2.5 relative">
         <motion.button
           onClick={() => setShowAddMenu(!showAddMenu)}
-          className="w-full p-3 flex items-center justify-center gap-2.5 rounded-lg shadow-md bg-linear-to-r from-primary to-primary/80 text-secondary hover:shadow-lg transition-shadow"
+          className="w-full p-3.5 sm:p-3 flex items-center justify-center gap-2.5 rounded-xl sm:rounded-lg shadow-md bg-linear-to-r from-primary to-primary/80 text-secondary hover:shadow-lg transition-shadow"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
           <Plus className="w-5 h-5" />
-          <span className="font-dubai font-medium text-sm">إضافة شريحة</span>
+          <span className="font-dubai font-medium text-base sm:text-sm">إضافة شريحة</span>
         </motion.button>
 
         {/* قائمة أنواع الشرائح */}

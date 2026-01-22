@@ -56,8 +56,14 @@ const Navbar: React.FC = () => {
       // الانتقال لصفحة منفصلة
       router.push(link.href);
     } else {
-      // التمرير لقسم في الصفحة الرئيسية
-      scrollToSection(link.href);
+      // التحقق إذا كنا في الصفحة الرئيسية
+      if (window.location.pathname === '/') {
+        // التمرير لقسم في الصفحة الرئيسية
+        scrollToSection(link.href);
+      } else {
+        // الانتقال للصفحة الرئيسية مع القسم المطلوب
+        router.push('/' + link.href);
+      }
     }
     setIsMobileMenuOpen(false);
   };
@@ -72,14 +78,10 @@ const Navbar: React.FC = () => {
 
   return (
     <header
-      className={`fixed z-50 transition-all duration-500 top-3 left-[10%] right-[10%] rounded-2xl ${
+      className={`hidden xl:block fixed z-50 transition-all duration-500 top-3 left-[10%] right-[10%] rounded-2xl ${
         isScrolled
           ? 'bg-[#fdf6ee]/88 backdrop-blur-md shadow-[0_0_25px_rgba(180,130,80,0.30)]'
           : 'bg-transparent shadow-none'
-      } max-lg:left-4 max-lg:right-4 md:max-lg:left-8 md:max-lg:right-8 ${
-        isOutOfHero 
-          ? 'max-lg:top-3 md:max-lg:top-4 max-lg:animate-in max-lg:slide-in-from-top max-lg:duration-500' 
-          : 'max-lg:-top-24'
       }`}
     >
       <div className="mx-auto px-3 md:px-4">
@@ -101,25 +103,25 @@ const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop Navigation - Centered */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden xl:flex items-center gap-8">
             {navLinks.map((link) => (
               <button
                 key={link.href}
                 onClick={() => handleNavClick(link)}
                 className={`font-semibold text-base transition-colors duration-300 relative group ${
                   link.isPage 
-                    ? 'text-primary hover:text-primary/80' 
+                    ? 'text-secondary hover:text-primary' 
                     : 'text-secondary hover:text-primary'
                 }`}
               >
                 {link.label}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
+                <span className="absolute top-[calc(100%+4px)] right-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
               </button>
             ))}
           </div>
 
           {/* Desktop Actions - positioned absolutely on the left */}
-          <div className="hidden lg:flex items-center gap-4 absolute left-0">
+          <div className="hidden xl:flex items-center gap-4 absolute left-0">
             <button
               className="p-2 text-secondary hover:text-primary transition-colors duration-300"
               aria-label="السلة"
@@ -150,7 +152,7 @@ const Navbar: React.FC = () => {
 
           {/* Mobile Menu Button - positioned on the left */}
           <button
-            className="lg:hidden p-2 text-secondary hover:text-primary transition-colors absolute left-0"
+            className="xl:hidden p-2 text-secondary hover:text-primary transition-colors absolute left-0"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="القائمة"
           >
@@ -160,17 +162,13 @@ const Navbar: React.FC = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden py-6 border-t border-accent animate-in fade-in slide-in-from-top duration-300">
+          <div className="xl:hidden py-6 border-t border-accent animate-in fade-in slide-in-from-top duration-300">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
                 <button
                   key={link.href}
                   onClick={() => handleNavClick(link)}
-                  className={`text-right font-semibold py-2 transition-colors duration-300 ${
-                    link.isPage 
-                      ? 'text-primary hover:text-primary/80' 
-                      : 'text-secondary hover:text-primary'
-                  }`}
+                  className="text-right font-semibold py-2 transition-colors duration-300 text-secondary hover:text-primary"
                 >
                   {link.label}
                 </button>

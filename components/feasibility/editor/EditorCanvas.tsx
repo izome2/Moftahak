@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { SlideCanvas } from '@/components/feasibility/slides';
 import type { Slide, SlideData } from '@/types/feasibility';
 import EditableTextOverlay, { type TextOverlayItem } from './EditableTextOverlay';
@@ -25,6 +25,74 @@ interface EditorCanvasWrapperProps {
   onDeleteOverlayItem?: (id: string) => void;
 }
 
+// الزوم الافتراضي
+const DEFAULT_ZOOM = 100;
+
+// عرض القائمة الجانبية على الديسكتوب (w-72 = 288px + right-8 = 32px + gap)
+const SIDEBAR_WIDTH = 336;
+const SLIDE_BASE_WIDTH = 1100;
+const SLIDE_BASE_HEIGHT = 1200;
+
+// حساب الزوم المناسب والإزاحة عندما تقترب القائمة من الشريحة
+const calculateZoomAndOffset = () => {
+  if (typeof window === 'undefined') return { zoom: DEFAULT_ZOOM, offset: 0 };
+  
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
+  
+  // على الموبايل والتابلت (أقل من 1024px) - القائمة مخفية، نجعل الشريحة Fit
+  if (screenWidth < 1024) {
+    const availableWidth = screenWidth - 32; // 32 = padding
+    const availableHeight = screenHeight - 120; // 120 = مساحة للأزرار
+    
+    const zoomByWidth = (availableWidth / SLIDE_BASE_WIDTH) * 100;
+    const zoomByHeight = (availableHeight / SLIDE_BASE_HEIGHT) * 100;
+    
+    const fitZoom = Math.min(zoomByWidth, zoomByHeight) * 0.95; // 95% للأمان
+    return { zoom: Math.max(20, Math.floor(fitZoom)), offset: 0 };
+  }
+  
+  // على الديسكتوب - نحسب إذا كانت الشريحة ستلمس القائمة
+  // الشريحة في المنتصف، لذا نحسب المسافة من المنتصف إلى حافة القائمة
+  const slideWidthAtDefaultZoom = SLIDE_BASE_WIDTH * (DEFAULT_ZOOM / 100);
+  const slideHalfWidth = slideWidthAtDefaultZoom / 2;
+  const screenCenter = screenWidth / 2;
+  
+  // حافة الشريحة اليمنى (في RTL، اليمين هو جهة القائمة)
+  const slideRightEdge = screenCenter + slideHalfWidth;
+  
+  // حافة القائمة اليسرى (القائمة على اليمين بعرض SIDEBAR_WIDTH)
+  const sidebarLeftEdge = screenWidth - SIDEBAR_WIDTH;
+  
+  // إذا كانت الشريحة لا تلمس القائمة (مع هامش أمان 20px)
+  if (slideRightEdge < sidebarLeftEdge - 20) {
+    return { zoom: DEFAULT_ZOOM, offset: 0 };
+  }
+  
+  // الشريحة ستلمس القائمة - نحسب الزوم المناسب أو الإزاحة
+  // المساحة المتاحة من يسار الشاشة إلى القائمة
+  const availableWidth = sidebarLeftEdge - 40; // 40 = هامش من اليسار
+  
+  // نحاول أولاً الإزاحة بدون تصغير
+  const neededOffset = slideRightEdge - sidebarLeftEdge + 30; // 30 = هامش أمان
+  
+  // إذا كانت الإزاحة معقولة (أقل من 200px)، نستخدمها فقط
+  if (neededOffset <= 200) {
+    return { zoom: DEFAULT_ZOOM, offset: neededOffset };
+  }
+  
+  // وإلا نصغر الزوم ونزيح
+  const optimalZoom = (availableWidth / SLIDE_BASE_WIDTH) * 100 * 0.95; // 95% للأمان
+  const finalZoom = Math.max(40, Math.floor(optimalZoom));
+  
+  // نعيد حساب الإزاحة بعد التصغير
+  const newSlideHalfWidth = (SLIDE_BASE_WIDTH * (finalZoom / 100)) / 2;
+  const newSlideRightEdge = screenCenter + newSlideHalfWidth;
+  const newOffset = Math.max(0, newSlideRightEdge - sidebarLeftEdge + 30);
+  
+  return { zoom: finalZoom, offset: newOffset };
+};
+
 const EditorCanvasWrapper: React.FC<EditorCanvasWrapperProps> = ({
   zoom,
   slide,
@@ -42,10 +110,36 @@ const EditorCanvasWrapper: React.FC<EditorCanvasWrapperProps> = ({
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const slideContainerRef = useRef<HTMLDivElement>(null);
+  const [initialZoomSet, setInitialZoomSet] = useState(false);
+  const [offsetX, setOffsetX] = useState(0);
 
   // أبعاد الشريحة الثابتة (عمودي قليلاً)
   const SLIDE_WIDTH = 1100; // عرض ثابت
   const SLIDE_HEIGHT = 1200; // ارتفاع ثابت (عمودي قليلاً)
+
+  // تعيين الزوم والإزاحة عند التحميل الأول
+  useEffect(() => {
+    if (!initialZoomSet && onZoomChange) {
+      const { zoom: optimalZoom, offset } = calculateZoomAndOffset();
+      onZoomChange(optimalZoom);
+      setOffsetX(offset);
+      setInitialZoomSet(true);
+    }
+  }, [initialZoomSet, onZoomChange]);
+
+  // إعادة حساب الزوم والإزاحة عند تغيير حجم الشاشة
+  useEffect(() => {
+    const handleResize = () => {
+      if (onZoomChange) {
+        const { zoom: optimalZoom, offset } = calculateZoomAndOffset();
+        onZoomChange(optimalZoom);
+        setOffsetX(offset);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [onZoomChange]);
 
   // التعامل مع التكبير بعجلة الماوس (Ctrl/Cmd + Scroll)
   const handleWheel = useCallback((e: React.WheelEvent) => {
@@ -107,19 +201,24 @@ const EditorCanvasWrapper: React.FC<EditorCanvasWrapperProps> = ({
   return (
     <div 
       ref={canvasRef}
-      className="h-full flex flex-col bg-accent/20 relative overflow-y-auto overflow-x-hidden"
+      className="h-full w-full bg-accent/20 relative overflow-y-auto overflow-x-hidden transition-all duration-300 scrollbar-hide"
       style={{ 
         scrollBehavior: 'smooth',
       }}
       onWheel={handleWheel}
     >
-      {/* منطقة العمل - تمرير عمودي فقط */}
-      <div className="flex-1 pt-24 pb-24 flex justify-center min-h-max">
-        {/* Canvas Container مع التحويل - ثابت في المنتصف أفقياً */}
+      {/* منطقة العمل - الشريحة في مركز الشاشة، تتحرك لليسار عند وجود القائمة */}
+      <div 
+        className="min-h-full flex items-center justify-center py-12 transition-all duration-300"
+        style={{
+          transform: `translateX(-${offsetX}px)`,
+        }}
+      >
+        {/* Canvas Container مع التحويل */}
         <div
           style={{
             transform: `scale(${scale})`,
-            transformOrigin: 'top center',
+            transformOrigin: 'center center',
             willChange: 'transform',
           }}
         >

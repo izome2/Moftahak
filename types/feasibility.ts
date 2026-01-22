@@ -27,6 +27,7 @@ export interface RoomItem {
   price: number;
   quantity: number;
   image?: string; // صورة العنصر (اختياري)
+  description?: string; // وصف العنصر (اختياري)
 }
 
 
@@ -56,7 +57,7 @@ export interface CoverSlideData {
 export interface IntroductionSlideData {
   title: string;
   description: string;
-  bulletPoints: string[];
+  bulletPoints?: string[]; // Optional for backward compatibility with legacy data
 }
 
 
@@ -139,11 +140,25 @@ export interface NearbyApartmentsSlideData {
 }
 
 
+export interface AreaStatistics {
+  averageDailyRate: number; // متوسط سعر الليلة
+  averageOccupancy: number; // متوسط نسبة الاشغال (0-100)
+  averageAnnualRevenue: number; // متوسط العوائد السنوية
+}
+
+export interface MonthlyOccupancyData {
+  month: string; // اسم الشهر بالعربي
+  occupancy: number; // نسبة الإشغال (0-100)
+}
+
 export interface StatisticsSlideData {
   totalCost: number;
   averageRent: number;
   roomsCost: { name: string; cost: number }[];
-  comparisonData: { label: string; value: number }[];
+  // إحصائيات المنطقة (للشقق المحيطة)
+  areaStatistics?: AreaStatistics;
+  // بيانات شارت الإشغال الشهري
+  monthlyOccupancy?: MonthlyOccupancyData[];
 }
 
 

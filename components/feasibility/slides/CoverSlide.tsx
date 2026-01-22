@@ -155,7 +155,7 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
 
   return (
     <div 
-      className="relative bg-secondary flex flex-col overflow-hidden"
+      className="relative bg-secondary flex flex-col overflow-hidden group/cover"
       style={{ minHeight: '800px' }}
       dir="rtl"
     >
@@ -171,7 +171,7 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
 
       {/* صورة الخلفية المخصصة */}
       {backgroundImage && (
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-[0]">
           <Image
             src={backgroundImage}
             alt="خلفية"
@@ -184,38 +184,43 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
 
       {/* النمط الخلفي */}
       <div 
-        className="absolute inset-0 opacity-5 z-[1]"
+        className="absolute inset-0 z-[1]"
         style={{
           backgroundImage: `url('/patterns/pattern-vertical-white.png')`,
           backgroundRepeat: 'no-repeat',
-          backgroundSize: 'cover',
+          backgroundSize: window.innerWidth < 768 ? '200%' : '150%',
           backgroundPosition: 'center',
+          opacity: backgroundImage ? Math.min(0.05 + (imageOpacity / 100) * 0.25, 0.3) : 0.05,
+          maskImage: 'linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.2) 100%)',
+          WebkitMaskImage: 'linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.2) 100%)',
         }}
       />
 
       {/* منطقة إضافة صورة الخلفية - تظهر عند التحويم فقط */}
       {isEditing && (
         <div 
-          className="absolute inset-0 z-[2] cursor-pointer group"
-          onClick={handleBackgroundClick}
+          className="absolute inset-0 z-[15] pointer-events-none"
         >
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/20">
-            <div className="bg-white/10 backdrop-blur-sm p-6 flex flex-col items-center gap-3">
-              <ImagePlus className="w-12 h-12 text-primary" />
-              <span className="text-primary text-sm font-dubai">
-                {backgroundImage ? 'انقر لتغيير صورة الخلفية' : 'انقر لإضافة صورة خلفية'}
+          <div className="absolute inset-0 flex items-end justify-end p-6 opacity-0 group-hover/cover:opacity-100 transition-opacity duration-300 pointer-events-none">
+            <div 
+              className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer pointer-events-auto hover:bg-white/20 transition-colors"
+              onClick={handleBackgroundClick}
+            >
+              <ImagePlus className="w-4 h-4 text-primary" />
+              <span className="text-primary text-xs font-dubai">
+                {backgroundImage ? 'تغيير الخلفية' : 'إضافة خلفية'}
               </span>
             </div>
           </div>
           
           {/* شريط التحكم بالشفافية - يظهر بالأسفل عند التحويم */}
           {backgroundImage && (
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover/cover:opacity-100 transition-opacity duration-300 pointer-events-none group-hover/cover:pointer-events-auto">
               <div className="bg-secondary/90 backdrop-blur-sm px-4 py-2 rounded-full border border-primary/30 flex items-center gap-3">
-                <span className="text-primary text-xs font-dubai">شفافية</span>
+                <span className="text-primary text-xs font-dubai pointer-events-none">شفافية</span>
                 <input
                   type="range"
-                  min="10"
+                  min="0"
                   max="50"
                   step="5"
                   value={imageOpacity}
@@ -232,195 +237,199 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
         </div>
       )}
 
-      {/* المحتوى */}
-      <div className="relative z-10 flex flex-col h-full py-12 pointer-events-none">
+      {/* المحتوى - تخطيط ثابت */}
+      <div className="relative z-10 h-full min-h-[800px] pointer-events-none">
         {/* wrapper للعناصر القابلة للنقر */}
-        <div className="pointer-events-auto flex-1 flex flex-col">
-        {/* القسم العلوي - الشعار (ثابت في الأعلى) */}
-        <div className="flex items-center justify-center pt-8">
-          <motion.div 
-            className="text-center"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            {/* الشعار */}
-            <div className={`relative w-48 h-48 mx-auto mb-6 ${backgroundImage ? 'drop-shadow-2xl' : ''}`}>
-              <Image
-                src="/logos/logo-white.png"
-                alt="مفتاحك"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
-            
-            {/* الخط الفاصل المتدرج */}
+        <div className="pointer-events-auto absolute inset-0 flex flex-col">
+          
+          {/* ===== القسم العلوي - الشعار ===== */}
+          <div className="flex items-center justify-center pt-10">
             <motion.div 
-              className="w-64 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent mb-4 mx-auto"
-              initial={{ scaleX: 0, opacity: 0 }}
-              animate={{ scaleX: 1, opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-            />
-            
-            <p className={`text-primary text-lg font-dubai ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>
-              شريكك في النجاح العقاري
-            </p>
-          </motion.div>
-        </div>
-
-        {/* مساحة فارغة للفصل بين الشعار والمحتوى السفلي */}
-        <div className="flex-1" />
-
-        {/* القسم السفلي - كل المحتوى (دراسة جدوى، اسم العميل، التاريخ، الحقوق) */}
-        <div className="flex flex-col items-center px-8 pb-8 pt-22">
-          {/* عنوان الدراسة */}
-          <motion.div 
-            className="mb-4 text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            {isEditing && editingField === 'studyTitle' ? (
-              <div className="flex items-center gap-3">
-                <input
-                  type="text"
-                  value={studyTitle}
-                  onChange={(e) => setStudyTitle(e.target.value)}
-                  className="text-2xl font-dubai text-primary bg-white/10 backdrop-blur-sm border-b-2 border-primary/50 outline-none text-center px-6 py-3 rounded-t-xl"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSave('studyTitle');
-                    if (e.key === 'Escape') handleCancel('studyTitle');
-                  }}
+              className="text-center"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              {/* الشعار */}
+              <div className={`relative w-28 h-28 mx-auto mb-3 ${backgroundImage ? 'drop-shadow-2xl' : ''}`}>
+                <Image
+                  src="/logos/logo-white.png"
+                  alt="مفتاحك"
+                  fill
+                  className="object-contain"
+                  priority
                 />
-                <button
-                  onClick={() => handleSave('studyTitle')}
-                  className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
-                >
-                  <Check className="w-5 h-5 text-green-400" />
-                </button>
-                <button
-                  onClick={() => handleCancel('studyTitle')}
-                  className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-red-400" />
-                </button>
               </div>
-            ) : (
-              <div 
-                className={`relative group ${isEditing ? 'cursor-pointer' : ''}`}
-                onClick={() => isEditing && setEditingField('studyTitle')}
-              >
-                <span className={`text-4xl font-dubai text-primary ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>
-                  {studyTitle}
-                </span>
-                {isEditing && (
-                  <Edit3 className="w-5 h-5 absolute -left-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-primary/40" />
-                )}
-              </div>
-            )}
-          </motion.div>
+              
+              {/* الخط الفاصل المتدرج */}
+              <motion.div 
+                className="w-64 h-[2px] mx-auto mb-2"
+                style={{ 
+                  background: 'linear-gradient(to right, transparent, #f8eae7, transparent)'
+                }}
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={{ scaleX: 1, opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+              />
+              
+              <p className={`text-sm font-dubai ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`} style={{ color: '#f8eae7' }}>
+                شريكك في النجاح العقاري
+              </p>
+            </motion.div>
+          </div>
 
-          {/* اسم العميل - "أُعدت خصيصاً للعميل:" أعلى الاسم */}
-          <motion.div 
-            className="text-center mb-4"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            {isEditing && editingField === 'clientName' ? (
-              <div className="flex flex-col items-center gap-3">
-                <span className={`text-primary text-lg font-dubai ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>أُعدت خصيصاً للعميل:</span>
-                <div className="flex items-center gap-3">
+          {/* ===== القسم الأوسط - دراسة جدوى + اسم العميل (في المنتصف تماماً) ===== */}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            {/* عنوان الدراسة */}
+            <motion.div 
+              className="text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              {isEditing && editingField === 'studyTitle' ? (
+                <div className="flex items-center justify-center gap-3">
                   <input
                     type="text"
-                    value={clientName}
-                    onChange={(e) => setClientName(e.target.value)}
-                    className="text-4xl font-dubai font-bold text-primary bg-white/10 backdrop-blur-sm border-b-2 border-primary outline-none text-center px-4 py-2 rounded-t-xl"
+                    value={studyTitle}
+                    onChange={(e) => setStudyTitle(e.target.value)}
+                    className="text-6xl font-dubai text-primary bg-white/10 backdrop-blur-sm border-b-2 border-primary/50 outline-none text-center px-6 py-3 rounded-t-xl"
                     autoFocus
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleSave('clientName');
-                      if (e.key === 'Escape') handleCancel('clientName');
+                      if (e.key === 'Enter') handleSave('studyTitle');
+                      if (e.key === 'Escape') handleCancel('studyTitle');
                     }}
                   />
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => handleSave('clientName')}
-                      className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
-                    >
-                      <Check className="w-5 h-5 text-green-400" />
-                    </button>
-                    <button
-                      onClick={() => handleCancel('clientName')}
-                      className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
-                    >
-                      <X className="w-5 h-5 text-red-400" />
-                    </button>
+                  <button
+                    onClick={() => handleSave('studyTitle')}
+                    className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
+                  >
+                    <Check className="w-5 h-5 text-green-400" />
+                  </button>
+                  <button
+                    onClick={() => handleCancel('studyTitle')}
+                    className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5 text-red-400" />
+                  </button>
+                </div>
+              ) : (
+                <div 
+                  className={`relative group inline-block ${isEditing ? 'cursor-pointer' : ''}`}
+                  onClick={() => isEditing && setEditingField('studyTitle')}
+                >
+                  <span className={`text-6xl sm:text-6xl md:text-6xl lg:text-7xl font-dubai font-bold text-primary ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>
+                    {studyTitle}
+                  </span>
+                  {isEditing && (
+                    <Edit3 className="w-5 h-5 absolute -left-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-primary/40" />
+                  )}
+                </div>
+              )}
+            </motion.div>
+
+            {/* اسم العميل */}
+            <motion.div 
+              className="text-center mt-12"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              {isEditing && editingField === 'clientName' ? (
+                <div className="flex flex-col items-center gap-2">
+                  <span className={`text-primary text-base font-dubai ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>أُعدت خصيصاً للعميل:</span>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="text"
+                      value={clientName}
+                      onChange={(e) => setClientName(e.target.value)}
+                      className="text-3xl font-dubai font-bold text-primary bg-white/10 backdrop-blur-sm border-b-2 border-primary outline-none text-center px-4 py-2 rounded-t-xl"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSave('clientName');
+                        if (e.key === 'Escape') handleCancel('clientName');
+                      }}
+                    />
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => handleSave('clientName')}
+                        className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
+                      >
+                        <Check className="w-5 h-5 text-green-400" />
+                      </button>
+                      <button
+                        onClick={() => handleCancel('clientName')}
+                        className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
+                      >
+                        <X className="w-5 h-5 text-red-400" />
+                      </button>
+                    </div>
                   </div>
                 </div>
+              ) : (
+                <div 
+                  className={`relative group inline-block ${isEditing ? 'cursor-pointer' : ''}`}
+                  onClick={() => isEditing && setEditingField('clientName')}
+                >
+                  <span className={`block text-primary text-base font-dubai mb-1 ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>
+                    أُعدت خصيصاً للعميل:
+                  </span>
+                  <h2 className={`text-3xl font-dubai font-bold text-primary ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>
+                    {clientName}
+                  </h2>
+                  {isEditing && (
+                    <Edit3 className="w-5 h-5 absolute -left-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-primary/40" />
+                  )}
+                </div>
+              )}
+            </motion.div>
+
+            {/* الخط الفاصل */}
+            <motion.div 
+              className="w-40 h-0.5 bg-primary/20 mx-auto mt-8"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+            />
+          </div>
+
+          {/* ===== القسم السفلي - التاريخ والحقوق ===== */}
+          <div className="flex flex-col items-center px-8 pb-12">
+            {/* التاريخ */}
+            <motion.div 
+              className={`flex items-center gap-2 mb-2 ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}
+              style={{ color: '#f8eae7' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Calendar className="w-4 h-4" />
+              <span className="text-base font-dubai">{currentDate}</span>
+            </motion.div>
+
+            {/* زخرفة + الحقوق */}
+            <motion.div 
+              className="text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+            >
+              {/* زخرفة */}
+              <div className="flex items-center justify-center gap-3 mb-1.5">
+                <div className="w-12 h-px" style={{ backgroundColor: '#f8eae7' }} />
+                <div className="w-2 h-2 rotate-45" style={{ backgroundColor: '#f8eae7' }} />
+                <div className="w-12 h-px" style={{ backgroundColor: '#f8eae7' }} />
               </div>
-            ) : (
-              <div 
-                className={`relative group ${isEditing ? 'cursor-pointer' : ''}`}
-                onClick={() => isEditing && setEditingField('clientName')}
-              >
-                {/* "أُعدت خصيصاً للعميل:" أعلى الاسم */}
-                <span className={`block text-primary text-lg font-dubai mb-2 ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>
-                  أُعدت خصيصاً للعميل:
-                </span>
-                {/* اسم العميل */}
-                <h2 className={`text-4xl font-dubai font-bold text-primary ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>
-                  {clientName}
-                </h2>
-                {isEditing && (
-                  <Edit3 className="w-5 h-5 absolute -left-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-primary/40" />
-                )}
-              </div>
-            )}
-          </motion.div>
-
-          {/* الخط الفاصل السفلي */}
-          <motion.div 
-            className="w-40 h-0.5 bg-primary/20 mb-4"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-          />
-
-          {/* التاريخ */}
-          <motion.div 
-            className={`flex items-center gap-3 text-primary mb-6 ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-          >
-            <Calendar className="w-5 h-5" />
-            <span className="text-base font-dubai">{currentDate}</span>
-          </motion.div>
-
-          {/* زخرفة + الحقوق */}
-          <motion.div 
-            className="text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-          >
-            {/* زخرفة */}
-            <div className="flex items-center justify-center gap-4 mb-3">
-              <div className="w-16 h-px bg-primary/20" />
-              <div className="w-3 h-3 bg-primary rotate-45 rounded-sm" />
-              <div className="w-16 h-px bg-primary/20" />
-            </div>
-            
-            <p className={`text-primary text-sm font-dubai ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>
-              تم إنشاء هذا النموذج من خلال
-            </p>
-            <p className={`text-primary text-lg font-bristone mt-1 ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`}>
-              moftahak.com
-            </p>
-          </motion.div>
-        </div>
+              
+              <p className={`text-sm font-dubai ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`} style={{ color: '#f8eae7' }}>
+                تم إنشاء هذا النموذج من خلال
+              </p>
+              <p className={`text-base font-bristone mt-0.5 ${backgroundImage ? '[text-shadow:_0_2px_8px_rgb(0_0_0_/_80%)]' : ''}`} style={{ color: '#f8eae7' }}>
+                moftahak.com
+              </p>
+            </motion.div>
+          </div>
+          
         </div>
       </div>
 

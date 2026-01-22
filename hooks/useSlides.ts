@@ -157,7 +157,6 @@ const defaultSlideTemplates: Record<SlideType, { title: string; data: SlideData;
         totalCost: 0,
         averageRent: 0,
         roomsCost: [],
-        comparisonData: [],
       },
     },
   },
@@ -636,7 +635,6 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
           totalCost: 0,
           averageRent: 0,
           roomsCost: [],
-          comparisonData: [],
         },
       },
     });

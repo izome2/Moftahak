@@ -46,6 +46,27 @@ export async function POST(
     // إنشاء الشرائح الأولية حسب نوع الدراسة
     const isWithFieldVisit = feasibilityRequest.studyType === 'WITH_FIELD_VISIT';
     
+    // إنشاء بيانات شقة العميل للخريطة (إذا كانت الإحداثيات متوفرة)
+    const clientApartmentPin = (feasibilityRequest.latitude && feasibilityRequest.longitude) ? {
+      id: `pin-client-${nanoid(6)}`,
+      lat: feasibilityRequest.latitude,
+      lng: feasibilityRequest.longitude,
+      apartment: {
+        id: `apt-client-${nanoid(6)}`,
+        name: 'شقتي',
+        price: 0,
+        rooms: feasibilityRequest.bedrooms + feasibilityRequest.livingRooms,
+        features: [],
+        rentCount: 0,
+        highestRent: 0,
+        location: {
+          lat: feasibilityRequest.latitude,
+          lng: feasibilityRequest.longitude,
+        },
+        isClientApartment: true,
+      },
+    } : null;
+    
     // الشرائح الأساسية المشتركة
     const baseSlides = [
       {
@@ -53,8 +74,11 @@ export async function POST(
         type: 'cover',
         title: 'الغلاف',
         data: {
-          title: `دراسة جدوى - ${feasibilityRequest.fullName}`,
-          subtitle: `${feasibilityRequest.city} - ${feasibilityRequest.district}`,
+          cover: {
+            clientName: feasibilityRequest.fullName,
+            studyTitle: `دراسة جدوى`,
+            subtitle: `${feasibilityRequest.city} - ${feasibilityRequest.district}`,
+          },
         },
       },
       {
@@ -62,8 +86,16 @@ export async function POST(
         type: 'introduction',
         title: 'المقدمة',
         data: {
-          clientName: feasibilityRequest.fullName,
-          propertyType: feasibilityRequest.propertyType,
+          introduction: {
+            title: 'مرحباً بك في دراسة الجدوى',
+            description: 'تم إعداد هذه الدراسة خصيصاً لمساعدتك في تجهيز شقتك للإيجار السياحي. ستجد فيها كل ما تحتاجه من معلومات وتحليلات.',
+            bulletPoints: [
+              'تحليل شامل لاحتياجات الشقة',
+              'تكلفة تقديرية للتجهيزات',
+              'دراسة المنطقة المحيطة',
+              'إحصائيات وتوقعات الإيجار',
+            ],
+          },
         },
       },
       {
@@ -71,10 +103,15 @@ export async function POST(
         type: 'room-setup',
         title: 'تكوين الشقة',
         data: {
-          bedrooms: feasibilityRequest.bedrooms,
-          bathrooms: feasibilityRequest.bathrooms,
-          livingRooms: feasibilityRequest.livingRooms,
-          kitchens: feasibilityRequest.kitchens,
+          roomSetup: {
+            rooms: {
+              bedrooms: feasibilityRequest.bedrooms,
+              bathrooms: feasibilityRequest.bathrooms,
+              livingRooms: feasibilityRequest.livingRooms,
+              kitchens: feasibilityRequest.kitchens,
+            },
+            slidesGenerated: true, // التكوين تم بالفعل من بيانات العميل
+          },
         },
       },
     ];
@@ -86,28 +123,72 @@ export async function POST(
         id: nanoid(),
         type: 'bedroom',
         title: `غرفة النوم ${i + 1}`,
-        data: { roomNumber: i + 1, items: [] },
+        data: { 
+          room: {
+            room: {
+              id: `bedroom-${i + 1}`,
+              type: 'bedroom',
+              name: `غرفة النوم ${i + 1}`,
+              number: i + 1,
+              items: [],
+              totalCost: 0,
+            },
+          },
+        },
       })),
       // غرف المعيشة
       ...Array.from({ length: feasibilityRequest.livingRooms }, (_, i) => ({
         id: nanoid(),
         type: 'living-room',
         title: `غرفة المعيشة ${i + 1}`,
-        data: { roomNumber: i + 1, items: [] },
+        data: { 
+          room: {
+            room: {
+              id: `living-room-${i + 1}`,
+              type: 'living-room',
+              name: feasibilityRequest.livingRooms === 1 ? 'الصالة' : `صالة ${i + 1}`,
+              number: feasibilityRequest.livingRooms === 1 ? 0 : i + 1,
+              items: [],
+              totalCost: 0,
+            },
+          },
+        },
       })),
       // المطابخ
       ...Array.from({ length: feasibilityRequest.kitchens }, (_, i) => ({
         id: nanoid(),
         type: 'kitchen',
         title: `المطبخ ${i + 1}`,
-        data: { roomNumber: i + 1, items: [] },
+        data: { 
+          room: {
+            room: {
+              id: `kitchen-${i + 1}`,
+              type: 'kitchen',
+              name: feasibilityRequest.kitchens === 1 ? 'المطبخ' : `مطبخ ${i + 1}`,
+              number: feasibilityRequest.kitchens === 1 ? 0 : i + 1,
+              items: [],
+              totalCost: 0,
+            },
+          },
+        },
       })),
       // الحمامات
       ...Array.from({ length: feasibilityRequest.bathrooms }, (_, i) => ({
         id: nanoid(),
         type: 'bathroom',
         title: `الحمام ${i + 1}`,
-        data: { roomNumber: i + 1, items: [] },
+        data: { 
+          room: {
+            room: {
+              id: `bathroom-${i + 1}`,
+              type: 'bathroom',
+              name: feasibilityRequest.bathrooms === 1 ? 'الحمام' : `حمام ${i + 1}`,
+              number: feasibilityRequest.bathrooms === 1 ? 0 : i + 1,
+              items: [],
+              totalCost: 0,
+            },
+          },
+        },
       })),
       // ملخص التكاليف
       {
@@ -125,8 +206,12 @@ export async function POST(
         type: 'area-study',
         title: 'دراسة المنطقة',
         data: {
-          city: feasibilityRequest.city,
-          district: feasibilityRequest.district,
+          areaStudy: {
+            title: 'دراسة المنطقة المحيطة',
+            description: `دراسة منطقة ${feasibilityRequest.district}، ${feasibilityRequest.city}`,
+            city: feasibilityRequest.city,
+            district: feasibilityRequest.district,
+          },
         },
       },
       {
@@ -134,8 +219,19 @@ export async function POST(
         type: 'map',
         title: 'الخريطة',
         data: {
-          latitude: feasibilityRequest.latitude,
-          longitude: feasibilityRequest.longitude,
+          map: {
+            // إعداد مركز الخريطة على موقع العميل
+            center: (feasibilityRequest.latitude && feasibilityRequest.longitude) ? {
+              lat: feasibilityRequest.latitude,
+              lng: feasibilityRequest.longitude,
+            } : {
+              lat: 30.0444, // القاهرة افتراضياً
+              lng: 31.2357,
+            },
+            zoom: 15,
+            // إضافة شقة العميل كـ pin
+            pins: clientApartmentPin ? [clientApartmentPin] : [],
+          },
         },
       },
       {
@@ -164,7 +260,7 @@ export async function POST(
     // إنشاء دراسة الجدوى
     const study = await prisma.feasibilityStudy.create({
       data: {
-        title: `دراسة جدوى - ${feasibilityRequest.fullName}`,
+        title: `دراسة جدوى`,
         clientName: feasibilityRequest.fullName,
         clientEmail: feasibilityRequest.email,
         studyType: feasibilityRequest.studyType, // حفظ نوع الدراسة

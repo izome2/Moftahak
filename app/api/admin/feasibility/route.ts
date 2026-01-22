@@ -45,11 +45,11 @@ export async function GET(request: NextRequest) {
           createdAt: true,
           updatedAt: true,
           sentAt: true,
-          consultation: {
+          feasibilityRequest: {
             select: {
               id: true,
-              firstName: true,
-              lastName: true,
+              fullName: true,
+              paymentCode: true,
             },
           },
         },
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     const study = await prisma.feasibilityStudy.create({
       data: {
-        title: title || `دراسة جدوى - ${clientName}`,
+        title: title || `دراسة جدوى`,
         clientName,
         clientEmail: clientEmail || null,
         studyType: studyType as 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT',
@@ -156,6 +156,7 @@ export async function POST(request: NextRequest) {
         id: study.id,
         title: study.title,
         clientName: study.clientName,
+        shareId: study.shareId,
       },
     }, { status: 201 });
 
@@ -476,7 +477,6 @@ function createDefaultSlides(
         totalCost: 0,
         averageRent: 0,
         roomsCost: [],
-        comparisonData: [],
       },
     },
   });

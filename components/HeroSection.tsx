@@ -1,18 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { ChevronDown, Building2, Users, Award, Phone, Moon, Menu, X, User, ShoppingCart } from 'lucide-react';
+import { Phone, Menu, X, User, ShoppingCart, Moon, Users, Award } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from './ui/Button';
-import Container from './ui/Container';
 import { 
-  heroTitle, 
-  heroSubtitle, 
-  heroButtons, 
-  heroStats, 
-  heroStatItem,
   scrollIndicator,
   navbarSlideDown,
   staggerContainer
@@ -39,22 +33,20 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   
   const [showFloatingButton, setShowFloatingButton] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
   const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
-  
-  
+
+  // Counters for stats (only used on sm+ screens)
   const nightsCount = useCounter({ start: 0, end: 3000, duration: 2500 }, isVisible);
   const clientsCount = useCounter({ start: 0, end: 1200, duration: 2500 }, isVisible);
   const yearsCount = useCounter({ start: 0, end: 5, duration: 2000 }, isVisible);
 
   useEffect(() => {
-    
     setIsVisible(true);
   }, []);
 
   useEffect(() => {
-    
     const sentenceInterval = setInterval(() => {
       setCurrentSentenceIndex((prev) => (prev + 1) % sentences.length);
     }, 4000);
@@ -62,7 +54,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
     return () => {
       clearInterval(sentenceInterval);
     };
-  }, []);
+  }, [sentences.length]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -114,7 +106,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
       {}
       {isMobileMenuOpen && (
         <motion.div 
-          className="lg:hidden absolute inset-0 bg-black/20 backdrop-blur-sm z-40"
+          className="xl:hidden absolute inset-0 bg-black/20 backdrop-blur-sm z-40"
           onClick={() => setIsMobileMenuOpen(false)}
           aria-hidden="true"
           initial={{ opacity: 0 }}
@@ -126,7 +118,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
 
       {}
       <motion.div 
-        className="lg:hidden absolute top-8 left-6 right-6 md:top-10 md:left-12 md:right-12 z-50"
+        className="xl:hidden absolute top-8 left-6 right-6 md:top-10 md:left-12 md:right-12 z-50"
         initial="hidden"
         animate="visible"
         variants={navbarSlideDown}
@@ -227,7 +219,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
       </motion.div>
 
       {}
-      <svg width="0" height="0" className="absolute hidden lg:block">
+      <svg width="0" height="0" className="absolute hidden xl:block">
         <defs>
           <clipPath id="heroClip" clipPathUnits="objectBoundingBox">
             <path
@@ -239,20 +231,20 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
 
       {}
       <div 
-        className="absolute inset-4 bottom-8 lg:top-20 lg:left-16 lg:right-16 xl:left-20 xl:right-20 lg:bottom-12"
+        className="absolute inset-4 bottom-8 xl:top-20 xl:left-16 xl:right-16 2xl:left-20 2xl:right-20 xl:bottom-12"
         style={{ 
           filter: 'drop-shadow(0px 10px 25px rgba(0, 0, 0, 0.35))',
         }}
       >
         {}
         <div 
-          className="w-full h-full bg-secondary rounded-2xl lg:rounded-none"
+          className="w-full h-full bg-secondary rounded-2xl xl:rounded-none"
           style={{ 
             clipPath: 'var(--hero-clip-path, none)',
           }}
         >
         {}
-        <div className="absolute inset-0 rounded-2xl lg:rounded-none overflow-hidden opacity-30">
+        <div className="absolute inset-0 rounded-2xl xl:rounded-none overflow-hidden opacity-20 sm:opacity-30">
           <div 
             className="absolute inset-0 w-full h-full animate-slideshow-1"
             style={{
@@ -293,7 +285,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
         
         {}
         <div 
-          className="absolute inset-0 opacity-20 rounded-2xl lg:rounded-none overflow-hidden z-[1]"
+          className="absolute inset-0 opacity-20 rounded-2xl xl:rounded-none overflow-hidden z-[1]"
           style={{
             backgroundImage: 'url(/patterns/pattern_hero.png)',
             backgroundSize: 'cover',
@@ -305,20 +297,21 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
         {}
         <div className="relative z-10 h-full flex flex-col items-center justify-center py-4 md:py-6 px-4 md:px-6">
           {}
-          <div className="flex-1 flex flex-col items-center justify-center text-center space-y-3 md:space-y-4 max-w-4xl mx-auto w-full">
+          <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4 sm:space-y-3 md:space-y-4 max-w-4xl mx-auto w-full">
             {}
             <motion.h1 
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-bold text-primary leading-[1.15] font-bristone"
+              className="text-5xl leading-[1.1] sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-bold text-primary sm:leading-[1.15] font-bristone"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              {title}
+              <span className="block sm:inline">مُفتاحك</span>
+              <span className="block sm:inline"> للاستثمار العقاري</span>
             </motion.h1>
 
             {}
             <motion.div 
-              className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl text-accent font-medium leading-relaxed px-2 min-h-[4rem] sm:min-h-[3rem] md:min-h-[3.5rem] flex items-center justify-center"
+              className="text-xl sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl text-accent font-medium leading-relaxed px-2 min-h-[5rem] sm:min-h-[3rem] md:min-h-[3.5rem] flex items-center justify-center mt-2 sm:mt-0"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
@@ -396,118 +389,118 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
               </motion.div>
             </motion.div>
 
-            {}
+            {/* Stats Cards - Hidden on mobile, shown on sm+ */}
             <motion.div 
-              className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-5 pt-4 md:pt-6 max-w-3xl w-full px-4 sm:px-0"
+              className="hidden sm:grid grid-cols-3 gap-3 sm:gap-5 pt-4 sm:pt-6 max-w-3xl w-full"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4, delay: 1.1 }}
             >
-              {}
+              {/* Nights Card */}
               <motion.div 
-                className="group relative overflow-hidden rounded-xl"
+                className="group relative overflow-hidden rounded-xl will-change-transform"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 1.2 }}
-                whileHover={{ scale: 1.05, y: -5 }}
+                transition={{ 
+                  duration: 0.5, 
+                  delay: 1.2,
+                  scale: { duration: 0.2, ease: "easeOut" }
+                }}
+                whileHover={{ scale: 1.04 }}
               >
                 <motion.div 
-                  className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  className="absolute inset-0 bg-primary/5 border-2 border-primary/20 rounded-xl transition-all duration-300 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10"
+                  initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                  animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
                   transition={{ duration: 0.5, delay: 1.2 }}
                 />
                 
-                <div className="relative text-center space-y-1 md:space-y-2 px-4 md:px-6 pt-3 md:pt-4 pb-4 md:pb-5">
-                  <div className="flex justify-center mb-1 md:mb-2">
-                    <motion.div 
-                      className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30"
-                      whileHover={{ scale: 1.15, rotate: 10 }}
-                      transition={{ duration: 0.3, ease: "easeOut" }}
-                    >
-                      <Moon className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500" />
-                    </motion.div>
+                <div className="relative text-center space-y-1 sm:space-y-2 px-3 sm:px-6 pt-2 sm:pt-4 pb-3 sm:pb-5">
+                  <div className="flex justify-center mb-1 sm:mb-2">
+                    <div className="p-1.5 sm:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-300 group-hover:bg-primary/20 group-hover:border-primary/30">
+                      <Moon className="w-5 h-5 sm:w-8 sm:h-8 text-primary transition-colors duration-300" />
+                    </div>
                   </div>
                   
-                  <div className="flex items-center justify-center gap-1.5 md:gap-2 pt-0.5 md:pt-1">
-                    <div className="text-2xl md:text-3xl lg:text-3xl font-bold text-primary font-bristone">
+                  <div className="flex items-center justify-center gap-1 sm:gap-2">
+                    <div className="text-xl sm:text-3xl font-bold text-primary font-bristone">
                       {nightsCount}
                     </div>
-                    <div className="text-base md:text-lg lg:text-lg text-accent font-semibold">
+                    <div className="text-sm sm:text-lg text-accent font-semibold whitespace-nowrap">
                       ليلة
                     </div>
                   </div>
                 </div>
               </motion.div>
 
-              {}
+              {/* Clients Card */}
               <motion.div 
-                className="group relative overflow-hidden rounded-xl"
+                className="group relative overflow-hidden rounded-xl will-change-transform"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 1.4 }}
-                whileHover={{ scale: 1.05, y: -5 }}
+                transition={{ 
+                  duration: 0.6, 
+                  delay: 1.4,
+                  scale: { duration: 0.2, ease: "easeOut" }
+                }}
+                whileHover={{ scale: 1.04 }}
               >
                 <motion.div 
-                  className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10"
-                  initial={{ opacity: 0, filter: "blur(10px)" }}
-                  animate={{ opacity: 1, filter: "blur(0px)" }}
+                  className="absolute inset-0 bg-primary/5 border-2 border-primary/20 rounded-xl transition-all duration-300 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10"
+                  initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                  animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
                   transition={{ duration: 0.6, delay: 1.4 }}
                 />
                 
-                <div className="relative text-center space-y-1 md:space-y-2 px-4 md:px-6 pt-3 md:pt-4 pb-4 md:pb-5">
-                  <div className="flex justify-center mb-1 md:mb-2">
-                    <motion.div 
-                      className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30"
-                      whileHover={{ scale: 1.15, rotate: 10 }}
-                      transition={{ duration: 0.3, ease: "easeOut" }}
-                    >
-                      <Users className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500" />
-                    </motion.div>
+                <div className="relative text-center space-y-1 sm:space-y-2 px-3 sm:px-6 pt-2 sm:pt-4 pb-3 sm:pb-5">
+                  <div className="flex justify-center mb-1 sm:mb-2">
+                    <div className="p-1.5 sm:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-300 group-hover:bg-primary/20 group-hover:border-primary/30">
+                      <Users className="w-5 h-5 sm:w-8 sm:h-8 text-primary transition-colors duration-300" />
+                    </div>
                   </div>
                   
-                  <div className="flex items-center justify-center gap-1.5 md:gap-2 pt-0.5 md:pt-1">
-                    <div className="text-2xl md:text-3xl lg:text-3xl font-bold text-primary font-bristone">
+                  <div className="flex items-center justify-center gap-1 sm:gap-2">
+                    <div className="text-xl sm:text-3xl font-bold text-primary font-bristone">
                       {clientsCount}
                     </div>
-                    <div className="text-base md:text-lg lg:text-lg text-accent font-semibold">
+                    <div className="text-sm sm:text-lg text-accent font-semibold whitespace-nowrap">
                       عميل راضي
                     </div>
                   </div>
                 </div>
               </motion.div>
 
-              {}
+              {/* Years Card */}
               <motion.div 
-                className="group relative overflow-hidden rounded-xl"
+                className="group relative overflow-hidden rounded-xl will-change-transform"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 1.6 }}
-                whileHover={{ scale: 1.05, y: -5 }}
+                transition={{ 
+                  duration: 0.6, 
+                  delay: 1.6,
+                  scale: { duration: 0.2, ease: "easeOut" }
+                }}
+                whileHover={{ scale: 1.04 }}
               >
                 <motion.div 
-                  className="absolute inset-0 bg-primary/5 backdrop-blur-md border-2 border-primary/20 rounded-xl transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10"
-                  initial={{ opacity: 0, filter: "blur(10px)" }}
-                  animate={{ opacity: 1, filter: "blur(0px)" }}
+                  className="absolute inset-0 bg-primary/5 border-2 border-primary/20 rounded-xl transition-all duration-300 group-hover:border-primary/40 group-hover:shadow-xl group-hover:bg-primary/10"
+                  initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                  animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
                   transition={{ duration: 0.6, delay: 1.6 }}
                 />
                 
-                <div className="relative text-center space-y-1 md:space-y-2 px-4 md:px-6 pt-3 md:pt-4 pb-4 md:pb-5">
-                  <div className="flex justify-center mb-1 md:mb-2">
-                    <motion.div 
-                      className="p-2 md:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-500 group-hover:bg-primary/20 group-hover:border-primary/30"
-                      whileHover={{ scale: 1.15, rotate: 10 }}
-                      transition={{ duration: 0.3, ease: "easeOut" }}
-                    >
-                      <Award className="w-7 h-7 md:w-8 md:h-8 text-primary transition-all duration-500" />
-                    </motion.div>
+                <div className="relative text-center space-y-1 sm:space-y-2 px-3 sm:px-6 pt-2 sm:pt-4 pb-3 sm:pb-5">
+                  <div className="flex justify-center mb-1 sm:mb-2">
+                    <div className="p-1.5 sm:p-2.5 bg-primary/10 border border-primary/20 rounded-lg transition-all duration-300 group-hover:bg-primary/20 group-hover:border-primary/30">
+                      <Award className="w-5 h-5 sm:w-8 sm:h-8 text-primary transition-colors duration-300" />
+                    </div>
                   </div>
                   
-                  <div className="flex items-center justify-center gap-1.5 md:gap-2 pt-0.5 md:pt-1">
-                    <div className="text-2xl md:text-3xl lg:text-3xl font-bold text-primary font-bristone">
+                  <div className="flex items-center justify-center gap-1 sm:gap-2">
+                    <div className="text-xl sm:text-3xl font-bold text-primary font-bristone">
                       {yearsCount}
                     </div>
-                    <div className="text-base md:text-lg lg:text-lg text-accent font-semibold">
+                    <div className="text-sm sm:text-lg text-accent font-semibold whitespace-nowrap">
                       سنين خبرة
                     </div>
                   </div>
@@ -521,7 +514,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
 
       {}
       <motion.button
-        className="hidden lg:block absolute cursor-pointer z-1 active:scale-90 transition-transform"
+        className="hidden xl:block absolute cursor-pointer z-1 active:scale-90 transition-transform"
         style={{ 
           bottom: '2rem', 
           transform: 'translateX(-50%)',

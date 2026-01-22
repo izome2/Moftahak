@@ -50,6 +50,11 @@ export default function FooterSlide({
   const onUpdateRef = useRef(onUpdate);
   onUpdateRef.current = onUpdate;
 
+  // Sync slideData when props data changes (e.g., when study is loaded from database)
+  useEffect(() => {
+    setSlideData(data);
+  }, [data]);
+
   // تحديث البيانات عند التغيير
   const isInitialMount = useRef(true);
   useEffect(() => {

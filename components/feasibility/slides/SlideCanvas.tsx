@@ -17,6 +17,7 @@ import {
   Building2
 } from 'lucide-react';
 import type { Slide, SlideType, SlideData } from '@/types/feasibility';
+import { useFeasibilityEditorSafe } from '@/contexts/FeasibilityEditorContext';
 import CoverSlide from './CoverSlide';
 import IntroductionSlide from './IntroductionSlide';
 import CostSummarySlide from './CostSummarySlide';
@@ -58,6 +59,10 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
   onUpdateSlideData,
   onGenerateRoomSlides,
 }) => {
+  // الحصول على اسم العميل من السياق
+  const editorContext = useFeasibilityEditorSafe();
+  const clientName = editorContext?.clientName || 'العميل';
+
   // أبعاد الشريحة الثابتة (عمودي قليلاً) - بغض النظر عن الـ zoom
   const SLIDE_WIDTH = 1100;
   const SLIDE_HEIGHT = 1200;
@@ -174,6 +179,7 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
             data={slide.data.introduction || defaultIntroData}
             isEditing={isEditing}
             onUpdate={onUpdateSlideData}
+            clientName={clientName}
           />
         );
       case 'room-setup':
@@ -285,34 +291,13 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
         }));
         const totalCostFromRooms = roomsCostForStats.reduce((sum, r) => sum + r.cost, 0);
         
-        // جمع بيانات الشقق المحيطة للمقارنة - من الخريطة
-        const mapSlideForStats = allSlides.find(s => s.type === 'map');
-        const apartmentsFromMap = mapSlideForStats?.data?.map?.pins?.map((pin: { apartment: { price: number; name: string } }) => pin.apartment) || [];
-        
-        // حساب متوسط الإيجار من الشقق المحيطة (استبعاد شقة العميل - أول شقة غالباً)
-        const nearbyApartmentsForAverage = apartmentsFromMap.slice(1); // تجاهل شقة العميل الأولى
-        const apartmentPrices = nearbyApartmentsForAverage.filter((a: { price: number }) => a.price > 0).map((a: { price: number }) => a.price);
-        const averageRentFromApartments = apartmentPrices.length > 0 
-          ? Math.round(apartmentPrices.reduce((sum: number, p: number) => sum + p, 0) / apartmentPrices.length)
-          : 0;
-        
-        // إنشاء بيانات المقارنة من الشقق المحيطة
-        const comparisonFromApartments = nearbyApartmentsForAverage
-          .filter((a: { price: number; name: string }) => a.price > 0)
-          .slice(0, 6) // أقصى 6 شقق للمقارنة
-          .map((a: { name: string; price: number }) => ({
-            label: a.name,
-            value: a.price,
-          }));
-        
         // دمج البيانات المحسوبة مع البيانات المحفوظة
         const statisticsWithData = {
           totalCost: totalCostFromRooms,
-          averageRent: slide.data.statistics?.averageRent || averageRentFromApartments,
+          averageRent: slide.data.statistics?.averageRent || 0,
           roomsCost: roomsCostForStats,
-          comparisonData: comparisonFromApartments.length > 0 
-            ? comparisonFromApartments 
-            : (slide.data.statistics?.comparisonData || []),
+          areaStatistics: slide.data.statistics?.areaStatistics,
+          monthlyOccupancy: slide.data.statistics?.monthlyOccupancy,
         };
         
         return (

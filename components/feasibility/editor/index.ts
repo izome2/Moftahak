@@ -2,6 +2,7 @@
 export { default as EditorLayout } from './EditorLayout';
 export { default as EditorCanvas } from './EditorCanvas';
 export { default as EditorToolbar } from './EditorToolbar';
+export { default as EditorSidePanel } from './EditorSidePanel';
 
 // تصدير مكونات السحب والإفلات
 export { default as DndProvider } from './DndProvider';

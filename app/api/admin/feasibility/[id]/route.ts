@@ -24,14 +24,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const study = await prisma.feasibilityStudy.findUnique({
       where: { id },
       include: {
-        consultation: {
+        feasibilityRequest: {
           select: {
             id: true,
-            firstName: true,
-            lastName: true,
+            fullName: true,
             email: true,
             phone: true,
-            message: true,
+            paymentCode: true,
+            city: true,
+            district: true,
           },
         },
         admin: {
@@ -42,6 +43,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           },
         },
       },
+      // تضمين shareId لأغراض المشاركة والمعاينة
     });
 
     if (!study) {
@@ -117,8 +119,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         id: true,
         title: true,
         clientName: true,
+        clientEmail: true,
         status: true,
         totalCost: true,
+        shareId: true,
         updatedAt: true,
       },
     });

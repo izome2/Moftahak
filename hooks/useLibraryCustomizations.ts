@@ -11,6 +11,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 export interface ItemCustomization {
   customPrice: number | null;
   image: string | null;
+  description: string | null;
   roomType: string;
 }
 
@@ -22,8 +23,10 @@ interface UseLibraryCustomizationsReturn {
   error: string | null;
   getCustomPrice: (itemId: string, defaultPrice: number) => number;
   getCustomImage: (itemId: string) => string | null;
+  getCustomDescription: (itemId: string, defaultDescription?: string) => string | null;
   updateItemPrice: (itemId: string, roomType: string, price: number) => Promise<void>;
   updateItemImage: (itemId: string, roomType: string, image: string | null) => Promise<void>;
+  updateItemDescription: (itemId: string, roomType: string, description: string | null) => Promise<void>;
   refreshCustomizations: () => Promise<void>;
 }
 
@@ -99,6 +102,12 @@ export function useLibraryCustomizations(): UseLibraryCustomizationsReturn {
     return customization?.image ?? null;
   }, [customizations]);
 
+  // الحصول على الوصف المخصص
+  const getCustomDescription = useCallback((itemId: string, defaultDescription?: string): string | null => {
+    const customization = customizations[itemId];
+    return customization?.description ?? defaultDescription ?? null;
+  }, [customizations]);
+
   // تحديث السعر مع debounce
   const updateItemPrice = useCallback(async (
     itemId: string, 
@@ -113,6 +122,7 @@ export function useLibraryCustomizations(): UseLibraryCustomizationsReturn {
         customPrice: price,
         roomType,
         image: globalCustomizations[itemId]?.image ?? null,
+        description: globalCustomizations[itemId]?.description ?? null,
       },
     };
     globalCustomizations = newCustomizations;
@@ -160,6 +170,7 @@ export function useLibraryCustomizations(): UseLibraryCustomizationsReturn {
         image,
         roomType,
         customPrice: globalCustomizations[itemId]?.customPrice ?? null,
+        description: globalCustomizations[itemId]?.description ?? null,
       },
     };
     globalCustomizations = newCustomizations;
@@ -179,6 +190,76 @@ export function useLibraryCustomizations(): UseLibraryCustomizationsReturn {
     } catch (err) {
       console.error('Error updating item image:', err);
     }
+  }, []);
+
+  // تحديث الوصف مع debounce
+  const updateItemDescription = useCallback(async (
+    itemId: string, 
+    roomType: string, 
+    description: string | null
+  ): Promise<void> => {
+    // تحديث محلي فوري
+    const newCustomizations = {
+      ...globalCustomizations,
+      [itemId]: {
+        ...globalCustomizations[itemId],
+        description,
+        roomType,
+        customPrice: globalCustomizations[itemId]?.customPrice ?? null,
+        image: globalCustomizations[itemId]?.image ?? null,
+      },
+    };
+    globalCustomizations = newCustomizations;
+    setCustomizations(newCustomizations);
+
+    // إلغاء التحديث السابق إذا كان موجوداً (debounce)
+    const existingTimeout = updateQueue.current.get(`description-${itemId}`);
+    if (existingTimeout) {
+      clearTimeout(existingTimeout);
+    }
+
+    // تأخير إرسال الطلب لتجنب الطلبات المتكررة
+    const timeout = setTimeout(async () => {
+      try {
+        const requestBody = { 
+          itemId, 
+          roomType, 
+          description,
+          customPrice: globalCustomizations[itemId]?.customPrice ?? null,
+          image: globalCustomizations[itemId]?.image ?? null,
+        };
+        
+        console.log('Sending description update:', requestBody);
+        
+        const response = await fetch('/api/admin/library-items', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+        });
+
+        console.log('Response status:', response.status, response.statusText);
+
+        if (!response.ok) {
+          let errorData;
+          try {
+            errorData = await response.json();
+          } catch {
+            errorData = { error: response.statusText };
+          }
+          console.error('API Error:', errorData);
+          throw new Error(`Failed to update description: ${errorData.error || response.statusText}`);
+        }
+        
+        const result = await response.json();
+        console.log('Success result:', result);
+      } catch (err) {
+        console.error('Error updating item description:', err);
+      } finally {
+        updateQueue.current.delete(`description-${itemId}`);
+      }
+    }, 500);
+
+    updateQueue.current.set(`description-${itemId}`, timeout);
   }, []);
 
   // إعادة جلب التخصيصات
@@ -201,8 +282,10 @@ export function useLibraryCustomizations(): UseLibraryCustomizationsReturn {
     error,
     getCustomPrice,
     getCustomImage,
+    getCustomDescription,
     updateItemPrice,
     updateItemImage,
+    updateItemDescription,
     refreshCustomizations,
   };
 }

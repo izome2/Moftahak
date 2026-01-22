@@ -32,6 +32,35 @@ const MapEventsHandler = dynamic(
   { ssr: false }
 );
 
+// Map Controller Component - to enable/disable interactions
+const MapController = dynamic(
+  () => Promise.resolve(function MapControllerComponent({ isActive }: { isActive: boolean }) {
+    const { useMap } = require('react-leaflet');
+    const map = useMap();
+    
+    React.useEffect(() => {
+      if (isActive) {
+        map.dragging.enable();
+        map.touchZoom.enable();
+        map.doubleClickZoom.enable();
+        map.scrollWheelZoom.enable();
+        map.boxZoom.enable();
+        map.keyboard.enable();
+      } else {
+        map.dragging.disable();
+        map.touchZoom.disable();
+        map.doubleClickZoom.disable();
+        map.scrollWheelZoom.disable();
+        map.boxZoom.disable();
+        map.keyboard.disable();
+      }
+    }, [map, isActive]);
+    
+    return null;
+  }),
+  { ssr: false }
+);
+
 interface LocationPickerProps {
   latitude?: number;
   longitude?: number;
@@ -100,6 +129,7 @@ export default function LocationPicker({
   const [linkInput, setLinkInput] = useState('');
   const [isAddingLink, setIsAddingLink] = useState(false);
   const [isSatellite, setIsSatellite] = useState(false);
+  const [isMapActive, setIsMapActive] = useState(false);
   const mapRef = useRef<any>(null);
 
   // Check if location is selected
@@ -331,34 +361,63 @@ export default function LocationPicker({
       </div>
 
       {/* Map Container */}
-      <div className="relative rounded-xl overflow-hidden border-2 border-secondary/10 h-[280px] md:h-[400px]">
+      <div 
+        className="relative rounded-xl overflow-hidden border-2 border-secondary/10 h-[280px] md:h-[400px]"
+      >
         {isMapReady ? (
-          <MapContainer
-            center={hasLocation ? [latitude!, longitude!] : [EGYPT_CENTER.lat, EGYPT_CENTER.lng]}
-            zoom={hasLocation ? 16 : DEFAULT_ZOOM}
-            style={{ height: '100%', width: '100%' }}
-            ref={mapRef}
-            attributionControl={false}
-            zoomControl={false}
-          >
-            <TileLayer
-              url={isSatellite 
-                ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              }
-            />
-            
-            {/* Click Handler */}
-            <MapEventsHandler onClick={handleMapClick} />
-            
-            {/* Marker */}
-            {hasLocation && (
-              <Marker
-                position={[latitude!, longitude!]}
-                icon={createMarkerIcon()}
+          <>
+            <MapContainer
+              center={hasLocation ? [latitude!, longitude!] : [EGYPT_CENTER.lat, EGYPT_CENTER.lng]}
+              zoom={hasLocation ? 16 : DEFAULT_ZOOM}
+              style={{ height: '100%', width: '100%' }}
+              ref={mapRef}
+              attributionControl={false}
+              zoomControl={false}
+              scrollWheelZoom={false}
+              dragging={false}
+              doubleClickZoom={false}
+              touchZoom={false}
+            >
+              <TileLayer
+                url={isSatellite 
+                  ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                  : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                }
               />
+              
+              {/* Map Controller - to enable/disable interactions */}
+              <MapController isActive={isMapActive} />
+              
+              {/* Click Handler */}
+              <MapEventsHandler onClick={handleMapClick} />
+              
+              {/* Marker */}
+              {hasLocation && (
+                <Marker
+                  position={[latitude!, longitude!]}
+                  icon={createMarkerIcon()}
+                />
+              )}
+            </MapContainer>
+            
+            {/* Click to Activate Overlay */}
+            {!isMapActive && (
+              <div 
+                className="absolute inset-0 bg-secondary/5 backdrop-blur-[0.5px] flex items-center justify-center z-[500] cursor-pointer"
+                onClick={() => setIsMapActive(true)}
+              >
+                <motion.div 
+                  className="bg-white/95 backdrop-blur-sm px-8 py-5 rounded-2xl shadow-xl text-center pointer-events-none"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                >
+                  <MapPin className="w-10 h-10 text-primary mx-auto mb-3" />
+                  <p className="text-secondary font-dubai font-bold text-lg mb-1">انقر لتفعيل الخريطة</p>
+                  <p className="text-secondary/60 font-dubai text-sm">اضغط على الخريطة للتفاعل معها</p>
+                </motion.div>
+              </div>
             )}
-          </MapContainer>
+          </>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-secondary/5">
             <Loader2 className="w-8 h-8 animate-spin text-secondary" />

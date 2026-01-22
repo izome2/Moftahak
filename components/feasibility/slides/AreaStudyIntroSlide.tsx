@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   MapPin, 
@@ -54,6 +54,14 @@ const AreaStudyIntroSlide: React.FC<AreaStudyIntroSlideProps> = ({
   const [localDescription, setLocalDescription] = useState(
     description || 'في هذا القسم ستتعرف على تحليل شامل للمنطقة المحيطة بشقتك، بما في ذلك الشقق المنافسة وأسعار الإيجار ومعدلات الإشغال، لمساعدتك في اتخاذ قرارات مدروسة حول تسعير شقتك.'
   );
+
+  // Sync local state when props data changes (e.g., when study is loaded from database)
+  useEffect(() => {
+    setLocalTitle(title);
+    setLocalDescription(
+      description || 'في هذا القسم ستتعرف على تحليل شامل للمنطقة المحيطة بشقتك، بما في ذلك الشقق المنافسة وأسعار الإيجار ومعدلات الإشغال، لمساعدتك في اتخاذ قرارات مدروسة حول تسعير شقتك.'
+    );
+  }, [title, description]);
 
   // حفظ التغييرات
   const handleSave = (field: 'title' | 'description') => {

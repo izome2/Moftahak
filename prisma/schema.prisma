@@ -36,9 +36,8 @@ enum Role {
 
 // Consultation Status - حالات طلب الاستشارة
 enum ConsultationStatus {
-  PENDING   // في انتظار المراجعة
-  ACCEPTED  // تم القبول وإنشاء دراسة
-  REJECTED  // مرفوض
+  PENDING   // جديد - في انتظار المراجعة
+  READ      // تم القراءة
   COMPLETED // مكتمل
 }
 
@@ -91,10 +90,6 @@ model Consultation {
   
   status      ConsultationStatus @default(PENDING)
   
-  // العلاقة مع دراسة الجدوى (اختيارية)
-  feasibilityStudy   FeasibilityStudy? @relation("ConsultationStudy")
-  feasibilityStudyId String?           @unique @map("feasibility_study_id")
-  
   createdAt   DateTime           @default(now()) @map("created_at")
   updatedAt   DateTime           @updatedAt @map("updated_at")
 
@@ -134,11 +129,7 @@ model FeasibilityStudy {
   admin       User        @relation("AdminStudies", fields: [adminId], references: [id])
   adminId     String      @map("admin_id")
   
-  // طلب الاستشارة المرتبط (اختياري) - النظام القديم
-  consultation   Consultation? @relation("ConsultationStudy", fields: [consultationId], references: [id])
-  consultationId String?       @unique @map("consultation_id")
-  
-  // طلب دراسة الجدوى المرتبط (اختياري) - النظام الجديد
+  // طلب دراسة الجدوى المرتبط (اختياري)
   feasibilityRequest   FeasibilityRequest? @relation("RequestStudy", fields: [feasibilityRequestId], references: [id])
   feasibilityRequestId String?             @unique @map("feasibility_request_id")
   
@@ -180,6 +171,9 @@ model FeasibilityRequest {
   // الحالة
   status          FeasibilityRequestStatus  @default(PENDING)
   
+  // رمز الدفع - يتم إنشاؤه تلقائياً لكل طلب
+  paymentCode     String                    @unique @map("payment_code")
+  
   // ملاحظات الأدمن
   adminNotes      String?                   @map("admin_notes")
   
@@ -208,7 +202,7 @@ model EmailVerification {
   @@map("email_verifications")
 }
 
-// Library Item Customization - تخصيصات عناصر المكتبة (الأسعار والصور)
+// Library Item Customization - تخصيصات عناصر المكتبة (الأسعار والصور والأوصاف)
 model LibraryItemCustomization {
   id           String   @id @default(cuid())
   
@@ -223,6 +217,9 @@ model LibraryItemCustomization {
   
   // صورة العنصر (Base64 أو رابط Vercel Blob)
   image        String?  @db.Text
+  
+  // وصف العنصر المخصص
+  description  String?  @db.Text
   
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")

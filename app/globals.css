@@ -435,8 +435,8 @@ img[loading="eager"] {
   background-color: #fdf6ee;
 }
 
-/* Hero Section Clip Path - Only on medium+ screens */
-@media (min-width: 768px) {
+/* Hero Section Clip Path - Only on large screens (1200px+) */
+@media (min-width: 1200px) {
   [style*="--hero-clip-path"] {
     --hero-clip-path: url(#heroClip) !important;
   }

@@ -24,6 +24,7 @@ export async function GET() {
     const customizationsMap: Record<string, {
       customPrice: number | null;
       image: string | null;
+      description: string | null;
       roomType: string;
     }> = {};
 
@@ -31,6 +32,7 @@ export async function GET() {
       customizationsMap[item.itemId] = {
         customPrice: item.customPrice,
         image: item.image,
+        description: item.description,
         roomType: item.roomType,
       };
     });
@@ -47,36 +49,50 @@ export async function GET() {
 
 // POST - تحديث أو إنشاء تخصيص لعنصر
 export async function POST(request: NextRequest) {
+  console.log('=== POST /api/admin/library-items ===');
+  
   try {
     const session = await auth();
+    console.log('Session:', session ? 'Found' : 'Not found', 'Role:', session?.user?.role);
+    
     if (!session || session.user?.role !== 'ADMIN') {
+      console.log('Unauthorized - returning 401');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
-    const { itemId, roomType, customPrice, image } = body;
+    const { itemId, roomType, customPrice, image, description } = body;
+
+    console.log('Request body:', JSON.stringify({ itemId, roomType, customPrice, hasImage: !!image, description }, null, 2));
 
     if (!itemId || !roomType) {
+      console.log('Missing required fields');
       return NextResponse.json(
         { error: 'itemId and roomType are required' },
         { status: 400 }
       );
     }
 
+    console.log('Attempting upsert...');
+    
     // تحديث أو إنشاء التخصيص (upsert)
     const customization = await prisma.libraryItemCustomization.upsert({
       where: { itemId },
       update: {
         ...(customPrice !== undefined && { customPrice }),
         ...(image !== undefined && { image }),
+        ...(description !== undefined && { description }),
       },
       create: {
         itemId,
         roomType,
         customPrice: customPrice ?? null,
         image: image ?? null,
+        description: description ?? null,
       },
     });
+
+    console.log('Upsert successful:', customization.id);
 
     return NextResponse.json({ 
       success: true, 
@@ -84,13 +100,22 @@ export async function POST(request: NextRequest) {
         itemId: customization.itemId,
         customPrice: customization.customPrice,
         image: customization.image,
+        description: customization.description,
         roomType: customization.roomType,
       }
     });
   } catch (error) {
-    console.error('Error updating library customization:', error);
+    console.error('=== ERROR in POST /api/admin/library-items ===');
+    console.error('Error type:', error?.constructor?.name);
+    console.error('Error message:', error instanceof Error ? error.message : 'Unknown');
+    console.error('Full error:', error);
+    
     return NextResponse.json(
-      { error: 'Failed to update customization' },
+      { 
+        error: 'Failed to update customization', 
+        details: error instanceof Error ? error.message : 'Unknown error',
+        type: error?.constructor?.name 
+      },
       { status: 500 }
     );
   }

@@ -10,7 +10,7 @@ const consultationSchema = z.object({
   lastName: z.string().min(2, 'الاسم الأخير مطلوب'),
   email: z.string().email('البريد الإلكتروني غير صالح'),
   phone: z.string().optional(),
-  message: z.string().min(10, 'الرسالة قصيرة جداً'),
+  message: z.string().min(5, 'الرسالة قصيرة جداً'),
   // تكوين الشقة (اختياري)
   bedrooms: z.number().min(0).max(10).optional(),
   livingRooms: z.number().min(0).max(5).optional(),
@@ -22,10 +22,13 @@ const consultationSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     // التحقق من rate limit
-    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const ip = request.headers.get('x-forwarded-for') || 
+               request.headers.get('x-real-ip') || 
+               'dev-' + Math.random().toString(36).substring(7); // IP فريد لكل طلب في التطوير
+    
     const { allowed, remaining } = checkRateLimit(ip, {
       windowMs: 15 * 60 * 1000, // 15 دقيقة
-      maxRequests: 5, // 5 طلبات
+      maxRequests: 10, // زيادة إلى 10 طلبات
     });
 
     if (!allowed) {

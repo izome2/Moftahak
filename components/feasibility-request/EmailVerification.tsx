@@ -116,11 +116,17 @@ export default function EmailVerification({
       }
 
       setVerificationId(data.verificationId);
-      setShowOtpInput(true);
-      setCountdown(60); // 60 seconds countdown for resend
       
-      // Focus first OTP input
-      setTimeout(() => inputRefs.current[0]?.focus(), 100);
+      // If already verified (within last 10 minutes), skip OTP
+      if (data.alreadyVerified) {
+        onVerified(true);
+      } else {
+        setShowOtpInput(true);
+        setCountdown(60); // 60 seconds countdown for resend
+        
+        // Focus first OTP input
+        setTimeout(() => inputRefs.current[0]?.focus(), 100);
+      }
     } catch (err) {
       setOtpError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
     } finally {
@@ -298,6 +304,15 @@ export default function EmailVerification({
                 <span className="font-bold text-secondary block mt-1 font-bristone text-xs md:text-sm" dir="ltr">
                   {email}
                 </span>
+                <a 
+                  href="https://mail.google.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-secondary hover:text-secondary/80 font-medium text-xs mt-2"
+                >
+                  <Mail className="w-3 h-3" />
+                  افتح Gmail
+                </a>
               </p>
 
               {/* OTP Boxes */}

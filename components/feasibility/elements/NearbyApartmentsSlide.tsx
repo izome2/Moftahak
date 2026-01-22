@@ -199,7 +199,7 @@ const EditableWidget: React.FC<EditableWidgetProps> = ({
 
   return (
     <motion.div 
-      className={`p-3 rounded-xl border-2 transition-all ${
+      className={`p-2 sm:p-3 rounded-lg sm:rounded-xl border-2 transition-all ${
         isDark 
           ? `border-secondary/40 ${isEditable ? 'cursor-pointer hover:border-secondary/60' : ''}`
           : `bg-primary/20 border-primary/30 ${isEditable ? 'cursor-pointer hover:border-primary/50 hover:bg-primary/30' : ''}`
@@ -209,22 +209,17 @@ const EditableWidget: React.FC<EditableWidgetProps> = ({
         backgroundColor: isDark ? '#164138' : undefined,
       }}
       onClick={handleClick}
-      whileHover={!isEditable ? { 
-        scale: 1.02,
-        boxShadow: isDark ? 'rgba(16, 48, 43, 0.5) 0px 8px 20px' : 'rgba(237, 191, 140, 0.5) 0px 8px 20px',
-      } : undefined}
-      transition={{ duration: 0.2 }}
     >
-      <div className={`flex items-center gap-2 mb-1 ${isDark ? 'text-[#fdf5ed]/70' : 'text-secondary/70'}`}>
+      <div className={`flex items-center gap-1.5 sm:gap-2 mb-1 ${isDark ? 'text-[#fdf5ed]/70' : 'text-secondary/70'}`}>
         <div 
-          className={`w-6 h-6 rounded-lg flex items-center justify-center border ${isDark ? 'border-secondary/60' : 'bg-primary/30 border-primary/40'}`}
+          className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg flex items-center justify-center border ${isDark ? 'border-secondary/60' : 'bg-primary/30 border-primary/40'}`}
           style={{ backgroundColor: isDark ? '#0d2622' : undefined }}
         >
           {icon}
         </div>
-        <span className="text-xs font-dubai">{label}</span>
+        <span className="text-[10px] sm:text-xs font-dubai">{label}</span>
         {isEditable && !isEditing && (
-          <Edit3 className={`w-3 h-3 mr-auto ${isDark ? 'text-[#fdf5ed]/50' : 'text-primary/60'}`} />
+          <Edit3 className={`w-2.5 h-2.5 sm:w-3 sm:h-3 mr-auto ${isDark ? 'text-[#fdf5ed]/70' : 'text-primary/60'}`} />
         )}
       </div>
       {isEditing ? (
@@ -236,7 +231,7 @@ const EditableWidget: React.FC<EditableWidgetProps> = ({
             onChange={(e) => setLocalValue(e.target.value)}
             onBlur={handleSave}
             onKeyDown={handleKeyDown}
-            className={`w-full text-lg font-bold font-bristone border rounded-lg px-2 py-1 focus:outline-none ${isDark ? 'text-[#fdf5ed] bg-secondary/50 border-secondary/40 focus:border-secondary/70' : 'text-secondary bg-white/50 border-primary/40 focus:border-primary'}`}
+            className={`w-full text-base sm:text-lg font-bold font-bristone border rounded-lg px-2 py-1 focus:outline-none ${isDark ? 'text-[#fdf5ed] bg-secondary/50 border-secondary/40 focus:border-secondary/70' : 'text-secondary bg-white/50 border-primary/40 focus:border-primary'}`}
             min={0}
             step={label === 'التقييم' ? '0.1' : '1'}
             max={label === 'التقييم' ? '5' : undefined}
@@ -249,9 +244,9 @@ const EditableWidget: React.FC<EditableWidgetProps> = ({
           </button>
         </div>
       ) : (
-        <div className={`text-lg font-bold font-bristone ${isDark ? 'text-[#fdf5ed]' : 'text-secondary'}`}>
+        <div className={`text-base sm:text-lg font-bold font-bristone ${isDark ? 'text-[#fdf5ed]' : 'text-secondary'}`}>
           {typeof value === 'number' ? value.toLocaleString('ar-EG') : value}
-          <span className={`text-xs font-normal mr-1 ${isDark ? 'text-[#fdf5ed]/60' : 'text-secondary/60'}`}>{suffix}</span>
+          <span className={`text-[10px] sm:text-xs font-normal mr-1 ${isDark ? 'text-[#fdf5ed]/60' : 'text-secondary/60'}`}>{suffix}</span>
         </div>
       )}
     </motion.div>
@@ -410,12 +405,6 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
         boxShadow: SHADOWS.card,
         backgroundColor: isMyApartment ? '#1a4a42' : undefined,
       }}
-      whileHover={{ 
-        scale: 1.01,
-        boxShadow: SHADOWS.cardHover,
-        borderColor: isMyApartment ? 'rgba(16, 48, 43, 0.5)' : 'rgba(237, 191, 140, 0.5)',
-      }}
-      transition={{ duration: 0.25 }}
     >
       {/* Input مخفي لاختيار صورة */}
       <input
@@ -456,9 +445,9 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
           <div className="absolute -bottom-6 -left-6 w-32 h-32 border-4 border-primary/20 rounded-full" />
         </div>
         
-        <div className="relative z-10 flex items-center gap-4">
+        <div className="relative z-10 flex items-center gap-2 sm:gap-4">
           <div 
-            className={`w-14 h-14 rounded-2xl flex items-center justify-center border-2 backdrop-blur-sm ${
+            className={`w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center border-2 backdrop-blur-sm ${
               isMyApartment 
                 ? 'border-secondary/60' 
                 : `border-primary/40 ${!apartment.thumbnailUrl && isEditing ? 'cursor-pointer hover:bg-primary/40 transition-colors' : ''} ${apartment.thumbnailUrl ? 'bg-primary/50' : 'bg-primary/30'}`
@@ -475,31 +464,31 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
             title={!apartment.thumbnailUrl && isEditing ? 'انقر لإضافة صورة' : undefined}
           >
             {!apartment.thumbnailUrl && isEditing ? (
-              <ImagePlus className={`w-6 h-6 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary/70'}`} strokeWidth={2} />
+              <ImagePlus className={`w-4 h-4 sm:w-6 sm:h-6 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary/70'}`} strokeWidth={2} />
             ) : (
-              <Building2 className={`w-7 h-7 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} strokeWidth={2} />
+              <Building2 className={`w-5 h-5 sm:w-7 sm:h-7 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} strokeWidth={2} />
             )}
           </div>
-          <div className="flex-1">
-            <h3 className={`text-xl font-bold font-dubai ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`}>{apartment.name}</h3>
-            <div className={`flex items-center gap-2 text-sm mt-0.5 ${isMyApartment ? 'text-[#fdf5ed]/70' : 'text-secondary/60'}`}>
+          <div className="flex-1 min-w-0">
+            <h3 className={`text-base sm:text-xl font-bold font-dubai truncate ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`}>{apartment.name}</h3>
+            <div className={`flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm mt-0.5 ${isMyApartment ? 'text-[#fdf5ed]/70' : 'text-secondary/60'}`}>
               {apartment.airbnbUrl ? (
                 <a
                   href={apartment.airbnbUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 hover:text-[#FF5A5F] transition-colors"
+                  className="flex items-center gap-1.5 sm:gap-2 hover:text-[#FF5A5F] transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="w-4 h-4 bg-[#FF5A5F]/20 rounded-full flex items-center justify-center border border-[#FF5A5F]/40">
-                    <ExternalLink className="w-2.5 h-2.5 text-[#FF5A5F]" />
+                  <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#FF5A5F]/20 rounded-full flex items-center justify-center border border-[#FF5A5F]/40">
+                    <ExternalLink className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-[#FF5A5F]" />
                   </div>
                   <span className="font-dubai">عرض في Airbnb</span>
                 </a>
               ) : (
                 <>
-                  <div className={`w-4 h-4 rounded-full flex items-center justify-center border ${isMyApartment ? 'bg-secondary/60 border-secondary/80' : 'bg-primary/30 border-primary/40'}`}>
-                    <MapPin className={`w-2.5 h-2.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />
+                  <div className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center border ${isMyApartment ? 'bg-secondary/60 border-secondary/80' : 'bg-primary/30 border-primary/40'}`}>
+                    <MapPin className={`w-2 h-2 sm:w-2.5 sm:h-2.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />
                   </div>
                   <span className="font-dubai">موقع على الخريطة</span>
                 </>
@@ -508,7 +497,7 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
           </div>
           {/* رقم الشقة أو "شقتي" */}
           <div 
-            className={`px-3 py-2 rounded-xl flex items-center justify-center border-2 backdrop-blur-sm ${
+            className={`px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl flex items-center justify-center border-2 backdrop-blur-sm ${
               isMyApartment 
                 ? 'border-secondary/60' 
                 : `border-primary/40 ${apartment.thumbnailUrl ? 'bg-primary/50' : 'bg-primary/30'}`
@@ -518,7 +507,7 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
               backgroundColor: isMyApartment ? '#0d2622' : undefined,
             }}
           >
-            <span className={`font-bold font-dubai text-sm ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`}>
+            <span className={`font-bold font-dubai text-xs sm:text-sm ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`}>
               {isMyApartment ? 'شقتي' : `${index + 1}`}
             </span>
           </div>
@@ -526,9 +515,9 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-4">
+      <div className="p-3 sm:p-4 space-y-3 sm:space-y-4 overflow-hidden">
         {/* Stats Grid - 6 ويدجات موحدة لكل الشقق */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-3 overflow-hidden">
           {/* السعر */}
           <EditableWidget
             icon={<DollarSign className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
@@ -682,14 +671,22 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
                   value={localDescription}
                   onChange={(e) => setLocalDescription(e.target.value)}
                   placeholder="أضف وصفاً للشقة..."
-                  className="w-full h-24 bg-accent/30 border-2 border-primary/20 rounded-lg p-2 text-sm text-secondary font-dubai focus:outline-none focus:border-primary resize-none"
+                  className={`w-full h-24 border-2 rounded-lg p-2 text-sm font-dubai focus:outline-none resize-none ${
+                    isMyApartment 
+                      ? 'bg-secondary/30 border-secondary/40 text-[#fdf5ed] placeholder:text-[#fdf5ed]/40 focus:border-secondary/70' 
+                      : 'bg-accent/30 border-primary/20 text-secondary placeholder:text-secondary/40 focus:border-primary'
+                  }`}
                   autoFocus
                 />
                 <div className="flex gap-2">
                   <button
                     onClick={handleSaveDescription}
-                    className="px-3 py-1.5 bg-primary text-secondary text-xs font-bold rounded-lg flex items-center gap-1 font-dubai border-2 border-primary/50"
-                    style={{ boxShadow: SHADOWS.button }}
+                    className={`px-3 py-1.5 text-xs font-bold rounded-lg flex items-center gap-1 font-dubai border-2 ${
+                      isMyApartment
+                        ? 'bg-secondary text-[#fdf5ed] border-secondary/50 hover:bg-secondary/80'
+                        : 'bg-primary text-secondary border-primary/50 hover:bg-primary/80'
+                    }`}
+                    style={{ boxShadow: isMyApartment ? 'rgba(16, 48, 43, 0.4) 0px 4px 16px' : SHADOWS.button }}
                   >
                     <Check className="w-3 h-3" />
                     حفظ
@@ -699,7 +696,11 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
                       setEditingDescription(false);
                       setLocalDescription(apartment.description || '');
                     }}
-                    className="px-3 py-1.5 bg-accent/50 text-secondary text-xs rounded-lg font-dubai border-2 border-primary/20"
+                    className={`px-3 py-1.5 text-xs rounded-lg font-dubai border-2 ${
+                      isMyApartment
+                        ? 'bg-secondary/30 text-[#fdf5ed] border-secondary/40 hover:bg-secondary/40'
+                        : 'bg-accent/50 text-secondary border-primary/20 hover:bg-accent/60'
+                    }`}
                   >
                     إلغاء
                   </button>
@@ -770,11 +771,11 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
                   {(apartment.images || []).map((img, i) => (
                     <div 
                       key={i} 
-                      className={`relative aspect-square group/img rounded-lg overflow-hidden border-2 border-primary/40 cursor-pointer hover:border-primary transition-[border-color] duration-200 ${
+                      className={`relative aspect-square group/img rounded-lg overflow-hidden border-2 cursor-pointer transition-[border-color] duration-200 ${
                         expandedImageIndex !== null && expandedImageIndex !== i ? 'opacity-30' : ''
-                      }`}
+                      } ${isMyApartment ? 'border-secondary/60 hover:border-secondary' : 'border-primary/40 hover:border-primary'}`}
                       style={{ 
-                        boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px',
+                        boxShadow: isMyApartment ? 'rgba(16, 48, 43, 0.3) 0px 4px 12px' : 'rgba(237, 191, 140, 0.3) 0px 4px 12px',
                       }}
                       onClick={() => {
                         setExpandedImageIndex(expandedImageIndex === i ? null : i);
@@ -792,8 +793,10 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
                             e.stopPropagation();
                             handleRemoveImage(i);
                           }}
-                          className="absolute -top-1 -right-1 w-5 h-5 bg-primary/80 text-secondary rounded-full flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity border-2 border-primary"
-                          style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+                          className={`absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity border-2 ${
+                            isMyApartment ? 'bg-secondary/80 text-[#fdf5ed] border-secondary' : 'bg-primary/80 text-secondary border-primary'
+                          }`}
+                          style={{ boxShadow: isMyApartment ? 'rgba(16, 48, 43, 0.3) 0px 4px 12px' : 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -809,7 +812,7 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute inset-0 bg-white/60 backdrop-blur-sm z-40"
+                    className={`absolute inset-0 backdrop-blur-sm z-40 ${isMyApartment ? 'bg-secondary/60' : 'bg-white/60'}`}
                     onClick={() => setExpandedImageIndex(null)}
                   />
                 )}
@@ -821,9 +824,9 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.25, ease: 'easeOut' }}
-                    className="absolute inset-0 m-auto w-[85%] aspect-square rounded-lg overflow-hidden border-2 border-primary/40 cursor-pointer z-50"
+                    className={`absolute inset-0 m-auto w-[85%] aspect-square rounded-lg overflow-hidden border-2 cursor-pointer z-50 ${isMyApartment ? 'border-secondary/60' : 'border-primary/40'}`}
                     style={{ 
-                      boxShadow: 'rgba(237, 191, 140, 0.6) 0px 16px 48px',
+                      boxShadow: isMyApartment ? 'rgba(16, 48, 43, 0.6) 0px 16px 48px' : 'rgba(237, 191, 140, 0.6) 0px 16px 48px',
                     }}
                     onClick={() => setExpandedImageIndex(null)}
                   >
@@ -1235,10 +1238,10 @@ export default function NearbyApartmentsSlide({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="flex flex-col lg:flex-row gap-6"
+            className="flex flex-col lg:flex-row gap-6 w-full overflow-hidden"
           >
             {/* العمود الأيمن */}
-            <div className="flex-1 flex flex-col gap-6">
+            <div className="flex-1 min-w-0 flex flex-col gap-6">
               {mergedApartments
                 .filter((_, index) => index % 2 === 0)
                 .map((apartment) => {
@@ -1258,7 +1261,7 @@ export default function NearbyApartmentsSlide({
                 })}
             </div>
             {/* العمود الأيسر */}
-            <div className="flex-1 flex flex-col gap-6">
+            <div className="flex-1 min-w-0 flex flex-col gap-6">
               {mergedApartments
                 .filter((_, index) => index % 2 === 1)
                 .map((apartment) => {

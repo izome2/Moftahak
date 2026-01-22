@@ -33,6 +33,35 @@ export async function POST(request: NextRequest) {
       return addSecurityHeaders(response);
     }
 
+    // Check if email was verified in last 10 minutes
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+    const existingVerification = await prisma.emailVerification.findFirst({
+      where: {
+        email: email.toLowerCase(),
+        verified: true,
+        verifiedAt: {
+          gte: tenMinutesAgo,
+        },
+      },
+      orderBy: {
+        verifiedAt: 'desc',
+      },
+    });
+
+    // If verified recently, return success without sending new code
+    if (existingVerification) {
+      const response = NextResponse.json(
+        { 
+          success: true,
+          message: 'تم التحقق من البريد الإلكتروني',
+          alreadyVerified: true,
+          verificationId: existingVerification.id,
+        },
+        { status: 200 }
+      );
+      return addSecurityHeaders(response);
+    }
+
     // Generate OTP
     const code = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry

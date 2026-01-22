@@ -25,8 +25,8 @@ const EditableSectionTitle: React.FC<EditableSectionTitleProps> = ({
   onTitleChange,
   onSubtitleChange,
   className = '',
-  titleClassName = 'text-2xl sm:text-3xl font-bold text-secondary font-dubai',
-  subtitleClassName = 'text-secondary/60 font-dubai text-sm',
+  titleClassName = 'text-lg sm:text-2xl lg:text-3xl font-bold text-secondary font-dubai',
+  subtitleClassName = 'text-secondary/60 font-dubai text-xs sm:text-sm',
 }) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingSubtitle, setIsEditingSubtitle] = useState(false);

@@ -77,6 +77,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         slides: study.slides,
         totalCost: study.totalCost,
         createdAt: study.createdAt,
+        studyType: study.studyType,
       }
     });
     

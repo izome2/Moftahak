@@ -8,6 +8,7 @@ import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motio
 import Container from './ui/Container';
 import Badge from './ui/Badge';
 import Button from './ui/Button';
+import UserIcon from './ui/UserIcon';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { useGyroscope } from '@/hooks/useGyroscope';
 import { 
@@ -28,7 +29,7 @@ interface Service {
   price: string;
   buttonText: string;
   studentsCount?: string;
-  studentImages?: string[];
+  userIconVariants?: Array<'gold' | 'green' | 'beige' | 'teal'>;
   href: string;
 }
 
@@ -75,6 +76,9 @@ const ServicesSection: React.FC = () => {
         setShowGyroButton(false);
         
         localStorage.setItem('gyroPermissionGranted', 'true');
+        
+        // تحديث الصفحة بعد الموافقة
+        window.location.reload();
       }
     } catch (error) {
       console.error('Error requesting gyroscope permission:', error);
@@ -85,7 +89,7 @@ const ServicesSection: React.FC = () => {
   const services: Service[] = useMemo(() => [
     {
       id: 1,
-      image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
+      image: '/images/services/no_nzol_mydany.jpg',
       badge: 'الأكثر طلباً',
       badgeVariant: 'info',
       title: 'دراسة جدوى بدون نزول ميداني',
@@ -93,17 +97,12 @@ const ServicesSection: React.FC = () => {
       price: '٢,٥٠٠ جنيه',
       buttonText: 'اطلب الآن',
       studentsCount: '2K+',
-      studentImages: [
-        'https://i.pravatar.cc/150?img=1',
-        'https://i.pravatar.cc/150?img=2',
-        'https://i.pravatar.cc/150?img=3',
-        'https://i.pravatar.cc/150?img=4',
-      ],
+      userIconVariants: ['gold', 'green', 'beige', 'teal'],
       href: '/feasibility-request?type=without-field',
     },
     {
       id: 2,
-      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop',
+      image: '/images/services/nzol_mydany.jpg',
       badge: 'شامل',
       badgeVariant: 'success',
       title: 'دراسة جدوى مع نزول ميداني',
@@ -111,12 +110,7 @@ const ServicesSection: React.FC = () => {
       price: '٥,٠٠٠ جنيه',
       buttonText: 'اطلب الآن',
       studentsCount: '1.5K+',
-      studentImages: [
-        'https://i.pravatar.cc/150?img=5',
-        'https://i.pravatar.cc/150?img=6',
-        'https://i.pravatar.cc/150?img=7',
-        'https://i.pravatar.cc/150?img=8',
-      ],
+      userIconVariants: ['teal', 'gold', 'green', 'beige'],
       href: '/feasibility-request?type=with-field',
     },
   ], []);
@@ -128,13 +122,13 @@ const ServicesSection: React.FC = () => {
         <AnimatePresence>
           {showGyroButton && (
             <motion.div
-              initial={{ opacity: 0, y: -50 }}
+              initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -50 }}
+              exit={{ opacity: 0, y: 100 }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md"
+              className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md"
             >
-            <div className="bg-accent/80 backdrop-blur-md rounded-2xl shadow-2xl border border-primary/20 p-5">
+            <div className="bg-accent/95 backdrop-blur-md rounded-2xl shadow-2xl border border-primary/20 p-5">
               <div className="flex items-start gap-4">
                 {}
                 <motion.div
@@ -216,7 +210,7 @@ const ServicesSection: React.FC = () => {
         {/* Services Grid */}
         <motion.div 
           ref={gridRef}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto"
           variants={staggerContainer}
           initial="hidden"
           animate={isGridInView ? "visible" : "hidden"}
@@ -271,8 +265,8 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
     
-    const rotY = ((x - centerX) / centerX) * 12;
-    const rotX = -((y - centerY) / centerY) * 12;
+    const rotY = ((x - centerX) / centerX) * 3;
+    const rotX = -((y - centerY) / centerY) * 3;
     
     rotateX.set(rotX);
     rotateY.set(rotY);
@@ -385,7 +379,7 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
       </div>
 
       {/* Student Count Badge */}
-      {service.studentImages && service.studentsCount && (
+      {service.userIconVariants && service.studentsCount && (
         <div className="absolute right-6 z-50 pointer-events-none" style={{ top: 'calc(18rem - 1rem)', transform: 'translateZ(40px)' }}>
           <motion.div 
             initial={{ x: 50, opacity: 0 }}
@@ -395,20 +389,14 @@ const ServiceCard: React.FC<{ service: Service; index: number; gyroData: { rotat
           >
           <div className="flex items-center gap-2 bg-[#ead3b9]/95 backdrop-blur-sm rounded-full px-5 py-2 shadow-xl border border-[#edbf8c]">
             <div className="flex items-center -space-x-2">
-              {service.studentImages.slice(0, 4).map((img, i) => (
+              {service.userIconVariants.slice(0, 4).map((variant, i) => (
                 <motion.div
                   key={i}
-                  className="relative w-7 h-7 rounded-full border-2 border-white overflow-hidden"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: index * 0.1 + 0.5 + i * 0.05 }}
                 >
-                  <Image
-                    src={img}
-                    alt={`Student ${i + 1}`}
-                    fill
-                    className="object-cover"
-                  />
+                  <UserIcon variant={variant} size="md" className="border-white" />
                 </motion.div>
               ))}
             </div>

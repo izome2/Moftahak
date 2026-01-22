@@ -147,17 +147,9 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="relative flex items-center gap-2 bg-white rounded-xl px-3 py-2.5 pointer-events-auto border-2 border-primary/20 overflow-hidden"
+          className="relative flex items-center gap-2 bg-white rounded-xl px-3 py-2.5 pointer-events-auto border-2 border-primary/20"
           style={{ boxShadow: 'rgba(237, 191, 140, 0.15) 0px 4px 20px' }}
         >
-          {/* تأثير التحويم */}
-          <div 
-            className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            style={{ 
-              background: 'linear-gradient(90deg, transparent, rgba(237, 191, 140, 0.4), transparent)',
-              transform: 'translateX(-100%)',
-            }}
-          />
           
           <div className="flex items-center gap-2 relative z-10">
             {/* زر المعاينة */}
@@ -220,16 +212,17 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
                 <MoreVertical className="w-5 h-5" />
               </button>
 
-            {showMoreMenu && (
-              <>
+              {/* القائمة المنسدلة */}
+              {showMoreMenu && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="absolute left-0 top-full mt-2 w-48 bg-white shadow-lg border border-primary/20 rounded-2xl overflow-hidden z-50 editor-cursor"
+                  className="absolute left-0 top-full mt-2 w-48 bg-white shadow-lg border border-primary/20 rounded-2xl overflow-hidden z-[100]"
                   style={{ boxShadow: SHADOWS.toolbar }}
                 >
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       onPreview();
                       setShowMoreMenu(false);
                     }}
@@ -239,7 +232,8 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
                     <span className="font-dubai text-sm">معاينة</span>
                   </button>
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       onShare();
                       setShowMoreMenu(false);
                     }}
@@ -249,19 +243,22 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
                     <span className="font-dubai text-sm">مشاركة</span>
                   </button>
                 </motion.div>
-                <div 
-                  className="fixed inset-0 z-40" 
-                  onClick={() => setShowMoreMenu(false)}
-                />
-              </>
-            )}
+              )}
             </div>
           </div>
         </motion.div>
+
+        {/* Overlay للإغلاق - خارج القائمة */}
+        {showMoreMenu && (
+          <div 
+            className="fixed inset-0 z-[90] sm:hidden" 
+            onClick={() => setShowMoreMenu(false)}
+          />
+        )}
       </div>
 
-      {/* شريط الأدوات السفلي المركزي (التكبير/التصغير والمؤشر) */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+      {/* ======== Desktop: شريط الأدوات السفلي المركزي (≥1024px) ======== */}
+      <div className="hidden lg:block absolute bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -278,88 +275,102 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
             }}
           />
           <div className="flex items-center gap-3 relative z-10">
-          {/* أداة التحديد */}
-          <button
-            onClick={() => setActiveTool('select')}
-            className={`p-2.5 rounded-lg transition-colors ${
-              activeTool === 'select' 
-                ? 'bg-primary/20 text-primary border border-primary/30' 
-                : 'text-secondary/60 hover:text-secondary hover:bg-primary/10'
-            }`}
-            title="أداة التحديد"
-          >
-            <MousePointer2 className="w-5 h-5" />
-          </button>
+            {/* أداة التحديد */}
+            <button
+              onClick={() => setActiveTool('select')}
+              className={`p-2.5 rounded-lg transition-colors ${
+                activeTool === 'select' 
+                  ? 'bg-primary/20 text-primary border border-primary/30' 
+                  : 'text-secondary/60 hover:text-secondary hover:bg-primary/10'
+              }`}
+              title="أداة التحديد"
+            >
+              <MousePointer2 className="w-5 h-5" />
+            </button>
 
-          {/* أداة التحريك */}
-          <button
-            onClick={() => setActiveTool('move')}
-            className={`p-2.5 rounded-lg transition-colors ${
-              activeTool === 'move' 
-                ? 'bg-primary/20 text-primary border border-primary/30' 
-                : 'text-secondary/60 hover:text-secondary hover:bg-primary/10'
-            }`}
-            title="أداة التحريك"
-          >
-            <Move className="w-5 h-5" />
-          </button>
+            <div className="h-6 w-px bg-primary/20" />
 
-          <div className="h-6 w-px bg-primary/20" />
+            {/* إضافة نص */}
+            <button
+              onClick={() => onAddText?.()}
+              className="p-2.5 rounded-lg transition-colors text-secondary/60 hover:text-secondary hover:bg-primary/10"
+              title="إضافة نص"
+            >
+              <Type className="w-5 h-5" />
+            </button>
 
-          {/* إضافة نص */}
-          <button
-            onClick={() => onAddText?.()}
-            className="p-2.5 rounded-lg transition-colors text-secondary/60 hover:text-secondary hover:bg-primary/10"
-            title="إضافة نص"
-          >
-            <Type className="w-5 h-5" />
-          </button>
+            {/* إضافة صورة */}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="p-2.5 rounded-lg transition-colors text-secondary/60 hover:text-secondary hover:bg-primary/10"
+              title="إضافة صورة"
+            >
+              <ImagePlus className="w-5 h-5" />
+            </button>
 
-          {/* إضافة صورة */}
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="p-2.5 rounded-lg transition-colors text-secondary/60 hover:text-secondary hover:bg-primary/10"
-            title="إضافة صورة"
-          >
-            <ImagePlus className="w-5 h-5" />
-          </button>
-          
-          {/* حقل إدخال الصورة المخفي */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleImageSelect}
-            className="hidden"
-          />
+            <div className="h-6 w-px bg-primary/20" />
 
-          <div className="h-6 w-px bg-primary/20" />
-
-          {/* التكبير والتصغير */}
-          <button
-            onClick={onZoomOut}
-            className="p-2 text-secondary/60 hover:text-secondary hover:bg-primary/10 rounded-lg transition-colors disabled:opacity-40"
-            title="تصغير (↓)"
-            disabled={zoom <= 50}
-          >
-            <ZoomOut className="w-5 h-5" />
-          </button>
-          
-          <span className="text-secondary text-sm w-14 text-center font-dubai font-bold bg-primary/10 rounded-lg py-1.5">
-            {zoom}%
-          </span>
-          
-          <button
-            onClick={onZoomIn}
-            className="p-2 text-secondary/60 hover:text-secondary hover:bg-primary/10 rounded-lg transition-colors disabled:opacity-40"
-            title="تكبير (↑)"
-            disabled={zoom >= 200}
-          >
-            <ZoomIn className="w-5 h-5" />
-          </button>
-        </div>
+            {/* التكبير والتصغير */}
+            <button
+              onClick={onZoomOut}
+              className="p-2 text-secondary/60 hover:text-secondary hover:bg-primary/10 rounded-lg transition-colors disabled:opacity-40"
+              title="تصغير (↓)"
+              disabled={zoom <= 25}
+            >
+              <ZoomOut className="w-5 h-5" />
+            </button>
+            
+            <span className="text-secondary text-sm w-14 text-center font-dubai font-bold bg-primary/10 rounded-lg py-1.5">
+              {zoom}%
+            </span>
+            
+            <button
+              onClick={onZoomIn}
+              className="p-2 text-secondary/60 hover:text-secondary hover:bg-primary/10 rounded-lg transition-colors disabled:opacity-40"
+              title="تكبير (↑)"
+              disabled={zoom >= 200}
+            >
+              <ZoomIn className="w-5 h-5" />
+            </button>
+          </div>
         </motion.div>
       </div>
+
+      {/* ======== Mobile/Tablet: شريط أدوات مصغر على اليسار (<1024px) ======== */}
+      <motion.div 
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="lg:hidden fixed bottom-6 left-4 z-40 flex items-center gap-1 bg-white rounded-full px-2 py-1.5 border-2 border-primary/20"
+        style={{ boxShadow: 'rgba(16, 48, 43, 0.15) 0px 10px 40px, rgba(237, 191, 140, 0.3) 0px 0px 0px 1px' }}
+      >
+        {/* إضافة نص */}
+        <button
+          onClick={() => onAddText?.()}
+          className="p-2.5 rounded-full transition-colors text-secondary/70 hover:text-secondary hover:bg-primary/10"
+          title="إضافة نص"
+        >
+          <Type className="w-5 h-5" />
+        </button>
+
+        {/* إضافة صورة */}
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="p-2.5 rounded-full transition-colors text-secondary/70 hover:text-secondary hover:bg-primary/10"
+          title="إضافة صورة"
+        >
+          <ImagePlus className="w-5 h-5" />
+        </button>
+      </motion.div>
+
+      {/* حقل إدخال الصورة المخفي */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageSelect}
+        className="hidden"
+      />
     </>
   );
 };

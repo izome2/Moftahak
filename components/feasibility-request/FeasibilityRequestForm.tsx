@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Send } from 'lucide-react';
+import { ArrowRight, Send, Copy, Check, MessageCircle, AlertTriangle } from 'lucide-react';
+import Image from 'next/image';
 import FormStepper from './FormStepper';
 import Step1BasicInfo from './Step1BasicInfo';
 import Step2PropertyDetails from './Step2PropertyDetails';
@@ -39,6 +40,10 @@ export default function FeasibilityRequestForm({
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showEmailVerificationInStep2, setShowEmailVerificationInStep2] = useState(false);
+  const [paymentCode, setPaymentCode] = useState<string | null>(null);
+  const [codeCopied, setCodeCopied] = useState(false);
+  const [redirectCountdown, setRedirectCountdown] = useState<number>(3);
+  const [manualRedirect, setManualRedirect] = useState(false); // Track manual redirect
   
   // Ref for the scrollable content area
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -190,6 +195,11 @@ export default function FeasibilityRequestForm({
         throw new Error(data.error || 'حدث خطأ أثناء إرسال الطلب');
       }
 
+      // حفظ رمز الدفع
+      if (data.paymentCode) {
+        setPaymentCode(data.paymentCode);
+      }
+      
       setSubmitSuccess(true);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'حدث خطأ غير متوقع');
@@ -198,36 +208,161 @@ export default function FeasibilityRequestForm({
     }
   };
 
+  // نسخ رمز الدفع
+  const copyPaymentCode = () => {
+    if (paymentCode) {
+      navigator.clipboard.writeText(paymentCode);
+      setCodeCopied(true);
+      setTimeout(() => setCodeCopied(false), 2000);
+    }
+  };
+
+  // إنشاء رابط واتساب مع الرسالة الجاهزة
+  const getWhatsAppLink = () => {
+    const phone = '201091507717';
+    const message = `السلام عليكم،
+
+أود تأكيد طلب دراسة الجدوى الخاص بي.
+
+رمز الدفع: ${paymentCode}
+نوع الدراسة: ${studyTypeLabels[studyType]}
+
+⚠️ تنبيه: يرجى عدم تعديل هذه الرسالة لضمان معالجة طلبك بشكل صحيح.`;
+    
+    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  };
+
+  // التوجيه التلقائي إلى واتساب بعد 3 ثواني
+  useEffect(() => {
+    if (submitSuccess && paymentCode && !manualRedirect) {
+      const countdown = setInterval(() => {
+        setRedirectCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdown);
+            window.open(getWhatsAppLink(), '_blank');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(countdown);
+    }
+  }, [submitSuccess, paymentCode, manualRedirect]);
+
   // Success State
   if (submitSuccess) {
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="max-w-2xl mx-auto py-12"
+        className="max-w-xl mx-auto px-1 md:px-4 py-3 md:py-12"
       >
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 md:p-12 text-center shadow-xl border border-secondary/10">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
-            <Send className="w-10 h-10 text-green-600" />
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl py-10 px-6 pb-6 md:py-12 md:px-10 text-center shadow-xl border border-secondary/10 relative overflow-hidden w-full">
+          {/* دوائر خلفية ديكورية */}
+          <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-20 -left-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+          
+          {/* أيقونة النجاح */}
+          <div className="w-28 h-28 md:w-28 md:h-28 mx-auto mb-5 rounded-full bg-primary/20 flex items-center justify-center relative z-10">
+            <Send className="w-14 h-14 md:w-14 md:h-14 text-primary" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-secondary mb-4 font-dubai">
+          
+          <h2 className="text-2xl md:text-2xl font-bold text-secondary mb-3 font-dubai relative z-10">
             تم إرسال طلبك بنجاح!
           </h2>
-          <p className="text-secondary/70 mb-6 font-dubai">
-            شكراً لك على اختيارك مفتاحك. سيتواصل معك فريقنا خلال ٢٤ ساعة لمناقشة تفاصيل دراسة الجدوى.
+          
+          <p className="text-secondary/70 mb-5 font-dubai text-base md:text-base relative z-10 leading-relaxed">
+            عزيزي العميل.. يرجى إتمام عملية الدفع للبدء في دراسة الجدوى. انتقل للواتساب لاستلام تفاصيل الدفع.
           </p>
-          <div className="p-4 bg-primary/10 rounded-xl mb-6">
-            <p className="text-secondary font-medium font-dubai">
-              نوع الدراسة: {studyTypeLabels[studyType]}
+
+          {/* عداد التوجيه التلقائي */}
+          {redirectCountdown > 0 && !manualRedirect && (
+            <div className="mb-4 p-3 bg-primary/10 border border-primary/30 rounded-xl text-secondary text-sm font-dubai relative z-10">
+              سيتم توجيهك تلقائياً إلى واتساب خلال {redirectCountdown} {redirectCountdown === 1 ? 'ثانية' : 'ثواني'}...
+            </div>
+          )}
+          
+          {/* رمز الدفع */}
+          {paymentCode && (
+            <div className="p-5 md:p-6 bg-primary/10 rounded-2xl mb-5 border-2 border-primary/30 relative z-10">
+              <p className="text-secondary/60 text-sm md:text-sm mb-2 font-dubai">رمز الدفع الخاص بك</p>
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-3xl md:text-3xl font-bold text-secondary font-mono tracking-widest" dir="ltr">
+                  {paymentCode}
+                </span>
+                <button
+                  onClick={copyPaymentCode}
+                  className="p-1.5 rounded-lg bg-secondary/10 hover:bg-secondary/20 transition-colors"
+                  title="نسخ الرمز"
+                >
+                  {codeCopied ? (
+                    <Check className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-secondary" />
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* طرق الدفع */}
+          <div className="mb-6 relative z-10">
+            <p className="text-secondary/70 mb-3 font-dubai text-sm md:text-sm">
+              طرق الدفع المتاحة:
             </p>
+            <div className="flex justify-center items-center gap-4">
+              <Image 
+                src="/images/payment/vodafone-cash.png" 
+                alt="فودافون كاش"
+                width={50}
+                height={50}
+                className="object-contain rounded-lg"
+              />
+              <Image 
+                src="/images/payment/instapay.png" 
+                alt="انستا باي"
+                width={50}
+                height={50}
+                className="object-contain rounded-lg"
+              />
+              <Image 
+                src="/images/payment/visa.png" 
+                alt="فيزا"
+                width={50}
+                height={50}
+                className="object-contain rounded-lg"
+              />
+            </div>
           </div>
-          <button
-            onClick={() => window.location.href = '/'}
-            className="px-8 py-3 bg-secondary text-white rounded-xl font-bold hover:bg-secondary/90 transition-colors font-dubai"
-          >
-            العودة للصفحة الرئيسية
-          </button>
         </div>
+        
+        {/* زر واتساب - منفصل */}
+        <a
+          href={getWhatsAppLink()}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => setManualRedirect(true)} // Cancel auto-redirect when clicked
+          className="mt-4 w-full bg-[#22c55e] hover:bg-[#20BA5A] text-white rounded-2xl shadow-xl border-2 border-[#1fbb58] p-4 md:p-5 transition-all inline-flex items-center justify-center gap-3 font-bold font-dubai text-base md:text-base"
+        >
+          <Image 
+            src="/images/payment/whatsapp.png" 
+            alt="واتساب"
+            width={35}
+            height={35}
+            className="object-contain"
+          />
+          <span>الانتقال إلى واتساب للدفع</span>
+        </a>
+        
+        {/* زر العودة - منفصل تماماً */}
+        <button
+          onClick={() => window.location.href = '/'}
+          className="mt-4 w-full bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-secondary/10 p-4 md:p-5 hover:bg-white/80 transition-all inline-flex items-center justify-center gap-2 text-secondary font-bold font-dubai text-base md:text-base"
+        >
+          <span>العودة للصفحة الرئيسية</span>
+          <ArrowRight className="w-5 h-5 flex-shrink-0" />
+        </button>
       </motion.div>
     );
   }

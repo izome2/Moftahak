@@ -34,6 +34,7 @@ import {
   X,
   Search,
   Sparkles,
+  Pencil,
 } from 'lucide-react';
 import type { RoomItem, RoomSlideData, SlideData } from '@/types/feasibility';
 import { bathroomIcons } from '@/lib/feasibility/icons';
@@ -100,6 +101,7 @@ interface ItemWidgetProps {
   onPriceChange: (id: string, price: number) => void;
   onQuantityChange: (id: string, quantity: number) => void;
   onImageChange: (id: string, image: string | undefined) => void;
+  onDescriptionChange: (id: string, description: string) => void;
 }
 
 // دالة ضغط الصورة
@@ -136,6 +138,7 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
   onPriceChange,
   onQuantityChange,
   onImageChange,
+  onDescriptionChange,
 }) => {
   const itemKey = item.id.split('-')[0];
   // التحقق من العناصر المخصصة
@@ -145,6 +148,29 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
     : (bathroomIcons[itemKey] || Package);
   const unitPrice = Math.round(item.price / item.quantity);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [isEditingDescription, setIsEditingDescription] = React.useState(false);
+  const [descriptionValue, setDescriptionValue] = React.useState(item.description || '');
+  const descriptionInputRef = React.useRef<HTMLTextAreaElement>(null);
+
+  // تحديث الوصف المحلي عند تغيير العنصر
+  React.useEffect(() => {
+    setDescriptionValue(item.description || '');
+  }, [item.description]);
+
+  // Focus on textarea when editing starts
+  React.useEffect(() => {
+    if (isEditingDescription && descriptionInputRef.current) {
+      descriptionInputRef.current.focus();
+      descriptionInputRef.current.select();
+    }
+  }, [isEditingDescription]);
+
+  const handleDescriptionSave = () => {
+    setIsEditingDescription(false);
+    if (descriptionValue !== item.description) {
+      onDescriptionChange(item.id, descriptionValue);
+    }
+  };
 
   // معالج اختيار الصورة
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -301,6 +327,56 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
         >
           {item.name}
         </motion.h3>
+
+        {/* Item Description - Editable */}
+        {isEditing ? (
+          <div className="mb-2 group/desc">
+            {isEditingDescription ? (
+              <textarea
+                ref={descriptionInputRef}
+                value={descriptionValue}
+                onChange={(e) => setDescriptionValue(e.target.value)}
+                onBlur={handleDescriptionSave}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleDescriptionSave();
+                  }
+                  if (e.key === 'Escape') {
+                    setDescriptionValue(item.description || '');
+                    setIsEditingDescription(false);
+                  }
+                }}
+                onClick={(e) => e.stopPropagation()}
+                placeholder="أضف وصف للعنصر..."
+                className="w-full text-secondary/60 text-xs font-dubai bg-white border border-primary/30 rounded-lg p-2 resize-none focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+                rows={2}
+              />
+            ) : (
+              <div 
+                className="relative cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEditingDescription(true);
+                }}
+              >
+                <p className="text-secondary/50 text-xs font-dubai line-clamp-2 pr-5 min-h-[1.5rem]">
+                  {item.description || 'أضف وصف...'}
+                </p>
+                <Pencil 
+                  size={12} 
+                  className="absolute top-0 right-0 text-primary opacity-0 group-hover/desc:opacity-100 transition-opacity" 
+                />
+              </div>
+            )}
+          </div>
+        ) : (
+          item.description && (
+            <p className="text-secondary/50 text-xs font-dubai mb-2 line-clamp-2">
+              {item.description}
+            </p>
+          )
+        )}
 
         {/* Quantity Info */}
         {item.quantity > 1 && (
@@ -789,8 +865,8 @@ const BathroomSlide: React.FC<BathroomSlideProps> = ({
   const [showLibrary, setShowLibrary] = useState(false);
   const [customItems, setCustomItems] = useState<BathroomItemDefinition[]>([]);
 
-  // Hook لتخصيصات المكتبة (الأسعار والصور)
-  const { getCustomPrice, getCustomImage, updateItemPrice, updateItemImage } = useLibraryCustomizations();
+  // Hook لتخصيصات المكتبة (الأسعار والصور والأوصاف)
+  const { getCustomPrice, getCustomImage, getCustomDescription, updateItemPrice, updateItemImage, updateItemDescription } = useLibraryCustomizations();
 
   // تحميل العناصر المخصصة عند التحميل
   useEffect(() => {
@@ -852,9 +928,10 @@ const BathroomSlide: React.FC<BathroomSlideProps> = ({
   const handleAddItem = (itemDef: BathroomItemDefinition) => {
     const existingItem = items.find((i) => i.name === itemDef.name);
     
-    // الحصول على السعر والصورة المخصصة من قاعدة البيانات
+    // الحصول على السعر والصورة والوصف المخصص من قاعدة البيانات
     const customPrice = getCustomPrice(itemDef.id, itemDef.defaultPrice);
     const customImage = getCustomImage(itemDef.id);
+    const customDescription = getCustomDescription(itemDef.id, itemDef.description);
     
     if (existingItem) {
       const newItems = items.map((i) =>
@@ -874,6 +951,7 @@ const BathroomSlide: React.FC<BathroomSlideProps> = ({
         price: customPrice,
         quantity: 1,
         image: customImage || undefined,
+        description: customDescription || undefined,
       };
       const newItems = [...items, newItem];
       setItems(newItems);
@@ -929,6 +1007,18 @@ const BathroomSlide: React.FC<BathroomSlideProps> = ({
     updateItemImage(originalItemId, 'bathroom', image || null);
   };
 
+  const handleDescriptionChange = (itemId: string, description: string) => {
+    const newItems = items.map((item) =>
+      item.id === itemId ? { ...item, description } : item
+    );
+    setItems(newItems);
+    updateParent(newItems);
+    
+    // تحديث الوصف في قاعدة البيانات (استخراج id العنصر الأصلي بدون timestamp)
+    const originalItemId = itemId.split('-').slice(0, -1).join('-') || itemId.split('-')[0];
+    updateItemDescription(originalItemId, 'bathroom', description || null);
+  };
+
   const totalCost = items.reduce((sum, item) => sum + item.price, 0);
 
   useEffect(() => {
@@ -950,21 +1040,21 @@ const BathroomSlide: React.FC<BathroomSlideProps> = ({
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20"
+          className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-4 sm:p-6 lg:p-8 border-2 border-primary/20"
           style={{ boxShadow: SHADOWS.card }}
         >
           <div className="absolute -top-8 -left-8 opacity-[0.08] pointer-events-none">
-            <Bath className="w-56 h-56 text-primary" strokeWidth={1.5} />
+            <Bath className="w-32 sm:w-44 lg:w-56 h-32 sm:h-44 lg:h-56 text-primary" strokeWidth={1.5} />
           </div>
 
-          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-4">
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+            <div className="flex items-center gap-2.5 sm:gap-4">
               <motion.div 
-                className="p-4 rounded-2xl bg-primary/20 border-2 border-primary/30"
+                className="p-3 sm:p-4 lg:p-5 rounded-xl sm:rounded-2xl bg-primary/20 border-2 border-primary/30"
                 whileHover={{ scale: 1.05, rotate: 5 }}
                 style={{ boxShadow: SHADOWS.icon }}
               >
-                <Bath className="w-8 h-8 text-primary" strokeWidth={2} />
+                <Bath className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-primary" strokeWidth={2} />
               </motion.div>
               <div>
                 <EditableSectionTitle
@@ -975,20 +1065,20 @@ const BathroomSlide: React.FC<BathroomSlideProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
               <div 
-                className="text-center px-4 py-2 bg-accent/40 rounded-xl border-2 border-primary/20"
-                style={{ boxShadow: SHADOWS.card }}
-              >
-                <span className="block text-2xl font-bold text-secondary font-bristone">{items.length}</span>
-                <span className="text-xs text-secondary/60 font-dubai">عنصر</span>
-              </div>
-              <div 
-                className="text-center px-4 py-2 bg-primary/20 rounded-xl border-2 border-primary/30"
+                className="flex items-center justify-center gap-1.5 sm:block sm:text-center px-3 sm:px-4 py-2.5 sm:py-2.5 bg-primary/20 rounded-xl sm:rounded-2xl border-2 border-primary/30"
                 style={{ boxShadow: SHADOWS.icon }}
               >
-                <span className="block text-xl font-bold text-primary font-bristone">{formatPrice(totalCost)}</span>
-                <span className="text-xs text-secondary/60 font-dubai">ج.م</span>
+                <span className="text-lg sm:text-2xl lg:text-3xl font-bold text-secondary font-bristone">{items.length}</span>
+                <span className="text-xs sm:text-xs text-secondary/60 font-dubai sm:block">عنصر</span>
+              </div>
+              <div 
+                className="flex items-center justify-center gap-1.5 sm:block sm:text-center px-3 sm:px-4 py-2.5 sm:py-2.5 bg-primary/20 rounded-xl sm:rounded-2xl border-2 border-primary/30"
+                style={{ boxShadow: SHADOWS.icon }}
+              >
+                <span className="text-lg sm:text-2xl lg:text-3xl font-bold text-secondary font-bristone">{formatPrice(totalCost)}</span>
+                <span className="text-xs sm:text-xs text-secondary/60 font-dubai sm:block">ج.م</span>
               </div>
             </div>
           </div>
@@ -1001,10 +1091,10 @@ const BathroomSlide: React.FC<BathroomSlideProps> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className={`
-            min-h-100 p-6 rounded-2xl sm:rounded-3xl border-2
+            min-h-100 p-0 sm:p-6 rounded-2xl sm:rounded-3xl border-0 sm:border-2
             ${isOver 
-              ? 'border-primary bg-primary/5' 
-              : 'border-dashed border-secondary/20 bg-white/50'
+              ? 'sm:border-primary sm:bg-primary/5' 
+              : 'sm:border-dashed sm:border-secondary/20 sm:bg-white/50'
             }
           `}
           style={{ boxShadow: isOver ? SHADOWS.cardHover : 'none' }}
@@ -1075,6 +1165,7 @@ const BathroomSlide: React.FC<BathroomSlideProps> = ({
                         onPriceChange={handlePriceChange}
                         onQuantityChange={handleQuantityChange}
                         onImageChange={handleImageChange}
+                        onDescriptionChange={handleDescriptionChange}
                       />
                     </motion.div>
                   ))}

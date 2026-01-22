@@ -13,14 +13,26 @@ import {
   Save,
   Edit2,
   Trash2,
-  Building2,
-  Calculator
+  Calculator,
+  Percent,
+  MapPin
 } from 'lucide-react';
-import { StatisticsSlideData } from '@/types/feasibility';
+import { StatisticsSlideData, AreaStatistics, MonthlyOccupancyData } from '@/types/feasibility';
 import CostChart from './CostChart';
-import ComparisonChart from './ComparisonChart';
 import { useFeasibilityEditorSafe } from '@/contexts/FeasibilityEditorContext';
 import EditableSectionTitle from '@/components/feasibility/shared/EditableSectionTitle';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  Area,
+  AreaChart,
+} from 'recharts';
 
 // الظلال المتناسقة
 const SHADOWS = {
@@ -31,6 +43,12 @@ const SHADOWS = {
   modal: '0 25px 60px rgba(16, 48, 43, 0.25)',
 };
 
+// الأشهر بالعربي
+const MONTHS_AR = [
+  'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+  'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+];
+
 interface StatisticsSlideProps {
   data?: StatisticsSlideData;
   isEditing?: boolean;
@@ -38,16 +56,33 @@ interface StatisticsSlideProps {
   studyType?: 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT';
 }
 
+const defaultAreaStatistics: AreaStatistics = {
+  averageDailyRate: 0,
+  averageOccupancy: 0,
+  averageAnnualRevenue: 0,
+};
+
+const defaultMonthlyOccupancy: MonthlyOccupancyData[] = MONTHS_AR.map(month => ({
+  month,
+  occupancy: 0,
+}));
+
 const defaultData: StatisticsSlideData = {
   totalCost: 0,
   averageRent: 0,
   roomsCost: [],
-  comparisonData: [],
+  areaStatistics: defaultAreaStatistics,
+  monthlyOccupancy: defaultMonthlyOccupancy,
 };
 
 // تنسيق السعر
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('ar-EG').format(price);
+};
+
+// تنسيق النسبة المئوية
+const formatPercent = (value: number) => {
+  return `${Math.round(value)}%`;
 };
 
 export default function StatisticsSlide({
@@ -61,15 +96,25 @@ export default function StatisticsSlide({
   const studyType = propStudyType || editorContext?.studyType || 'WITH_FIELD_VISIT';
   const isWithFieldVisit = studyType === 'WITH_FIELD_VISIT';
   
-  const [slideData, setSlideData] = useState<StatisticsSlideData>(data);
+  const [slideData, setSlideData] = useState<StatisticsSlideData>({
+    ...defaultData,
+    ...data,
+    areaStatistics: data.areaStatistics || defaultAreaStatistics,
+    monthlyOccupancy: data.monthlyOccupancy || defaultMonthlyOccupancy,
+  });
   const [showAddCostModal, setShowAddCostModal] = useState(false);
-  const [showAddComparisonModal, setShowAddComparisonModal] = useState(false);
-  const [editingItem, setEditingItem] = useState<{ type: 'cost' | 'comparison'; index: number } | null>(null);
+  const [showEditOccupancyModal, setShowEditOccupancyModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<{ type: 'cost'; index: number } | null>(null);
   const [formData, setFormData] = useState({ name: '', value: 0 });
 
   // تحديث البيانات من الخارج
   useEffect(() => {
-    setSlideData(data);
+    setSlideData({
+      ...defaultData,
+      ...data,
+      areaStatistics: data.areaStatistics || defaultAreaStatistics,
+      monthlyOccupancy: data.monthlyOccupancy || defaultMonthlyOccupancy,
+    });
   }, [data]);
 
   // حفظ مرجع لـ onUpdate لتجنب infinite loop
@@ -104,33 +149,6 @@ export default function StatisticsSlide({
     setFormData({ name: '', value: 0 });
   };
 
-  // إضافة/تعديل بيانات مقارنة
-  const handleSaveComparison = () => {
-    if (!formData.name.trim()) return;
-
-    let newData: StatisticsSlideData;
-    if (editingItem?.type === 'comparison') {
-      newData = {
-        ...slideData,
-        comparisonData: slideData.comparisonData.map((item, i) =>
-          i === editingItem.index ? { label: formData.name, value: formData.value } : item
-        ),
-      };
-    } else {
-      newData = {
-        ...slideData,
-        comparisonData: [...slideData.comparisonData, { label: formData.name, value: formData.value }],
-      };
-    }
-    
-    setSlideData(newData);
-    if (onUpdateRef.current) onUpdateRef.current(newData);
-
-    setShowAddComparisonModal(false);
-    setEditingItem(null);
-    setFormData({ name: '', value: 0 });
-  };
-
   // حذف تكلفة
   const handleDeleteCost = (index: number) => {
     const newData = {
@@ -142,19 +160,25 @@ export default function StatisticsSlide({
     if (onUpdateRef.current) onUpdateRef.current(newData);
   };
 
-  // حذف بيانات مقارنة
-  const handleDeleteComparison = (index: number) => {
-    const newData = {
-      ...slideData,
-      comparisonData: slideData.comparisonData.filter((_, i) => i !== index),
-    };
+  // تعديل متوسط الإيجار
+  const handleUpdateAverageRent = (value: number) => {
+    const newData = { ...slideData, averageRent: value };
     setSlideData(newData);
     if (onUpdateRef.current) onUpdateRef.current(newData);
   };
 
-  // تعديل متوسط الإيجار
-  const handleUpdateAverageRent = (value: number) => {
-    const newData = { ...slideData, averageRent: value };
+  // تحديث إحصائيات المنطقة
+  const handleUpdateAreaStatistics = (newStats: AreaStatistics) => {
+    const newData = { ...slideData, areaStatistics: newStats };
+    setSlideData(newData);
+    if (onUpdateRef.current) onUpdateRef.current(newData);
+  };
+
+  // تحديث بيانات الإشغال الشهري
+  const handleUpdateMonthlyOccupancy = (monthIndex: number, occupancy: number) => {
+    const newMonthlyData = [...(slideData.monthlyOccupancy || defaultMonthlyOccupancy)];
+    newMonthlyData[monthIndex] = { ...newMonthlyData[monthIndex], occupancy };
+    const newData = { ...slideData, monthlyOccupancy: newMonthlyData };
     setSlideData(newData);
     if (onUpdateRef.current) onUpdateRef.current(newData);
   };
@@ -167,8 +191,11 @@ export default function StatisticsSlide({
     ? Math.ceil(totalFromRooms / slideData.averageRent)
     : 0;
 
+  const areaStats = slideData.areaStatistics || defaultAreaStatistics;
+  const monthlyOccupancy = slideData.monthlyOccupancy || defaultMonthlyOccupancy;
+
   return (
-    <div className="min-h-full p-6 md:p-8 bg-linear-to-br from-accent/30 via-white to-accent/20 pb-24">
+    <div className="relative min-h-full p-6 md:p-8 bg-linear-to-br from-accent/30 via-white to-accent/20 pb-24">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -200,7 +227,7 @@ export default function StatisticsSlide({
               <div>
                 <EditableSectionTitle
                   title="الإحصائيات والملخص"
-                  subtitle={isWithFieldVisit ? 'ملخص شامل للتكاليف ومقارنة الأسعار' : 'مقارنة الأسعار في المنطقة'}
+                  subtitle={isWithFieldVisit ? 'ملخص شامل للتكاليف وإحصائيات المنطقة' : 'إحصائيات المنطقة والشقق المحيطة'}
                   isEditing={isEditing}
                 />
               </div>
@@ -260,8 +287,8 @@ export default function StatisticsSlide({
             </div>
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-xl bg-green-500/20 border-2 border-green-500/30" style={{ boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)' }}>
-                  <TrendingUp className="w-5 h-5 text-green-600" />
+                <div className="p-2 rounded-xl bg-primary/20 border-2 border-primary/30" style={{ boxShadow: SHADOWS.icon }}>
+                  <TrendingUp className="w-5 h-5 text-secondary" />
                 </div>
                 <span className="text-sm text-secondary/70 font-dubai">متوسط الإيجار</span>
               </div>
@@ -270,10 +297,10 @@ export default function StatisticsSlide({
                   type="number"
                   value={slideData.averageRent}
                   onChange={e => handleUpdateAverageRent(Number(e.target.value))}
-                  className="text-2xl font-bold text-green-600 font-bristone bg-transparent border-none outline-none w-full"
+                  className="text-2xl font-bold text-secondary font-bristone bg-transparent border-none outline-none w-full"
                 />
               ) : (
-                <div className="text-2xl font-bold text-green-600 font-bristone">
+                <div className="text-2xl font-bold text-secondary font-bristone">
                   {formatPrice(slideData.averageRent)}
                   <span className="text-sm font-normal text-secondary/60 font-dubai mr-2">ج.م/شهر</span>
                 </div>
@@ -295,12 +322,12 @@ export default function StatisticsSlide({
             </div>
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-xl bg-blue-500/20 border-2 border-blue-500/30" style={{ boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }}>
-                  <Calendar className="w-5 h-5 text-blue-600" />
+                <div className="p-2 rounded-xl bg-primary/20 border-2 border-primary/30" style={{ boxShadow: SHADOWS.icon }}>
+                  <Calendar className="w-5 h-5 text-secondary" />
                 </div>
                 <span className="text-sm text-secondary/70 font-dubai">فترة الاسترداد</span>
               </div>
-              <div className="text-2xl font-bold text-blue-600 font-bristone">
+              <div className="text-2xl font-bold text-secondary font-bristone">
                 {paybackPeriod > 0 ? paybackPeriod : '—'}
                 <span className="text-sm font-normal text-secondary/60 font-dubai mr-2">شهر</span>
               </div>
@@ -383,7 +410,7 @@ export default function StatisticsSlide({
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Chart */}
-                <div className="min-h-[250px] bg-transparent">
+                <div className="min-h-64 bg-transparent">
                   <CostChart data={slideData.roomsCost} />
                 </div>
 
@@ -457,7 +484,156 @@ export default function StatisticsSlide({
         </motion.div>
         )}
 
-        {/* Comparison Section */}
+        {/* إحصائيات المنطقة Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white border-2 border-primary/20"
+          style={{ boxShadow: SHADOWS.card }}
+        >
+          {/* Section Header */}
+          <div className="bg-linear-to-r from-primary/20 to-primary/10 px-6 py-4 border-b-2 border-primary/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-primary/30 border border-primary/40">
+                  <MapPin className="w-5 h-5 text-secondary" />
+                </div>
+                <div>
+                  <h3 className="font-dubai font-bold text-secondary text-lg">إحصائيات المنطقة</h3>
+                  <p className="text-secondary/60 text-xs font-dubai">متوسطات الشقق المحيطة</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Area Statistics Cards */}
+          <div className="p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* متوسط سعر الليلة */}
+              <motion.div
+                whileHover={{ scale: 1.02, y: -2 }}
+                className="relative rounded-2xl bg-primary/20 p-4 sm:p-5 border-2 border-primary/30 group"
+                style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+              >
+                <div className="absolute -top-4 -left-4 z-0 opacity-[0.10] pointer-events-none">
+                  <DollarSign className="w-24 h-24 text-primary" strokeWidth={1.5} />
+                </div>
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 rounded-xl bg-primary/30 border-2 border-primary/40" style={{ boxShadow: SHADOWS.icon }}>
+                      <DollarSign className="w-5 h-5 text-secondary" />
+                    </div>
+                    <span className="text-sm text-secondary/70 font-dubai">متوسط سعر الليلة</span>
+                  </div>
+                  <div className="mr-12">
+                    <span className="inline-flex flex-row-reverse items-baseline gap-0.5">
+                      <span className="text-sm font-bold text-secondary/70 font-dubai">ج.م</span>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          dir="ltr"
+                          value={areaStats.averageDailyRate.toLocaleString('ar-EG')}
+                          onChange={e => {
+                            const numValue = Number(e.target.value.replace(/[^\d٠-٩]/g, '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString()));
+                            handleUpdateAreaStatistics({ ...areaStats, averageDailyRate: numValue });
+                          }}
+                          className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5 border-none outline-none focus:ring-0 text-right transition-colors duration-200 group-hover:bg-primary/40"
+                          style={{ width: `${areaStats.averageDailyRate.toLocaleString('ar-EG').length + 0.5}ch` }}
+                        />
+                      ) : (
+                        <span className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5 transition-colors duration-200 group-hover:bg-primary/40">{areaStats.averageDailyRate.toLocaleString('ar-EG')}</span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* متوسط نسبة الإشغال */}
+              <motion.div
+                whileHover={{ scale: 1.02, y: -2 }}
+                className="relative rounded-2xl bg-primary/20 p-4 sm:p-5 border-2 border-primary/30 group"
+                style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+              >
+                <div className="absolute -top-4 -left-4 z-0 opacity-[0.10] pointer-events-none">
+                  <Percent className="w-24 h-24 text-primary" strokeWidth={1.5} />
+                </div>
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 rounded-xl bg-primary/30 border-2 border-primary/40" style={{ boxShadow: SHADOWS.icon }}>
+                      <Percent className="w-5 h-5 text-secondary" />
+                    </div>
+                    <span className="text-sm text-secondary/70 font-dubai">متوسط نسبة الإشغال</span>
+                  </div>
+                  <div className="mr-12">
+                    <span className="inline-flex flex-row-reverse items-baseline gap-0.5">
+                      <span className="text-sm font-bold text-secondary/70 font-dubai">%</span>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          dir="ltr"
+                          value={Math.round(areaStats.averageOccupancy).toLocaleString('ar-EG')}
+                          onChange={e => {
+                            const numValue = Math.min(100, Math.max(0, Number(e.target.value.replace(/[^\d٠-٩]/g, '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString()))));
+                            handleUpdateAreaStatistics({ ...areaStats, averageOccupancy: numValue });
+                          }}
+                          className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5 border-none outline-none focus:ring-0 text-right transition-colors duration-200 group-hover:bg-primary/40"
+                          style={{ width: `${Math.round(areaStats.averageOccupancy).toLocaleString('ar-EG').length + 0.5}ch` }}
+                        />
+                      ) : (
+                        <span className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5 transition-colors duration-200 group-hover:bg-primary/40">{Math.round(areaStats.averageOccupancy).toLocaleString('ar-EG')}</span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* متوسط العوائد السنوية */}
+              <motion.div
+                whileHover={{ scale: 1.02, y: -2 }}
+                className="relative rounded-2xl bg-primary/20 p-4 sm:p-5 border-2 border-primary/30 group"
+                style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
+              >
+                <div className="absolute -top-4 -left-4 z-0 opacity-[0.10] pointer-events-none">
+                  <TrendingUp className="w-24 h-24 text-primary" strokeWidth={1.5} />
+                </div>
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 rounded-xl bg-primary/30 border-2 border-primary/40" style={{ boxShadow: SHADOWS.icon }}>
+                      <TrendingUp className="w-5 h-5 text-secondary" />
+                    </div>
+                    <span className="text-sm text-secondary/70 font-dubai">متوسط العوائد السنوية</span>
+                  </div>
+                  <div className="mr-12">
+                    <span className="inline-flex flex-row-reverse items-baseline gap-0.5">
+                      <span className="text-sm font-bold text-secondary/70 font-dubai">ج.م</span>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          dir="ltr"
+                          value={areaStats.averageAnnualRevenue.toLocaleString('ar-EG')}
+                          onChange={e => {
+                            const numValue = Number(e.target.value.replace(/[^\d٠-٩]/g, '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString()));
+                            handleUpdateAreaStatistics({ ...areaStats, averageAnnualRevenue: numValue });
+                          }}
+                          className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5 border-none outline-none focus:ring-0 text-right transition-colors duration-200 group-hover:bg-primary/40"
+                          style={{ width: `${areaStats.averageAnnualRevenue.toLocaleString('ar-EG').length + 0.5}ch` }}
+                        />
+                      ) : (
+                        <span className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5 transition-colors duration-200 group-hover:bg-primary/40">{areaStats.averageAnnualRevenue.toLocaleString('ar-EG')}</span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* شارت متوسط نسبة الإشغال الشهري */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -470,141 +646,152 @@ export default function StatisticsSlide({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-xl bg-primary/30 border border-primary/40">
-                  <Building2 className="w-5 h-5 text-secondary" />
+                  <BarChart3 className="w-5 h-5 text-secondary" />
                 </div>
                 <div>
-                  <h3 className="font-dubai font-bold text-secondary text-lg">مقارنة أسعار الشقق</h3>
-                  <p className="text-secondary/60 text-xs font-dubai">{slideData.comparisonData.length} شقة</p>
+                  <h3 className="font-dubai font-bold text-secondary text-lg">متوسط نسبة الإشغال الشهري</h3>
+                  <p className="text-secondary/60 text-xs font-dubai">تغير نسبة الإشغال على مدار العام</p>
                 </div>
               </div>
-              {isEditing && (
+              {isEditing && !showEditOccupancyModal && (
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    setFormData({ name: '', value: 0 });
-                    setEditingItem(null);
-                    setShowAddComparisonModal(true);
-                  }}
+                  onClick={() => setShowEditOccupancyModal(true)}
                   className="px-3 py-1.5 bg-primary/20 border-2 border-primary/30 text-secondary rounded-lg flex items-center gap-1.5 text-xs font-dubai font-bold hover:bg-primary/30 transition-colors"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  إضافة
+                  <Edit2 className="w-3.5 h-3.5" />
+                  تعديل البيانات
                 </motion.button>
               )}
             </div>
           </div>
 
-          {/* Content */}
-          <div className="p-6">
-            {slideData.comparisonData.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="py-12 flex flex-col items-center justify-center text-center"
-              >
-                <motion.div
-                  animate={{ 
-                    y: [0, -10, 0],
-                    rotate: [0, 5, -5, 0],
-                  }}
-                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                  className="relative mb-4"
+          {/* Chart Content or Edit Modal */}
+          <div className="relative p-6">
+            {/* الشارت - يظهر دائماً */}
+            <div className="h-75 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={monthlyOccupancy}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
                 >
-                  <div className="absolute inset-0 bg-primary/20 rounded-3xl blur-xl" />
-                  <div 
-                    className="relative w-20 h-20 bg-linear-to-br from-primary/30 to-primary/10 rounded-3xl flex items-center justify-center border-2 border-primary/30"
-                    style={{ boxShadow: SHADOWS.icon }}
-                  >
-                    <BarChart3 className="w-10 h-10 text-primary" strokeWidth={1.5} />
+                  <defs>
+                    <linearGradient id="occupancyGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10302b" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#10302b" stopOpacity={0.05}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis 
+                    dataKey="month" 
+                    tick={{ fill: '#10302b', fontSize: 12, fontFamily: 'Dubai' }}
+                    axisLine={{ stroke: '#10302b40' }}
+                  />
+                  <YAxis 
+                    domain={[0, 100]}
+                    tick={{ fill: '#10302b', fontSize: 12, fontFamily: 'Dubai', dx: -25 }}
+                    axisLine={{ stroke: '#10302b40' }}
+                    tickFormatter={(value) => `%${value}`}
+                    width={45}
+                    tickMargin={8}
+                  />
+                  <Tooltip 
+                    formatter={(value) => [`${value}%`, 'نسبة الإشغال']}
+                    contentStyle={{
+                      backgroundColor: '#fff',
+                      border: '2px solid #10302b',
+                      borderRadius: '12px',
+                      fontFamily: 'Dubai',
+                      boxShadow: SHADOWS.card,
+                    }}
+                    labelStyle={{ fontFamily: 'Dubai', fontWeight: 'bold', color: '#10302b' }}
+                  />
+                  <Legend 
+                    formatter={() => 'نسبة الإشغال'}
+                    wrapperStyle={{ fontFamily: 'Dubai', color: '#10302b' }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="occupancy"
+                    stroke="#10302b"
+                    strokeWidth={3}
+                    fill="url(#occupancyGradient)"
+                    dot={{ fill: '#10302b', strokeWidth: 2, r: 5, stroke: '#fff' }}
+                    activeDot={{ r: 8, fill: '#edbf8c', stroke: '#10302b', strokeWidth: 2 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* نافذة التعديل - تظهر أسفل الشارت */}
+            {showEditOccupancyModal && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6 pt-6 border-t-2 border-primary/20"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-bold text-secondary font-dubai">تعديل نسب الإشغال الشهرية</h4>
+                  <div className="flex items-center gap-2">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowEditOccupancyModal(false)}
+                      className="px-3 py-1.5 bg-primary/10 border-2 border-primary/20 text-secondary rounded-lg font-bold hover:bg-primary/20 transition-colors flex items-center gap-1.5 font-dubai text-xs"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      إلغاء
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowEditOccupancyModal(false)}
+                      className="px-3 py-1.5 bg-linear-to-r from-secondary to-secondary/90 text-primary rounded-lg font-bold hover:shadow-lg transition-all flex items-center gap-1.5 font-dubai text-xs"
+                      style={{ boxShadow: SHADOWS.button }}
+                    >
+                      <Save className="w-3.5 h-3.5" />
+                      حفظ
+                    </motion.button>
                   </div>
-                </motion.div>
-                
-                <h4 className="font-dubai font-bold text-secondary text-lg mb-1">
-                  لا توجد بيانات مقارنة
-                </h4>
-                <p className="font-dubai text-secondary/50 text-sm max-w-sm">
-                  {isEditing ? 'انقر على "إضافة" لإضافة بيانات المقارنة' : 'سيتم تحديث البيانات تلقائياً من الشقق المحيطة'}
-                </p>
-              </motion.div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Chart */}
-                <div className="min-h-[250px] bg-transparent">
-                  <ComparisonChart data={slideData.comparisonData} />
                 </div>
 
-                {/* List */}
-                <div className="space-y-2">
-                  {slideData.comparisonData.map((item, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      className="relative rounded-xl bg-accent/30 p-4 border-2 border-primary/20 group"
-                      style={{ boxShadow: 'rgba(237, 191, 140, 0.2) 0px 2px 8px' }}
-                    >
-                      <div className="flex items-center gap-4">
-                        {/* Icon */}
-                        <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center shrink-0 border-2 border-primary/30">
-                          <Building2 className="w-5 h-5 text-primary" />
-                        </div>
-
-                        {/* Info */}
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-dubai font-bold text-secondary text-base truncate">
-                            {item.label}
-                          </h4>
-                        </div>
-
-                        {/* Price & Actions */}
-                        <div className="flex items-center gap-2">
-                          <div className="text-left">
-                            <motion.span 
-                              className="font-dubai font-bold text-primary text-lg block"
-                              key={item.value}
-                              initial={{ scale: 1.2 }}
-                              animate={{ scale: 1 }}
-                            >
-                              {formatPrice(item.value)}
-                            </motion.span>
-                            <span className="text-xs text-secondary/60 font-dubai">ج.م/ليلة</span>
-                          </div>
-                          
-                          {isEditing && (
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button
-                                onClick={() => {
-                                  setFormData({ name: item.label, value: item.value });
-                                  setEditingItem({ type: 'comparison', index });
-                                  setShowAddComparisonModal(true);
-                                }}
-                                className="p-1.5 hover:bg-primary/20 rounded-lg transition-colors"
-                              >
-                                <Edit2 className="w-4 h-4 text-secondary" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteComparison(index)}
-                                className="p-1.5 hover:bg-red-100 rounded-lg transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4 text-red-500" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                {/* Horizontal grid of months */}
+                <div className="grid grid-cols-6 gap-3">
+                  {monthlyOccupancy.map((item, index) => (
+                    <div key={index} className="flex flex-col items-center gap-2 p-3 bg-accent/30 rounded-xl border border-primary/20">
+                      <span className="font-dubai font-bold text-secondary text-sm">{item.month}</span>
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={item.occupancy === 0 ? '' : item.occupancy}
+                          onChange={e => {
+                            const val = e.target.value;
+                            if (val === '') {
+                              handleUpdateMonthlyOccupancy(index, 0);
+                            } else {
+                              const num = parseInt(val.replace(/[^\d]/g, ''), 10);
+                              if (!isNaN(num)) {
+                                handleUpdateMonthlyOccupancy(index, Math.min(100, Math.max(0, num)));
+                              }
+                            }
+                          }}
+                          onFocus={e => e.target.select()}
+                          placeholder="0"
+                          className="w-12 px-2 py-1.5 bg-white border-2 border-primary/20 rounded-lg text-secondary font-dubai text-center text-sm focus:outline-none focus:border-primary transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <span className="text-secondary/60 font-dubai text-sm">%</span>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
           </div>
         </motion.div>
 
-        {/* Grand Total Card - فقط مع نزول ميداني */}
-        {isWithFieldVisit && (
+        {/* Grand Total Card - ملخص الدراسة */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -618,43 +805,76 @@ export default function StatisticsSlide({
           </div>
 
           <div className="relative z-10">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                  <BarChart3 className="w-8 h-8 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-dubai font-bold text-2xl">ملخص الدراسة</h3>
-                  <p className="text-white/70 text-sm font-dubai">التكلفة ومتوسط العائد</p>
-                </div>
+            {/* العنوان والوصف */}
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                <BarChart3 className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
               </div>
-              
-              <div className="flex items-center gap-6 text-center">
-                <div>
-                  <span className="block text-white/60 text-xs font-dubai mb-1">التكلفة</span>
-                  <span className="block font-bristone font-bold text-primary text-2xl">
-                    {formatPrice(totalFromRooms)}
+              <div>
+                <h3 className="font-dubai font-bold text-xl sm:text-2xl">ملخص الدراسة</h3>
+                <p className="text-white/70 text-sm font-dubai">
+                  {isWithFieldVisit ? 'تكلفة تجهيز الشقة ومتوسط العائد' : 'ملخص دراسة المنطقة'}
+                </p>
+              </div>
+            </div>
+
+            {/* المحتوى - يختلف حسب نوع الدراسة */}
+            <div className="space-y-6">
+              {/* الصف الأول: التكلفة والإيجار والاسترداد - فقط مع نزول ميداني */}
+              {isWithFieldVisit && (
+                <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pb-6 border-b border-white/20">
+                  <div className="text-center min-w-[100px]">
+                    <span className="block text-white/60 text-xs font-dubai mb-1.5">التكلفة</span>
+                    <span className="block font-bristone font-bold text-primary text-xl sm:text-2xl">
+                      {formatPrice(totalFromRooms)}
+                    </span>
+                  </div>
+                  <div className="w-px h-12 bg-white/20 hidden sm:block"></div>
+                  <div className="text-center min-w-[100px]">
+                    <span className="block text-white/60 text-xs font-dubai mb-1.5">الإيجار</span>
+                    <span className="block font-bristone font-bold text-green-400 text-xl sm:text-2xl">
+                      {formatPrice(slideData.averageRent)}
+                    </span>
+                  </div>
+                  <div className="w-px h-12 bg-white/20 hidden sm:block"></div>
+                  <div className="text-center min-w-[100px]">
+                    <span className="block text-white/60 text-xs font-dubai mb-1.5">الاسترداد</span>
+                    <span className="block font-bristone font-bold text-blue-400 text-xl sm:text-2xl">
+                      {paybackPeriod > 0 ? `${paybackPeriod} شهر` : '—'}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* الصف الثاني: إحصائيات المنطقة - يظهر دائماً */}
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+                <div className="text-center min-w-[100px]">
+                  <span className="block text-white/60 text-xs font-dubai mb-1.5">متوسط سعر الليلة</span>
+                  <span className="block font-bristone font-bold text-primary text-xl sm:text-2xl">
+                    {formatPrice(areaStats.averageDailyRate)}
+                    <span className="text-sm text-white/60 font-dubai mr-1">ج.م</span>
                   </span>
                 </div>
-                <div className="w-px h-12 bg-white/20"></div>
-                <div>
-                  <span className="block text-white/60 text-xs font-dubai mb-1">الإيجار</span>
-                  <span className="block font-bristone font-bold text-green-400 text-2xl">
-                    {formatPrice(slideData.averageRent)}
+                <div className="w-px h-12 bg-white/20 hidden sm:block"></div>
+                <div className="text-center min-w-[100px]">
+                  <span className="block text-white/60 text-xs font-dubai mb-1.5">متوسط نسبة الإشغال</span>
+                  <span className="block font-dubai font-bold text-primary text-xl sm:text-2xl">
+                    {Math.round(areaStats.averageOccupancy).toLocaleString('ar-EG')}
+                    <span className="text-sm text-white/60 font-dubai mr-1">%</span>
                   </span>
                 </div>
-                <div className="w-px h-12 bg-white/20"></div>
-                <div>
-                  <span className="block text-white/60 text-xs font-dubai mb-1">الاسترداد</span>
-                  <span className="block font-bristone font-bold text-blue-400 text-2xl">
-                    {paybackPeriod > 0 ? `${paybackPeriod} شهر` : '—'}
+                <div className="w-px h-12 bg-white/20 hidden sm:block"></div>
+                <div className="text-center min-w-[100px]">
+                  <span className="block text-white/60 text-xs font-dubai mb-1.5">متوسط العوائد السنوية</span>
+                  <span className="block font-bristone font-bold text-primary text-xl sm:text-2xl">
+                    {areaStats.averageAnnualRevenue > 0 ? formatPrice(areaStats.averageAnnualRevenue) : '—'}
+                    {areaStats.averageAnnualRevenue > 0 && <span className="text-sm text-white/60 font-dubai mr-1">ج.م</span>}
                   </span>
                 </div>
               </div>
             </div>
           </div>
         </motion.div>
-        )}
       </motion.div>
 
       {/* Modal إضافة تكلفة */}
@@ -715,76 +935,6 @@ export default function StatisticsSlide({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSaveCost}
-                disabled={!formData.name.trim()}
-                className="w-full px-4 py-3 bg-linear-to-r from-secondary to-secondary/90 text-primary rounded-xl font-bold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 font-dubai"
-                style={{ boxShadow: SHADOWS.button }}
-              >
-                <Save className="w-5 h-5" />
-                حفظ
-              </motion.button>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      {/* Modal إضافة مقارنة */}
-      {showAddComparisonModal && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setShowAddComparisonModal(false)}
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-2xl max-w-sm w-full p-6 border-2 border-primary/20"
-            style={{ boxShadow: SHADOWS.modal }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-primary/20 border-2 border-primary/30">
-                  <Building2 className="w-5 h-5 text-primary" />
-                </div>
-                <h3 className="text-lg font-bold text-secondary font-dubai">
-                  {editingItem ? 'تعديل بيانات المقارنة' : 'إضافة للمقارنة'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setShowAddComparisonModal(false)}
-                className="w-8 h-8 rounded-xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center hover:bg-primary/20 transition-colors"
-              >
-                <X className="w-4 h-4 text-secondary" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-secondary mb-2 font-dubai">
-                  اسم الشقة
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-4 py-3 bg-accent/30 border-2 border-primary/20 rounded-xl text-secondary font-dubai focus:outline-none focus:border-primary transition-colors"
-                  placeholder="مثال: شقة المعادي"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-secondary mb-2 font-dubai">
-                  السعر (ج.م/ليلة)
-                </label>
-                <input
-                  type="number"
-                  value={formData.value}
-                  onChange={e => setFormData(prev => ({ ...prev, value: Number(e.target.value) }))}
-                  className="w-full px-4 py-3 bg-accent/30 border-2 border-primary/20 rounded-xl text-secondary font-dubai focus:outline-none focus:border-primary transition-colors"
-                />
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleSaveComparison}
                 disabled={!formData.name.trim()}
                 className="w-full px-4 py-3 bg-linear-to-r from-secondary to-secondary/90 text-primary rounded-xl font-bold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 font-dubai"
                 style={{ boxShadow: SHADOWS.button }}

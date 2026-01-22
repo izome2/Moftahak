@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { 
@@ -13,7 +13,7 @@ import {
   Edit3,
   Plus,
   Trash2,
-  Sparkles,
+  User,
   BookOpen
 } from 'lucide-react';
 import type { IntroductionSlideData, SlideData } from '@/types/feasibility';
@@ -35,6 +35,7 @@ interface IntroductionSlideProps {
   data: IntroductionSlideData;
   isEditing?: boolean;
   onUpdate?: (data: Partial<SlideData>) => void;
+  clientName?: string;
 }
 
 // الأيقونات للنقاط
@@ -55,9 +56,35 @@ const IntroductionSlide: React.FC<IntroductionSlideProps> = ({
   data,
   isEditing = false,
   onUpdate,
+  clientName = 'العميل',
 }) => {
   const [editingField, setEditingField] = useState<string | null>(null);
-  const [localData, setLocalData] = useState<IntroductionSlideData>(data);
+  
+  // Default values for introduction data
+  const defaultTitle = 'مرحباً بك في دراسة الجدوى';
+  const defaultDescription = 'تم إعداد هذه الدراسة خصيصاً لمساعدتك في تجهيز شقتك للإيجار السياحي. ستجد فيها كل ما تحتاجه من معلومات وتحليلات.';
+  const defaultBulletPoints = [
+    'تحليل شامل لاحتياجات الشقة',
+    'تكلفة تقديرية للتجهيزات',
+    'دراسة المنطقة المحيطة',
+    'إحصائيات وتوقعات الإيجار',
+  ];
+
+  // Initialize with fallback for all fields to prevent undefined errors
+  const [localData, setLocalData] = useState<IntroductionSlideData>({
+    title: data.title || defaultTitle,
+    description: data.description || defaultDescription,
+    bulletPoints: data.bulletPoints || defaultBulletPoints,
+  });
+
+  // Sync localData when props data changes (e.g., when study is loaded from database)
+  useEffect(() => {
+    setLocalData({
+      title: data.title || defaultTitle,
+      description: data.description || defaultDescription,
+      bulletPoints: data.bulletPoints || defaultBulletPoints,
+    });
+  }, [data]);
 
   const handleUpdate = (updates: Partial<IntroductionSlideData>) => {
     const newData = { ...localData, ...updates };
@@ -68,19 +95,20 @@ const IntroductionSlide: React.FC<IntroductionSlideProps> = ({
   };
 
   const handleBulletUpdate = (index: number, value: string) => {
-    const newBullets = [...localData.bulletPoints];
+    const newBullets = [...(localData.bulletPoints || [])];
     newBullets[index] = value;
     handleUpdate({ bulletPoints: newBullets });
   };
 
   const handleAddBullet = () => {
-    const newBullets = [...localData.bulletPoints, 'نقطة جديدة'];
+    const newBullets = [...(localData.bulletPoints || []), 'نقطة جديدة'];
     handleUpdate({ bulletPoints: newBullets });
   };
 
   const handleRemoveBullet = (index: number) => {
-    if (localData.bulletPoints.length > 1) {
-      const newBullets = localData.bulletPoints.filter((_, i) => i !== index);
+    const bullets = localData.bulletPoints || [];
+    if (bullets.length > 1) {
+      const newBullets = bullets.filter((_, i) => i !== index);
       handleUpdate({ bulletPoints: newBullets });
     }
   };
@@ -90,14 +118,14 @@ const IntroductionSlide: React.FC<IntroductionSlideProps> = ({
   };
 
   return (
-    <div className="relative overflow-hidden" style={{ minHeight: '1200px', background: 'linear-gradient(135deg, #f8eddf 0%, #fdfbf7 50%, #faf0e5 100%)' }} dir="rtl">
+    <div className="relative overflow-hidden" style={{ minHeight: 'auto', background: 'linear-gradient(135deg, #f8eddf 0%, #fdfbf7 50%, #faf0e5 100%)' }} dir="rtl">
       {/* Background Glow Effects */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-100 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-48 sm:w-96 h-48 sm:h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-40 sm:w-80 h-40 sm:h-80 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 sm:w-150 h-60 sm:h-100 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* المحتوى الرئيسي */}
-      <div className="relative h-full flex flex-col p-8 pt-20">
+      <div className="relative h-full flex flex-col p-4 sm:p-8 pt-10 sm:pt-20 pb-8 sm:pb-12">
         {/* Header Card */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -129,9 +157,9 @@ const IntroductionSlide: React.FC<IntroductionSlideProps> = ({
                 whileHover={{ scale: 1.05, rotate: 5 }}
                 style={{ boxShadow: SHADOWS.icon }}
               >
-                <Sparkles className="w-6 h-6 text-primary" strokeWidth={2} />
+                <User className="w-6 h-6 text-primary" strokeWidth={2} />
               </motion.div>
-              <span className="text-primary font-dubai font-bold">مرحباً بك في</span>
+              <span className="text-primary font-dubai font-bold">{clientName}</span>
             </div>
             
             {isEditing && editingField === 'title' ? (
@@ -248,7 +276,7 @@ const IntroductionSlide: React.FC<IntroductionSlideProps> = ({
 
           {/* قائمة النقاط */}
           <div className="space-y-3 relative z-10">
-            {localData.bulletPoints.map((point, index) => {
+            {(localData.bulletPoints || []).map((point, index) => {
               const IconComponent = bulletIcons[index % bulletIcons.length];
               
               return (
@@ -292,12 +320,12 @@ const IntroductionSlide: React.FC<IntroductionSlideProps> = ({
                         type="text"
                         value={point}
                         onChange={(e) => {
-                          const newBullets = [...localData.bulletPoints];
+                          const newBullets = [...(localData.bulletPoints || [])];
                           newBullets[index] = e.target.value;
                           setLocalData({ ...localData, bulletPoints: newBullets });
                         }}
                         onBlur={() => {
-                          handleBulletUpdate(index, localData.bulletPoints[index]);
+                          handleBulletUpdate(index, (localData.bulletPoints || [])[index]);
                           handleSave();
                         }}
                         onKeyDown={(e) => e.key === 'Enter' && handleSave()}
@@ -320,7 +348,7 @@ const IntroductionSlide: React.FC<IntroductionSlideProps> = ({
                         whileTap={{ scale: 0.9 }}
                         onClick={() => handleRemoveBullet(index)}
                         className="w-9 h-9 bg-red-100 text-red-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-200 rounded-xl"
-                        disabled={localData.bulletPoints.length <= 1}
+                        disabled={(localData.bulletPoints || []).length <= 1}
                       >
                         <Trash2 className="w-4 h-4" />
                       </motion.button>
@@ -332,7 +360,7 @@ const IntroductionSlide: React.FC<IntroductionSlideProps> = ({
           </div>
 
           {/* زر إضافة نقطة جديدة */}
-          {isEditing && localData.bulletPoints.length < 6 && (
+          {isEditing && (localData.bulletPoints || []).length < 6 && (
             <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

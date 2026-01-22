@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
+import StatsSection from '@/components/StatsSection';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 // Lazy load non-critical sections for better performance
@@ -18,6 +19,7 @@ export default function HomePage() {
       <Navbar />
       <main>
         <HeroSection />
+        <StatsSection />
         <Suspense fallback={<LoadingSpinner />}>
           <AboutSection />
         </Suspense>

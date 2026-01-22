@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   DollarSign, 
@@ -61,6 +61,11 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
   const { rooms = [], additionalCosts = [], discount = 0 } = data;
   const [editingTitle, setEditingTitle] = useState(false);
   const [localTitle, setLocalTitle] = useState(slideTitle || 'ملخص التكاليف');
+
+  // Sync local state when props data changes (e.g., when study is loaded from database)
+  useEffect(() => {
+    setLocalTitle(slideTitle || 'ملخص التكاليف');
+  }, [slideTitle]);
 
   // حفظ العنوان
   const handleSaveTitle = () => {

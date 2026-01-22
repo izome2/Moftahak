@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { 
@@ -108,6 +108,75 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
   // حالة الشريط الجانبي
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeSlideId, setActiveSlideId] = useState<string | null>(null);
+  
+  // حساب ديناميكي لموضع الدراسة وعرضها
+  const [contentOffset, setContentOffset] = useState(0);
+  const [studyMaxWidth, setStudyMaxWidth] = useState<string>('max-w-275');
+  
+  // ثوابت القائمة الجانبية
+  const SIDEBAR_WIDTH = 288; // w-72 = 18rem = 288px
+  const SIDEBAR_RIGHT = 32; // right-8 = 2rem = 32px
+  const SIDEBAR_GAP = 24; // مسافة آمنة بين القائمة والدراسة
+  const STUDY_MAX_WIDTH = 1100; // max-w-275 = 275 * 4 = 1100px
+  const LEFT_SAFE_MARGIN = 32; // مسافة آمنة من اليسار
+  
+  const calculateOffset = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    
+    const screenWidth = window.innerWidth;
+    const isDesktop = screenWidth >= 1280; // xl breakpoint - القائمة الجانبية تظهر فقط على xl وأكبر
+    
+    if (!isDesktop) {
+      setContentOffset(0);
+      setStudyMaxWidth('max-w-275');
+      return;
+    }
+    
+    // موقع الحافة اليسرى للقائمة الجانبية
+    const sidebarLeftEdge = screenWidth - SIDEBAR_RIGHT - SIDEBAR_WIDTH;
+    
+    // المساحة المتاحة للدراسة (من اليسار حتى القائمة)
+    const availableWidth = sidebarLeftEdge - SIDEBAR_GAP - LEFT_SAFE_MARGIN;
+    
+    // موقع الدراسة إذا كانت في المنتصف
+    const studyWidth = Math.min(STUDY_MAX_WIDTH, screenWidth - 64); // مع padding
+    const studyCenterPosition = (screenWidth - studyWidth) / 2;
+    const studyRightEdge = studyCenterPosition + studyWidth;
+    
+    // هل ستتداخل؟
+    const wouldOverlap = studyRightEdge + SIDEBAR_GAP > sidebarLeftEdge;
+    
+    if (wouldOverlap) {
+      // هل المساحة المتاحة أصغر من عرض الدراسة؟
+      if (availableWidth < studyWidth) {
+        // صغّر الدراسة لتناسب المساحة المتاحة
+        const newMaxWidth = Math.max(availableWidth, 600); // حد أدنى 600px
+        setStudyMaxWidth(`${newMaxWidth}px`);
+        setContentOffset(0); // لا إزاحة، الدراسة ستتمركز في المساحة المتاحة تلقائياً
+        
+        // احسب الإزاحة لتكون في منتصف المساحة المتاحة
+        const currentCenterPosition = (screenWidth - newMaxWidth) / 2;
+        const targetCenterPosition = LEFT_SAFE_MARGIN + (availableWidth - newMaxWidth) / 2;
+        const offset = currentCenterPosition - targetCenterPosition;
+        setContentOffset(Math.max(0, offset));
+      } else {
+        // احسب الإزاحة لجعل الدراسة في منتصف المساحة المتبقية
+        setStudyMaxWidth('max-w-275');
+        const newCenterPosition = LEFT_SAFE_MARGIN + (availableWidth - studyWidth) / 2;
+        const offset = studyCenterPosition - newCenterPosition;
+        setContentOffset(Math.max(0, offset));
+      }
+    } else {
+      setContentOffset(0);
+      setStudyMaxWidth('max-w-275');
+    }
+  }, []);
+  
+  useEffect(() => {
+    calculateOffset();
+    window.addEventListener('resize', calculateOffset);
+    return () => window.removeEventListener('resize', calculateOffset);
+  }, [calculateOffset]);
   
   // أنواع الشرائح المخفية للنوع بدون نزول ميداني
   const hiddenSlideTypes = isWithFieldVisit ? [] : ['kitchen', 'bedroom', 'living-room', 'bathroom', 'cost-summary'];
@@ -237,6 +306,7 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
           <IntroductionSlide
             data={slide.data.introduction || defaultIntroData}
             isEditing={false}
+            clientName={study.clientName}
           />
         );
       
@@ -346,28 +416,12 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
         }));
         const totalCostFromRooms = roomsCostForStats.reduce((sum, r) => sum + r.cost, 0);
         
-        // جمع بيانات الشقق المحيطة للمقارنة
-        const mapSlideForStats = sortedSlides.find(s => s.type === 'map');
-        const apartmentsFromMap = mapSlideForStats?.data?.map?.pins?.map((pin: { apartment: { price: number; name: string } }) => pin.apartment) || [];
-        
-        const nearbyApartmentsForAverage = apartmentsFromMap.slice(1);
-        const apartmentPrices = nearbyApartmentsForAverage.filter((a: { price: number }) => a.price > 0).map((a: { price: number }) => a.price);
-        const averageRentFromApartments = apartmentPrices.length > 0 
-          ? Math.round(apartmentPrices.reduce((sum: number, p: number) => sum + p, 0) / apartmentPrices.length)
-          : 0;
-        
-        const comparisonFromApartments = nearbyApartmentsForAverage
-          .filter((a: { price: number; name: string }) => a.price > 0)
-          .slice(0, 6)
-          .map((a: { name: string; price: number }) => ({ label: a.name, value: a.price }));
-        
         const statisticsWithData = {
           totalCost: totalCostFromRooms,
-          averageRent: slide.data.statistics?.averageRent || averageRentFromApartments,
+          averageRent: slide.data.statistics?.averageRent || 0,
           roomsCost: roomsCostForStats,
-          comparisonData: comparisonFromApartments.length > 0 
-            ? comparisonFromApartments 
-            : (slide.data.statistics?.comparisonData || []),
+          areaStatistics: slide.data.statistics?.areaStatistics,
+          monthlyOccupancy: slide.data.statistics?.monthlyOccupancy,
         };
         
         return (
@@ -412,7 +466,7 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
         onClick={() => setIsSidebarOpen(true)}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 px-6 py-3 rounded-full bg-white text-secondary hover:bg-primary/10 transition-all duration-300 hover:scale-105 lg:hidden flex items-center gap-2"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 px-6 py-3 rounded-full bg-white text-secondary hover:bg-primary/10 transition-all duration-300 hover:scale-105 xl:hidden flex items-center gap-2"
         style={{ boxShadow: 'rgba(16, 48, 43, 0.15) 0px 10px 40px, rgba(237, 191, 140, 0.3) 0px 0px 0px 1px' }}
         aria-label="فتح قائمة التنقل"
       >
@@ -421,7 +475,7 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
       </motion.button>
 
       {/* الشريط الجانبي - ثابت على الشاشات الكبيرة في منتصف Y على اليمين */}
-      <aside className="hidden lg:flex fixed right-8 top-1/2 -translate-y-1/2 h-[75vh] max-h-175 w-72 bg-white shadow-[0_8px_30px_rgba(237,191,140,0.5)] border-2 border-primary/20 flex-col overflow-hidden z-40 rounded-2xl">
+      <aside className="hidden xl:flex fixed right-8 top-1/2 -translate-y-1/2 h-[calc(100vh-8rem)] max-h-[800px] w-72 bg-white shadow-[0_8px_30px_rgba(237,191,140,0.5)] border-2 border-primary/20 flex-col overflow-hidden z-40 rounded-2xl">
         {/* رأس الشريط الجانبي مع الشعار واسم العميل */}
         <div className="px-4 py-6 border-b border-primary/20 bg-linear-to-br from-accent/30 to-transparent">
           <div className="flex items-center gap-3">
@@ -484,7 +538,7 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="fixed inset-0 bg-black/25 z-40 lg:hidden backdrop-blur-[2px]"
+              className="fixed inset-0 bg-black/25 z-40 xl:hidden backdrop-blur-[2px]"
               onClick={() => setIsSidebarOpen(false)}
             />
             
@@ -502,7 +556,7 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
                 }
               }}
               transition={{ type: 'spring', damping: 30, stiffness: 400 }}
-              className="fixed bottom-4 left-4 right-4 h-[60vh] bg-white/95 shadow-[0_-4px_30px_rgba(16,48,43,0.15)] flex flex-col overflow-hidden z-50 lg:hidden rounded-[1.5rem] touch-none"
+              className="fixed bottom-4 left-4 right-4 h-[calc(100vh-6rem)] max-h-[70vh] bg-[#fefaf5] shadow-[0_-4px_30px_rgba(16,48,43,0.15)] flex flex-col overflow-hidden z-50 xl:hidden rounded-[1.5rem] touch-none"
             >
               {/* مقبض السحب */}
               <div className="flex justify-center py-4">
@@ -554,10 +608,16 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
         )}
       </AnimatePresence>
 
-      {/* المحتوى الرئيسي - في منتصف الشاشة */}
-      <div className="py-8 px-4 sm:px-6 lg:px-8">
+      {/* المحتوى الرئيسي - يتحرك ديناميكياً لتجنب القائمة */}
+      <div 
+        className="py-8 px-4 sm:px-6 lg:px-8 transition-all duration-300"
+        style={{ transform: `translateX(-${contentOffset}px)` }}
+      >
         {/* الوثيقة */}
-        <div className="max-w-275 mx-auto">
+        <div 
+          className="mx-auto transition-all duration-300"
+          style={{ maxWidth: studyMaxWidth.startsWith('max-w') ? '1100px' : studyMaxWidth }}
+        >
           <style jsx global>{`
             .study-viewer-document .pb-24 {
               padding-bottom: 2rem !important;

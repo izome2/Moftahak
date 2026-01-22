@@ -1759,13 +1759,6 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                 <span className="block text-2xl font-bold text-secondary font-bristone">{Math.max(0, mapData.pins.length - 1)}</span>
                 <span className="text-xs text-secondary/60 font-dubai">شقة محيطة</span>
               </div>
-              <div 
-                className="text-center px-4 py-2 bg-primary/20 rounded-xl border-2 border-primary/30"
-                style={{ boxShadow: SHADOWS.icon }}
-              >
-                <span className="block text-xl font-bold text-primary font-bristone">9</span>
-                <span className="text-xs text-secondary/60 font-dubai">الحد الأقصى</span>
-              </div>
             </div>
           </div>
         </motion.div>
@@ -2050,15 +2043,15 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                       initial={{ opacity: 0, scale: 0.9, y: 20 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.9, y: -20 }}
-                      whileHover={{ scale: 1.02, y: -4 }}
+                      whileHover={{ scale: 1.02, y: -2 }}
                       transition={{ type: 'spring', stiffness: 400, damping: 25, layout: { duration: 0 } }}
-                      className="relative rounded-2xl bg-primary/20 p-4 sm:p-5 border-2 border-primary/30 cursor-pointer group"
+                      className="relative rounded-xl bg-primary/20 p-3 border-2 border-primary/30 cursor-pointer group"
                       style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
                       onClick={() => handlePinCardClick(pin)}
                     >
                       {}
                       <motion.div 
-                        className="absolute inset-0 rounded-2xl pointer-events-none"
+                        className="absolute inset-0 rounded-xl pointer-events-none"
                         initial={{ opacity: 0 }}
                         whileHover={{ 
                           opacity: 1,
@@ -2067,8 +2060,8 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                       />
 
                       {}
-                      <div className="absolute -top-4 -left-4 z-0 opacity-[0.10] pointer-events-none">
-                        <Building2 className="w-24 h-24 text-primary" strokeWidth={1.5} />
+                      <div className="absolute -top-3 -left-3 z-0 opacity-[0.08] pointer-events-none">
+                        <Building2 className="w-16 h-16 text-primary" strokeWidth={1.5} />
                       </div>
 
                       {}
@@ -2107,47 +2100,34 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                       {}
                       <div className="relative z-10">
                         {}
-                        <div className="flex items-start gap-3 mb-3">
-                          <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center shrink-0 border-2 border-primary/30">
-                            <span className="font-bristone font-bold text-secondary text-lg">{index + 1}</span>
+                        <div className="flex items-start gap-2">
+                          <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center shrink-0 border-2 border-primary/30">
+                            <span className="font-bristone font-bold text-secondary text-sm">{index + 1}</span>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-base sm:text-lg font-bold text-secondary font-dubai truncate">
+                            <h3 className="text-sm font-bold text-secondary font-dubai truncate">
                               {pin.apartment.name}
                             </h3>
-                            <p className="text-secondary/50 text-xs font-dubai">
-                              {pin.apartment.guests || 0} ضيف • {pin.apartment.rooms} غرف • {pin.apartment.beds || 0} سرير • {pin.apartment.reviewsCount || 0} تقييم
+                            <p className="text-secondary/50 text-[10px] font-dubai">
+                              {pin.apartment.guests || 0} ضيف • {pin.apartment.rooms} غرف • {pin.apartment.beds || 0} سرير
                             </p>
                           </div>
                         </div>
 
                         {}
-                        <div className="flex items-center justify-between pt-3 border-t border-secondary/10">
-                          <span className="text-sm text-secondary/60 font-dubai">سعر الليلة</span>
-                          <motion.span 
-                            className="font-dubai font-bold text-primary text-lg"
-                            key={pin.apartment.price}
-                            initial={{ scale: 1.2 }}
-                            animate={{ scale: 1 }}
-                          >
-                            {formatPrice(pin.apartment.price)}
-                          </motion.span>
-                        </div>
-
-                        {}
                         {(pin.apartment.features?.length || 0) > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-3">
-                            {(pin.apartment.features || []).slice(0, 3).map((feature, idx) => (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {(pin.apartment.features || []).slice(0, 2).map((feature, idx) => (
                               <span
                                 key={idx}
-                                className="px-2 py-0.5 bg-accent/50 text-secondary/70 font-dubai text-[10px] rounded-md"
+                                className="px-1.5 py-0.5 bg-accent/50 text-secondary/70 font-dubai text-[9px] rounded"
                               >
                                 {feature}
                               </span>
                             ))}
-                            {(pin.apartment.features?.length || 0) > 3 && (
-                              <span className="px-2 py-0.5 bg-primary/20 text-primary font-dubai text-[10px] rounded-md">
-                                +{(pin.apartment.features?.length || 0) - 3}
+                            {(pin.apartment.features?.length || 0) > 2 && (
+                              <span className="px-1.5 py-0.5 bg-primary/20 text-primary font-dubai text-[9px] rounded">
+                                +{(pin.apartment.features?.length || 0) - 2}
                               </span>
                             )}
                           </div>
@@ -2162,62 +2142,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
         </motion.div>
         )}
 
-        {}
-        {mapData.pins.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-linear-to-r from-secondary to-secondary/90 p-6 text-white"
-            style={{ boxShadow: SHADOWS.modal }}
-          >
-            {}
-            <div className="absolute -top-10 -left-10 opacity-10 pointer-events-none">
-              <Map className="w-40 h-40 text-white" strokeWidth={1.5} />
-            </div>
 
-            <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                  <MapPin className="w-7 h-7 text-primary" />
-                </div>
-                <div>
-                  <h4 className="font-dubai font-bold text-xl">ملخص المنطقة</h4>
-                  {}
-                  <span className="text-white/70 text-sm font-dubai">{Math.max(0, mapData.pins.length - 1)} شقة محيطة</span>
-                </div>
-              </div>
-              
-              {}
-              {(() => {
-                const nearbyPins = mapData.pins.slice(1); 
-                const avgPrice = nearbyPins.length > 0 
-                  ? Math.round(nearbyPins.reduce((sum, p) => sum + p.apartment.price, 0) / nearbyPins.length)
-                  : 0;
-                const maxRent = nearbyPins.length > 0
-                  ? Math.max(...nearbyPins.map(p => p.apartment.highestRent || p.apartment.price))
-                  : 0;
-                return (
-                  <div className="flex items-center gap-6 text-center">
-                    <div>
-                      <span className="block font-bristone font-bold text-2xl text-primary">
-                        {formatPrice(avgPrice)}
-                      </span>
-                      <span className="text-white/60 text-xs font-dubai">متوسط السعر</span>
-                    </div>
-                    <div className="w-px h-10 bg-white/20" />
-                    <div>
-                      <span className="block font-bristone font-bold text-2xl text-primary">
-                        {formatPrice(maxRent)}
-                      </span>
-                      <span className="text-white/60 text-xs font-dubai">أعلى إيجار</span>
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-          </motion.div>
-        )}
       </motion.div>
 
       {}

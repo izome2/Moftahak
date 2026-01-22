@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback, use } from 'react';
 import { useFeasibilityEditor } from '@/contexts/FeasibilityEditorContext';
 import EditorCanvas from '@/components/feasibility/editor/EditorCanvas';
 import EditorToolbar from '@/components/feasibility/editor/EditorToolbar';
+import EditorSidePanel from '@/components/feasibility/editor/EditorSidePanel';
 import ShareModal from '@/components/feasibility/shared/ShareModal';
 import type { TextOverlayItem } from '@/components/feasibility/editor/EditableTextOverlay';
 import type { ImageOverlayItem } from '@/components/feasibility/editor/EditableImageOverlay';
@@ -39,6 +40,7 @@ export default function EditFeasibilityStudyPage({ params }: PageProps) {
     totalCost: number;
     status: string;
     studyType: 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT';
+    shareId?: string | null;
   } | null>(null);
   
   // العناصر المضافة (نصوص وصور)
@@ -64,6 +66,7 @@ export default function EditFeasibilityStudyPage({ params }: PageProps) {
           totalCost: data.study.totalCost,
           status: data.study.status,
           studyType: data.study.studyType || 'WITH_FIELD_VISIT',
+          shareId: data.study.shareId,
         });
         
         // تحديث المحرر بالشرائح من قاعدة البيانات
@@ -119,7 +122,12 @@ export default function EditFeasibilityStudyPage({ params }: PageProps) {
       
       setLastSaved(new Date());
       setShowSavedMessage(true);
-      setStudyData(prev => prev ? { ...prev, slides: editor.slides, totalCost } : null);
+      setStudyData(prev => prev ? { 
+        ...prev, 
+        slides: editor.slides, 
+        totalCost,
+        shareId: data.study.shareId
+      } : null);
       
     } catch (err) {
       alert(err instanceof Error ? err.message : 'حدث خطأ أثناء الحفظ');
@@ -271,8 +279,10 @@ export default function EditFeasibilityStudyPage({ params }: PageProps) {
         onZoomOut={editor.zoomOut}
         onSave={handleSave}
         onPreview={() => {
-          if (studyData?.id) {
-            window.open(`/study/${studyData.id}`, '_blank');
+          if (studyData?.shareId) {
+            window.open(`/study/${studyData.shareId}`, '_blank');
+          } else {
+            alert('يرجى توليد رابط مشاركة أولاً من خلال زر المشاركة');
           }
         }}
         onShare={() => setShowShareModal(true)}
@@ -294,11 +304,27 @@ export default function EditFeasibilityStudyPage({ params }: PageProps) {
           onToggleSidebar={() => {}}
           onUpdateSlideData={handleUpdateSlideData}
           onGenerateRoomSlides={editor.generateRoomSlides}
+          onZoomChange={editor.setZoom}
           overlayItems={currentSlideItems}
           onUpdateOverlayItem={handleUpdateOverlayItem}
           onDeleteOverlayItem={handleDeleteOverlayItem}
         />
       </div>
+
+      {/* القائمة الجانبية للشرائح - ريسبونسيف */}
+      <EditorSidePanel
+        slides={editor.slides}
+        activeSlideIndex={editor.activeSlideIndex}
+        onSlideSelect={editor.setActiveSlideIndex}
+        onAddSlide={editor.addSlide}
+        onRemoveSlide={editor.removeSlide}
+        onDuplicateSlide={editor.duplicateSlide}
+        onReorderSlides={editor.reorderSlides}
+        onSetSlideOrder={editor.setSlideOrder}
+        canRemoveSlide={editor.canRemoveSlide}
+        clientName={studyData?.clientName || editor.clientName}
+        studyType={studyData?.studyType || editor.studyType}
+      />
 
       {/* مودال المشاركة */}
       <ShareModal

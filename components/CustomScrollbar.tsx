@@ -43,8 +43,8 @@ export default function CustomScrollbar() {
     };
   }, []);
 
-  // إخفاء الشريط في صفحات الأدمن أو على الموبايل
-  if (pathname?.startsWith('/admin') || !isDesktop) {
+  // إخفاء الشريط في صفحات الأدمن، صفحات الدراسة، أو على الموبايل
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/study/') || !isDesktop) {
     return null;
   }
 

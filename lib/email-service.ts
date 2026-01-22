@@ -3,6 +3,16 @@ import { Resend } from 'resend';
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Get base URL for email assets
+const getBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL;
+  }
+  return process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : 'http://localhost:3000';
+};
+
 // Email templates
 const OTP_EMAIL_TEMPLATE = (code: string, name: string) => `
 <!DOCTYPE html>
@@ -26,13 +36,6 @@ const OTP_EMAIL_TEMPLATE = (code: string, name: string) => `
       padding: 40px;
       box-shadow: 0 4px 24px rgba(16, 48, 43, 0.1);
     }
-    .logo {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-    .logo img {
-      height: 60px;
-    }
     h1 {
       color: #10302b;
       font-size: 24px;
@@ -42,7 +45,8 @@ const OTP_EMAIL_TEMPLATE = (code: string, name: string) => `
     .greeting {
       color: #10302b;
       font-size: 16px;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
+      line-height: 1.6;
     }
     .otp-container {
       background: linear-gradient(135deg, #edbf8c 0%, #e0a86e 100%);
@@ -88,8 +92,8 @@ const OTP_EMAIL_TEMPLATE = (code: string, name: string) => `
 </head>
 <body>
   <div class="container">
-    <div class="logo">
-      <img src="https://moftahak.com/logos/logo.svg" alt="مفتاحك" />
+    <div style="text-align:center;margin-bottom:32px;">
+      <img src="${getBaseUrl()}/logos/logo-dark.png" alt="مفتاحك" style="height:80px;width:auto;display:block;margin:0 auto;" />
     </div>
     
     <h1>رمز التحقق الخاص بك</h1>
@@ -110,8 +114,7 @@ const OTP_EMAIL_TEMPLATE = (code: string, name: string) => `
     </p>
     
     <div class="footer">
-      <p>© 2025 مفتاحك - جميع الحقوق محفوظة</p>
-      <p>هذا بريد إلكتروني آلي، يرجى عدم الرد عليه</p>
+      <p>© 2026 مفتاحك - جميع الحقوق محفوظة</p>
     </div>
   </div>
 </body>
@@ -131,7 +134,7 @@ const OTP_EMAIL_TEXT = (code: string, name: string) => `
 إذا لم تطلب هذا الرمز، يمكنك تجاهل هذا البريد الإلكتروني.
 
 ---
-مفتاحك - خدمات الشقق الفندقية
+© 2026 مفتاحك - جميع الحقوق محفوظة
 `;
 
 export interface SendOTPEmailResult {

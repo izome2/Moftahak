@@ -9,7 +9,7 @@ import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 interface StatsCardProps {
   icon: LucideIcon;
   label: string;
-  value: number;
+  value: number | string;
   suffix?: string;
   iconBgColor?: string;
   iconColor?: string;
@@ -27,7 +27,12 @@ const StatsCard: React.FC<StatsCardProps> = ({
 }) => {
   const ref = useRef(null);
   const isInView = useScrollAnimation(ref, { threshold: 0.3, once: true });
-  const count = useCounter({ start: 0, end: value, duration: 2 }, isInView);
+  
+  // Handle string values (like "...") during loading
+  const numericValue = typeof value === 'number' ? value : 0;
+  const isLoading = typeof value === 'string';
+  
+  const count = useCounter({ start: 0, end: numericValue, duration: 2 }, isInView && !isLoading);
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -157,7 +162,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
             ease: [0.25, 0.1, 0.25, 1],
           }}
         >
-          {isInView ? count : 0}{suffix}
+          {isLoading ? value : (isInView ? count : 0)}{!isLoading && suffix}
         </motion.h3>
 
         {/* Label */}

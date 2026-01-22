@@ -23,9 +23,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     
     const consultation = await prisma.consultation.findUnique({
       where: { id },
-      include: {
-        feasibilityStudy: true,
-      },
     });
 
     if (!consultation) {
@@ -64,7 +61,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const body = await request.json();
     const { status } = body;
 
-    if (!['PENDING', 'ACCEPTED', 'REJECTED', 'COMPLETED'].includes(status)) {
+    if (!['PENDING', 'READ', 'COMPLETED'].includes(status)) {
       const response = NextResponse.json(
         { error: 'حالة غير صالحة' },
         { status: 400 }

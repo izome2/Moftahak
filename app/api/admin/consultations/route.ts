@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // بناء شروط البحث
-    const where = status ? { status: status as 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED' } : {};
+    const where = status ? { status: status as 'PENDING' | 'READ' | 'COMPLETED' } : {};
 
     // جلب الاستشارات مع العدد الإجمالي
     const [consultations, total] = await Promise.all([
@@ -33,15 +33,6 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-        include: {
-          feasibilityStudy: {
-            select: {
-              id: true,
-              title: true,
-              status: true,
-            },
-          },
-        },
       }),
       prisma.consultation.count({ where }),
     ]);

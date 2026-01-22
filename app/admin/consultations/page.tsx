@@ -65,13 +65,8 @@ interface Consultation {
   livingRooms: number;
   kitchens: number;
   bathrooms: number;
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
+  status: 'PENDING' | 'READ' | 'COMPLETED';
   createdAt: string;
-  feasibilityStudy?: {
-    id: string;
-    title: string;
-    status: string;
-  } | null;
 }
 
 interface Pagination {
@@ -93,31 +88,24 @@ const statusConfig: Record<string, {
   icon: React.ElementType;
 }> = {
   PENDING: { 
-    label: 'في الانتظار', 
+    label: 'جديد', 
     bgColor: 'bg-amber-500/10',
     textColor: 'text-amber-700',
     borderColor: 'border-amber-500/30',
     icon: Clock
   },
-  ACCEPTED: { 
-    label: 'تم القبول', 
-    bgColor: 'bg-emerald-400/15',
-    textColor: 'text-emerald-700',
-    borderColor: 'border-emerald-500/30',
-    icon: CheckCircle2
-  },
-  REJECTED: { 
-    label: 'مرفوض', 
-    bgColor: 'bg-red-500/10',
-    textColor: 'text-red-700',
-    borderColor: 'border-red-500/30',
-    icon: XCircle
-  },
-  COMPLETED: { 
-    label: 'مكتمل', 
+  READ: { 
+    label: 'تم القراءة', 
     bgColor: 'bg-blue-500/10',
     textColor: 'text-blue-700',
     borderColor: 'border-blue-500/30',
+    icon: Eye
+  },
+  COMPLETED: { 
+    label: 'مكتمل', 
+    bgColor: 'bg-primary/20',
+    textColor: 'text-primary',
+    borderColor: 'border-primary/30',
     icon: CheckCircle2
   },
 };
@@ -130,8 +118,6 @@ interface ConsultationCardProps {
   consultation: Consultation;
   index: number;
   onViewDetails: (consultation: Consultation) => void;
-  onAccept: (id: string) => void;
-  onReject: (id: string) => void;
   onDelete: (id: string) => void;
   actionLoading: string | null;
   menuOpen: string | null;
@@ -142,8 +128,6 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
   consultation, 
   index, 
   onViewDetails,
-  onAccept,
-  onReject,
   onDelete,
   actionLoading,
   menuOpen,
@@ -179,11 +163,11 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
         }}
       />
 
-      <div className="relative p-5">
-        <div className="flex items-start gap-4">
-          {/* أيقونة الاستشارة */}
+      <div className="relative p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+          {/* أيقونة الاستشارة - مخفية على الموبايل */}
           <motion.div 
-            className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center border-2 border-primary/30 flex-shrink-0"
+            className="hidden sm:flex w-14 h-14 bg-primary/20 rounded-2xl items-center justify-center border-2 border-primary/30 flex-shrink-0"
             style={{ boxShadow: SHADOWS.icon }}
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
@@ -193,58 +177,58 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
 
           {/* معلومات الاستشارة */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 mb-2">
-              <h3 className="font-dubai font-bold text-lg text-secondary truncate">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+              <h3 className="font-dubai font-bold text-base sm:text-lg text-secondary truncate">
                 {consultation.firstName} {consultation.lastName}
               </h3>
-              <span className={`px-3 py-1 rounded-full text-xs font-dubai font-medium border ${status.bgColor} ${status.textColor} ${status.borderColor}`}>
+              <span className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-dubai font-medium border ${status.bgColor} ${status.textColor} ${status.borderColor}`}>
                 <StatusIcon className="w-3 h-3 inline ml-1" />
                 {status.label}
               </span>
             </div>
             
             {/* معلومات التواصل */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-secondary/60">
-              <span className="flex items-center gap-1.5">
-                <Mail className="w-4 h-4" />
-                {consultation.email}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-secondary/60">
+              <span className="flex items-center gap-1 sm:gap-1.5">
+                <Mail className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+                <span className="truncate max-w-[140px] sm:max-w-none">{consultation.email}</span>
               </span>
               {consultation.phone && (
-                <span className="flex items-center gap-1.5">
-                  <Phone className="w-4 h-4" />
+                <span className="flex items-center gap-1 sm:gap-1.5">
+                  <Phone className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                   {consultation.phone}
                 </span>
               )}
-              <span className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4" />
+              <span className="flex items-center gap-1 sm:gap-1.5">
+                <Calendar className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                 {new Date(consultation.createdAt).toLocaleDateString('ar-EG')}
               </span>
             </div>
 
             {/* تكوين الشقة */}
             {hasRoomConfig && (
-              <div className="flex items-center gap-3 mt-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 sm:mt-3">
                 {consultation.bedrooms > 0 && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
-                    <Bed className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
+                    <Bed className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                     <span>{consultation.bedrooms}</span>
                   </div>
                 )}
                 {consultation.livingRooms > 0 && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
-                    <Sofa className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
+                    <Sofa className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                     <span>{consultation.livingRooms}</span>
                   </div>
                 )}
                 {consultation.kitchens > 0 && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
-                    <ChefHat className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
+                    <ChefHat className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                     <span>{consultation.kitchens}</span>
                   </div>
                 )}
                 {consultation.bathrooms > 0 && (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
-                    <Bath className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
+                    <Bath className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                     <span>{consultation.bathrooms}</span>
                   </div>
                 )}
@@ -255,58 +239,18 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
             <p className="text-sm text-secondary/60 line-clamp-2 mt-3">
               {consultation.message}
             </p>
-
-            {/* رابط دراسة الجدوى إن وجدت */}
-            {consultation.feasibilityStudy && (
-              <Link 
-                href={`/admin/feasibility/${consultation.feasibilityStudy.id}`}
-                className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-primary/20 text-secondary rounded-lg text-sm hover:bg-primary/30 transition-colors border border-primary/30"
-              >
-                <FileText className="w-4 h-4" />
-                <span>عرض دراسة الجدوى</span>
-              </Link>
-            )}
           </div>
 
           {/* الإجراءات */}
-          <div className="flex items-center gap-2">
-            {consultation.status === 'PENDING' && (
-              <>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => onAccept(consultation.id)}
-                  disabled={actionLoading === consultation.id}
-                  className="p-2.5 bg-primary/20 hover:bg-primary/30 rounded-xl transition-colors disabled:opacity-50 border border-primary/40"
-                  title="قبول وإنشاء دراسة"
-                >
-                  {actionLoading === consultation.id ? (
-                    <Loader2 className="w-5 h-5 text-secondary animate-spin" />
-                  ) : (
-                    <Check className="w-5 h-5 text-secondary" />
-                  )}
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => onReject(consultation.id)}
-                  disabled={actionLoading === consultation.id}
-                  className="p-2.5 bg-primary/20 hover:bg-primary/30 rounded-xl transition-colors disabled:opacity-50 border border-primary/40"
-                  title="رفض"
-                >
-                  <X className="w-5 h-5 text-secondary" />
-                </motion.button>
-              </>
-            )}
-
+          <div className="flex items-center gap-2 mt-3 sm:mt-0 justify-end sm:justify-start">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onViewDetails(consultation)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-secondary text-accent rounded-xl font-dubai font-medium text-sm transition-all hover:shadow-lg"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-secondary text-accent rounded-xl font-dubai font-medium text-xs sm:text-sm transition-all hover:shadow-lg"
               style={{ boxShadow: SHADOWS.button }}
             >
-              <Eye className="w-4 h-4" />
+              <Eye className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
               تفاصيل
             </motion.button>
 
@@ -350,21 +294,6 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
                           <span className="flex-1 text-right">عرض التفاصيل</span>
                         </button>
                       </div>
-                      
-                      {consultation.feasibilityStudy && (
-                        <div className="px-2 py-1">
-                          <Link
-                            href={`/admin/feasibility/${consultation.feasibilityStudy.id}`}
-                            onClick={() => setMenuOpen(null)}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-dubai text-secondary hover:bg-gradient-to-r hover:from-emerald-400/20 hover:to-emerald-400/10 transition-all group/item"
-                          >
-                            <div className="w-8 h-8 bg-emerald-400/10 rounded-lg flex items-center justify-center group-hover/item:bg-emerald-400/20 transition-colors">
-                              <FileText className="w-4 h-4 text-emerald-700" />
-                            </div>
-                            <span className="flex-1 text-right">دراسة الجدوى</span>
-                          </Link>
-                        </div>
-                      )}
                       
                       <div className="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent my-1" />
                       
@@ -413,9 +342,7 @@ export default function ConsultationsPage() {
   // خيارات فلتر الحالة
   const filterOptions = [
     { value: '', label: 'كل الحالات', icon: null },
-    { value: 'PENDING', label: 'في الانتظار', config: statusConfig.PENDING },
-    { value: 'ACCEPTED', label: 'تم القبول', config: statusConfig.ACCEPTED },
-    { value: 'REJECTED', label: 'مرفوض', config: statusConfig.REJECTED },
+    { value: 'PENDING', label: 'جديد', config: statusConfig.PENDING },
     { value: 'COMPLETED', label: 'مكتمل', config: statusConfig.COMPLETED },
   ];
 
@@ -450,51 +377,6 @@ export default function ConsultationsPage() {
     fetchConsultations();
   }, [fetchConsultations]);
 
-  // قبول الاستشارة
-  const handleAccept = async (id: string) => {
-    setActionLoading(id);
-    try {
-      const response = await fetch(`/api/admin/consultations/${id}/accept`, {
-        method: 'POST',
-      });
-      const data = await response.json();
-      
-      if (!response.ok) throw new Error(data.error);
-      
-      // تحديث القائمة
-      fetchConsultations(pagination?.page || 1);
-      setSelectedConsultation(null);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'حدث خطأ');
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  // رفض الاستشارة
-  const handleReject = async (id: string) => {
-    if (!confirm('هل أنت متأكد من رفض هذه الاستشارة؟')) return;
-    
-    setActionLoading(id);
-    try {
-      const response = await fetch(`/api/admin/consultations/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'REJECTED' }),
-      });
-      const data = await response.json();
-      
-      if (!response.ok) throw new Error(data.error);
-      
-      fetchConsultations(pagination?.page || 1);
-      setSelectedConsultation(null);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'حدث خطأ');
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
   // حذف الاستشارة
   const handleDelete = async (id: string) => {
     if (!confirm('هل أنت متأكد من حذف هذه الاستشارة؟ لا يمكن التراجع عن هذا الإجراء.')) return;
@@ -503,6 +385,28 @@ export default function ConsultationsPage() {
     try {
       const response = await fetch(`/api/admin/consultations/${id}`, {
         method: 'DELETE',
+      });
+      const data = await response.json();
+      
+      if (!response.ok) throw new Error(data.error);
+      
+      fetchConsultations(pagination?.page || 1);
+      setSelectedConsultation(null);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'حدث خطأ');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // تعيين الطلب كمكتمل
+  const handleMarkAsCompleted = async (id: string) => {
+    setActionLoading(id);
+    try {
+      const response = await fetch(`/api/admin/consultations/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'COMPLETED' }),
       });
       const data = await response.json();
       
@@ -533,22 +437,22 @@ export default function ConsultationsPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 will-change-transform"
+          className="flex flex-col gap-4 will-change-transform"
           style={{ transform: 'translateZ(0)' }}
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <motion.div 
-              className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center border-2 border-primary/30"
+              className="w-10 h-10 sm:w-14 sm:h-14 bg-primary/20 rounded-xl sm:rounded-2xl flex items-center justify-center border-2 border-primary/30"
               style={{ boxShadow: SHADOWS.icon }}
               whileHover={{ scale: 1.05 }}
             >
-              <MessageSquare className="w-7 h-7 text-secondary" strokeWidth={1.5} />
+              <MessageSquare className="w-5 h-5 sm:w-7 sm:h-7 text-secondary" strokeWidth={1.5} />
             </motion.div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
+            <div className="flex-1">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-secondary font-dubai">
                 طلبات الاستشارة
               </h1>
-              <p className="text-secondary/60 text-sm mt-1 font-dubai">
+              <p className="text-secondary/60 text-xs sm:text-sm mt-0.5 sm:mt-1 font-dubai">
                 إدارة طلبات الاستشارة من العملاء
                 {pagination && (
                   <span className="mr-2 px-2 py-0.5 bg-primary/20 rounded-full text-xs">
@@ -559,15 +463,15 @@ export default function ConsultationsPage() {
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-end">
             <Link href="/admin/feasibility">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex items-center gap-2 bg-secondary text-accent px-5 py-3 rounded-xl font-dubai font-bold transition-all hover:shadow-lg"
+                className="flex items-center gap-1.5 sm:gap-2 bg-secondary text-accent px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-dubai font-bold text-sm transition-all hover:shadow-lg"
                 style={{ boxShadow: SHADOWS.button }}
               >
-                <FileText className="w-5 h-5" />
+                <FileText className="w-4 sm:w-5 h-4 sm:h-5" />
                 <span>الدراسات</span>
               </motion.button>
             </Link>
@@ -579,7 +483,7 @@ export default function ConsultationsPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-          className="flex flex-col sm:flex-row gap-4 will-change-transform"
+          className="flex flex-col sm:flex-row gap-4 will-change-transform relative z-[9999]"
           style={{ transform: 'translateZ(0)' }}
         >
           {/* البحث */}
@@ -608,7 +512,7 @@ export default function ConsultationsPage() {
           </div>
 
           {/* فلتر الحالة */}
-          <div className="relative">
+          <div className="relative z-[9999]">
             <motion.button
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
@@ -634,7 +538,7 @@ export default function ConsultationsPage() {
               {filterDropdownOpen && (
                 <>
                   <div 
-                    className="fixed inset-0 z-[140]"
+                    className="fixed inset-0 z-[99998]"
                     onClick={() => setFilterDropdownOpen(false)}
                   />
                   <motion.div
@@ -642,7 +546,7 @@ export default function ConsultationsPage() {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: -10 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border-2 border-primary/30 py-2 z-[150] overflow-hidden"
+                    className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border-2 border-primary/30 py-2 z-[99999] overflow-hidden"
                     style={{ boxShadow: SHADOWS.popup }}
                   >
                     {filterOptions.map((option) => {
@@ -767,8 +671,6 @@ export default function ConsultationsPage() {
                   consultation={consultation}
                   index={index}
                   onViewDetails={setSelectedConsultation}
-                  onAccept={handleAccept}
-                  onReject={handleReject}
                   onDelete={handleDelete}
                   actionLoading={actionLoading}
                   menuOpen={menuOpen}
@@ -916,57 +818,27 @@ export default function ConsultationsPage() {
               </div>
               
               {/* أزرار الإجراءات */}
-              {selectedConsultation.status === 'PENDING' && (
-                <div className="flex gap-3 mt-6 pt-6 border-t-2 border-primary/20">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handleAccept(selectedConsultation.id)}
-                    disabled={actionLoading === selectedConsultation.id}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-secondary hover:bg-secondary/90 text-accent rounded-xl font-dubai font-medium transition-colors disabled:opacity-50"
-                    style={{ boxShadow: SHADOWS.button }}
-                  >
-                    {actionLoading === selectedConsultation.id ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Check className="w-5 h-5" />
-                    )}
-                    قبول وإنشاء دراسة
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handleReject(selectedConsultation.id)}
-                    disabled={actionLoading === selectedConsultation.id}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary/30 hover:bg-primary/40 text-secondary border-2 border-primary/40 rounded-xl font-dubai font-medium transition-colors disabled:opacity-50"
-                  >
-                    <X className="w-5 h-5" />
-                    رفض
-                  </motion.button>
-                </div>
-              )}
-              
-              {selectedConsultation.feasibilityStudy && (
-                <div className="mt-6 pt-6 border-t-2 border-primary/20">
-                  <Link
-                    href={`/admin/feasibility/${selectedConsultation.feasibilityStudy.id}`}
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-secondary hover:bg-secondary/90 text-accent rounded-xl font-dubai font-medium transition-colors"
-                    style={{ boxShadow: SHADOWS.button }}
-                  >
-                    <FileText className="w-5 h-5" />
-                    فتح دراسة الجدوى
-                  </Link>
-                </div>
-              )}
-              
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleDelete(selectedConsultation.id)}
-                className="w-full mt-4 py-2.5 text-secondary hover:bg-primary/10 rounded-xl text-sm font-dubai transition-colors border-2 border-primary/30"
-              >
-                حذف الطلب نهائياً
-              </motion.button>
+              <div className="flex gap-3 mt-6">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleMarkAsCompleted(selectedConsultation.id)}
+                  disabled={actionLoading === selectedConsultation.id || selectedConsultation.status === 'COMPLETED'}
+                  className="flex-1 py-2.5 bg-secondary hover:bg-secondary/90 text-accent rounded-xl text-sm font-dubai transition-colors border-2 border-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {selectedConsultation.status === 'COMPLETED' ? 'مكتمل ✓' : 'تعيين كمكتمل'}
+                </motion.button>
+                
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleDelete(selectedConsultation.id)}
+                  disabled={actionLoading === selectedConsultation.id}
+                  className="flex-1 py-2.5 text-red-700 hover:bg-red-500/10 rounded-xl text-sm font-dubai transition-colors border-2 border-red-500/30 disabled:opacity-50"
+                >
+                  {actionLoading === selectedConsultation.id ? 'جاري الحذف...' : 'حذف الطلب'}
+                </motion.button>
+              </div>
             </motion.div>
           </motion.div>
         )}

@@ -98,7 +98,7 @@ const CTASection: React.FC = () => {
   };
 
   return (
-    <section className="pt-24 relative overflow-visible bg-linear-to-b from-[#fdf6ee] via-[#f5e6d3] to-[#f0dcc4]" id="cta">
+    <section className="pt-24 relative overflow-visible bg-linear-to-b from-[#fdf6ee] via-[#f5e6d3] to-[#f0dcc4]" id="contact">
       {}
       <div className="absolute inset-0" style={{ bottom: '0' }}>
         <div className="absolute inset-0" style={{
@@ -423,17 +423,17 @@ const CTASection: React.FC = () => {
                         href="mailto:abdullah.she7ata@gmail.com"
                         className="text-white/70 hover:text-primary transition-colors duration-300 text-sm"
                       >
-                        abdullah.she7ata@gmail.com
+                        info@moftahak-eg.com
                       </a>
                     </li>
                     <li className="flex items-start gap-2">
                       <Phone size={18} className="text-primary shrink-0 mt-1" />
                       <a 
-                        href="tel:+201015311491"
+                        href="tel:+201091507717"
                         className="text-white/70 hover:text-primary transition-colors duration-300 text-sm"
                         dir="ltr"
                       >
-                        +20 101 531 1491
+                        +20 109 150 7717
                       </a>
                     </li>
                     <li className="flex items-start gap-2">

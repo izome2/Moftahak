@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useFeasibilityEditor } from '@/contexts/FeasibilityEditorContext';
 import EditorCanvas from '@/components/feasibility/editor/EditorCanvas';
 import EditorToolbar from '@/components/feasibility/editor/EditorToolbar';
+import EditorSidePanel from '@/components/feasibility/editor/EditorSidePanel';
 import type { TextOverlayItem } from '@/components/feasibility/editor/EditableTextOverlay';
 import type { ImageOverlayItem } from '@/components/feasibility/editor/EditableImageOverlay';
 
@@ -18,6 +19,7 @@ export default function NewFeasibilityStudyPage() {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [showSavedMessage, setShowSavedMessage] = useState(false);
   const [createdStudyId, setCreatedStudyId] = useState<string | null>(null);
+  const [createdStudyShareId, setCreatedStudyShareId] = useState<string | null>(null);
   
   // العناصر المضافة (نصوص وصور) - مخزنة حسب معرف الشريحة
   const [overlayItems, setOverlayItems] = useState<Record<string, OverlayItem[]>>({});
@@ -130,13 +132,18 @@ export default function NewFeasibilityStudyPage() {
         if (!response.ok) {
           throw new Error(data.error || 'حدث خطأ أثناء الحفظ');
         }
+        
+        // تحديث shareId إذا تغير
+        if (data.study?.shareId) {
+          setCreatedStudyShareId(data.study.shareId);
+        }
       } else {
         // إنشاء دراسة جديدة
         const response = await fetch('/api/admin/feasibility', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            title: `دراسة جدوى - ${editor.clientName}`,
+            title: `دراسة جدوى`,
             clientName: editor.clientName,
             slides: editor.slides,
             totalCost,
@@ -151,6 +158,7 @@ export default function NewFeasibilityStudyPage() {
         
         // حفظ معرف الدراسة للحفظ التالي
         setCreatedStudyId(data.study.id);
+        setCreatedStudyShareId(data.study.shareId);
         editor.setStudyId(data.study.id);
       }
       
@@ -253,8 +261,20 @@ export default function NewFeasibilityStudyPage() {
         onZoomIn={editor.zoomIn}
         onZoomOut={editor.zoomOut}
         onSave={handleSave}
-        onPreview={() => console.log('معاينة الدراسة...')}
-        onShare={() => console.log('مشاركة الدراسة...')}
+        onPreview={() => {
+          if (createdStudyShareId) {
+            window.open(`/study/${createdStudyShareId}`, '_blank');
+          } else {
+            alert('يرجى حفظ الدراسة أولاً حتى يمكنك معاينتها');
+          }
+        }}
+        onShare={() => {
+          if (createdStudyShareId) {
+            console.log('مشاركة الدراسة...');
+          } else {
+            alert('يرجى حفظ الدراسة أولاً حتى يمكنك مشاركتها');
+          }
+        }}
         onAddText={handleAddText}
         onAddImage={handleAddImage}
         isSaving={saving}
@@ -273,11 +293,27 @@ export default function NewFeasibilityStudyPage() {
           onToggleSidebar={() => {}}
           onUpdateSlideData={handleUpdateSlideData}
           onGenerateRoomSlides={editor.generateRoomSlides}
+          onZoomChange={editor.setZoom}
           overlayItems={currentSlideItems}
           onUpdateOverlayItem={handleUpdateOverlayItem}
           onDeleteOverlayItem={handleDeleteOverlayItem}
         />
       </div>
+
+      {/* القائمة الجانبية للشرائح - ريسبونسيف */}
+      <EditorSidePanel
+        slides={editor.slides}
+        activeSlideIndex={editor.activeSlideIndex}
+        onSlideSelect={editor.setActiveSlideIndex}
+        onAddSlide={editor.addSlide}
+        onRemoveSlide={editor.removeSlide}
+        onDuplicateSlide={editor.duplicateSlide}
+        onReorderSlides={editor.reorderSlides}
+        onSetSlideOrder={editor.setSlideOrder}
+        canRemoveSlide={editor.canRemoveSlide}
+        clientName={editor.clientName}
+        studyType={editor.studyType}
+      />
     </div>
   );
 }

@@ -35,7 +35,11 @@ import {
   Clock,
   XCircle,
   PlayCircle,
-  PenLine
+  PenLine,
+  Undo2,
+  Ban,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 // ============================================
@@ -92,6 +96,7 @@ interface FeasibilityRequest {
   latitude: number | null;
   longitude: number | null;
   status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECTED';
+  paymentCode: string;
   createdAt: string;
   updatedAt: string;
   feasibilityStudy: {
@@ -202,8 +207,12 @@ interface UnifiedCardProps {
   index: number;
   onDelete: (id: string, type: 'request' | 'study') => void;
   onCreateStudy: (request: FeasibilityRequest) => void;
+  onAcceptRequest: (request: FeasibilityRequest) => void;
+  onRejectRequest: (request: FeasibilityRequest) => void;
+  onUnrejectRequest: (request: FeasibilityRequest) => void;
   menuOpen: string | null;
   setMenuOpen: (id: string | null) => void;
+  isRejectedSection?: boolean;
 }
 
 const UnifiedCard: React.FC<UnifiedCardProps> = ({ 
@@ -211,8 +220,12 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
   index, 
   onDelete,
   onCreateStudy,
+  onAcceptRequest,
+  onRejectRequest,
+  onUnrejectRequest,
   menuOpen,
-  setMenuOpen
+  setMenuOpen,
+  isRejectedSection = false
 }) => {
   const isRequest = item.type === 'request';
   const data = item.data;
@@ -272,11 +285,11 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
         }}
       />
 
-      <div className="relative p-5">
-        <div className="flex items-start gap-4">
-          {/* الأيقونة */}
+      <div className="relative p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+          {/* الأيقونة - مخفية على الموبايل */}
           <motion.div 
-            className="w-14 h-14 rounded-2xl flex items-center justify-center border-2 shrink-0 bg-primary/20 border-primary/30"
+            className="hidden sm:flex w-14 h-14 rounded-2xl items-center justify-center border-2 shrink-0 bg-primary/20 border-primary/30"
             style={{ boxShadow: SHADOWS.icon }}
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
@@ -286,86 +299,86 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
 
           {/* المعلومات */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 mb-2 flex-wrap">
-              <h3 className="font-dubai font-bold text-lg text-secondary truncate">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+              <h3 className="font-dubai font-bold text-base sm:text-lg text-secondary truncate">
                 {clientName}
               </h3>
-              <span className={`px-3 py-1 rounded-full text-xs font-dubai font-medium border flex items-center gap-1.5 ${status.bgColor} ${status.textColor} ${status.borderColor}`}>
-                <StatusIcon className="w-3.5 h-3.5" />
+              <span className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-dubai font-medium border flex items-center gap-1 sm:gap-1.5 ${status.bgColor} ${status.textColor} ${status.borderColor}`}>
+                <StatusIcon className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                 {status.label}
               </span>
               {studyType && (
-                <span className="px-3 py-1 rounded-full text-xs font-dubai font-medium bg-secondary/10 text-secondary border border-secondary/20">
+                <span className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-dubai font-medium bg-secondary/10 text-secondary border border-secondary/20">
                   {studyTypeLabels[studyType] || studyType}
                 </span>
               )}
             </div>
             
             {/* التفاصيل */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-secondary/60 mb-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-secondary/60 mb-2 sm:mb-3">
               {requestData?.propertyType && (
-                <span className="flex items-center gap-1.5">
-                  <Home className="w-4 h-4" />
+                <span className="flex items-center gap-1 sm:gap-1.5">
+                  <Home className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                   {propertyTypeLabels[requestData.propertyType] || requestData.propertyType}
                 </span>
               )}
               {(requestData?.city || requestData?.district) && (
-                <span className="flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4" />
+                <span className="flex items-center gap-1 sm:gap-1.5">
+                  <MapPin className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                   {requestData.district}، {requestData.city}
                 </span>
               )}
-              <span className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4" />
+              <span className="flex items-center gap-1 sm:gap-1.5">
+                <Calendar className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                 {new Date(createdAt).toLocaleDateString('ar-EG')}
               </span>
               {studyData?.totalCost && studyData.totalCost > 0 && (
-                <span className="flex items-center gap-1.5 text-primary font-medium">
-                  <DollarSign className="w-4 h-4" />
+                <span className="flex items-center gap-1 sm:gap-1.5 text-primary font-medium">
+                  <DollarSign className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                   {studyData.totalCost.toLocaleString('ar-EG')} ج.م
                 </span>
               )}
             </div>
 
             {/* معلومات التواصل */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-secondary/60 mb-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-secondary/60 mb-2 sm:mb-3">
               {email && (
-                <span className="flex items-center gap-1.5">
-                  <Mail className="w-4 h-4" />
-                  <span dir="ltr">{email}</span>
+                <span className="flex items-center gap-1 sm:gap-1.5">
+                  <Mail className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+                  <span dir="ltr" className="truncate max-w-[120px] sm:max-w-none">{email}</span>
                 </span>
               )}
               {phone && (
-                <span className="flex items-center gap-1.5">
-                  <Phone className="w-4 h-4" />
+                <span className="flex items-center gap-1 sm:gap-1.5">
+                  <Phone className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                   <span dir="ltr">{phone}</span>
                 </span>
               )}
             </div>
 
             {/* تكوين الشقة */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               {bedrooms > 0 && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
-                  <Bed className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
+                  <Bed className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                   <span>{bedrooms}</span>
                 </div>
               )}
               {livingRooms > 0 && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
-                  <Sofa className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
+                  <Sofa className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                   <span>{livingRooms}</span>
                 </div>
               )}
               {kitchens > 0 && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
-                  <ChefHat className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
+                  <ChefHat className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                   <span>{kitchens}</span>
                 </div>
               )}
               {bathrooms > 0 && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
-                  <Bath className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 bg-secondary/5 rounded-lg text-secondary/70 text-xs">
+                  <Bath className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
                   <span>{bathrooms}</span>
                 </div>
               )}
@@ -373,30 +386,102 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
           </div>
 
           {/* الإجراءات */}
-          <div className="flex items-center gap-2">
-            {/* زر إنشاء/تعديل الدراسة */}
-            {isRequest && !linkedStudy ? (
+          <div className="flex flex-wrap items-center gap-2 mt-3 sm:mt-0 justify-end sm:justify-start">
+            {/* رمز الدفع للطلبات */}
+            {isRequest && requestData?.paymentCode && (
+              <div className="flex items-center gap-1.5 px-3 py-2 bg-amber-50 border-2 border-amber-200 rounded-xl text-amber-800">
+                <span className="text-xs font-dubai">رمز الدفع:</span>
+                <span className="font-mono font-bold text-sm" dir="ltr">{requestData.paymentCode}</span>
+              </div>
+            )}
+            
+            {/* أزرار للطلبات المرفوضة */}
+            {isRejectedSection && isRequest && requestData?.status === 'REJECTED' && (
+              <>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => onUnrejectRequest(requestData!)}
+                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-primary text-secondary rounded-xl font-dubai font-medium text-xs sm:text-sm transition-all hover:shadow-lg border-2 border-primary/30"
+                  style={{ boxShadow: SHADOWS.button }}
+                >
+                  <Undo2 className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+                  <span className="hidden sm:inline">تراجع عن الرفض</span>
+                  <span className="sm:hidden">تراجع</span>
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => onAcceptRequest(requestData!)}
+                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-secondary text-accent rounded-xl font-dubai font-medium text-xs sm:text-sm transition-all hover:shadow-lg"
+                  style={{ boxShadow: SHADOWS.button }}
+                >
+                  <CheckCircle className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+                  <span className="hidden sm:inline">قبول ومتابعة</span>
+                  <span className="sm:hidden">قبول</span>
+                </motion.button>
+              </>
+            )}
+            
+            {/* أزرار القبول والرفض للطلبات الجديدة (PENDING) */}
+            {!isRejectedSection && isRequest && !linkedStudy && requestData?.status === 'PENDING' && (
+              <>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => onRejectRequest(requestData!)}
+                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white border-2 border-primary/30 text-secondary rounded-xl font-dubai font-medium text-xs sm:text-sm transition-all hover:border-primary/50 hover:shadow-lg"
+                  style={{ boxShadow: SHADOWS.card }}
+                >
+                  <Ban className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+                  رفض
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => onAcceptRequest(requestData!)}
+                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-secondary text-accent rounded-xl font-dubai font-medium text-xs sm:text-sm transition-all hover:shadow-lg"
+                  style={{ boxShadow: SHADOWS.button }}
+                >
+                  <CheckCircle className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+                  قبول
+                </motion.button>
+              </>
+            )}
+            
+            {/* زر إنشاء/تعديل الدراسة للطلبات قيد المعالجة */}
+            {!isRejectedSection && isRequest && !linkedStudy && requestData?.status === 'IN_PROGRESS' && (
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.2 }}
                 onClick={() => onCreateStudy(requestData!)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-secondary text-accent rounded-xl font-dubai font-medium text-sm transition-all hover:shadow-lg"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-secondary text-accent rounded-xl font-dubai font-medium text-xs sm:text-sm transition-all hover:shadow-lg"
                 style={{ boxShadow: SHADOWS.button }}
               >
-                <Plus className="w-4 h-4" />
-                إنشاء دراسة
+                <Plus className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
+                <span className="hidden sm:inline">إنشاء دراسة</span>
+                <span className="sm:hidden">إنشاء</span>
               </motion.button>
-            ) : studyId && (
+            )}
+            
+            {/* زر تعديل الدراسة إذا كان هناك دراسة مرتبطة */}
+            {!isRejectedSection && studyId && (
               <Link href={`/admin/feasibility/${studyId}`}>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2 }}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-primary text-secondary rounded-xl font-dubai font-medium text-sm transition-all hover:shadow-lg"
+                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl border-2 bg-primary/20 border-primary/30 font-dubai font-medium text-xs sm:text-sm text-secondary transition-all"
+                  style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
                 >
-                  <PenLine className="w-4 h-4" />
-                  تعديل الدراسة
+                  <PenLine className="w-3.5 sm:w-4 h-3.5 sm:h-4" strokeWidth={1.5} />
+                  <span className="hidden sm:inline">تعديل الدراسة</span>
+                  <span className="sm:hidden">تعديل</span>
                 </motion.button>
               </Link>
             )}
@@ -489,6 +574,8 @@ export default function FeasibilityStudiesPage() {
   const [error, setError] = useState('');
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showRejected, setShowRejected] = useState(false);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   // جلب البيانات
   const fetchData = useCallback(async () => {
@@ -520,7 +607,7 @@ export default function FeasibilityStudiesPage() {
     fetchData();
   }, [fetchData]);
 
-  // دمج البيانات وترتيبها
+  // دمج البيانات وترتيبها (باستثناء المرفوضة)
   const unifiedItems = React.useMemo<UnifiedItem[]>(() => {
     const items: UnifiedItem[] = [];
     
@@ -531,9 +618,9 @@ export default function FeasibilityStudiesPage() {
         .map(r => r.feasibilityStudy!.id)
     );
     
-    // إضافة الطلبات (التي ليس لها دراسة أولاً، ثم التي لها دراسة)
-    const pendingRequests = requests.filter(r => !r.feasibilityStudy);
-    const linkedRequests = requests.filter(r => r.feasibilityStudy);
+    // إضافة الطلبات (التي ليس لها دراسة أولاً، ثم التي لها دراسة) - باستثناء المرفوضة
+    const pendingRequests = requests.filter(r => !r.feasibilityStudy && r.status !== 'REJECTED');
+    const linkedRequests = requests.filter(r => r.feasibilityStudy && r.status !== 'REJECTED');
     
     pendingRequests.forEach(r => items.push({ type: 'request', data: r }));
     linkedRequests.forEach(r => items.push({ type: 'request', data: r }));
@@ -545,6 +632,13 @@ export default function FeasibilityStudiesPage() {
     
     return items;
   }, [studies, requests]);
+
+  // الطلبات المرفوضة
+  const rejectedItems = React.useMemo<UnifiedItem[]>(() => {
+    return requests
+      .filter(r => r.status === 'REJECTED')
+      .map(r => ({ type: 'request' as const, data: r }));
+  }, [requests]);
 
   // فلترة حسب البحث
   const filteredItems = unifiedItems.filter(item => {
@@ -564,6 +658,9 @@ export default function FeasibilityStudiesPage() {
 
   // عدد الطلبات الجديدة
   const newRequestsCount = requests.filter(r => !r.feasibilityStudy && r.status === 'PENDING').length;
+  
+  // عدد الطلبات المرفوضة
+  const rejectedCount = rejectedItems.length;
 
   // حذف عنصر
   const handleDelete = async (id: string, type: 'request' | 'study') => {
@@ -584,6 +681,70 @@ export default function FeasibilityStudiesPage() {
       alert(err instanceof Error ? err.message : 'حدث خطأ');
     }
     setMenuOpen(null);
+  };
+
+  // قبول طلب (إنشاء دراسة)
+  const handleAcceptRequest = async (request: FeasibilityRequest) => {
+    try {
+      setActionLoading(request.id);
+      const response = await fetch(`/api/admin/feasibility-requests/${request.id}/accept`, {
+        method: 'POST',
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) throw new Error(data.error);
+      
+      // الانتقال لصفحة تعديل الدراسة
+      window.location.href = `/admin/feasibility/${data.study.id}`;
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'حدث خطأ');
+      setActionLoading(null);
+    }
+  };
+
+  // رفض طلب
+  const handleRejectRequest = async (request: FeasibilityRequest) => {
+    if (!confirm('هل أنت متأكد من رفض هذا الطلب؟')) return;
+    
+    try {
+      setActionLoading(request.id);
+      const response = await fetch(`/api/admin/feasibility-requests/${request.id}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: 'تم الرفض من قبل الإدارة' }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) throw new Error(data.error);
+      
+      fetchData();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'حدث خطأ');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // التراجع عن رفض طلب
+  const handleUnrejectRequest = async (request: FeasibilityRequest) => {
+    try {
+      setActionLoading(request.id);
+      const response = await fetch(`/api/admin/feasibility-requests/${request.id}/unreject`, {
+        method: 'POST',
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) throw new Error(data.error);
+      
+      fetchData();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'حدث خطأ');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   // إنشاء دراسة من طلب
@@ -637,22 +798,22 @@ export default function FeasibilityStudiesPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 will-change-transform"
+          className="flex flex-col gap-4 will-change-transform"
           style={{ transform: 'translateZ(0)' }}
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <motion.div 
-              className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center border-2 border-primary/30"
+              className="w-10 h-10 sm:w-14 sm:h-14 bg-primary/20 rounded-xl sm:rounded-2xl flex items-center justify-center border-2 border-primary/30"
               style={{ boxShadow: SHADOWS.icon }}
               whileHover={{ scale: 1.05 }}
             >
-              <FileText className="w-7 h-7 text-secondary" strokeWidth={1.5} />
+              <FileText className="w-5 h-5 sm:w-7 sm:h-7 text-secondary" strokeWidth={1.5} />
             </motion.div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
+            <div className="flex-1">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-secondary font-dubai">
                 دراسات الجدوى
               </h1>
-              <p className="text-secondary/60 text-sm mt-1 font-dubai">
+              <p className="text-secondary/60 text-xs sm:text-sm mt-0.5 sm:mt-1 font-dubai">
                 إدارة وإنشاء دراسات الجدوى للعملاء
                 {newRequestsCount > 0 && (
                   <span className="mr-2 px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs">
@@ -663,12 +824,41 @@ export default function FeasibilityStudiesPage() {
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+            {/* زر الطلبات المرفوضة / العودة للرئيسية */}
+            {rejectedCount > 0 && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowRejected(!showRejected)}
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-dubai font-medium text-sm transition-colors ${
+                  showRejected 
+                    ? 'bg-secondary text-accent' 
+                    : 'bg-white border-2 border-primary/30 text-secondary hover:border-primary/50'
+                }`}
+                style={{ boxShadow: showRejected ? SHADOWS.button : SHADOWS.card }}
+              >
+                {showRejected ? (
+                  <>
+                    <FileText className="w-4 sm:w-5 h-4 sm:h-5" />
+                    <span className="hidden sm:inline">الطلبات الرئيسية</span>
+                    <span className="sm:hidden">الرئيسية</span>
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-4 sm:w-5 h-4 sm:h-5" />
+                    <span className="hidden sm:inline">المرفوضة ({rejectedCount})</span>
+                    <span className="sm:hidden">مرفوض ({rejectedCount})</span>
+                  </>
+                )}
+              </motion.button>
+            )}
+            
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={fetchData}
-              className="flex items-center gap-2 px-4 py-3 bg-white border-2 border-primary/30 rounded-xl font-dubai font-medium text-secondary hover:border-primary/50 transition-colors"
+              className="flex items-center gap-2 p-2 sm:px-4 sm:py-3 bg-white border-2 border-primary/30 rounded-xl font-dubai font-medium text-secondary hover:border-primary/50 transition-colors"
               style={{ boxShadow: SHADOWS.card }}
             >
               <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
@@ -678,11 +868,12 @@ export default function FeasibilityStudiesPage() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex items-center gap-2 bg-secondary text-accent px-5 py-3 rounded-xl font-dubai font-bold transition-all hover:shadow-lg"
+                className="flex items-center gap-1.5 sm:gap-2 bg-secondary text-accent px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-dubai font-bold text-sm transition-all hover:shadow-lg"
                 style={{ boxShadow: SHADOWS.button }}
               >
-                <Plus className="w-5 h-5" />
-                <span>دراسة جديدة</span>
+                <Plus className="w-4 sm:w-5 h-4 sm:h-5" />
+                <span className="hidden sm:inline">دراسة جديدة</span>
+                <span className="sm:hidden">جديدة</span>
               </motion.button>
             </Link>
           </div>
@@ -752,7 +943,7 @@ export default function FeasibilityStudiesPage() {
             </div>
             <p className="text-secondary/60 font-dubai">جاري تحميل البيانات...</p>
           </motion.div>
-        ) : filteredItems.length === 0 ? (
+        ) : filteredItems.length === 0 && !showRejected ? (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -795,6 +986,53 @@ export default function FeasibilityStudiesPage() {
               )}
             </div>
           </motion.div>
+        ) : showRejected ? (
+          /* عرض الطلبات المرفوضة */
+          <div className="space-y-4">
+            {rejectedItems.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="relative bg-white border-2 border-primary/20 rounded-2xl p-12 text-center overflow-hidden"
+                style={{ boxShadow: SHADOWS.card }}
+              >
+                <div className="relative z-10">
+                  <motion.div 
+                    className="w-20 h-20 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-6 border-2 border-primary/30"
+                    style={{ boxShadow: SHADOWS.icon }}
+                  >
+                    <CheckCircle className="w-10 h-10 text-secondary" strokeWidth={1.5} />
+                  </motion.div>
+                  
+                  <h3 className="text-xl font-dubai font-bold text-secondary mb-2">
+                    لا توجد طلبات مرفوضة
+                  </h3>
+                  <p className="text-secondary/60 text-sm font-dubai">
+                    جميع الطلبات تمت معالجتها
+                  </p>
+                </div>
+              </motion.div>
+            ) : (
+              <AnimatePresence>
+                {rejectedItems.map((item, index) => (
+                  <UnifiedCard
+                    key={item.data.id}
+                    item={item}
+                    index={index}
+                    onDelete={handleDelete}
+                    onCreateStudy={handleCreateStudyFromRequest}
+                    onAcceptRequest={handleAcceptRequest}
+                    onRejectRequest={handleRejectRequest}
+                    onUnrejectRequest={handleUnrejectRequest}
+                    menuOpen={menuOpen}
+                    setMenuOpen={setMenuOpen}
+                    isRejectedSection={true}
+                  />
+                ))}
+              </AnimatePresence>
+            )}
+          </div>
         ) : (
           <div className="space-y-4">
             <AnimatePresence>
@@ -805,6 +1043,9 @@ export default function FeasibilityStudiesPage() {
                   index={index}
                   onDelete={handleDelete}
                   onCreateStudy={handleCreateStudyFromRequest}
+                  onAcceptRequest={handleAcceptRequest}
+                  onRejectRequest={handleRejectRequest}
+                  onUnrejectRequest={handleUnrejectRequest}
                   menuOpen={menuOpen}
                   setMenuOpen={setMenuOpen}
                 />
@@ -814,15 +1055,22 @@ export default function FeasibilityStudiesPage() {
         )}
 
         {/* ملخص سفلي */}
-        {!loading && filteredItems.length > 0 && (
+        {!loading && (filteredItems.length > 0 || rejectedCount > 0) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
             className="text-center text-secondary/50 text-sm font-dubai py-4"
           >
-            إجمالي {filteredItems.length} عنصر
-            {newRequestsCount > 0 && ` • ${newRequestsCount} طلب جديد في الانتظار`}
+            {showRejected ? (
+              <>إجمالي {rejectedCount} طلب مرفوض</>
+            ) : (
+              <>
+                إجمالي {filteredItems.length} عنصر
+                {newRequestsCount > 0 && ` • ${newRequestsCount} طلب جديد في الانتظار`}
+                {rejectedCount > 0 && ` • ${rejectedCount} طلب مرفوض`}
+              </>
+            )}
           </motion.div>
         )}
       </div>

@@ -111,51 +111,23 @@ const RoomWidget: React.FC<RoomWidgetProps> = ({ icon: Icon, title, count, delay
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay }}
-      whileHover={{ scale: 1.05, y: -5 }}
-      className="relative rounded-2xl overflow-hidden bg-white border-2 border-primary/20 aspect-square flex flex-col items-center justify-center p-8"
-      style={{ boxShadow: SHADOWS.card }}
+      className="flex flex-col items-center gap-2 sm:gap-3 group cursor-pointer"
     >
-      {/* Shimmer */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: 'linear-gradient(90deg, transparent, rgba(237, 191, 140, 0.4), transparent)',
-        }}
-        initial={{ opacity: 0, x: '-100%' }}
-        whileHover={{ opacity: 1, x: '100%' }}
-        transition={{ duration: 0.6, ease: 'easeInOut' }}
-      />
+      {/* مربع الأيقونة */}
+      <div 
+        className="w-24 h-24 sm:w-32 sm:h-32 bg-white flex items-center justify-center rounded-2xl sm:rounded-3xl border-2 border-primary/30 transition-transform duration-200 group-hover:scale-105 group-hover:rotate-3"
+        style={{ boxShadow: SHADOWS.card }}
+      >
+        <Icon className="w-12 h-12 sm:w-16 sm:h-16 text-primary" strokeWidth={1.5} />
+      </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-4">
-        <motion.div 
-          className="w-32 h-32 bg-primary/20 flex items-center justify-center rounded-2xl border-2 border-primary/30"
-          whileHover={{ rotate: 5, scale: 1.1 }}
-          style={{ boxShadow: SHADOWS.icon }}
-        >
-          <Icon className="w-24 h-24 text-primary" strokeWidth={1.5} />
-        </motion.div>
-
-        <motion.div 
-          className="relative rounded-2xl overflow-hidden bg-white border-2 border-primary/20 px-6 py-3"
-          style={{ boxShadow: SHADOWS.card }}
-        >
-          {/* Shimmer للترقيم */}
-          <motion.div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: 'linear-gradient(90deg, transparent, rgba(237, 191, 140, 0.4), transparent)',
-            }}
-            initial={{ opacity: 0, x: '-100%' }}
-            whileHover={{ opacity: 1, x: '100%' }}
-            transition={{ duration: 0.6, ease: 'easeInOut' }}
-          />
-          <span className="relative z-10 block text-5xl font-bold text-secondary font-bristone">{count}</span>
-        </motion.div>
-
-        <h3 className="text-xl font-dubai font-bold text-secondary text-center">
-          {title}
-        </h3>
+      {/* مستطيل العدد والاسم */}
+      <div 
+        className="flex items-center justify-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 bg-white rounded-xl sm:rounded-2xl border-2 border-primary/20 transition-transform duration-200 group-hover:scale-105"
+        style={{ boxShadow: SHADOWS.card }}
+      >
+        <span className="text-lg sm:text-xl font-bold text-secondary font-bristone">{count}</span>
+        <span className="text-sm sm:text-base font-dubai font-bold text-secondary">{title}</span>
       </div>
     </motion.div>
   );
@@ -398,35 +370,35 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
 
   if (hasGenerated) {
     return (
-      <div className="relative bg-linear-to-br from-accent/30 via-white to-accent/20 overflow-hidden" style={{ minHeight: '1200px' }} dir="rtl">
+      <div className="relative bg-linear-to-br from-accent/30 via-white to-accent/20 overflow-hidden" style={{ minHeight: 'auto' }} dir="rtl">
         {/* Background Glow Effects */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-100 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-48 sm:w-96 h-48 sm:h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-40 sm:w-80 h-40 sm:h-80 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 sm:w-150 h-60 sm:h-100 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
         {/* المحتوى الرئيسي */}
-        <div className="relative h-full flex flex-col p-6 pt-16">
+        <div className="relative h-full flex flex-col p-4 sm:p-6 pt-6 sm:pt-10 pb-4 sm:pb-8">
           {/* Header Card */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-6 sm:p-8 border-2 border-primary/20 mb-6"
+            className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-3 sm:p-5 border-2 border-primary/20 mb-3 sm:mb-4"
             style={{ boxShadow: SHADOWS.card }}
           >
             {/* Background Icon */}
-            <div className="absolute -top-8 -left-8 opacity-[0.08] pointer-events-none">
-              <Settings className="w-56 h-56 text-primary" strokeWidth={1.5} />
+            <div className="absolute -top-6 -left-6 opacity-[0.08] pointer-events-none">
+              <Settings className="w-24 sm:w-36 h-24 sm:h-36 text-primary" strokeWidth={1.5} />
             </div>
 
-            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center gap-4">
+            <div className="relative z-10 flex flex-row items-center justify-between gap-3 sm:gap-4">
+              <div className="flex items-center gap-2.5 sm:gap-4">
                 <motion.div 
-                  className="p-4 rounded-2xl bg-primary/20 border-2 border-primary/30"
+                  className="p-3 sm:p-4 lg:p-5 rounded-xl sm:rounded-2xl bg-primary/20 border-2 border-primary/30"
                   whileHover={{ scale: 1.05, rotate: 5 }}
                   style={{ boxShadow: SHADOWS.icon }}
                 >
-                  <Settings className="w-8 h-8 text-primary" strokeWidth={2} />
+                  <Settings className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-primary" strokeWidth={2} />
                 </motion.div>
                 <div>
                   <EditableSectionTitle
@@ -437,21 +409,21 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
               </div>
 
               {/* Stats */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <div 
-                  className="text-center px-4 py-2 bg-accent/40 rounded-xl border-2 border-primary/20"
+                  className="flex items-center justify-center gap-1.5 sm:block sm:text-center px-3 sm:px-4 py-2.5 sm:py-2.5 bg-accent/40 rounded-xl sm:rounded-2xl border-2 border-primary/20"
                   style={{ boxShadow: SHADOWS.card }}
                 >
-                  <span className="block text-2xl font-bold text-secondary font-bristone">{totalRooms}</span>
-                  <span className="text-xs text-secondary/60 font-dubai">غرفة</span>
+                  <span className="text-lg sm:text-2xl lg:text-3xl font-bold text-secondary font-bristone">{totalRooms}</span>
+                  <span className="text-xs sm:text-xs text-secondary/60 font-dubai sm:block">غرفة</span>
                 </div>
               </div>
             </div>
           </motion.div>
 
           {/* الودجات - شبكة بسيطة */}
-          <div className="flex items-center justify-center py-8">
-            <div className="grid grid-cols-2 gap-6 w-full max-w-3xl">
+          <div className="flex items-center justify-center py-2 sm:py-4 px-4 sm:px-8">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 w-full max-w-4xl">
               <RoomWidget
                 icon={Sofa}
                 title="الصالات"
@@ -491,33 +463,33 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
   // 🔧 SETUP VIEW - عرض التكوين
   // ============================================
   return (
-    <div className="relative bg-linear-to-br from-accent/30 via-white to-accent/20 overflow-hidden" style={{ minHeight: '1200px' }} dir="rtl">
+    <div className="relative bg-linear-to-br from-accent/30 via-white to-accent/20 overflow-hidden" style={{ minHeight: 'auto' }} dir="rtl">
       {/* Background Glow Effects */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-100 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-48 sm:w-96 h-48 sm:h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 sm:w-150 h-60 sm:h-100 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* المحتوى الرئيسي */}
-      <div className="relative h-full flex flex-col p-6 pt-16">
+      <div className="relative h-full flex flex-col p-4 sm:p-6 pt-8 sm:pt-16 pb-8 sm:pb-12">
         {/* Header Card */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-5 sm:p-6 border-2 border-primary/20 mb-6"
+          className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-4 sm:p-5 lg:p-6 border-2 border-primary/20 mb-4 sm:mb-6"
           style={{ boxShadow: SHADOWS.card }}
         >
           {/* Background Icon */}
           <div className="absolute -top-6 -left-6 opacity-[0.08] pointer-events-none">
-            <Settings className="w-48 h-48 text-primary" strokeWidth={1.5} />
+            <Settings className="w-32 sm:w-48 h-32 sm:h-48 text-primary" strokeWidth={1.5} />
           </div>
 
-          <div className="relative z-10 flex items-center gap-4">
+          <div className="relative z-10 flex items-center gap-3 sm:gap-4">
             <motion.div 
-              className="p-4 rounded-2xl bg-primary/20 border-2 border-primary/30"
+              className="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-primary/20 border-2 border-primary/30"
               whileHover={{ scale: 1.05, rotate: 5 }}
               style={{ boxShadow: SHADOWS.icon }}
             >
-              <Settings className="w-7 h-7 text-primary" strokeWidth={2} />
+              <Settings className="w-5 h-5 sm:w-7 sm:h-7 text-primary" strokeWidth={2} />
             </motion.div>
             <div>
               <EditableSectionTitle
