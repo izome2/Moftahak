@@ -1,9 +1,13 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-// Initialize Resend client only if API key is available
-const resend = process.env.RESEND_API_KEY 
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
+// Initialize Gmail transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
 
 // Get base URL for email assets
 const getBaseUrl = () => {
@@ -154,37 +158,29 @@ export async function sendOTPEmail(
   code: string
 ): Promise<SendOTPEmailResult> {
   try {
-    // Check if Resend is configured
-    if (!resend) {
-      console.warn('Resend API key not configured. Skipping email send.');
+    // Check if Gmail is configured
+    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+      console.warn('Gmail credentials not configured. Skipping email send.');
       return {
         success: false,
         error: 'خدمة البريد الإلكتروني غير متاحة حالياً',
       };
     }
 
-    const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'مفتاحك <noreply@moftahak.com>',
-      to: [to],
+    const info = await transporter.sendMail({
+      from: `"مفتاحك" <${process.env.GMAIL_USER}>`,
+      to: to,
       subject: `رمز التحقق: ${code} - مفتاحك`,
       html: OTP_EMAIL_TEMPLATE(code, name),
       text: OTP_EMAIL_TEXT(code, name),
     });
 
-    if (error) {
-      console.error('Resend API error:', error);
-      return {
-        success: false,
-        error: error.message || 'فشل إرسال البريد الإلكتروني',
-      };
-    }
-
     return {
       success: true,
-      messageId: data?.id,
+      messageId: info.messageId,
     };
   } catch (error) {
-    console.error('Email sending error:', error);
+    console.error('Gmail sending error:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'خطأ غير متوقع',
