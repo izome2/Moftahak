@@ -38,6 +38,7 @@ interface NearbyApartmentsSlideProps {
   mapData?: MapSlideData;
   isEditing?: boolean;
   onUpdate?: (data: NearbyApartmentsSlideData) => void;
+  onUpdateMapData?: (data: MapSlideData) => void;
 }
 
 const defaultData: NearbyApartmentsSlideData = {
@@ -278,9 +279,7 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
   const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // هل هذه شقة يدوية (قابلة للتعديل)؟
-  const isManualApartment = !apartment.airbnbUrl;
-  const canEdit = isEditing && isManualApartment;
+  const canEdit = isEditing;
 
   const handleUpdateValue = (field: keyof NearbyApartment, value: number) => {
     if (onUpdateApartment) {
@@ -862,6 +861,7 @@ export default function NearbyApartmentsSlide({
   mapData,
   isEditing = false,
   onUpdate,
+  onUpdateMapData,
 }: NearbyApartmentsSlideProps) {
   // دمج الشقق من mapData مع البيانات المحفوظة في data.apartments
   const apartments = useMemo(() => {
@@ -902,6 +902,9 @@ export default function NearbyApartmentsSlide({
 
   const onUpdateRef = useRef(onUpdate);
   onUpdateRef.current = onUpdate;
+
+  const onUpdateMapDataRef = useRef(onUpdateMapData);
+  onUpdateMapDataRef.current = onUpdateMapData;
 
   const handleUpdateDescription = (id: string, description: string) => {
     setLocalData(prev => ({
@@ -974,6 +977,36 @@ export default function NearbyApartmentsSlide({
         apartments: updatedApartments,
         showFromMap: data.showFromMap,
       });
+
+      // تحديث بيانات الخريطة أيضاً لتنعكس التغييرات على الـ pins
+      if (onUpdateMapDataRef.current && mapData) {
+        const updatedPins = mapData.pins.map(pin => {
+          if (!pin.apartment) return pin;
+          const updates = localData[pin.apartment.id];
+          if (!updates) return pin;
+          
+          return {
+            ...pin,
+            apartment: {
+              ...pin.apartment,
+              description: (updates as any)?.description ?? pin.apartment.description,
+              images: (updates as any)?.images ?? pin.apartment.images,
+              price: (updates as any)?.price ?? pin.apartment.price,
+              rooms: (updates as any)?.rooms ?? pin.apartment.rooms,
+              guests: (updates as any)?.guests ?? pin.apartment.guests,
+              beds: (updates as any)?.beds ?? pin.apartment.beds,
+              bathrooms: (updates as any)?.bathrooms ?? pin.apartment.bathrooms,
+              rating: (updates as any)?.rating ?? pin.apartment.rating,
+              thumbnailUrl: (updates as any)?.thumbnailUrl ?? pin.apartment.thumbnailUrl,
+            },
+          };
+        });
+        
+        onUpdateMapDataRef.current({
+          ...mapData,
+          pins: updatedPins,
+        });
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localDataKeys]);

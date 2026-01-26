@@ -278,6 +278,12 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
             mapData={mapDataForApartments}
             isEditing={isEditing}
             onUpdate={(data) => onUpdateSlideData?.({ nearbyApartments: data })}
+            onUpdateMapData={(mapData) => {
+              // تحديث بيانات الخريطة عند تعديل الشقق من صفحة التفاصيل
+              if (mapSlide && editorContext?.updateSlideData) {
+                editorContext.updateSlideData(mapSlide.id, { map: mapData });
+              }
+            }}
           />
         );
       case 'statistics':
