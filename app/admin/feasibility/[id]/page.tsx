@@ -111,6 +111,7 @@ export default function EditFeasibilityStudyPage({ params }: PageProps) {
           slides: editor.slides,
           totalCost,
           clientName: editor.clientName,
+          currency: editor.currency,
         }),
       });
       
@@ -134,7 +135,7 @@ export default function EditFeasibilityStudyPage({ params }: PageProps) {
     } finally {
       setSaving(false);
     }
-  }, [id, editor.slides, editor.clientName, studyData]);
+  }, [id, editor.slides, editor.clientName, editor.currency, studyData]);
 
   // إخفاء رسالة الحفظ بعد 3 ثواني
   useEffect(() => {

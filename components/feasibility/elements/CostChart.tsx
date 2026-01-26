@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { fadeInUp } from '@/lib/animations/variants';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 interface CostChartProps {
   data: { name: string; cost: number; color?: string }[];
@@ -21,6 +22,7 @@ const defaultColors = [
 ];
 
 export default function CostChart({ data }: CostChartProps) {
+  const { currencySymbol } = useCurrencyFormatter();
   const total = data.reduce((sum, item) => sum + item.cost, 0);
   
   // حساب زوايا الشرائح
@@ -103,7 +105,7 @@ export default function CostChart({ data }: CostChartProps) {
               textAnchor="middle"
               className="text-[10px] fill-secondary/70"
             >
-              {total.toLocaleString('ar-EG')} ج.م
+              {total.toLocaleString('ar-EG')} {currencySymbol}
             </text>
           </svg>
         </div>

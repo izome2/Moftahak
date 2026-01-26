@@ -23,6 +23,7 @@ import {
   scaleInVariants,
   ROOM_CONTENT 
 } from '@/lib/feasibility/design-system';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 // ============================================
 // 📋 TYPES
@@ -80,6 +81,7 @@ const RoomHeader: React.FC<RoomHeaderProps> = ({
   // الحصول على محتوى الغرفة
   const roomContent = ROOM_CONTENT[roomType];
   const Icon = ROOM_ICONS[roomType];
+  const { currencySymbol } = useCurrencyFormatter();
   
   // تحديد العنوان
   const title = customTitle || (
@@ -173,7 +175,7 @@ const RoomHeader: React.FC<RoomHeaderProps> = ({
           >
             <span className="text-sm text-secondary/50 font-dubai">الإجمالي:</span>
             <span className="px-3 py-1.5 bg-primary/10 rounded-xl text-lg font-bold text-primary">
-              {formatPrice(totalCost)} ج.م
+              {formatPrice(totalCost)} {currencySymbol}
             </span>
           </motion.div>
         )}

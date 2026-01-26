@@ -121,6 +121,9 @@ model FeasibilityStudy {
   // التكلفة الإجمالية
   totalCost   Float       @default(0) @map("total_cost")
   
+  // العملة المستخدمة
+  currency    String      @default("EGP")
+  
   // الحالة
   status      StudyStatus @default(DRAFT)
   

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Building2, DollarSign, Bed, Hash, Star, TrendingUp, Edit2, Trash2 } from 'lucide-react';
 import { NearbyApartment } from '@/types/feasibility';
 import { fadeInUp } from '@/lib/animations/variants';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 interface ApartmentCardProps {
   apartment: NearbyApartment;
@@ -21,6 +22,7 @@ export default function ApartmentCard({
   onEdit,
   onDelete,
 }: ApartmentCardProps) {
+  const { currencySymbol } = useCurrencyFormatter();
   return (
     <motion.div
       variants={fadeInUp}
@@ -53,7 +55,7 @@ export default function ApartmentCard({
             <span className="text-xs font-dubai">سعر الإيجار</span>
           </div>
           <span className="text-secondary font-bold text-sm">
-            {apartment.price.toLocaleString('ar-EG')} ج.م
+            {apartment.price.toLocaleString('ar-EG')} {currencySymbol}
           </span>
         </div>
 
@@ -87,7 +89,7 @@ export default function ApartmentCard({
               <span className="text-xs font-dubai">أعلى إيجار</span>
             </div>
             <span className="text-green-600 font-bold text-sm">
-              {apartment.highestRent.toLocaleString('ar-EG')} ج.م
+              {apartment.highestRent.toLocaleString('ar-EG')} {currencySymbol}
             </span>
           </div>
         )}

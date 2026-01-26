@@ -7,6 +7,7 @@ import { MapSlideData, NearbyApartment } from '@/types/feasibility';
 import dynamic from 'next/dynamic';
 import { formatPrice } from '@/lib/utils';
 import EditableSectionTitle from '@/components/feasibility/shared/EditableSectionTitle';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 
 type AdditionMode = 'selection' | 'manual' | 'auto';
@@ -190,6 +191,7 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
 };
 
 export default function MapSlide({ data = defaultData, isEditing = false, onUpdate }: MapSlideProps) {
+  const { currencySymbol } = useCurrencyFormatter();
   const [mapData, setMapData] = useState<MapSlideData>(data);
   const [showAddPinModal, setShowAddPinModal] = useState(false);
   const [editingPin, setEditingPin] = useState<string | null>(null);
@@ -2213,7 +2215,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                   <div>
                     <label className="block text-xs font-bold text-secondary mb-1.5 font-dubai">
                       <DollarSign className="w-3 h-3 inline-block ml-1 text-primary" />
-                      السعر (ج.م)
+                      السعر ({currencySymbol})
                     </label>
                     <input
                       type="number"
@@ -2373,7 +2375,7 @@ function PinPopupContent({ apartment, isEditing, onEdit, onDelete }: PinPopupCon
         {}
         <div className="flex items-center justify-between bg-primary/15 rounded-lg p-2 border border-primary/20">
           <span className="font-dubai text-secondary/70 text-xs">سعر الليلة</span>
-          <span className="font-dubai font-bold text-secondary text-sm">{apartment.price.toLocaleString('ar-EG')} <span className="text-[10px] text-primary font-bold">ج.م</span></span>
+          <span className="font-dubai font-bold text-secondary text-sm">{apartment.price.toLocaleString('ar-EG')} <span className="text-[10px] text-primary font-bold">{currencySymbol}</span></span>
         </div>
         
         {}

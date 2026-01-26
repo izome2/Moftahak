@@ -10,6 +10,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search, Plus, Library, type LucideIcon } from 'lucide-react';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 import { 
   SHADOWS, 
   popupVariants,
@@ -60,6 +61,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({
   onAddItem,
   icon: LibraryIcon = Library,
 }) => {
+  const { currencySymbol } = useCurrencyFormatter();
   const [searchQuery, setSearchQuery] = useState('');
 
   // فلترة العناصر حسب البحث
@@ -213,7 +215,7 @@ const ItemLibrary: React.FC<ItemLibraryProps> = ({
                               {/* Price & Add */}
                               <div className="flex items-center justify-between">
                                 <span className="text-xs text-primary font-bold">
-                                  {formatPrice(item.defaultPrice)} ج.م
+                                  {formatPrice(item.defaultPrice)} {currencySymbol}
                                 </span>
                                 <div className="w-6 h-6 rounded-md bg-primary/10 
                                                 flex items-center justify-center

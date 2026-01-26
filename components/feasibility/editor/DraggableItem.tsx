@@ -6,6 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
 import { GripVertical } from 'lucide-react';
 import type { DraggableData } from '@/hooks/useDragAndDrop';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 interface DraggableItemProps {
   id: string;
@@ -89,6 +90,7 @@ interface DefaultItemContentProps {
 }
 
 const DefaultItemContent: React.FC<DefaultItemContentProps> = ({ data }) => {
+  const { currencySymbol } = useCurrencyFormatter();
   return (
     <div className="flex items-center gap-3 p-3 bg-white border border-accent hover:border-primary/30 transition-colors" dir="rtl">
       {/* الأيقونة */}
@@ -103,7 +105,7 @@ const DefaultItemContent: React.FC<DefaultItemContentProps> = ({ data }) => {
         </div>
         {data.price !== undefined && (
           <div className="text-xs text-secondary/60 font-dubai">
-            {data.price.toLocaleString('ar-EG')} ج.م
+            {data.price.toLocaleString('ar-EG')} {currencySymbol}
           </div>
         )}
       </div>

@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { X, Edit3 } from 'lucide-react';
 import type { RoomItem } from '@/types/feasibility';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 interface KitchenItemProps {
   item: RoomItem;
@@ -22,6 +23,7 @@ const KitchenItem: React.FC<KitchenItemProps> = ({
   isEditing = true,
   compact = false,
 }) => {
+  const { currencySymbol } = useCurrencyFormatter();
   const [isEditingPrice, setIsEditingPrice] = React.useState(false);
   const [localPrice, setLocalPrice] = React.useState(item.price);
 
@@ -98,7 +100,7 @@ const KitchenItem: React.FC<KitchenItemProps> = ({
               className={`text-sm text-orange-600 font-dubai ${isEditing ? 'cursor-pointer hover:underline' : ''}`}
               onClick={() => isEditing && setIsEditingPrice(true)}
             >
-              {item.price.toLocaleString('ar-EG')} ج.م
+              {item.price.toLocaleString('ar-EG')} {currencySymbol}
             </span>
           )}
           
@@ -139,7 +141,7 @@ const KitchenItem: React.FC<KitchenItemProps> = ({
         <span className="text-sm font-dubai font-bold text-secondary">
           {totalPrice.toLocaleString('ar-EG')}
         </span>
-        <span className="text-xs text-secondary/60 font-dubai mr-1">ج.م</span>
+        <span className="text-xs text-secondary/60 font-dubai mr-1">{currencySymbol}</span>
       </div>
 
       {/* زر الحذف */}

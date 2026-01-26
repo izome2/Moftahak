@@ -19,6 +19,7 @@ import {
   Check
 } from 'lucide-react';
 import type { SlideData, CostSummarySlideData, RoomData } from '@/types/feasibility';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 interface CostSummarySlideProps {
   data: CostSummarySlideData;
@@ -61,6 +62,7 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
   const { rooms = [], additionalCosts = [], discount = 0 } = data;
   const [editingTitle, setEditingTitle] = useState(false);
   const [localTitle, setLocalTitle] = useState(slideTitle || 'ملخص التكاليف');
+  const { currencySymbol } = useCurrencyFormatter();
 
   // Sync local state when props data changes (e.g., when study is loaded from database)
   useEffect(() => {
@@ -220,7 +222,7 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
             <div className="text-center px-6 py-3 bg-primary/20 rounded-2xl border-2 border-primary/30">
               <span className="block text-xs text-secondary/60 font-dubai mb-1">الإجمالي</span>
               <span className="block text-2xl font-bold text-primary font-bristone">{formatPrice(grandTotal)}</span>
-              <span className="text-xs text-secondary/60 font-dubai">ج.م</span>
+              <span className="text-xs text-secondary/60 font-dubai">{currencySymbol}</span>
             </div>
           </div>
         </motion.div>
@@ -330,7 +332,7 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
                           >
                             {formatPrice(room.totalCost || 0)}
                           </motion.span>
-                          <span className="text-xs text-secondary/60 font-dubai">ج.م</span>
+                          <span className="text-xs text-secondary/60 font-dubai">{currencySymbol}</span>
                         </div>
                       </div>
                     </motion.div>
@@ -352,7 +354,7 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
                       <span className="font-bristone font-bold text-primary text-2xl">
                         {formatPrice(roomsTotalCost)}
                       </span>
-                      <span className="text-sm text-secondary/60 font-dubai mr-2">ج.م</span>
+                      <span className="text-sm text-secondary/60 font-dubai mr-2">{currencySymbol}</span>
                     </div>
                   </div>
                 </motion.div>
@@ -464,7 +466,7 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
                             <span className="font-dubai font-bold text-primary text-xl block">
                               {formatPrice(cost.amount)}
                             </span>
-                            <span className="text-xs text-secondary/60 font-dubai">ج.م</span>
+                            <span className="text-xs text-secondary/60 font-dubai">{currencySymbol}</span>
                           </div>
                         )}
                       </div>
@@ -488,7 +490,7 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
                         <span className="font-bristone font-bold text-primary text-xl">
                           {formatPrice(additionalTotalCost)}
                         </span>
-                        <span className="text-sm text-secondary/60 font-dubai mr-2">ج.م</span>
+                        <span className="text-sm text-secondary/60 font-dubai mr-2">{currencySymbol}</span>
                       </div>
                     </div>
                   </motion.div>
@@ -552,7 +554,7 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
                       )}
                     </div>
                     <p className="text-xs text-green-700/70 font-dubai mt-1">
-                      قيمة الخصم: {formatPrice(discountAmount)} ج.م
+                      قيمة الخصم: {formatPrice(discountAmount)} {currencySymbol}
                     </p>
                   </div>
 
@@ -561,7 +563,7 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
                     <span className="font-dubai font-bold text-green-600 text-2xl block">
                       - {formatPrice(discountAmount)}
                     </span>
-                    <span className="text-xs text-green-700/70 font-dubai">ج.م</span>
+                    <span className="text-xs text-green-700/70 font-dubai">{currencySymbol}</span>
                   </div>
                 </div>
               </div>
@@ -603,7 +605,7 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
                 <span className="block font-bristone font-bold text-primary text-4xl sm:text-5xl">
                   {formatPrice(grandTotal)}
                 </span>
-                <span className="text-lg text-primary/80 font-dubai">ج.م</span>
+                <span className="text-lg text-primary/80 font-dubai">{currencySymbol}</span>
               </motion.div>
             </div>
             
@@ -618,18 +620,18 @@ const CostSummarySlide: React.FC<CostSummarySlideProps> = ({
                 <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm text-white/70 font-dubai">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 bg-primary/50 rounded-full"></span>
-                    <span>الغرف: {formatPrice(roomsTotalCost)} ج.م</span>
+                    <span>الغرف: {formatPrice(roomsTotalCost)} {currencySymbol}</span>
                   </div>
                   {additionalTotalCost > 0 && (
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 bg-primary/50 rounded-full"></span>
-                      <span>إضافية: {formatPrice(additionalTotalCost)} ج.م</span>
+                      <span>إضافية: {formatPrice(additionalTotalCost)} {currencySymbol}</span>
                     </div>
                   )}
                   {discount > 0 && (
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                      <span className="text-green-400">خصم: {formatPrice(discountAmount)} ج.م</span>
+                      <span className="text-green-400">خصم: {formatPrice(discountAmount)} {currencySymbol}</span>
                     </div>
                   )}
                 </div>

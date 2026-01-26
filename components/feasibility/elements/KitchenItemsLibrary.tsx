@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { useDraggable } from '@dnd-kit/core';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 import { 
   kitchenItems, 
   kitchenCategoryNames, 
@@ -21,6 +22,7 @@ const DraggableKitchenItem: React.FC<{ item: KitchenItemDefinition; onSelect?: (
   item, 
   onSelect 
 }) => {
+  const { currencySymbol } = useCurrencyFormatter();
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `kitchen-${item.id}`,
     data: {
@@ -54,7 +56,7 @@ const DraggableKitchenItem: React.FC<{ item: KitchenItemDefinition; onSelect?: (
           {item.name}
         </p>
         <p className="text-xs text-secondary/60 font-dubai">
-          {item.defaultPrice.toLocaleString('ar-EG')} ج.م
+          {item.defaultPrice.toLocaleString('ar-EG')} {currencySymbol}
         </p>
       </div>
     </motion.div>

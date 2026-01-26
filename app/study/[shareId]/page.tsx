@@ -4,6 +4,7 @@ import React, { useEffect, useState, use } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, AlertCircle, FileText } from 'lucide-react';
 import type { Slide } from '@/types/feasibility';
+import type { CurrencyCode } from '@/lib/feasibility/currency';
 import StudyViewer from '@/components/feasibility/viewer/StudyViewer';
 
 interface PageProps {
@@ -18,6 +19,7 @@ interface StudyData {
   totalCost: number;
   createdAt: string;
   studyType?: 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT';
+  currency?: CurrencyCode;
 }
 
 export default function ViewStudyPage({ params }: PageProps) {
@@ -44,6 +46,7 @@ export default function ViewStudyPage({ params }: PageProps) {
           totalCost: data.study.totalCost,
           createdAt: data.study.createdAt,
           studyType: data.study.studyType,
+          currency: data.study.currency || 'EGP',
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');

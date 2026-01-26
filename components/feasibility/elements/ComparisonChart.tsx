@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { fadeInUp } from '@/lib/animations/variants';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 interface ComparisonChartProps {
   data: { label: string; value: number; color?: string }[];
@@ -19,6 +20,7 @@ const defaultColors = [
 ];
 
 export default function ComparisonChart({ data, maxValue }: ComparisonChartProps) {
+  const { currencySymbol } = useCurrencyFormatter();
   const max = maxValue || Math.max(...data.map(d => d.value), 1);
 
   return (
@@ -48,7 +50,7 @@ export default function ComparisonChart({ data, maxValue }: ComparisonChartProps
               <div className="flex justify-between items-center">
                 <span className="text-xs text-secondary font-dubai">{item.label}</span>
                 <span className="text-xs font-bold text-secondary">
-                  {item.value.toLocaleString('ar-EG')} ج.م
+                  {item.value.toLocaleString('ar-EG')} {currencySymbol}
                 </span>
               </div>
               <div className="h-6 bg-accent/30 rounded-lg overflow-hidden">

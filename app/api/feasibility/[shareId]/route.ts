@@ -31,6 +31,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         totalCost: true,
         status: true,
         studyType: true,
+        currency: true,
         createdAt: true,
       },
     });
@@ -78,6 +79,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         totalCost: study.totalCost,
         createdAt: study.createdAt,
         studyType: study.studyType,
+        currency: study.currency,
       }
     });
     

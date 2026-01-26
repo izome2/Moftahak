@@ -4,6 +4,7 @@ import React from 'react';
 import { DragOverlay as DndKitDragOverlay } from '@dnd-kit/core';
 import { motion } from 'framer-motion';
 import type { DraggableData } from '@/hooks/useDragAndDrop';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 interface DragOverlayProps {
   activeItem: { id: string; data: DraggableData } | null;
@@ -29,6 +30,7 @@ interface DefaultOverlayContentProps {
 }
 
 const DefaultOverlayContent: React.FC<DefaultOverlayContentProps> = ({ data }) => {
+  const { currencySymbol } = useCurrencyFormatter();
   return (
     <motion.div
       initial={{ scale: 1, rotate: 0 }}
@@ -52,7 +54,7 @@ const DefaultOverlayContent: React.FC<DefaultOverlayContentProps> = ({ data }) =
           </div>
           {data.price !== undefined && (
             <div className="text-xs text-secondary/60 font-dubai">
-              {data.price.toLocaleString('ar-EG')} ج.م
+              {data.price.toLocaleString('ar-EG')} {currencySymbol}
             </div>
           )}
         </div>

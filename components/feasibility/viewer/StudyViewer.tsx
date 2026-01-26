@@ -35,6 +35,8 @@ import {
   NearbyApartmentsSlide, 
   StatisticsSlide 
 } from '@/components/feasibility/elements';
+import { ViewerCurrencyProvider } from './CurrencyContext';
+import type { CurrencyCode } from '@/lib/feasibility/currency';
 
 // ============================================
 // 📋 TYPES
@@ -49,6 +51,7 @@ interface StudyViewerProps {
     totalCost: number;
     createdAt: string;
     studyType?: 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT';
+    currency?: CurrencyCode;
   };
 }
 
@@ -102,7 +105,7 @@ const slideColors: Record<SlideType, string> = {
 // ============================================
 
 const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
-  const { slides, studyType = 'WITH_FIELD_VISIT' } = study;
+  const { slides, studyType = 'WITH_FIELD_VISIT', currency = 'EGP' } = study;
   const isWithFieldVisit = studyType === 'WITH_FIELD_VISIT';
   
   // حالة الشريط الجانبي
@@ -455,6 +458,7 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
   };
 
   return (
+    <ViewerCurrencyProvider currency={currency}>
     <div 
       className="min-h-screen"
       style={{ backgroundColor: '#ead3b9' }}
@@ -663,6 +667,7 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
         </div>
       </div>
     </div>
+    </ViewerCurrencyProvider>
   );
 };
 

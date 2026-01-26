@@ -21,6 +21,7 @@ import { StatisticsSlideData, AreaStatistics, MonthlyOccupancyData } from '@/typ
 import CostChart from './CostChart';
 import { useFeasibilityEditorSafe } from '@/contexts/FeasibilityEditorContext';
 import EditableSectionTitle from '@/components/feasibility/shared/EditableSectionTitle';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 import {
   LineChart,
   Line,
@@ -95,6 +96,7 @@ export default function StatisticsSlide({
   const editorContext = useFeasibilityEditorSafe();
   const studyType = propStudyType || editorContext?.studyType || 'WITH_FIELD_VISIT';
   const isWithFieldVisit = studyType === 'WITH_FIELD_VISIT';
+  const { currencySymbol } = useCurrencyFormatter();
   
   const [slideData, setSlideData] = useState<StatisticsSlideData>({
     ...defaultData,
@@ -238,7 +240,7 @@ export default function StatisticsSlide({
               <div className="text-center px-6 py-3 bg-primary/20 rounded-2xl border-2 border-primary/30">
                 <span className="block text-xs text-secondary/60 font-dubai mb-1">إجمالي التكلفة</span>
                 <span className="block text-2xl font-bold text-primary font-bristone">{formatPrice(totalFromRooms)}</span>
-                <span className="text-xs text-secondary/60 font-dubai">ج.م</span>
+                <span className="text-xs text-secondary/60 font-dubai">{currencySymbol}</span>
               </div>
             )}
           </div>
@@ -268,7 +270,7 @@ export default function StatisticsSlide({
               </div>
               <div className="text-2xl font-bold text-secondary font-bristone">
                 {formatPrice(totalFromRooms)}
-                <span className="text-sm font-normal text-secondary/60 font-dubai mr-2">ج.م</span>
+                <span className="text-sm font-normal text-secondary/60 font-dubai mr-2">{currencySymbol}</span>
               </div>
             </div>
           </motion.div>
@@ -302,7 +304,7 @@ export default function StatisticsSlide({
               ) : (
                 <div className="text-2xl font-bold text-secondary font-bristone">
                   {formatPrice(slideData.averageRent)}
-                  <span className="text-sm font-normal text-secondary/60 font-dubai mr-2">ج.م/شهر</span>
+                  <span className="text-sm font-normal text-secondary/60 font-dubai mr-2">{currencySymbol}/شهر</span>
                 </div>
               )}
             </div>
@@ -450,7 +452,7 @@ export default function StatisticsSlide({
                             >
                               {formatPrice(item.cost)}
                             </motion.span>
-                            <span className="text-xs text-secondary/60 font-dubai">ج.م</span>
+                            <span className="text-xs text-secondary/60 font-dubai">{currencySymbol}</span>
                           </div>
                           
                           {isEditing && (
@@ -528,7 +530,7 @@ export default function StatisticsSlide({
                   </div>
                   <div className="mr-12">
                     <span className="inline-flex flex-row-reverse items-baseline gap-0.5">
-                      <span className="text-sm font-bold text-secondary/70 font-dubai">ج.م</span>
+                      <span className="text-sm font-bold text-secondary/70 font-dubai">{currencySymbol}</span>
                       {isEditing ? (
                         <input
                           type="text"
@@ -608,7 +610,7 @@ export default function StatisticsSlide({
                   </div>
                   <div className="mr-12">
                     <span className="inline-flex flex-row-reverse items-baseline gap-0.5">
-                      <span className="text-sm font-bold text-secondary/70 font-dubai">ج.م</span>
+                      <span className="text-sm font-bold text-secondary/70 font-dubai">{currencySymbol}</span>
                       {isEditing ? (
                         <input
                           type="text"
@@ -852,7 +854,7 @@ export default function StatisticsSlide({
                   <span className="block text-white/60 text-xs font-dubai mb-1.5">متوسط سعر الليلة</span>
                   <span className="block font-bristone font-bold text-primary text-xl sm:text-2xl">
                     {formatPrice(areaStats.averageDailyRate)}
-                    <span className="text-sm text-white/60 font-dubai mr-1">ج.م</span>
+                    <span className="text-sm text-white/60 font-dubai mr-1">{currencySymbol}</span>
                   </span>
                 </div>
                 <div className="w-px h-12 bg-white/20 hidden sm:block"></div>
@@ -868,7 +870,7 @@ export default function StatisticsSlide({
                   <span className="block text-white/60 text-xs font-dubai mb-1.5">متوسط العوائد السنوية</span>
                   <span className="block font-bristone font-bold text-primary text-xl sm:text-2xl">
                     {areaStats.averageAnnualRevenue > 0 ? formatPrice(areaStats.averageAnnualRevenue) : '—'}
-                    {areaStats.averageAnnualRevenue > 0 && <span className="text-sm text-white/60 font-dubai mr-1">ج.م</span>}
+                    {areaStats.averageAnnualRevenue > 0 && <span className="text-sm text-white/60 font-dubai mr-1">{currencySymbol}</span>}
                   </span>
                 </div>
               </div>
@@ -922,7 +924,7 @@ export default function StatisticsSlide({
               </div>
               <div>
                 <label className="block text-sm font-bold text-secondary mb-2 font-dubai">
-                  التكلفة (ج.م)
+                  التكلفة ({currencySymbol})
                 </label>
                 <input
                   type="number"

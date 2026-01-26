@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { NearbyApartmentsSlideData, NearbyApartment, MapSlideData } from '@/types/feasibility';
 import EditableSectionTitle from '@/components/feasibility/shared/EditableSectionTitle';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 const SHADOWS = {
   card: '0 4px 20px rgba(16, 48, 43, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)',
@@ -278,6 +279,7 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
   const [localDescription, setLocalDescription] = useState(apartment.description || '');
   const [expandedImageIndex, setExpandedImageIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { currencySymbol } = useCurrencyFormatter();
 
   const canEdit = isEditing;
 
@@ -522,7 +524,7 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
             icon={<DollarSign className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
             label="السعر/ليلة"
             value={apartment.price}
-            suffix="ج.م"
+            suffix={currencySymbol}
             isEditable={canEdit}
             onSave={(v) => handleUpdateValue('price', v)}
             isDark={isMyApartment}
@@ -863,6 +865,8 @@ export default function NearbyApartmentsSlide({
   onUpdate,
   onUpdateMapData,
 }: NearbyApartmentsSlideProps) {
+  const { currencySymbol } = useCurrencyFormatter();
+  
   // دمج الشقق من mapData مع البيانات المحفوظة في data.apartments
   const apartments = useMemo(() => {
     if (mapData?.pins && mapData.pins.length > 0) {
@@ -1377,7 +1381,7 @@ export default function NearbyApartmentsSlide({
                 <div className="text-3xl font-bold text-secondary font-bristone">
                   {Math.min(...mergedApartments.map(a => a.price)).toLocaleString('ar-EG')}
                 </div>
-                <div className="text-sm text-secondary/60 font-dubai mt-1">أقل إيجار (ج.م)</div>
+                <div className="text-sm text-secondary/60 font-dubai mt-1">أقل إيجار ({currencySymbol})</div>
               </div>
               <div 
                 className="text-center p-4 bg-primary/20 rounded-xl border-2 border-primary/30"
@@ -1386,7 +1390,7 @@ export default function NearbyApartmentsSlide({
                 <div className="text-3xl font-bold text-secondary font-bristone">
                   {Math.max(...mergedApartments.map(a => a.price)).toLocaleString('ar-EG')}
                 </div>
-                <div className="text-sm text-secondary/60 font-dubai mt-1">أعلى إيجار (ج.م)</div>
+                <div className="text-sm text-secondary/60 font-dubai mt-1">أعلى إيجار ({currencySymbol})</div>
               </div>
               <div 
                 className="text-center p-4 bg-primary/20 rounded-xl border-2 border-primary/30"
@@ -1397,7 +1401,7 @@ export default function NearbyApartmentsSlide({
                     mergedApartments.reduce((sum, a) => sum + a.price, 0) / mergedApartments.length
                   ).toLocaleString('ar-EG')}
                 </div>
-                <div className="text-sm text-secondary/60 font-dubai mt-1">المتوسط (ج.م)</div>
+                <div className="text-sm text-secondary/60 font-dubai mt-1">المتوسط ({currencySymbol})</div>
               </div>
             </div>
           </motion.div>

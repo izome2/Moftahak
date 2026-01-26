@@ -1,11 +1,16 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import { useSlides } from '@/hooks/useSlides';
 import type { Slide, SlideType, SlideData, RoomData } from '@/types/feasibility';
+import type { CurrencyCode } from '@/lib/feasibility/currency';
+import { DEFAULT_CURRENCY } from '@/lib/feasibility/currency';
 
 // نوع دراسة الجدوى
 export type StudyType = 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT';
+
+// ترتيب تبديل العملات
+const CURRENCY_CYCLE: CurrencyCode[] = ['EGP', 'SAR', 'USD'];
 
 interface FeasibilityEditorContextType {
   // حالة المحرر
@@ -19,6 +24,11 @@ interface FeasibilityEditorContextType {
   setClientName: (name: string) => void;
   studyType: StudyType;
   setStudyType: (type: StudyType) => void;
+  
+  // العملة
+  currency: CurrencyCode;
+  setCurrency: (currency: CurrencyCode) => void;
+  cycleCurrency: () => void;
   
   // الشرائح
   slides: Slide[];
@@ -62,6 +72,7 @@ interface FeasibilityEditorProviderProps {
   initialStudyId?: string;
   initialClientName?: string;
   initialStudyType?: StudyType;
+  initialCurrency?: CurrencyCode;
 }
 
 export function FeasibilityEditorProvider({
@@ -69,17 +80,28 @@ export function FeasibilityEditorProvider({
   initialStudyId = 'new',
   initialClientName = 'العميل',
   initialStudyType = 'WITH_FIELD_VISIT',
+  initialCurrency = DEFAULT_CURRENCY,
 }: FeasibilityEditorProviderProps) {
   const [isEditorActive, setIsEditorActive] = useState(false);
   const [studyId, setStudyId] = useState(initialStudyId);
   const [clientName, setClientName] = useState(initialClientName);
   const [studyType, setStudyType] = useState<StudyType>(initialStudyType);
+  const [currency, setCurrency] = useState<CurrencyCode>(initialCurrency);
   const [zoom, setZoom] = useState(100);
 
   const slidesHook = useSlides({ clientName });
 
   const zoomIn = () => setZoom(prev => Math.min(prev + 10, 200));
   const zoomOut = () => setZoom(prev => Math.max(prev - 10, 50));
+  
+  // تبديل العملة عند النقر: EGP -> SAR -> USD -> EGP
+  const cycleCurrency = useCallback(() => {
+    setCurrency(prev => {
+      const currentIndex = CURRENCY_CYCLE.indexOf(prev);
+      const nextIndex = (currentIndex + 1) % CURRENCY_CYCLE.length;
+      return CURRENCY_CYCLE[nextIndex];
+    });
+  }, []);
 
   const value: FeasibilityEditorContextType = {
     isEditorActive,
@@ -90,6 +112,9 @@ export function FeasibilityEditorProvider({
     setClientName,
     studyType,
     setStudyType,
+    currency,
+    setCurrency,
+    cycleCurrency,
     slides: slidesHook.slides,
     setSlides: slidesHook.setSlides,
     activeSlideIndex: slidesHook.activeSlideIndex,

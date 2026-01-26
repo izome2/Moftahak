@@ -92,6 +92,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       livingRooms,
       kitchens,
       bathrooms,
+      currency,
     } = body;
 
     // بناء كائن التحديث
@@ -106,6 +107,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (livingRooms !== undefined) updateData.livingRooms = livingRooms;
     if (kitchens !== undefined) updateData.kitchens = kitchens;
     if (bathrooms !== undefined) updateData.bathrooms = bathrooms;
+    if (currency !== undefined) updateData.currency = currency;
 
     // تحديث تاريخ الإرسال إذا تم تغيير الحالة إلى SENT
     if (status === 'SENT') {

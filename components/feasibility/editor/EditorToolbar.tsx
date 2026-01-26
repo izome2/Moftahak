@@ -14,8 +14,10 @@ import {
   MousePointer2,
   Move,
   Type,
-  ImagePlus
+  ImagePlus,
+  Coins
 } from 'lucide-react';
+import CurrencySelector from '@/components/feasibility/shared/CurrencySelector';
 
 interface EditorToolbarProps {
   studyId: string;
@@ -174,6 +176,9 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
               <span className="font-dubai text-sm font-medium">مشاركة</span>
             </motion.button>
 
+            {/* زر تحديد العملة */}
+            <CurrencySelector className="hidden sm:block" />
+
             <div className="h-6 w-px bg-primary/20 hidden sm:block" />
 
             {/* زر الحفظ */}
@@ -242,6 +247,10 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
                     <Share2 className="w-4 h-4" />
                     <span className="font-dubai text-sm">مشاركة</span>
                   </button>
+                  {/* زر العملة للموبايل */}
+                  <div className="border-t border-primary/10">
+                    <CurrencySelector className="w-full" />
+                  </div>
                 </motion.div>
               )}
             </div>

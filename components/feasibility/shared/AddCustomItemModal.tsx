@@ -12,6 +12,7 @@
 import React, { useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 import { 
   X, 
   Plus,
@@ -149,6 +150,7 @@ const AddCustomItemModal: React.FC<AddCustomItemModalProps> = ({
   roomType,
   defaultCategory = 'custom',
 }) => {
+  const { currencySymbol } = useCurrencyFormatter();
   const [name, setName] = useState('');
   const [price, setPrice] = useState<number>(0);
   const [selectedIcon, setSelectedIcon] = useState<string>('package');
@@ -268,7 +270,7 @@ const AddCustomItemModal: React.FC<AddCustomItemModalProps> = ({
             {/* Price Input */}
             <div>
               <label className="block text-xs font-dubai font-bold text-secondary mb-1.5">
-                السعر (ج.م)
+                السعر ({currencySymbol})
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -342,7 +344,7 @@ const AddCustomItemModal: React.FC<AddCustomItemModalProps> = ({
                     {name || 'اسم العنصر'}
                   </h4>
                   <span className="text-xs text-primary font-dubai font-bold">
-                    {formatPrice(price)} ج.م
+                    {formatPrice(price)} {currencySymbol}
                   </span>
                 </div>
               </div>

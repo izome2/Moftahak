@@ -41,6 +41,7 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 // ============================================
 // 🎨 DESIGN TOKENS
@@ -213,6 +214,7 @@ interface UnifiedCardProps {
   menuOpen: string | null;
   setMenuOpen: (id: string | null) => void;
   isRejectedSection?: boolean;
+  currencySymbol?: string;
 }
 
 const UnifiedCard: React.FC<UnifiedCardProps> = ({ 
@@ -225,7 +227,8 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
   onUnrejectRequest,
   menuOpen,
   setMenuOpen,
-  isRejectedSection = false
+  isRejectedSection = false,
+  currencySymbol = 'ج.م'
 }) => {
   const isRequest = item.type === 'request';
   const data = item.data;
@@ -334,8 +337,7 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
               </span>
               {studyData?.totalCost && studyData.totalCost > 0 && (
                 <span className="flex items-center gap-1 sm:gap-1.5 text-primary font-medium">
-                  <DollarSign className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-                  {studyData.totalCost.toLocaleString('ar-EG')} ج.م
+                  {studyData.totalCost.toLocaleString('ar-EG')} {currencySymbol}
                 </span>
               )}
             </div>
@@ -568,6 +570,7 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
 // ============================================
 
 export default function FeasibilityStudiesPage() {
+  const { currencySymbol } = useCurrencyFormatter();
   const [studies, setStudies] = useState<Study[]>([]);
   const [requests, setRequests] = useState<FeasibilityRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1028,6 +1031,7 @@ export default function FeasibilityStudiesPage() {
                     menuOpen={menuOpen}
                     setMenuOpen={setMenuOpen}
                     isRejectedSection={true}
+                    currencySymbol={currencySymbol}
                   />
                 ))}
               </AnimatePresence>
@@ -1048,6 +1052,7 @@ export default function FeasibilityStudiesPage() {
                   onUnrejectRequest={handleUnrejectRequest}
                   menuOpen={menuOpen}
                   setMenuOpen={setMenuOpen}
+                  currencySymbol={currencySymbol}
                 />
               ))}
             </AnimatePresence>

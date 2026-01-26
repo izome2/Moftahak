@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Bed, Sofa, ChefHat, Bath, ChevronLeft, Trash2 } from 'lucide-react';
 import type { RoomType, RoomData } from '@/types/feasibility';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 // أيقونات أنواع الغرف
 const roomIcons: Record<RoomType, React.ElementType> = {
@@ -64,6 +65,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
 }) => {
   const Icon = roomIcons[room.type];
   const colors = roomColors[room.type];
+  const { currencySymbol } = useCurrencyFormatter();
 
   // الاسم المعروض للغرفة
   const displayName = room.number > 0 
@@ -134,7 +136,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
           {room.items.length} عنصر
         </span>
         <span className={`font-dubai font-medium ${colors.text}`}>
-          {room.totalCost.toLocaleString('ar-EG')} ج.م
+          {room.totalCost.toLocaleString('ar-EG')} {currencySymbol}
         </span>
       </div>
 

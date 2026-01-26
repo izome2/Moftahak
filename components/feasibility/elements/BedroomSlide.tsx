@@ -46,6 +46,7 @@ import {
 import AddCustomItemModal, { getCustomIcon, type CustomItemData } from '@/components/feasibility/shared/AddCustomItemModal';
 import EditableSectionTitle from '@/components/feasibility/shared/EditableSectionTitle';
 import { useLibraryCustomizations } from '@/hooks/useLibraryCustomizations';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 // مفتاح التخزين المحلي للعناصر المخصصة
 const CUSTOM_BEDROOM_ITEMS_KEY = 'moftahak_custom_bedroom_items';
@@ -140,6 +141,7 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
   onImageChange,
   onDescriptionChange,
 }) => {
+  const { currencySymbol } = useCurrencyFormatter();
   const itemKey = item.id.split('-')[0];
   // التحقق إذا كان العنصر مخصص (id يبدأ بـ custom)
   const isCustomItem = item.id.startsWith('custom-');
@@ -382,7 +384,7 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
         {/* Quantity Info */}
         {item.quantity > 1 && (
           <p className="text-secondary/50 text-xs font-dubai mb-3">
-            {formatPrice(unitPrice)} ج.م × {item.quantity}
+            {formatPrice(unitPrice)} {currencySymbol} × {item.quantity}
           </p>
         )}
 
@@ -436,7 +438,7 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
                 onClick={(e) => e.stopPropagation()}
                 className="w-24 h-9 text-center font-dubai font-bold text-secondary bg-white border-2 border-primary/30 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
-              <span className="text-xs text-secondary/50 font-dubai">ج.م</span>
+              <span className="text-xs text-secondary/50 font-dubai">{currencySymbol}</span>
             </div>
           ) : (
             <motion.span 
@@ -445,7 +447,7 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
               initial={{ scale: 1.2 }}
               animate={{ scale: 1 }}
             >
-              {formatPrice(item.price)} ج.م
+              {formatPrice(item.price)} {currencySymbol}
             </motion.span>
           )}
         </div>
@@ -475,7 +477,8 @@ const DraggableLibraryItem: React.FC<{
   isCustom?: boolean;
   onDelete?: (itemId: string) => void;
   displayPrice?: number;
-}> = ({ item, onAddItem, isCustom = false, onDelete, displayPrice }) => {
+  currencySymbol?: string;
+}> = ({ item, onAddItem, isCustom = false, onDelete, displayPrice, currencySymbol = 'ج.م' }) => {
   // استخدام الأيقونة المناسبة حسب نوع العنصر
   const IconComponent = isCustom 
     ? getCustomIcon((item as unknown as CustomItemData).icon || 'package')
@@ -558,7 +561,7 @@ const DraggableLibraryItem: React.FC<{
             {item.name}
           </h5>
           <span className="text-xs text-primary font-dubai font-bold">
-            {formatPrice(priceToShow)} ج.م
+            {formatPrice(priceToShow)} {currencySymbol}
           </span>
         </div>
       </div>
@@ -882,6 +885,7 @@ const BedroomSlide: React.FC<BedroomSlideProps> = ({
   const [items, setItems] = useState<RoomItem[]>(room?.items || []);
   const [showLibrary, setShowLibrary] = useState(false);
   const [customItems, setCustomItems] = useState<BedroomItemDefinition[]>([]);
+  const { currencySymbol } = useCurrencyFormatter();
   
   // Hook لتخصيصات المكتبة (الأسعار والصور والأوصاف)
   const { getCustomPrice, getCustomImage, getCustomDescription, updateItemPrice, updateItemImage, updateItemDescription } = useLibraryCustomizations();
@@ -1094,7 +1098,7 @@ const BedroomSlide: React.FC<BedroomSlideProps> = ({
                 style={{ boxShadow: SHADOWS.icon }}
               >
                 <span className="text-lg sm:text-2xl lg:text-3xl font-bold text-secondary font-bristone">{formatPrice(totalCost)}</span>
-                <span className="text-xs sm:text-xs text-secondary/60 font-dubai sm:block">ج.م</span>
+                <span className="text-xs sm:text-xs text-secondary/60 font-dubai sm:block">{currencySymbol}</span>
               </div>
             </div>
           </div>
@@ -1238,7 +1242,7 @@ const BedroomSlide: React.FC<BedroomSlideProps> = ({
                 <span className="font-bristone font-bold text-4xl text-primary">
                   {formatPrice(totalCost)}
                 </span>
-                <span className="text-white/70 text-lg font-dubai mr-2">ج.م</span>
+                <span className="text-white/70 text-lg font-dubai mr-2">{currencySymbol}</span>
               </motion.div>
             </div>
           </motion.div>

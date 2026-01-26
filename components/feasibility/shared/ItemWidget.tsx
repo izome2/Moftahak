@@ -18,6 +18,7 @@ import {
   TAP_EFFECTS,
   formatPrice 
 } from '@/lib/feasibility/design-system';
+import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 // ============================================
 // 📋 TYPES
@@ -71,6 +72,8 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
   iconBgColor = 'from-primary/20 to-primary/10',
   className = '',
 }) => {
+  const { currencySymbol } = useCurrencyFormatter();
+  
   // تحديث الكمية
   const handleQuantityDecrease = () => {
     if (quantity > 1) {
@@ -133,7 +136,7 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
             </h4>
             {quantity > 1 && (
               <span className="text-xs text-secondary/50 font-dubai">
-                {formatPrice(unitPrice)} ج.م × {quantity}
+                {formatPrice(unitPrice)} {currencySymbol} × {quantity}
               </span>
             )}
           </div>
@@ -202,14 +205,14 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
                          transition-all duration-200"
                 min="0"
               />
-              <span className="text-xs text-secondary/60 font-dubai">ج.م</span>
+              <span className="text-xs text-secondary/60 font-dubai">{currencySymbol}</span>
             </div>
           ) : (
             <div className="flex items-baseline gap-1">
               <span className={WIDGET_CLASSES.price}>
                 {formatPrice(price)}
               </span>
-              <span className={WIDGET_CLASSES.priceLabel}>ج.م</span>
+              <span className={WIDGET_CLASSES.priceLabel}>{currencySymbol}</span>
             </div>
           )}
         </div>
@@ -270,6 +273,8 @@ export const CompactWidget: React.FC<CompactWidgetProps> = ({
   iconColor = 'text-primary',
   className = '',
 }) => {
+  const { currencySymbol } = useCurrencyFormatter();
+  
   return (
     <motion.button
       whileHover={HOVER_EFFECTS.lift}
@@ -301,7 +306,7 @@ export const CompactWidget: React.FC<CompactWidgetProps> = ({
             {name}
           </p>
           <p className="text-xs text-secondary/60 font-dubai">
-            {formatPrice(defaultPrice)} ج.م
+            {formatPrice(defaultPrice)} {currencySymbol}
           </p>
         </div>
 
