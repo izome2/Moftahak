@@ -104,10 +104,7 @@ export default function StatisticsSlide({
     areaStatistics: data.areaStatistics || defaultAreaStatistics,
     monthlyOccupancy: data.monthlyOccupancy || defaultMonthlyOccupancy,
   });
-  const [showAddCostModal, setShowAddCostModal] = useState(false);
   const [showEditOccupancyModal, setShowEditOccupancyModal] = useState(false);
-  const [editingItem, setEditingItem] = useState<{ type: 'cost'; index: number } | null>(null);
-  const [formData, setFormData] = useState({ name: '', value: 0 });
 
   // تحديث البيانات من الخارج
   useEffect(() => {
@@ -123,32 +120,43 @@ export default function StatisticsSlide({
   const onUpdateRef = useRef(onUpdate);
   onUpdateRef.current = onUpdate;
 
-  // إضافة/تعديل تكلفة غرفة
-  const handleSaveCost = () => {
-    if (!formData.name.trim()) return;
+  // إضافة تكلفة جديدة فوراً
+  const handleAddCost = () => {
+    const newItem = { name: 'بند جديد', cost: 0 };
+    const newRoomsCost = [...slideData.roomsCost, newItem];
+    const newTotalCost = newRoomsCost.reduce((sum, item) => sum + item.cost, 0);
+    const newData: StatisticsSlideData = {
+      ...slideData,
+      roomsCost: newRoomsCost,
+      totalCost: newTotalCost,
+    };
+    setSlideData(newData);
+    onUpdateRef.current?.(newData);
+  };
 
-    let newData: StatisticsSlideData;
-    if (editingItem?.type === 'cost') {
-      newData = {
-        ...slideData,
-        roomsCost: slideData.roomsCost.map((item, i) =>
-          i === editingItem.index ? { name: formData.name, cost: formData.value } : item
-        ),
-      };
-    } else {
-      newData = {
-        ...slideData,
-        roomsCost: [...slideData.roomsCost, { name: formData.name, cost: formData.value }],
-      };
-    }
-    
+  // تحديث اسم تكلفة
+  const handleUpdateCostName = (index: number, name: string) => {
+    const newData = {
+      ...slideData,
+      roomsCost: slideData.roomsCost.map((item, i) =>
+        i === index ? { ...item, name } : item
+      ),
+    };
+    setSlideData(newData);
+    if (onUpdateRef.current) onUpdateRef.current(newData);
+  };
+
+  // تحديث قيمة تكلفة
+  const handleUpdateCostValue = (index: number, cost: number) => {
+    const newData = {
+      ...slideData,
+      roomsCost: slideData.roomsCost.map((item, i) =>
+        i === index ? { ...item, cost } : item
+      ),
+    };
     newData.totalCost = newData.roomsCost.reduce((sum, item) => sum + item.cost, 0);
     setSlideData(newData);
     if (onUpdateRef.current) onUpdateRef.current(newData);
-
-    setShowAddCostModal(false);
-    setEditingItem(null);
-    setFormData({ name: '', value: 0 });
   };
 
   // حذف تكلفة
@@ -363,11 +371,7 @@ export default function StatisticsSlide({
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    setFormData({ name: '', value: 0 });
-                    setEditingItem(null);
-                    setShowAddCostModal(true);
-                  }}
+                  onClick={handleAddCost}
                   className="px-3 py-1.5 bg-primary/20 border-2 border-primary/30 text-secondary rounded-lg flex items-center gap-1.5 text-xs font-dubai font-bold hover:bg-primary/30 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -436,37 +440,51 @@ export default function StatisticsSlide({
 
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-dubai font-bold text-secondary text-base truncate">
-                            {item.name}
-                          </h4>
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              value={item.name}
+                              onChange={e => handleUpdateCostName(index, e.target.value)}
+                              className="font-dubai font-bold text-secondary text-base bg-transparent border-none outline-none w-full focus:bg-white/50 rounded px-1 transition-colors"
+                              placeholder="اسم البند"
+                            />
+                          ) : (
+                            <h4 className="font-dubai font-bold text-secondary text-base truncate">
+                              {item.name}
+                            </h4>
+                          )}
                         </div>
 
                         {/* Price & Actions */}
                         <div className="flex items-center gap-2">
                           <div className="text-left">
-                            <motion.span 
-                              className="font-dubai font-bold text-primary text-lg block"
-                              key={item.cost}
-                              initial={{ scale: 1.2 }}
-                              animate={{ scale: 1 }}
-                            >
-                              {formatPrice(item.cost)}
-                            </motion.span>
-                            <span className="text-xs text-secondary/60 font-dubai">{currencySymbol}</span>
+                            {isEditing ? (
+                              <div className="flex items-center gap-1">
+                                <input
+                                  type="number"
+                                  value={item.cost}
+                                  onChange={e => handleUpdateCostValue(index, Number(e.target.value))}
+                                  className="font-dubai font-bold text-primary text-lg bg-transparent border-none outline-none w-24 text-right focus:bg-white/50 rounded px-1 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                />
+                                <span className="text-xs text-secondary/60 font-dubai">{currencySymbol}</span>
+                              </div>
+                            ) : (
+                              <>
+                                <motion.span 
+                                  className="font-dubai font-bold text-primary text-lg block"
+                                  key={item.cost}
+                                  initial={{ scale: 1.2 }}
+                                  animate={{ scale: 1 }}
+                                >
+                                  {formatPrice(item.cost)}
+                                </motion.span>
+                                <span className="text-xs text-secondary/60 font-dubai">{currencySymbol}</span>
+                              </>
+                            )}
                           </div>
                           
                           {isEditing && (
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button
-                                onClick={() => {
-                                  setFormData({ name: item.name, value: item.cost });
-                                  setEditingItem({ type: 'cost', index });
-                                  setShowAddCostModal(true);
-                                }}
-                                className="p-1.5 hover:bg-primary/20 rounded-lg transition-colors"
-                              >
-                                <Edit2 className="w-4 h-4 text-secondary" />
-                              </button>
+                            <div className="flex items-center gap-1">
                               <button
                                 onClick={() => handleDeleteCost(index)}
                                 className="p-1.5 hover:bg-red-100 rounded-lg transition-colors"
@@ -878,76 +896,6 @@ export default function StatisticsSlide({
           </div>
         </motion.div>
       </motion.div>
-
-      {/* Modal إضافة تكلفة */}
-      {showAddCostModal && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setShowAddCostModal(false)}
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-2xl max-w-sm w-full p-6 border-2 border-primary/20"
-            style={{ boxShadow: SHADOWS.modal }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-primary/20 border-2 border-primary/30">
-                  <PieChart className="w-5 h-5 text-primary" />
-                </div>
-                <h3 className="text-lg font-bold text-secondary font-dubai">
-                  {editingItem ? 'تعديل التكلفة' : 'إضافة تكلفة جديدة'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setShowAddCostModal(false)}
-                className="w-8 h-8 rounded-xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center hover:bg-primary/20 transition-colors"
-              >
-                <X className="w-4 h-4 text-secondary" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-secondary mb-2 font-dubai">
-                  اسم البند
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-4 py-3 bg-accent/30 border-2 border-primary/20 rounded-xl text-secondary font-dubai focus:outline-none focus:border-primary transition-colors"
-                  placeholder="مثال: المطبخ"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-secondary mb-2 font-dubai">
-                  التكلفة ({currencySymbol})
-                </label>
-                <input
-                  type="number"
-                  value={formData.value}
-                  onChange={e => setFormData(prev => ({ ...prev, value: Number(e.target.value) }))}
-                  className="w-full px-4 py-3 bg-accent/30 border-2 border-primary/20 rounded-xl text-secondary font-dubai focus:outline-none focus:border-primary transition-colors"
-                />
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleSaveCost}
-                disabled={!formData.name.trim()}
-                className="w-full px-4 py-3 bg-linear-to-r from-secondary to-secondary/90 text-primary rounded-xl font-bold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2 font-dubai"
-                style={{ boxShadow: SHADOWS.button }}
-              >
-                <Save className="w-5 h-5" />
-                حفظ
-              </motion.button>
-            </div>
-          </motion.div>
-        </div>
-      )}
     </div>
   );
 }

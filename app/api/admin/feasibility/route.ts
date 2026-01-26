@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
           clientEmail: true,
           status: true,
           totalCost: true,
+          currency: true,
           bedrooms: true,
           livingRooms: true,
           kitchens: true,

@@ -75,6 +75,11 @@ export default function EditFeasibilityStudyPage({ params }: PageProps) {
         editor.setStudyType(data.study.studyType || 'WITH_FIELD_VISIT');
         editor.setSlides(data.study.slides as Slide[]);
         
+        // تحديث العملة إذا كانت موجودة
+        if (data.study.currency) {
+          editor.setCurrency(data.study.currency);
+        }
+        
       } catch (err) {
         setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
       } finally {

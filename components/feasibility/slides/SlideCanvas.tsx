@@ -291,17 +291,25 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
         const roomSlidesForStats = allSlides.filter(s => 
           ['kitchen', 'bedroom', 'living-room', 'bathroom'].includes(s.type) && s.data.room?.room
         );
-        const roomsCostForStats = roomSlidesForStats.map(s => ({
+        const roomsCostFromSlides = roomSlidesForStats.map(s => ({
           name: s.data.room!.room.name,
           cost: s.data.room!.room.totalCost,
         }));
-        const totalCostFromRooms = roomsCostForStats.reduce((sum, r) => sum + r.cost, 0);
+        
+        // دمج البنود من الغرف مع البنود المضافة يدوياً
+        const savedRoomsCost = slide.data.statistics?.roomsCost || [];
+        // إيجاد البنود المضافة يدوياً (التي ليست موجودة في الغرف)
+        const roomNames = new Set(roomsCostFromSlides.map(r => r.name));
+        const manuallyAddedItems = savedRoomsCost.filter(item => !roomNames.has(item.name));
+        // دمج البنود: الغرف أولاً ثم البنود المضافة يدوياً
+        const mergedRoomsCost = [...roomsCostFromSlides, ...manuallyAddedItems];
+        const totalCostFromRooms = mergedRoomsCost.reduce((sum, r) => sum + r.cost, 0);
         
         // دمج البيانات المحسوبة مع البيانات المحفوظة
         const statisticsWithData = {
           totalCost: totalCostFromRooms,
           averageRent: slide.data.statistics?.averageRent || 0,
-          roomsCost: roomsCostForStats,
+          roomsCost: mergedRoomsCost,
           areaStatistics: slide.data.statistics?.areaStatistics,
           monthlyOccupancy: slide.data.statistics?.monthlyOccupancy,
         };

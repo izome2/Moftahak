@@ -66,6 +66,7 @@ interface Study {
   clientEmail: string | null;
   status: 'DRAFT' | 'SENT' | 'VIEWED';
   totalCost: number;
+  currency?: string;
   bedrooms: number;
   livingRooms: number;
   kitchens: number;
@@ -248,6 +249,11 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
   const requestData = isRequest ? data as FeasibilityRequest : null;
   const studyData = !isRequest ? data as Study : null;
   
+  // العملة - استخدام العملة من الدراسة أو الافتراضية
+  const itemCurrencySymbol = studyData?.currency 
+    ? (studyData.currency === 'SAR' ? 'ر.س' : studyData.currency === 'USD' ? '$' : 'ج.م')
+    : currencySymbol;
+  
   // الحالة
   const status = isRequest 
     ? requestStatusConfig[requestData!.status] || requestStatusConfig.PENDING
@@ -337,7 +343,7 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
               </span>
               {studyData?.totalCost && studyData.totalCost > 0 && (
                 <span className="flex items-center gap-1 sm:gap-1.5 text-primary font-medium">
-                  {studyData.totalCost.toLocaleString('ar-EG')} {currencySymbol}
+                  {studyData.totalCost.toLocaleString('ar-EG')} {itemCurrencySymbol}
                 </span>
               )}
             </div>
