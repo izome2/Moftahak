@@ -37,6 +37,7 @@ const slideIcons: Record<SlideType, React.ElementType> = {
   map: MapPin,
   'nearby-apartments': Building2,
   statistics: BarChart3,
+  notes: FileText,
   footer: FileText,
 };
 
@@ -54,6 +55,7 @@ const slideColors: Record<SlideType, string> = {
   map: 'bg-emerald-100',
   'nearby-apartments': 'bg-teal-100',
   statistics: 'bg-indigo-100',
+  notes: 'bg-amber-100',
   footer: 'bg-secondary',
 };
 
@@ -69,6 +71,7 @@ const availableSlideTypes: { type: SlideType; title: string }[] = [
   { type: 'map', title: 'الخريطة' },
   { type: 'nearby-apartments', title: 'الشقق المحيطة' },
   { type: 'statistics', title: 'الإحصائيات' },
+  { type: 'notes', title: 'ملاحظات إضافية' },
   { type: 'footer', title: 'الخاتمة' },
 ];
 

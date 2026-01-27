@@ -239,10 +239,10 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
   const studyType = propStudyType || editorContext?.studyType || 'WITH_FIELD_VISIT';
   
   const [roomCounts, setRoomCounts] = useState<RoomCounts>({
-    bedroom: data.rooms?.bedrooms || 1,
-    'living-room': data.rooms?.livingRooms || 1,
-    kitchen: data.rooms?.kitchens || 1,
-    bathroom: data.rooms?.bathrooms || 1,
+    bedroom: data.rooms?.bedrooms ?? 1,
+    'living-room': data.rooms?.livingRooms ?? 1,
+    kitchen: data.rooms?.kitchens ?? 0,
+    bathroom: data.rooms?.bathrooms ?? 1,
   });
 
   const [generatedRooms, setGeneratedRooms] = useState<RoomData[]>([]);
@@ -421,38 +421,46 @@ const RoomSetupSlide: React.FC<RoomSetupSlideProps> = ({
             </div>
           </motion.div>
 
-          {/* الودجات - شبكة بسيطة */}
-          <div className="flex items-center justify-center py-2 sm:py-4 px-4 sm:px-8">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 w-full max-w-4xl">
-              <RoomWidget
-                icon={Sofa}
-                title="الصالات"
-                count={roomCounts['living-room']}
-                delay={0.1}
-              />
-
-              <RoomWidget
-                icon={Bed}
-                title="غرف النوم"
-                count={roomCounts.bedroom}
-                delay={0.2}
-              />
-
-              <RoomWidget
-                icon={ChefHat}
-                title="المطابخ"
-                count={roomCounts.kitchen}
-                delay={0.3}
-              />
-
-              <RoomWidget
-                icon={Bath}
-                title="الحمامات"
-                count={roomCounts.bathroom}
-                delay={0.4}
-              />
-            </div>
-          </div>
+          {/* الودجات - شبكة بسيطة مع توسيط ديناميكي */}
+          {(() => {
+            // حساب عدد العناصر المرئية
+            const visibleWidgets = [
+              { icon: Sofa, title: 'الصالات', count: roomCounts['living-room'], delay: 0.1 },
+              { icon: Bed, title: 'غرف النوم', count: roomCounts.bedroom, delay: 0.2 },
+              { icon: ChefHat, title: 'المطابخ', count: roomCounts.kitchen, delay: 0.3 },
+              { icon: Bath, title: 'الحمامات', count: roomCounts.bathroom, delay: 0.4 },
+            ].filter(w => w.count > 0);
+            
+            const visibleCount = visibleWidgets.length;
+            
+            // تحديد classes الشبكة بناءً على عدد العناصر
+            let gridClasses = 'grid gap-4 sm:gap-8 w-full max-w-4xl';
+            if (visibleCount === 1) {
+              gridClasses += ' grid-cols-1 justify-items-center';
+            } else if (visibleCount === 2) {
+              gridClasses += ' grid-cols-2 justify-items-center max-w-xl mx-auto';
+            } else if (visibleCount === 3) {
+              gridClasses += ' grid-cols-3 justify-items-center max-w-3xl mx-auto';
+            } else {
+              gridClasses += ' grid-cols-2 sm:grid-cols-4';
+            }
+            
+            return (
+              <div className="flex items-center justify-center py-2 sm:py-4 px-4 sm:px-8">
+                <div className={gridClasses}>
+                  {visibleWidgets.map((widget, index) => (
+                    <RoomWidget
+                      key={widget.title}
+                      icon={widget.icon}
+                      title={widget.title}
+                      count={widget.count}
+                      delay={widget.delay}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
 
         </div>
       </div>

@@ -1,12 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { fadeInUp } from '@/lib/animations/variants';
 import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 
 interface CostChartProps {
   data: { name: string; cost: number; color?: string }[];
+}
+
+interface TooltipState {
+  visible: boolean;
+  x: number;
+  y: number;
+  name: string;
+  cost: number;
+  percentage: number;
 }
 
 // ألوان افتراضية للرسم البياني
@@ -24,6 +33,14 @@ const defaultColors = [
 export default function CostChart({ data }: CostChartProps) {
   const { currencySymbol } = useCurrencyFormatter();
   const total = data.reduce((sum, item) => sum + item.cost, 0);
+  const [tooltip, setTooltip] = useState<TooltipState>({
+    visible: false,
+    x: 0,
+    y: 0,
+    name: '',
+    cost: 0,
+    percentage: 0,
+  });
   
   // حساب زوايا الشرائح
   let currentAngle = 0;
@@ -77,7 +94,12 @@ export default function CostChart({ data }: CostChartProps) {
       <div className="flex flex-col md:flex-row items-center gap-4">
         {/* الرسم البياني الدائري */}
         <div className="relative">
-          <svg width="200" height="200" viewBox="0 0 200 200">
+          <svg 
+            width="200" 
+            height="200" 
+            viewBox="0 0 200 200"
+            onMouseLeave={() => setTooltip(prev => ({ ...prev, visible: false }))}
+          >
             {slices.map((slice, index) => (
               <motion.path
                 key={index}
@@ -87,6 +109,24 @@ export default function CostChart({ data }: CostChartProps) {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
                 className="hover:opacity-80 transition-opacity cursor-pointer"
+                onMouseEnter={() => setTooltip(prev => ({ 
+                  ...prev, 
+                  visible: true, 
+                  name: slice.name, 
+                  cost: slice.cost, 
+                  percentage: slice.percentage 
+                }))}
+                onMouseMove={(e) => {
+                  const rect = (e.target as SVGPathElement).ownerSVGElement?.getBoundingClientRect();
+                  if (rect) {
+                    setTooltip(prev => ({
+                      ...prev,
+                      x: e.clientX - rect.left + 10,
+                      y: e.clientY - rect.top - 30,
+                    }));
+                  }
+                }}
+                onMouseLeave={() => setTooltip(prev => ({ ...prev, visible: false }))}
               />
             ))}
             {/* دائرة وسطية */}
@@ -108,6 +148,20 @@ export default function CostChart({ data }: CostChartProps) {
               {total.toLocaleString('ar-EG')} {currencySymbol}
             </text>
           </svg>
+          
+          {/* Tooltip */}
+          {tooltip.visible && (
+            <div
+              className="absolute pointer-events-none z-50 px-2 py-1 bg-accent rounded text-xs font-dubai text-secondary whitespace-nowrap"
+              style={{
+                left: tooltip.x,
+                top: tooltip.y,
+                boxShadow: '0 4px 12px rgba(16, 48, 43, 0.15)',
+              }}
+            >
+              {tooltip.name}
+            </div>
+          )}
         </div>
 
         {/* مفتاح الألوان */}

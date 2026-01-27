@@ -24,6 +24,7 @@ import CostSummarySlide from './CostSummarySlide';
 import AreaStudyIntroSlide from './AreaStudyIntroSlide';
 import FooterSlide from './FooterSlide';
 import { RoomSetupSlide, KitchenSlide, BedroomSlide, LivingRoomSlide, BathroomSlide, MapSlide, NearbyApartmentsSlide, StatisticsSlide } from '@/components/feasibility/elements';
+import NotesSlide from '@/components/feasibility/elements/NotesSlide';
 
 // أيقونات الشرائح
 const slideIcons: Record<SlideType, React.ElementType> = {
@@ -39,6 +40,7 @@ const slideIcons: Record<SlideType, React.ElementType> = {
   map: MapPin,
   'nearby-apartments': Building2,
   statistics: BarChart3,
+  notes: FileText,
   footer: FileText,
 };
 
@@ -305,13 +307,42 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
         const mergedRoomsCost = [...roomsCostFromSlides, ...manuallyAddedItems];
         const totalCostFromRooms = mergedRoomsCost.reduce((sum, r) => sum + r.cost, 0);
         
+        // حساب إحصائيات المنطقة تلقائياً من الشقق المجاورة
+        const nearbyApartmentsSlide = allSlides.find(s => s.type === 'nearby-apartments');
+        const nearbyApartments = nearbyApartmentsSlide?.data.nearbyApartments?.apartments || [];
+        // استبعاد شقة العميل من الحسابات
+        const otherApartments = nearbyApartments.filter(apt => !apt.isClientApartment);
+        
+        // حساب المتوسطات
+        // الإيراد السنوي = 365 × (متوسط نسبة الإشغال / 100) × متوسط سعر الليلة
+        const calculatedAreaStats = otherApartments.length > 0 ? {
+          averageDailyRate: Math.round(otherApartments.reduce((sum, apt) => sum + (apt.price || 0), 0) / otherApartments.length),
+          averageOccupancy: Math.round(otherApartments.reduce((sum, apt) => sum + (apt.occupancy || 0), 0) / otherApartments.length),
+          get averageAnnualRevenue() {
+            // استخدام متوسط السعر ومتوسط الإشغال المحسوبين
+            return Math.round(365 * (this.averageOccupancy / 100) * this.averageDailyRate);
+          }
+        } : {
+          averageDailyRate: 0,
+          averageOccupancy: 0,
+          averageAnnualRevenue: 0,
+        };
+        
         // دمج البيانات المحسوبة مع البيانات المحفوظة
         const statisticsWithData = {
           totalCost: totalCostFromRooms,
           averageRent: slide.data.statistics?.averageRent || 0,
           roomsCost: mergedRoomsCost,
-          areaStatistics: slide.data.statistics?.areaStatistics,
+          operationalCosts: slide.data.statistics?.operationalCosts || [
+            { name: 'إيجار', cost: 0 },
+            { name: 'إنترنت', cost: 0 },
+            { name: 'مياه', cost: 0 },
+            { name: 'كهرباء', cost: 0 },
+            { name: 'بواب', cost: 0 },
+          ],
+          areaStatistics: calculatedAreaStats,
           monthlyOccupancy: slide.data.statistics?.monthlyOccupancy,
+          year: slide.data.statistics?.year,
         };
         
         return (
@@ -319,6 +350,14 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
             data={statisticsWithData}
             isEditing={isEditing}
             onUpdate={(data) => onUpdateSlideData?.({ statistics: data })}
+          />
+        );
+      case 'notes':
+        return (
+          <NotesSlide
+            data={slide.data.notes}
+            isEditing={isEditing}
+            onUpdate={(data) => onUpdateSlideData?.({ notes: data })}
           />
         );
       case 'footer':

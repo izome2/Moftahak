@@ -15,7 +15,8 @@ import {
   Trash2,
   Calculator,
   Percent,
-  MapPin
+  MapPin,
+  Wallet
 } from 'lucide-react';
 import { StatisticsSlideData, AreaStatistics, MonthlyOccupancyData } from '@/types/feasibility';
 import CostChart from './CostChart';
@@ -72,6 +73,13 @@ const defaultData: StatisticsSlideData = {
   totalCost: 0,
   averageRent: 0,
   roomsCost: [],
+  operationalCosts: [
+    { name: 'إيجار', cost: 0 },
+    { name: 'إنترنت', cost: 0 },
+    { name: 'مياه', cost: 0 },
+    { name: 'كهرباء', cost: 0 },
+    { name: 'بواب', cost: 0 },
+  ],
   areaStatistics: defaultAreaStatistics,
   monthlyOccupancy: defaultMonthlyOccupancy,
 };
@@ -105,15 +113,22 @@ export default function StatisticsSlide({
     monthlyOccupancy: data.monthlyOccupancy || defaultMonthlyOccupancy,
   });
   const [showEditOccupancyModal, setShowEditOccupancyModal] = useState(false);
+  const [isEditingYear, setIsEditingYear] = useState(false);
+  const yearInputRef = useRef<HTMLInputElement>(null);
+  
+  // السنة من البيانات أو السنة الحالية افتراضياً
+  const year = slideData.year || new Date().getFullYear().toString();
 
   // تحديث البيانات من الخارج
   useEffect(() => {
-    setSlideData({
+    setSlideData(prev => ({
       ...defaultData,
       ...data,
       areaStatistics: data.areaStatistics || defaultAreaStatistics,
       monthlyOccupancy: data.monthlyOccupancy || defaultMonthlyOccupancy,
-    });
+      // الحفاظ على السنة من البيانات أو السابقة
+      year: data.year || prev.year,
+    }));
   }, [data]);
 
   // حفظ مرجع لـ onUpdate لتجنب infinite loop
@@ -170,16 +185,57 @@ export default function StatisticsSlide({
     if (onUpdateRef.current) onUpdateRef.current(newData);
   };
 
+  // === دوال المصاريف التشغيلية ===
+  
+  // إضافة مصروف تشغيلي جديد
+  const handleAddOperationalCost = () => {
+    const newItem = { name: 'مصروف جديد', cost: 0 };
+    const newOperationalCosts = [...(slideData.operationalCosts || []), newItem];
+    const newData: StatisticsSlideData = {
+      ...slideData,
+      operationalCosts: newOperationalCosts,
+    };
+    setSlideData(newData);
+    onUpdateRef.current?.(newData);
+  };
+
+  // تحديث اسم مصروف تشغيلي
+  const handleUpdateOperationalCostName = (index: number, name: string) => {
+    const newData = {
+      ...slideData,
+      operationalCosts: (slideData.operationalCosts || []).map((item, i) =>
+        i === index ? { ...item, name } : item
+      ),
+    };
+    setSlideData(newData);
+    onUpdateRef.current?.(newData);
+  };
+
+  // تحديث قيمة مصروف تشغيلي
+  const handleUpdateOperationalCostValue = (index: number, cost: number) => {
+    const newData = {
+      ...slideData,
+      operationalCosts: (slideData.operationalCosts || []).map((item, i) =>
+        i === index ? { ...item, cost } : item
+      ),
+    };
+    setSlideData(newData);
+    onUpdateRef.current?.(newData);
+  };
+
+  // حذف مصروف تشغيلي
+  const handleDeleteOperationalCost = (index: number) => {
+    const newData = {
+      ...slideData,
+      operationalCosts: (slideData.operationalCosts || []).filter((_, i) => i !== index),
+    };
+    setSlideData(newData);
+    onUpdateRef.current?.(newData);
+  };
+
   // تعديل متوسط الإيجار
   const handleUpdateAverageRent = (value: number) => {
     const newData = { ...slideData, averageRent: value };
-    setSlideData(newData);
-    if (onUpdateRef.current) onUpdateRef.current(newData);
-  };
-
-  // تحديث إحصائيات المنطقة
-  const handleUpdateAreaStatistics = (newStats: AreaStatistics) => {
-    const newData = { ...slideData, areaStatistics: newStats };
     setSlideData(newData);
     if (onUpdateRef.current) onUpdateRef.current(newData);
   };
@@ -196,12 +252,22 @@ export default function StatisticsSlide({
   // حساب التكلفة الإجمالية من الغرف
   const totalFromRooms = slideData.roomsCost.reduce((sum, item) => sum + item.cost, 0);
   
-  // حساب فترة الاسترداد
-  const paybackPeriod = slideData.averageRent > 0 
-    ? Math.ceil(totalFromRooms / slideData.averageRent)
+  // حساب المصاريف التشغيلية الشهرية
+  const monthlyOperationalCosts = (slideData.operationalCosts || []).reduce((sum, item) => sum + item.cost, 0);
+  
+  // حساب المصاريف التشغيلية السنوية (الشهرية × 12)
+  const annualOperationalCosts = monthlyOperationalCosts * 12;
+  
+  // متوسط الربح السنوي (العائد السنوي - المصاريف التشغيلية السنوية)
+  const areaStats = slideData.areaStatistics || defaultAreaStatistics;
+  const annualProfit = (areaStats.averageAnnualRevenue || 0) - annualOperationalCosts;
+  
+  // حساب فترة الاسترداد (تكلفة التجهيز ÷ الربح السنوي)
+  // إذا كان الربح السنوي موجب، نحسب مدة الاسترداد بالأشهر
+  const paybackPeriod = annualProfit > 0 
+    ? Math.ceil((totalFromRooms / annualProfit) * 12)
     : 0;
 
-  const areaStats = slideData.areaStatistics || defaultAreaStatistics;
   const monthlyOccupancy = slideData.monthlyOccupancy || defaultMonthlyOccupancy;
 
   return (
@@ -253,98 +319,6 @@ export default function StatisticsSlide({
             )}
           </div>
         </motion.div>
-
-        {/* Statistics Cards - فقط مع نزول ميداني */}
-        {isWithFieldVisit && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {/* إجمالي التكلفة */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="relative rounded-2xl overflow-hidden bg-white p-5 border-2 border-primary/20"
-            style={{ boxShadow: SHADOWS.card }}
-            whileHover={{ scale: 1.02, boxShadow: SHADOWS.cardHover }}
-          >
-            <div className="absolute -top-4 -left-4 opacity-[0.08] pointer-events-none">
-              <DollarSign className="w-24 h-24 text-primary" strokeWidth={1.5} />
-            </div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-xl bg-primary/20 border-2 border-primary/30" style={{ boxShadow: SHADOWS.icon }}>
-                  <DollarSign className="w-5 h-5 text-primary" />
-                </div>
-                <span className="text-sm text-secondary/70 font-dubai">إجمالي التكلفة</span>
-              </div>
-              <div className="text-2xl font-bold text-secondary font-bristone">
-                {formatPrice(totalFromRooms)}
-                <span className="text-sm font-normal text-secondary/60 font-dubai mr-2">{currencySymbol}</span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* متوسط الإيجار */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="relative rounded-2xl overflow-hidden bg-white p-5 border-2 border-primary/20"
-            style={{ boxShadow: SHADOWS.card }}
-            whileHover={{ scale: 1.02, boxShadow: SHADOWS.cardHover }}
-          >
-            <div className="absolute -top-4 -left-4 opacity-[0.08] pointer-events-none">
-              <TrendingUp className="w-24 h-24 text-primary" strokeWidth={1.5} />
-            </div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-xl bg-primary/20 border-2 border-primary/30" style={{ boxShadow: SHADOWS.icon }}>
-                  <TrendingUp className="w-5 h-5 text-secondary" />
-                </div>
-                <span className="text-sm text-secondary/70 font-dubai">متوسط الإيجار</span>
-              </div>
-              {isEditing ? (
-                <input
-                  type="number"
-                  value={slideData.averageRent}
-                  onChange={e => handleUpdateAverageRent(Number(e.target.value))}
-                  className="text-2xl font-bold text-secondary font-bristone bg-transparent border-none outline-none w-full"
-                />
-              ) : (
-                <div className="text-2xl font-bold text-secondary font-bristone">
-                  {formatPrice(slideData.averageRent)}
-                  <span className="text-sm font-normal text-secondary/60 font-dubai mr-2">{currencySymbol}/شهر</span>
-                </div>
-              )}
-            </div>
-          </motion.div>
-
-          {/* فترة الاسترداد */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="relative rounded-2xl overflow-hidden bg-white p-5 border-2 border-primary/20"
-            style={{ boxShadow: SHADOWS.card }}
-            whileHover={{ scale: 1.02, boxShadow: SHADOWS.cardHover }}
-          >
-            <div className="absolute -top-4 -left-4 opacity-[0.08] pointer-events-none">
-              <Calendar className="w-24 h-24 text-primary" strokeWidth={1.5} />
-            </div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-xl bg-primary/20 border-2 border-primary/30" style={{ boxShadow: SHADOWS.icon }}>
-                  <Calendar className="w-5 h-5 text-secondary" />
-                </div>
-                <span className="text-sm text-secondary/70 font-dubai">فترة الاسترداد</span>
-              </div>
-              <div className="text-2xl font-bold text-secondary font-bristone">
-                {paybackPeriod > 0 ? paybackPeriod : '—'}
-                <span className="text-sm font-normal text-secondary/60 font-dubai mr-2">شهر</span>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-        )}
 
         {/* Rooms Cost Section - فقط مع نزول ميداني */}
         {isWithFieldVisit && (
@@ -414,7 +388,7 @@ export default function StatisticsSlide({
                 </p>
               </motion.div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                 {/* Chart */}
                 <div className="min-h-64 bg-transparent">
                   <CostChart data={slideData.roomsCost} />
@@ -504,6 +478,168 @@ export default function StatisticsSlide({
         </motion.div>
         )}
 
+        {/* Operational Costs Section - المصاريف التشغيلية - فقط مع نزول ميداني */}
+        {isWithFieldVisit && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.32 }}
+          className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white border-2 border-primary/20"
+          style={{ boxShadow: SHADOWS.card }}
+        >
+          {/* Section Header */}
+          <div className="bg-linear-to-r from-primary/20 to-primary/10 px-6 py-4 border-b-2 border-primary/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-primary/30 border border-primary/40">
+                  <Wallet className="w-5 h-5 text-secondary" />
+                </div>
+                <div>
+                  <h3 className="font-dubai font-bold text-secondary text-lg">المصاريف التشغيلية</h3>
+                  <p className="text-secondary/60 text-xs font-dubai">{(slideData.operationalCosts || []).length} بند</p>
+                </div>
+              </div>
+              {isEditing && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleAddOperationalCost}
+                  className="px-3 py-1.5 bg-primary/20 border-2 border-primary/30 text-secondary rounded-lg flex items-center gap-1.5 text-xs font-dubai font-bold hover:bg-primary/30 transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  إضافة
+                </motion.button>
+              )}
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="p-6">
+            {(slideData.operationalCosts || []).length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="py-12 flex flex-col items-center justify-center text-center"
+              >
+                <motion.div
+                  animate={{ 
+                    y: [0, -10, 0],
+                    rotate: [0, 5, -5, 0],
+                  }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                  className="relative mb-4"
+                >
+                  <div className="absolute inset-0 bg-primary/20 rounded-3xl blur-xl" />
+                  <div 
+                    className="relative w-20 h-20 bg-linear-to-br from-primary/30 to-primary/10 rounded-3xl flex items-center justify-center border-2 border-primary/30"
+                    style={{ boxShadow: SHADOWS.icon }}
+                  >
+                    <Wallet className="w-10 h-10 text-primary" strokeWidth={1.5} />
+                  </div>
+                </motion.div>
+                
+                <h4 className="font-dubai font-bold text-secondary text-lg mb-1">
+                  لا توجد مصاريف تشغيلية
+                </h4>
+                <p className="font-dubai text-secondary/50 text-sm max-w-sm">
+                  {isEditing ? 'انقر على "إضافة" لإضافة المصاريف التشغيلية (إيجار، إنترنت، مياه، كهرباء...)' : 'لم يتم إضافة مصاريف تشغيلية بعد'}
+                </p>
+              </motion.div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                {/* Chart */}
+                <div className="min-h-64 bg-transparent">
+                  <CostChart data={slideData.operationalCosts || []} />
+                </div>
+
+                {/* List */}
+                <div className="space-y-2">
+                  {(slideData.operationalCosts || []).map((item, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="relative rounded-xl bg-accent/30 p-4 border-2 border-primary/20 group"
+                      style={{ boxShadow: 'rgba(237, 191, 140, 0.2) 0px 2px 8px' }}
+                    >
+                      <div className="flex items-center gap-4">
+                        {/* Number Badge */}
+                        <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center shrink-0 border-2 border-primary/30">
+                          <span className="font-bristone font-bold text-secondary">{index + 1}</span>
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              value={item.name}
+                              onChange={e => handleUpdateOperationalCostName(index, e.target.value)}
+                              className="font-dubai font-bold text-secondary text-base bg-transparent border-none outline-none w-full focus:bg-white/50 rounded px-1 transition-colors"
+                              placeholder="اسم المصروف"
+                            />
+                          ) : (
+                            <h4 className="font-dubai font-bold text-secondary text-base truncate">
+                              {item.name}
+                            </h4>
+                          )}
+                        </div>
+
+                        {/* Price & Actions */}
+                        <div className="flex items-center gap-2">
+                          <div className="text-left">
+                            {isEditing ? (
+                              <div className="flex items-center gap-1">
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={item.cost.toLocaleString('ar-EG')}
+                                  onChange={e => {
+                                    const numValue = Number(e.target.value.replace(/[^\d٠-٩]/g, '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString()));
+                                    handleUpdateOperationalCostValue(index, numValue);
+                                  }}
+                                  className="font-dubai font-bold text-primary text-lg bg-transparent border-none outline-none w-24 text-right focus:bg-white/50 rounded px-1 transition-colors"
+                                />
+                                <span className="text-xs text-secondary/60 font-dubai">{currencySymbol}</span>
+                              </div>
+                            ) : (
+                              <>
+                                <motion.span 
+                                  className="font-dubai font-bold text-primary text-lg block"
+                                  key={item.cost}
+                                  initial={{ scale: 1.2 }}
+                                  animate={{ scale: 1 }}
+                                >
+                                  {formatPrice(item.cost)}
+                                </motion.span>
+                                <span className="text-xs text-secondary/60 font-dubai">{currencySymbol}</span>
+                              </>
+                            )}
+                          </div>
+                          
+                          {isEditing && (
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleDeleteOperationalCost(index)}
+                                className="p-1.5 hover:bg-red-100 rounded-lg transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.div>
+        )}
+
         {/* إحصائيات المنطقة Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -521,7 +657,7 @@ export default function StatisticsSlide({
                 </div>
                 <div>
                   <h3 className="font-dubai font-bold text-secondary text-lg">إحصائيات المنطقة</h3>
-                  <p className="text-secondary/60 text-xs font-dubai">متوسطات الشقق المحيطة</p>
+                  <p className="text-secondary/60 text-xs font-dubai">متوسط أداء الشقق المجاورة</p>
                 </div>
               </div>
             </div>
@@ -549,22 +685,7 @@ export default function StatisticsSlide({
                   <div className="mr-12">
                     <span className="inline-flex flex-row-reverse items-baseline gap-0.5">
                       <span className="text-sm font-bold text-secondary/70 font-dubai">{currencySymbol}</span>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          dir="ltr"
-                          value={areaStats.averageDailyRate.toLocaleString('ar-EG')}
-                          onChange={e => {
-                            const numValue = Number(e.target.value.replace(/[^\d٠-٩]/g, '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString()));
-                            handleUpdateAreaStatistics({ ...areaStats, averageDailyRate: numValue });
-                          }}
-                          className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5 border-none outline-none focus:ring-0 text-right transition-colors duration-200 group-hover:bg-primary/40"
-                          style={{ width: `${areaStats.averageDailyRate.toLocaleString('ar-EG').length + 0.5}ch` }}
-                        />
-                      ) : (
-                        <span className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5 transition-colors duration-200 group-hover:bg-primary/40">{areaStats.averageDailyRate.toLocaleString('ar-EG')}</span>
-                      )}
+                      <span className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5">{areaStats.averageDailyRate.toLocaleString('ar-EG')}</span>
                     </span>
                   </div>
                 </div>
@@ -589,22 +710,7 @@ export default function StatisticsSlide({
                   <div className="mr-12">
                     <span className="inline-flex flex-row-reverse items-baseline gap-0.5">
                       <span className="text-sm font-bold text-secondary/70 font-dubai">%</span>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          dir="ltr"
-                          value={Math.round(areaStats.averageOccupancy).toLocaleString('ar-EG')}
-                          onChange={e => {
-                            const numValue = Math.min(100, Math.max(0, Number(e.target.value.replace(/[^\d٠-٩]/g, '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString()))));
-                            handleUpdateAreaStatistics({ ...areaStats, averageOccupancy: numValue });
-                          }}
-                          className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5 border-none outline-none focus:ring-0 text-right transition-colors duration-200 group-hover:bg-primary/40"
-                          style={{ width: `${Math.round(areaStats.averageOccupancy).toLocaleString('ar-EG').length + 0.5}ch` }}
-                        />
-                      ) : (
-                        <span className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5 transition-colors duration-200 group-hover:bg-primary/40">{Math.round(areaStats.averageOccupancy).toLocaleString('ar-EG')}</span>
-                      )}
+                      <span className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5">{Math.round(areaStats.averageOccupancy).toLocaleString('ar-EG')}</span>
                     </span>
                   </div>
                 </div>
@@ -629,22 +735,7 @@ export default function StatisticsSlide({
                   <div className="mr-12">
                     <span className="inline-flex flex-row-reverse items-baseline gap-0.5">
                       <span className="text-sm font-bold text-secondary/70 font-dubai">{currencySymbol}</span>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          dir="ltr"
-                          value={areaStats.averageAnnualRevenue.toLocaleString('ar-EG')}
-                          onChange={e => {
-                            const numValue = Number(e.target.value.replace(/[^\d٠-٩]/g, '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString()));
-                            handleUpdateAreaStatistics({ ...areaStats, averageAnnualRevenue: numValue });
-                          }}
-                          className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5 border-none outline-none focus:ring-0 text-right transition-colors duration-200 group-hover:bg-primary/40"
-                          style={{ width: `${areaStats.averageAnnualRevenue.toLocaleString('ar-EG').length + 0.5}ch` }}
-                        />
-                      ) : (
-                        <span className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5 transition-colors duration-200 group-hover:bg-primary/40">{areaStats.averageAnnualRevenue.toLocaleString('ar-EG')}</span>
-                      )}
+                      <span className="text-2xl font-bold text-secondary font-dubai rounded px-1 py-0.5">{areaStats.averageAnnualRevenue.toLocaleString('ar-EG')}</span>
                     </span>
                   </div>
                 </div>
@@ -669,7 +760,38 @@ export default function StatisticsSlide({
                   <BarChart3 className="w-5 h-5 text-secondary" />
                 </div>
                 <div>
-                  <h3 className="font-dubai font-bold text-secondary text-lg">متوسط نسبة الإشغال الشهري</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-dubai font-bold text-secondary text-lg">توزيع نسبة الاشغال السنوي لعام</h3>
+                    {isEditing && isEditingYear ? (
+                      <input
+                        ref={yearInputRef}
+                        type="text"
+                        inputMode="numeric"
+                        value={year}
+                        onChange={(e) => {
+                          const arabicToEnglish = e.target.value.replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString());
+                          const numericValue = arabicToEnglish.replace(/[^0-9]/g, '');
+                          const newData = { ...slideData, year: numericValue };
+                          setSlideData(newData);
+                          onUpdateRef.current?.(newData);
+                        }}
+                        onBlur={() => setIsEditingYear(false)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') setIsEditingYear(false);
+                          if (e.key === 'Escape') setIsEditingYear(false);
+                        }}
+                        className="w-20 px-2 py-1 bg-white border-2 border-primary/40 rounded-lg text-secondary font-dubai text-lg font-bold text-center focus:outline-none focus:border-primary transition-colors"
+                        autoFocus
+                      />
+                    ) : (
+                      <span 
+                        className={`font-dubai font-bold text-secondary text-lg ${isEditing ? 'cursor-pointer hover:text-primary transition-colors' : ''}`}
+                        onClick={() => isEditing && setIsEditingYear(true)}
+                      >
+                        {year.split('').map(d => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]).join('')}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-secondary/60 text-xs font-dubai">تغير نسبة الإشغال على مدار العام</p>
                 </div>
               </div>
@@ -739,6 +861,7 @@ export default function StatisticsSlide({
                     fill="url(#occupancyGradient)"
                     dot={{ fill: '#10302b', strokeWidth: 2, r: 5, stroke: '#fff' }}
                     activeDot={{ r: 8, fill: '#edbf8c', stroke: '#10302b', strokeWidth: 2 }}
+                    isAnimationActive={false}
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -816,7 +939,7 @@ export default function StatisticsSlide({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-linear-to-r from-secondary to-secondary/90 p-6 sm:p-8 text-white"
+          className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-linear-to-r from-secondary/90 to-secondary p-6 sm:p-8 text-white"
           style={{ boxShadow: SHADOWS.modal }}
         >
           {/* Background Pattern */}
@@ -833,65 +956,73 @@ export default function StatisticsSlide({
               <div>
                 <h3 className="font-dubai font-bold text-xl sm:text-2xl">ملخص الدراسة</h3>
                 <p className="text-white/70 text-sm font-dubai">
-                  {isWithFieldVisit ? 'تكلفة تجهيز الشقة ومتوسط العائد' : 'ملخص دراسة المنطقة'}
+                  {isWithFieldVisit ? 'تكلفة تجهيز الشقة والعوائد والأرباح' : 'ملخص دراسة المنطقة'}
                 </p>
               </div>
             </div>
 
             {/* المحتوى - يختلف حسب نوع الدراسة */}
             <div className="space-y-6">
-              {/* الصف الأول: التكلفة والإيجار والاسترداد - فقط مع نزول ميداني */}
+              {/* الصف الأول: إحصائيات المنطقة - يظهر دائماً */}
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pb-6 border-b border-white/20">
+                <div className="text-center min-w-[100px]">
+                  <span className="block text-white/60 text-base font-dubai mb-2.5">متوسط سعر الليلة</span>
+                  <span className="block font-bristone font-bold text-primary text-3xl sm:text-4xl">
+                    {formatPrice(areaStats.averageDailyRate)}
+                    <span className="text-lg text-white/60 font-dubai mr-1.5">{currencySymbol}</span>
+                  </span>
+                </div>
+                <div className="w-px h-12 bg-white/20 hidden sm:block"></div>
+                <div className="text-center min-w-[100px]">
+                  <span className="block text-white/60 text-base font-dubai mb-2.5">متوسط نسبة الإشغال</span>
+                  <span className="block font-dubai font-bold text-primary text-3xl sm:text-4xl">
+                    {Math.round(areaStats.averageOccupancy).toLocaleString('ar-EG')}
+                    <span className="text-lg text-white/60 font-dubai mr-1.5">%</span>
+                  </span>
+                </div>
+                <div className="w-px h-12 bg-white/20 hidden sm:block"></div>
+                <div className="text-center min-w-[100px]">
+                  <span className="block text-white/60 text-base font-dubai mb-2.5">متوسط العوائد السنوية</span>
+                  <span className="block font-bristone font-bold text-primary text-3xl sm:text-4xl">
+                    {areaStats.averageAnnualRevenue > 0 ? formatPrice(areaStats.averageAnnualRevenue) : '—'}
+                    {areaStats.averageAnnualRevenue > 0 && <span className="text-lg text-white/60 font-dubai mr-1.5">{currencySymbol}</span>}
+                  </span>
+                </div>
+              </div>
+
+              {/* الصف الثاني: التكاليف والمصاريف - فقط مع نزول ميداني */}
               {isWithFieldVisit && (
-                <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pb-6 border-b border-white/20">
-                  <div className="text-center min-w-[100px]">
-                    <span className="block text-white/60 text-xs font-dubai mb-1.5">التكلفة</span>
-                    <span className="block font-bristone font-bold text-primary text-xl sm:text-2xl">
+                <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+                  <div className="text-center min-w-[120px]">
+                    <span className="block text-white/60 text-base font-dubai mb-2.5">تكلفة تجهيز الشقة</span>
+                    <span className="block font-bristone font-bold text-primary text-2xl sm:text-3xl">
                       {formatPrice(totalFromRooms)}
                     </span>
                   </div>
                   <div className="w-px h-12 bg-white/20 hidden sm:block"></div>
-                  <div className="text-center min-w-[100px]">
-                    <span className="block text-white/60 text-xs font-dubai mb-1.5">الإيجار</span>
-                    <span className="block font-bristone font-bold text-green-400 text-xl sm:text-2xl">
-                      {formatPrice(slideData.averageRent)}
+                  <div className="text-center min-w-[120px]">
+                    <span className="block text-white/60 text-base font-dubai mb-2.5">المصاريف التشغيلية السنوية</span>
+                    <span className="block font-bristone font-bold text-orange-400 text-2xl sm:text-3xl">
+                      {formatPrice(annualOperationalCosts)}
                     </span>
                   </div>
                   <div className="w-px h-12 bg-white/20 hidden sm:block"></div>
-                  <div className="text-center min-w-[100px]">
-                    <span className="block text-white/60 text-xs font-dubai mb-1.5">الاسترداد</span>
-                    <span className="block font-bristone font-bold text-blue-400 text-xl sm:text-2xl">
-                      {paybackPeriod > 0 ? `${paybackPeriod} شهر` : '—'}
+                  <div className="text-center min-w-[120px]">
+                    <span className="block text-white/60 text-base font-dubai mb-2.5">متوسط الربح السنوي</span>
+                    <span className={`block font-bristone font-bold text-2xl sm:text-3xl ${annualProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {annualProfit !== 0 ? formatPrice(Math.abs(annualProfit)) : '—'}
+                      {annualProfit < 0 && annualProfit !== 0 && <span className="text-base mr-1">-</span>}
+                    </span>
+                  </div>
+                  <div className="w-px h-12 bg-white/20 hidden sm:block"></div>
+                  <div className="text-center min-w-[120px]">
+                    <span className="block text-white/60 text-base font-dubai mb-2.5">متوسط مدة الاسترداد</span>
+                    <span className="block font-bristone font-bold text-blue-400 text-2xl sm:text-3xl">
+                      {paybackPeriod > 0 ? `${paybackPeriod.toLocaleString('ar-EG')} شهر` : '—'}
                     </span>
                   </div>
                 </div>
               )}
-
-              {/* الصف الثاني: إحصائيات المنطقة - يظهر دائماً */}
-              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-                <div className="text-center min-w-[100px]">
-                  <span className="block text-white/60 text-xs font-dubai mb-1.5">متوسط سعر الليلة</span>
-                  <span className="block font-bristone font-bold text-primary text-xl sm:text-2xl">
-                    {formatPrice(areaStats.averageDailyRate)}
-                    <span className="text-sm text-white/60 font-dubai mr-1">{currencySymbol}</span>
-                  </span>
-                </div>
-                <div className="w-px h-12 bg-white/20 hidden sm:block"></div>
-                <div className="text-center min-w-[100px]">
-                  <span className="block text-white/60 text-xs font-dubai mb-1.5">متوسط نسبة الإشغال</span>
-                  <span className="block font-dubai font-bold text-primary text-xl sm:text-2xl">
-                    {Math.round(areaStats.averageOccupancy).toLocaleString('ar-EG')}
-                    <span className="text-sm text-white/60 font-dubai mr-1">%</span>
-                  </span>
-                </div>
-                <div className="w-px h-12 bg-white/20 hidden sm:block"></div>
-                <div className="text-center min-w-[100px]">
-                  <span className="block text-white/60 text-xs font-dubai mb-1.5">متوسط العوائد السنوية</span>
-                  <span className="block font-bristone font-bold text-primary text-xl sm:text-2xl">
-                    {areaStats.averageAnnualRevenue > 0 ? formatPrice(areaStats.averageAnnualRevenue) : '—'}
-                    {areaStats.averageAnnualRevenue > 0 && <span className="text-sm text-white/60 font-dubai mr-1">{currencySymbol}</span>}
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
         </motion.div>

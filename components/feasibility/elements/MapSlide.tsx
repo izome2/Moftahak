@@ -1927,6 +1927,7 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
                         isEditing={isEditing}
                         onEdit={() => handleEditPin(pin.id)}
                         onDelete={() => handleDeletePin(pin.id)}
+                        currencySymbol={currencySymbol}
                       />
                     </Popup>
                   </Marker>
@@ -2353,9 +2354,10 @@ interface PinPopupContentProps {
   isEditing: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  currencySymbol: string;
 }
 
-function PinPopupContent({ apartment, isEditing, onEdit, onDelete }: PinPopupContentProps) {
+function PinPopupContent({ apartment, isEditing, onEdit, onDelete, currencySymbol }: PinPopupContentProps) {
   return (
     <div className="min-w-52 max-w-64" dir="rtl">
       {}

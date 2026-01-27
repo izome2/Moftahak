@@ -39,11 +39,12 @@ export default function FeasibilityRequestForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [showEmailVerificationInStep2, setShowEmailVerificationInStep2] = useState(false);
+  const [showPhoneVerificationInStep2, setShowPhoneVerificationInStep2] = useState(false);
   const [paymentCode, setPaymentCode] = useState<string | null>(null);
   const [codeCopied, setCodeCopied] = useState(false);
   const [redirectCountdown, setRedirectCountdown] = useState<number>(3);
-  const [manualRedirect, setManualRedirect] = useState(false); // Track manual redirect
+  const manualRedirectRef = useRef(false); // Use ref to track manual redirect (doesn't trigger re-render)
+  const [hideCountdown, setHideCountdown] = useState(false); // State to hide countdown message
   
   // Ref for the scrollable content area
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -106,48 +107,33 @@ export default function FeasibilityRequestForm({
   };
 
   const validateStep2 = (): boolean => {
-    // For with field visit, we need room counts
-    const roomsRequired = studyType === 'WITH_FIELD_VISIT';
+    const fieldErrors: Record<string, string> = {};
     
-    const result = step2Schema.safeParse({
-      bedrooms: formData.bedrooms,
-      bathrooms: formData.bathrooms,
-      livingRooms: formData.livingRooms,
-      kitchens: formData.kitchens,
-      latitude: formData.latitude,
-      longitude: formData.longitude,
-      phoneNumber: formData.phoneNumber || '',
-      email: formData.email,
-    });
-
-    if (!result.success) {
-      const fieldErrors: Record<string, string> = {};
-      result.error.issues.forEach((issue) => {
-        const field = issue.path[0] as string;
-        fieldErrors[field] = issue.message;
-      });
-      setErrors(fieldErrors);
-      return false;
-    }
-
     // التحقق من أن المجموع الكلي للغرف لا يقل عن 3
     const totalRooms = formData.bedrooms + formData.bathrooms + formData.livingRooms + formData.kitchens;
     if (totalRooms < 3) {
-      setErrors({ 
-        bedrooms: 'يجب إضافة 3 غرف على الأقل (اي مزيج من الغرف)',
-        bathrooms: '',
-        livingRooms: '',
-        kitchens: ''
-      });
-      return false;
+      fieldErrors.bedrooms = 'يجب إضافة 3 غرف على الأقل (اي مزيج من الغرف)';
     }
 
     // التحقق من تحديد الموقع
     if (!formData.latitude || !formData.longitude) {
-      setErrors({ 
-        latitude: 'يرجى تحديد موقع الشقة على الخريطة',
-        longitude: 'يرجى تحديد موقع الشقة على الخريطة'
-      });
+      fieldErrors.latitude = 'يرجى تحديد موقع الشقة على الخريطة';
+      fieldErrors.longitude = 'يرجى تحديد موقع الشقة على الخريطة';
+    }
+
+    // إذا كان هناك أخطاء في الغرف أو الخريطة
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
+      
+      // Scroll to the first error
+      setTimeout(() => {
+        const scrollContainer = scrollContainerRef.current;
+        if (scrollContainer) {
+          // Scroll to top to show rooms section first (it's at the top of step 2)
+          scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
+      
       return false;
     }
 
@@ -172,10 +158,17 @@ export default function FeasibilityRequestForm({
   const handleSubmit = async () => {
     if (!validateStep2()) return;
 
-    // التحقق من أن البريد موثق
-    if (!formData.isEmailVerified) {
-      setShowEmailVerificationInStep2(true);
-      setSubmitError('يجب التحقق من البريد الإلكتروني لإرسال الطلب');
+    // التحقق من أن الهاتف موثق - بدون رسالة خطأ، فقط scroll للقسم
+    if (!formData.isPhoneVerified) {
+      setShowPhoneVerificationInStep2(true);
+      // Scroll to phone verification section
+      setTimeout(() => {
+        const scrollContainer = scrollContainerRef.current;
+        if (scrollContainer) {
+          // Scroll to bottom to show phone verification section
+          scrollContainer.scrollTo({ top: scrollContainer.scrollHeight, behavior: 'smooth' });
+        }
+      }, 100);
       return;
     }
 
@@ -234,11 +227,14 @@ export default function FeasibilityRequestForm({
 
   // التوجيه التلقائي إلى واتساب بعد 3 ثواني
   useEffect(() => {
-    if (submitSuccess && paymentCode && !manualRedirect) {
+    if (submitSuccess && paymentCode) {
       const countdown = setInterval(() => {
         setRedirectCountdown((prev) => {
-          if (prev <= 1) {
+          // Check if user hasn't manually redirected yet
+          if (prev <= 1 && !manualRedirectRef.current) {
             clearInterval(countdown);
+            manualRedirectRef.current = true; // Prevent any future redirects
+            setHideCountdown(true); // Hide countdown message
             window.open(getWhatsAppLink(), '_blank');
             return 0;
           }
@@ -248,7 +244,7 @@ export default function FeasibilityRequestForm({
 
       return () => clearInterval(countdown);
     }
-  }, [submitSuccess, paymentCode, manualRedirect]);
+  }, [submitSuccess, paymentCode]);
 
   // Success State
   if (submitSuccess) {
@@ -277,7 +273,7 @@ export default function FeasibilityRequestForm({
           </p>
 
           {/* عداد التوجيه التلقائي */}
-          {redirectCountdown > 0 && !manualRedirect && (
+          {redirectCountdown > 0 && !hideCountdown && (
             <div className="mb-4 p-3 bg-primary/10 border border-primary/30 rounded-xl text-secondary text-sm font-dubai relative z-10">
               سيتم توجيهك تلقائياً إلى واتساب خلال {redirectCountdown} {redirectCountdown === 1 ? 'ثانية' : 'ثواني'}...
             </div>
@@ -342,7 +338,10 @@ export default function FeasibilityRequestForm({
           href={getWhatsAppLink()}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={() => setManualRedirect(true)} // Cancel auto-redirect when clicked
+          onClick={() => {
+            manualRedirectRef.current = true; // Mark as manually redirected to cancel auto-redirect
+            setHideCountdown(true); // Hide countdown message
+          }}
           className="mt-4 w-full bg-[#22c55e] hover:bg-[#20BA5A] text-white rounded-2xl shadow-xl border-2 border-[#1fbb58] p-4 md:p-5 transition-all inline-flex items-center justify-center gap-3 font-bold font-dubai text-base md:text-base"
         >
           <Image 

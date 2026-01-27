@@ -39,9 +39,14 @@ const calculateZoomAndOffset = () => {
   
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
+  const isLandscape = screenWidth > screenHeight;
   
-  // على الموبايل والتابلت (أقل من 1024px) - القائمة مخفية، نجعل الشريحة Fit
-  if (screenWidth < 1024) {
+  // تحديد هل القائمة الجانبية ظاهرة
+  // تظهر على: xl (≥1280px) أو lg+landscape (≥1024px + landscape)
+  const isSidebarVisible = screenWidth >= 1280 || (screenWidth >= 1024 && isLandscape);
+  
+  // على الموبايل والتابلت (القائمة مخفية) - نجعل الشريحة Fit
+  if (!isSidebarVisible) {
     const availableWidth = screenWidth - 32; // 32 = padding
     const availableHeight = screenHeight - 120; // 120 = مساحة للأزرار
     

@@ -295,8 +295,13 @@ export default function RoomCounters({
     );
   }
 
+  // Check if there's any room error
+  const hasRoomError = errors.bedrooms || errors.bathrooms || errors.livingRooms || errors.kitchens;
+
   return (
-    <div className="md:p-6 md:rounded-2xl md:bg-linear-to-br md:from-white/80 md:to-accent/30 md:border-2 md:border-secondary/10 md:shadow-[0_4px_24px_rgba(16,48,43,0.08)]">
+    <div className={`md:p-6 md:rounded-2xl md:bg-linear-to-br md:from-white/80 md:to-accent/30 md:border-2 md:shadow-[0_4px_24px_rgba(16,48,43,0.08)] transition-all ${
+      hasRoomError ? 'md:border-red-400' : 'md:border-secondary/10'
+    }`}>
       {/* Header */}
       <div className="flex items-center gap-3 mb-4 md:mb-6">
         <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
@@ -323,6 +328,13 @@ export default function RoomCounters({
           />
         ))}
       </div>
+      
+      {/* Error Message */}
+      {hasRoomError && (
+        <p className="mt-3 text-sm text-red-500 font-dubai text-center">
+          {errors.bedrooms || errors.bathrooms || errors.livingRooms || errors.kitchens}
+        </p>
+      )}
     </div>
   );
 }

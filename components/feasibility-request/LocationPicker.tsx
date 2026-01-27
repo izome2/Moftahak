@@ -190,7 +190,14 @@ export default function LocationPicker({
         return { lat: parseFloat(atMatch[1]), lng: parseFloat(atMatch[2]) };
       }
 
-      // Pattern 2: Coordinates in path (e.g., /place/30°16'08.5"N+31°45'46.5"E)
+      // Pattern 2: /search/lat,lng or /search/lat,+lng (from short URL redirect)
+      const searchPattern = /\/search\/(-?\d+\.?\d*),\+?(-?\d+\.?\d*)/;
+      const searchMatch = url.match(searchPattern);
+      if (searchMatch) {
+        return { lat: parseFloat(searchMatch[1]), lng: parseFloat(searchMatch[2]) };
+      }
+
+      // Pattern 3: Coordinates in path (e.g., /place/30°16'08.5"N+31°45'46.5"E)
       const dmsPattern = /(\d+)°(\d+)'([\d.]+)"([NS]).*?(\d+)°(\d+)'([\d.]+)"([EW])/;
       const dmsMatch = url.match(dmsPattern);
       if (dmsMatch) {
@@ -213,18 +220,30 @@ export default function LocationPicker({
         return { lat, lng };
       }
 
-      // Pattern 3: q=lat,lng or ll=lat,lng
-      const qPattern = /[?&](q|ll)=(-?\d+\.?\d*),(-?\d+\.?\d*)/;
+      // Pattern 4: q=lat,lng or ll=lat,lng
+      const qPattern = /[?&](q|ll)=(-?\d+\.?\d*),\+?(-?\d+\.?\d*)/;
       const qMatch = url.match(qPattern);
       if (qMatch) {
         return { lat: parseFloat(qMatch[2]), lng: parseFloat(qMatch[3]) };
       }
 
-      // Pattern 4: !3d lat !4d lng (data parameter)
+      // Pattern 5: !3d lat !4d lng (data parameter)
       const dataPattern = /!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/;
       const dataMatch = url.match(dataPattern);
       if (dataMatch) {
         return { lat: parseFloat(dataMatch[1]), lng: parseFloat(dataMatch[2]) };
+      }
+
+      // Pattern 6: Plain coordinates like "30.015789, 31.228574" or "30.015789,31.228574"
+      const plainCoordsPattern = /(-?\d+\.\d+),\s*\+?(-?\d+\.\d+)/;
+      const plainMatch = url.match(plainCoordsPattern);
+      if (plainMatch) {
+        const lat = parseFloat(plainMatch[1]);
+        const lng = parseFloat(plainMatch[2]);
+        // Make sure it's a valid coordinate (lat: -90 to 90, lng: -180 to 180)
+        if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+          return { lat, lng };
+        }
       }
 
       return null;
@@ -242,24 +261,32 @@ export default function LocationPicker({
 
     try {
       let urlToProcess = linkInput.trim();
+      let coords = null;
       
       // If it's a shortened URL (goo.gl), try to expand it via API
       if (urlToProcess.includes('goo.gl') || urlToProcess.includes('maps.app.goo.gl')) {
         try {
-          // Use a CORS proxy or our own API to expand the URL
+          // Use our API to expand the URL and extract coordinates
           const response = await fetch(`/api/expand-url?url=${encodeURIComponent(urlToProcess)}`);
           if (response.ok) {
             const data = await response.json();
-            if (data.expandedUrl) {
+            if (data.coordinates) {
+              // Use coordinates extracted by the API
+              coords = data.coordinates;
+            } else if (data.expandedUrl) {
+              // Try to parse the expanded URL
               urlToProcess = data.expandedUrl;
+              coords = extractCoordsFromLink(urlToProcess);
             }
           }
         } catch {
           // If expansion fails, try to parse the original URL
+          coords = extractCoordsFromLink(urlToProcess);
         }
+      } else {
+        // Not a shortened URL, try direct extraction
+        coords = extractCoordsFromLink(urlToProcess);
       }
-
-      const coords = extractCoordsFromLink(urlToProcess);
       
       if (coords) {
         onChange(coords.lat, coords.lng);
@@ -362,7 +389,9 @@ export default function LocationPicker({
 
       {/* Map Container */}
       <div 
-        className="relative rounded-xl overflow-hidden border-2 border-secondary/10 h-[280px] md:h-[400px]"
+        className={`relative rounded-xl overflow-hidden border-2 h-[280px] md:h-[400px] transition-all ${
+          error ? 'border-red-400' : 'border-secondary/10'
+        }`}
       >
         {isMapReady ? (
           <>

@@ -15,7 +15,8 @@ import {
   Settings,
   Lock,
   GripVertical,
-  Building2
+  Building2,
+  StickyNote
 } from 'lucide-react';
 import type { Slide, SlideType } from '@/types/feasibility';
 
@@ -33,6 +34,7 @@ const slideIcons: Record<SlideType, React.ElementType> = {
   map: MapPin,
   'nearby-apartments': Building2,
   statistics: BarChart3,
+  notes: StickyNote,
   footer: FileText,
 };
 
@@ -50,6 +52,7 @@ const slidePreviewColors: Record<SlideType, { bg: string; iconBg: string }> = {
   map: { bg: 'bg-emerald-50', iconBg: 'bg-emerald-200' },
   'nearby-apartments': { bg: 'bg-teal-50', iconBg: 'bg-teal-200' },
   statistics: { bg: 'bg-indigo-50', iconBg: 'bg-indigo-200' },
+  notes: { bg: 'bg-amber-50', iconBg: 'bg-amber-200' },
   footer: { bg: 'bg-secondary', iconBg: 'bg-primary/30' },
 };
 
@@ -166,6 +169,7 @@ function getSlideTypeLabel(type: SlideType): string {
     map: 'خريطة',
     'nearby-apartments': 'شقق محيطة',
     statistics: 'إحصائيات',
+    notes: 'ملاحظات',
     footer: 'خاتمة',
   };
   return labels[type] || type;

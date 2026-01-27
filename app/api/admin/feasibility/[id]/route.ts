@@ -28,7 +28,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           select: {
             id: true,
             fullName: true,
-            email: true,
             phone: true,
             paymentCode: true,
             city: true,

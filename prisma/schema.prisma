@@ -115,7 +115,7 @@ model FeasibilityStudy {
   // تكوين الغرف
   bedrooms    Int         @default(1)
   livingRooms Int         @default(1) @map("living_rooms")
-  kitchens    Int         @default(1)
+  kitchens    Int         @default(0)
   bathrooms   Int         @default(1)
   
   // التكلفة الإجمالية
@@ -155,15 +155,14 @@ model FeasibilityRequest {
   
   // بيانات العميل
   fullName        String                    @map("full_name")
-  email           String
-  emailVerified   Boolean                   @default(false) @map("email_verified")
-  phone           String?                   // رقم للتواصل فقط (اختياري)
+  phone           String                    // رقم الهاتف للتحقق (مطلوب)
+  phoneVerified   Boolean                   @default(false) @map("phone_verified")
   
   // بيانات العقار
   propertyType    PropertyType              @map("property_type")
   bedrooms        Int                       @default(1)
   livingRooms     Int                       @default(1) @map("living_rooms")
-  kitchens        Int                       @default(1)
+  kitchens        Int                       @default(0)
   bathrooms       Int                       @default(1)
   
   // بيانات الموقع
@@ -191,7 +190,7 @@ model FeasibilityRequest {
   @@map("feasibility_requests")
 }
 
-// Email Verification Model - نموذج التحقق من البريد الإلكتروني
+// Email Verification Model - نموذج التحقق من البريد الإلكتروني (Legacy)
 model EmailVerification {
   id          String    @id @default(cuid())
   email       String
@@ -205,6 +204,22 @@ model EmailVerification {
   @@index([email, code])
   @@index([email, expiresAt])
   @@map("email_verifications")
+}
+
+// Phone Verification Model - نموذج التحقق من رقم الهاتف
+model PhoneVerification {
+  id              String    @id @default(cuid())
+  phoneNumber     String    @map("phone_number")
+  firebaseUid     String?   @map("firebase_uid")     // Firebase user ID after verification
+  verified        Boolean   @default(false)
+  verifiedAt      DateTime? @map("verified_at")
+  expiresAt       DateTime  @map("expires_at")       // Verification validity (24 hours)
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@unique([phoneNumber, verified])                   // Only one verified record per phone
+  @@index([phoneNumber, expiresAt])
+  @@index([phoneNumber, verified])
+  @@map("phone_verifications")
 }
 
 // Library Item Customization - تخصيصات عناصر المكتبة (الأسعار والصور والأوصاف)

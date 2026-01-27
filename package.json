@@ -23,6 +23,7 @@
     "critters": "^0.0.23",
     "dotenv": "^17.2.3",
     "enhanced-resolve": "^5.18.4",
+    "firebase": "^12.8.0",
     "framer-motion": "^12.23.26",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.562.0",

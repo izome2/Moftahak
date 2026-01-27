@@ -160,6 +160,16 @@ const defaultSlideTemplates: Record<SlideType, { title: string; data: SlideData;
       },
     },
   },
+  notes: {
+    title: 'ملاحظات إضافية',
+    data: {
+      notes: {
+        title: 'ملاحظات إضافية',
+        content: '',
+        showDecoration: true,
+      },
+    },
+  },
   footer: {
     title: 'الخاتمة',
     data: {
@@ -293,8 +303,21 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
       newSlide.data.room.room.number = existingOfType + 1;
     }
 
+    let finalInsertIndex = 0;
+
     setSlides(prev => {
-      const insertIndex = afterIndex !== undefined ? afterIndex + 1 : prev.length;
+      let insertIndex = afterIndex !== undefined ? afterIndex + 1 : prev.length;
+      
+      // إذا كانت شريحة ملاحظات، ضعها قبل الخاتمة تلقائياً
+      if (type === 'notes' && afterIndex === undefined) {
+        const footerIndex = prev.findIndex(s => s.type === 'footer');
+        if (footerIndex !== -1) {
+          insertIndex = footerIndex;
+        }
+      }
+      
+      finalInsertIndex = insertIndex;
+      
       const newSlides = [...prev];
       newSlides.splice(insertIndex, 0, newSlide);
       // تحديث الترتيب
@@ -302,8 +325,9 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
     });
 
     // تحديد الشريحة الجديدة
-    const newIndex = afterIndex !== undefined ? afterIndex + 1 : slides.length;
-    setActiveSlideIndex(newIndex);
+    setTimeout(() => {
+      setActiveSlideIndex(finalInsertIndex);
+    }, 0);
 
     return newSlide;
   }, [slides]);

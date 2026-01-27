@@ -211,7 +211,7 @@ const ItemWidget: React.FC<ItemWidgetProps> = ({
         type="file"
         accept="image/*"
         onChange={handleImageSelect}
-        className="hidden"
+        style={{ display: 'none' }}
       />
 
       {/* Hover Glow Effect */}

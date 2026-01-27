@@ -202,7 +202,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                className="hidden lg:block text-xs text-secondary/50"
+                className="hidden xl:block lg:landscape:block text-xs text-secondary/50"
               >
                 تم الحفظ ✓
               </motion.span>
@@ -266,8 +266,11 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
         )}
       </div>
 
-      {/* ======== Desktop: شريط الأدوات السفلي المركزي (≥1024px) ======== */}
-      <div className="hidden lg:block absolute bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+      {/* ======== Desktop: شريط الأدوات السفلي المركزي (≥1280px OR landscape ≥1024px) ======== */}
+      <div 
+        data-toolbar="desktop"
+        className="hidden xl:block lg:landscape:block absolute bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+      >
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -345,30 +348,31 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
         </motion.div>
       </div>
 
-      {/* ======== Mobile/Tablet: شريط أدوات مصغر على اليسار (<1024px) ======== */}
+      {/* ======== Mobile/Tablet: شريط أدوات مصغر على اليسار (<1280px portrait) ======== */}
       <motion.div 
+        data-toolbar="mobile"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="lg:hidden fixed bottom-6 left-4 z-40 flex items-center gap-1 bg-white rounded-full px-2 py-1.5 border-2 border-primary/20"
+        className="xl:hidden lg:landscape:hidden fixed bottom-10 left-4 z-40 flex items-center gap-2 bg-white rounded-full px-3 py-2 border-2 border-primary/20"
         style={{ boxShadow: 'rgba(16, 48, 43, 0.15) 0px 10px 40px, rgba(237, 191, 140, 0.3) 0px 0px 0px 1px' }}
       >
         {/* إضافة نص */}
         <button
           onClick={() => onAddText?.()}
-          className="p-2.5 rounded-full transition-colors text-secondary/70 hover:text-secondary hover:bg-primary/10"
+          className="p-1.5 rounded-full transition-colors text-secondary/70 hover:text-secondary hover:bg-primary/10"
           title="إضافة نص"
         >
-          <Type className="w-5 h-5" />
+          <Type className="w-4 h-4" />
         </button>
 
         {/* إضافة صورة */}
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="p-2.5 rounded-full transition-colors text-secondary/70 hover:text-secondary hover:bg-primary/10"
+          className="p-1.5 rounded-full transition-colors text-secondary/70 hover:text-secondary hover:bg-primary/10"
           title="إضافة صورة"
         >
-          <ImagePlus className="w-5 h-5" />
+          <ImagePlus className="w-4 h-4" />
         </button>
       </motion.div>
 
@@ -378,7 +382,7 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
         type="file"
         accept="image/*"
         onChange={handleImageSelect}
-        className="hidden"
+        style={{ display: 'none' }}
       />
     </>
   );

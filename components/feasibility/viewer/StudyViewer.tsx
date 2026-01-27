@@ -33,7 +33,8 @@ import {
   BathroomSlide, 
   MapSlide, 
   NearbyApartmentsSlide, 
-  StatisticsSlide 
+  StatisticsSlide,
+  NotesSlide 
 } from '@/components/feasibility/elements';
 import { ViewerCurrencyProvider } from './CurrencyContext';
 import type { CurrencyCode } from '@/lib/feasibility/currency';
@@ -80,6 +81,7 @@ const slideIcons: Record<SlideType, React.ElementType> = {
   map: MapPin,
   'nearby-apartments': Building2,
   statistics: BarChart3,
+  notes: FileText,
   footer: FileText,
 };
 
@@ -97,6 +99,7 @@ const slideColors: Record<SlideType, string> = {
   map: 'bg-emerald-100',
   'nearby-apartments': 'bg-teal-100',
   statistics: 'bg-indigo-100',
+  notes: 'bg-amber-100',
   footer: 'bg-secondary',
 };
 
@@ -419,12 +422,35 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
         }));
         const totalCostFromRooms = roomsCostForStats.reduce((sum, r) => sum + r.cost, 0);
         
+        // حساب إحصائيات المنطقة تلقائياً من الشقق المجاورة
+        const nearbyApartmentsSlideForStats = sortedSlides.find(s => s.type === 'nearby-apartments');
+        const nearbyApartmentsForStats = nearbyApartmentsSlideForStats?.data.nearbyApartments?.apartments || [];
+        // استبعاد شقة العميل من الحسابات
+        const otherApartmentsForStats = nearbyApartmentsForStats.filter(apt => !apt.isClientApartment);
+        
+        // حساب المتوسطات
+        // الإيراد السنوي = 365 × (متوسط نسبة الإشغال / 100) × متوسط سعر الليلة
+        const calculatedAreaStatsForViewer = otherApartmentsForStats.length > 0 ? {
+          averageDailyRate: Math.round(otherApartmentsForStats.reduce((sum, apt) => sum + (apt.price || 0), 0) / otherApartmentsForStats.length),
+          averageOccupancy: Math.round(otherApartmentsForStats.reduce((sum, apt) => sum + (apt.occupancy || 0), 0) / otherApartmentsForStats.length),
+          get averageAnnualRevenue() {
+            // استخدام متوسط السعر ومتوسط الإشغال المحسوبين
+            return Math.round(365 * (this.averageOccupancy / 100) * this.averageDailyRate);
+          }
+        } : {
+          averageDailyRate: 0,
+          averageOccupancy: 0,
+          averageAnnualRevenue: 0,
+        };
+        
         const statisticsWithData = {
           totalCost: totalCostFromRooms,
           averageRent: slide.data.statistics?.averageRent || 0,
           roomsCost: roomsCostForStats,
-          areaStatistics: slide.data.statistics?.areaStatistics,
+          operationalCosts: slide.data.statistics?.operationalCosts || [],
+          areaStatistics: calculatedAreaStatsForViewer,
           monthlyOccupancy: slide.data.statistics?.monthlyOccupancy,
+          year: slide.data.statistics?.year,
         };
         
         return (
@@ -448,6 +474,14 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
               },
               socialLinks: {}
             }}
+            isEditing={false}
+          />
+        );
+      
+      case 'notes':
+        return (
+          <NotesSlide
+            data={slide.data.notes || { title: 'ملاحظات إضافية', content: '', showDecoration: true }}
             isEditing={false}
           />
         );

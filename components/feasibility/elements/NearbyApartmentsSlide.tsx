@@ -20,7 +20,9 @@ import {
   ExternalLink,
   Users,
   Bath,
-  ChevronLeft
+  ChevronLeft,
+  Percent,
+  Wallet
 } from 'lucide-react';
 import { NearbyApartmentsSlideData, NearbyApartment, MapSlideData } from '@/types/feasibility';
 import EditableSectionTitle from '@/components/feasibility/shared/EditableSectionTitle';
@@ -178,11 +180,23 @@ const EditableWidget: React.FC<EditableWidgetProps> = ({
   const [localValue, setLocalValue] = useState(String(value));
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // تحديث localValue عند تغيير value من الخارج
+  useEffect(() => {
+    if (!isEditing) {
+      setLocalValue(String(value));
+    }
+  }, [value, isEditing]);
+
   const handleClick = () => {
     if (isEditable && onSave) {
       setIsEditing(true);
-      setLocalValue(String(value === '-' ? 0 : value));
-      setTimeout(() => inputRef.current?.focus(), 50);
+      // تعيين القيمة الرقمية مباشرة (بدون تنسيق)
+      const numVal = typeof value === 'number' ? value : parseFloat(String(value)) || 0;
+      setLocalValue(String(numVal));
+      setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 50);
     }
   };
 
@@ -194,9 +208,19 @@ const EditableWidget: React.FC<EditableWidgetProps> = ({
     setIsEditing(false);
   };
 
+  // تحديث القيمة المحلية فقط (بدون حفظ فوري)
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // السماح بالأرقام والنقطة فقط
+    const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+    setLocalValue(rawValue);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleSave();
-    if (e.key === 'Escape') setIsEditing(false);
+    if (e.key === 'Escape') {
+      setLocalValue(String(value));
+      setIsEditing(false);
+    }
   };
 
   return (
@@ -228,15 +252,13 @@ const EditableWidget: React.FC<EditableWidgetProps> = ({
         <div className="flex items-center gap-1">
           <input
             ref={inputRef}
-            type="number"
+            type="text"
+            inputMode="numeric"
             value={localValue}
-            onChange={(e) => setLocalValue(e.target.value)}
+            onChange={handleChange}
             onBlur={handleSave}
             onKeyDown={handleKeyDown}
-            className={`w-full text-base sm:text-lg font-bold font-bristone border rounded-lg px-2 py-1 focus:outline-none ${isDark ? 'text-[#fdf5ed] bg-secondary/50 border-secondary/40 focus:border-secondary/70' : 'text-secondary bg-white/50 border-primary/40 focus:border-primary'}`}
-            min={0}
-            step={label === 'التقييم' ? '0.1' : '1'}
-            max={label === 'التقييم' ? '5' : undefined}
+            className={`w-full text-base sm:text-lg font-bold font-dubai border rounded-lg px-2 py-1 focus:outline-none ${isDark ? 'text-[#fdf5ed] bg-secondary/50 border-secondary/40 focus:border-secondary/70' : 'text-secondary bg-white/50 border-primary/40 focus:border-primary'}`}
           />
           <button
             onClick={(e) => { e.stopPropagation(); handleSave(); }}
@@ -413,7 +435,7 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
         type="file"
         accept="image/*"
         onChange={handleThumbnailUpload}
-        className="hidden"
+        style={{ display: 'none' }}
       />
       
       {/* Header */}
@@ -517,73 +539,110 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
 
       {/* Content */}
       <div className="p-3 sm:p-4 space-y-3 sm:space-y-4 overflow-hidden">
-        {/* Stats Grid - 6 ويدجات موحدة لكل الشقق */}
-        <div className="grid grid-cols-3 gap-3 overflow-hidden">
+        {/* Stats Grid - شبكة مرنة للودجات */}
+        <div className="grid grid-cols-6 gap-3 overflow-hidden">
           {/* السعر */}
-          <EditableWidget
-            icon={<DollarSign className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
-            label="السعر/ليلة"
-            value={apartment.price}
-            suffix={currencySymbol}
-            isEditable={canEdit}
-            onSave={(v) => handleUpdateValue('price', v)}
-            isDark={isMyApartment}
-          />
+          <div className="col-span-2">
+            <EditableWidget
+              icon={<DollarSign className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
+              label="السعر/ليلة"
+              value={apartment.price}
+              suffix={currencySymbol}
+              isEditable={canEdit}
+              onSave={(v) => handleUpdateValue('price', v)}
+              isDark={isMyApartment}
+            />
+          </div>
 
           {/* غرف النوم */}
-          <EditableWidget
-            icon={<Home className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
-            label="غرف النوم"
-            value={apartment.rooms}
-            suffix="غرف"
-            isEditable={canEdit}
-            onSave={(v) => handleUpdateValue('rooms', v)}
-            isDark={isMyApartment}
-          />
+          <div className="col-span-2">
+            <EditableWidget
+              icon={<Home className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
+              label="غرف النوم"
+              value={apartment.rooms}
+              suffix="غرف"
+              isEditable={canEdit}
+              onSave={(v) => handleUpdateValue('rooms', v)}
+              isDark={isMyApartment}
+            />
+          </div>
 
           {/* الضيوف */}
-          <EditableWidget
-            icon={<Users className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
-            label="الضيوف"
-            value={apartment.guests || 0}
-            suffix="ضيف"
-            isEditable={canEdit}
-            onSave={(v) => handleUpdateValue('guests', v)}
-            isDark={isMyApartment}
-          />
+          <div className="col-span-2">
+            <EditableWidget
+              icon={<Users className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
+              label="الضيوف"
+              value={apartment.guests || 0}
+              suffix="ضيف"
+              isEditable={canEdit}
+              onSave={(v) => handleUpdateValue('guests', v)}
+              isDark={isMyApartment}
+            />
+          </div>
 
           {/* الأسرّة */}
-          <EditableWidget
-            icon={<Bed className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
-            label="الأسرّة"
-            value={apartment.beds || 0}
-            suffix="سرير"
-            isEditable={canEdit}
-            onSave={(v) => handleUpdateValue('beds', v)}
-            isDark={isMyApartment}
-          />
+          <div className="col-span-2">
+            <EditableWidget
+              icon={<Bed className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
+              label="الأسرّة"
+              value={apartment.beds || 0}
+              suffix="سرير"
+              isEditable={canEdit}
+              onSave={(v) => handleUpdateValue('beds', v)}
+              isDark={isMyApartment}
+            />
+          </div>
 
           {/* الحمامات */}
-          <EditableWidget
-            icon={<Bath className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
-            label="الحمامات"
-            value={apartment.bathrooms || 0}
-            suffix="حمام"
-            isEditable={canEdit}
-            onSave={(v) => handleUpdateValue('bathrooms', v)}
-            isDark={isMyApartment}
-          />
+          <div className="col-span-2">
+            <EditableWidget
+              icon={<Bath className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
+              label="الحمامات"
+              value={apartment.bathrooms || 0}
+              suffix="حمام"
+              isEditable={canEdit}
+              onSave={(v) => handleUpdateValue('bathrooms', v)}
+              isDark={isMyApartment}
+            />
+          </div>
 
           {/* التقييم */}
-          <EditableWidget
-            icon={<Star className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
-            label="التقييم"
-            value={apartment.rating ? apartment.rating.toFixed(1) : 0}
-            suffix={apartment.reviewsCount ? `(${apartment.reviewsCount})` : '/ 5'}
-            isEditable={canEdit}
-            onSave={(v) => handleUpdateValue('rating', v)}
-            isDark={isMyApartment}
-          />
+          <div className="col-span-2">
+            <EditableWidget
+              icon={<Star className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
+              label="التقييم"
+              value={apartment.rating ? apartment.rating.toFixed(1) : 0}
+              suffix={apartment.reviewsCount ? `(${apartment.reviewsCount})` : '/ 5'}
+              isEditable={canEdit}
+              onSave={(v) => handleUpdateValue('rating', v)}
+              isDark={isMyApartment}
+            />
+          </div>
+
+          {/* نسبة الإشغال - أعرض */}
+          <div className="col-span-3">
+            <EditableWidget
+              icon={<Percent className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
+              label="نسبة الإشغال"
+              value={apartment.occupancy || 0}
+              suffix="%"
+              isEditable={canEdit}
+              onSave={(v) => handleUpdateValue('occupancy', Math.min(100, Math.max(0, v)))}
+              isDark={isMyApartment}
+            />
+          </div>
+
+          {/* العوائد السنوية - محسوبة تلقائياً */}
+          <div className="col-span-3">
+            <EditableWidget
+              icon={<Wallet className={`w-3.5 h-3.5 ${isMyApartment ? 'text-[#fdf5ed]' : 'text-secondary'}`} />}
+              label="العوائد السنوية"
+              value={Math.round(365 * ((apartment.occupancy || 0) / 100) * (apartment.price || 0))}
+              suffix={currencySymbol}
+              isEditable={false}
+              isDark={isMyApartment}
+            />
+          </div>
         </div>
 
         {/* المميزات */}
@@ -763,7 +822,7 @@ const ApartmentCardComponent: React.FC<ApartmentCardProps> = ({
               accept="image/*"
               multiple
               onChange={handleImageUpload}
-              className="hidden"
+              style={{ display: 'none' }}
             />
 
             {(apartment.images || []).length > 0 ? (
@@ -889,6 +948,8 @@ export default function NearbyApartmentsSlide({
             beds: savedApartment?.beds ?? pin.apartment.beds ?? 0,
             bathrooms: savedApartment?.bathrooms ?? pin.apartment.bathrooms ?? 0,
             rating: savedApartment?.rating ?? pin.apartment.rating ?? 0,
+            occupancy: savedApartment?.occupancy ?? pin.apartment.occupancy ?? 0,
+            annualRevenue: savedApartment?.annualRevenue ?? pin.apartment.annualRevenue ?? 0,
             // الحفاظ على الخصائص الأصلية المهمة
             airbnbUrl: pin.apartment.airbnbUrl,
             isClientApartment: pin.apartment.isClientApartment,
@@ -943,6 +1004,8 @@ export default function NearbyApartmentsSlide({
       bathrooms: (localData[apt.id] as any)?.bathrooms ?? apt.bathrooms,
       rating: (localData[apt.id] as any)?.rating ?? apt.rating,
       thumbnailUrl: (localData[apt.id] as any)?.thumbnailUrl ?? apt.thumbnailUrl,
+      occupancy: (localData[apt.id] as any)?.occupancy ?? apt.occupancy,
+      annualRevenue: (localData[apt.id] as any)?.annualRevenue ?? apt.annualRevenue,
       // الحفاظ على الخصائص الأصلية
       airbnbUrl: apt.airbnbUrl,
       isClientApartment: apt.isClientApartment,
@@ -972,6 +1035,8 @@ export default function NearbyApartmentsSlide({
         bathrooms: (localData[apt.id] as any)?.bathrooms ?? apt.bathrooms,
         rating: (localData[apt.id] as any)?.rating ?? apt.rating,
         thumbnailUrl: (localData[apt.id] as any)?.thumbnailUrl ?? apt.thumbnailUrl,
+        occupancy: (localData[apt.id] as any)?.occupancy ?? apt.occupancy,
+        annualRevenue: (localData[apt.id] as any)?.annualRevenue ?? apt.annualRevenue,
         // الحفاظ على الخصائص الأصلية
         airbnbUrl: apt.airbnbUrl,
         isClientApartment: apt.isClientApartment,
@@ -1002,6 +1067,8 @@ export default function NearbyApartmentsSlide({
               bathrooms: (updates as any)?.bathrooms ?? pin.apartment.bathrooms,
               rating: (updates as any)?.rating ?? pin.apartment.rating,
               thumbnailUrl: (updates as any)?.thumbnailUrl ?? pin.apartment.thumbnailUrl,
+              occupancy: (updates as any)?.occupancy ?? pin.apartment.occupancy,
+              annualRevenue: (updates as any)?.annualRevenue ?? pin.apartment.annualRevenue,
             },
           };
         });

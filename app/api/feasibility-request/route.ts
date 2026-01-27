@@ -60,10 +60,10 @@ export async function POST(request: NextRequest) {
     
     console.log('Received request body:', JSON.stringify(body, null, 2));
 
-    // Check if email is verified first (before validation)
-    if (!body.isEmailVerified) {
+    // Check if phone is verified first (before validation)
+    if (!body.isPhoneVerified) {
       const response = NextResponse.json(
-        { error: 'يرجى التحقق من البريد الإلكتروني' },
+        { error: 'يرجى التحقق من رقم الهاتف' },
         { status: 400 }
       );
       return addSecurityHeaders(response);
@@ -86,14 +86,16 @@ export async function POST(request: NextRequest) {
 
     const data = validationResult.data;
 
-    // Verify email was actually verified in database (within last 10 minutes)
-    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
-    const emailVerification = await prisma.emailVerification.findFirst({
+    // Normalize phone number
+    const normalizedPhone = body.phoneNumber.replace(/\D/g, '');
+
+    // Verify phone was actually verified in database (within last 24 hours)
+    const phoneVerification = await prisma.phoneVerification.findFirst({
       where: {
-        email: data.email.toLowerCase(),
+        phoneNumber: normalizedPhone,
         verified: true,
-        verifiedAt: {
-          gte: tenMinutesAgo, // التحقق خلال آخر 10 دقائق
+        expiresAt: {
+          gt: new Date(), // التحقق لم تنتهِ صلاحيته بعد
         },
       },
       orderBy: {
@@ -101,9 +103,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    if (!emailVerification) {
+    if (!phoneVerification) {
       const response = NextResponse.json(
-        { error: 'انتهت صلاحية التحقق من البريد الإلكتروني. يرجى إعادة التحقق.' },
+        { error: 'انتهت صلاحية التحقق من رقم الهاتف. يرجى إعادة التحقق.' },
         { status: 400 }
       );
       return addSecurityHeaders(response);
@@ -114,8 +116,7 @@ export async function POST(request: NextRequest) {
     
     console.log('Creating feasibility request with data:', {
       fullName: data.fullName,
-      email: data.email,
-      phone: body.phoneNumber || null,
+      phone: normalizedPhone,
       studyType: data.studyType,
       propertyType: data.propertyType,
       city: data.city,
@@ -133,8 +134,7 @@ export async function POST(request: NextRequest) {
     const feasibilityRequest = await prisma.feasibilityRequest.create({
       data: {
         fullName: data.fullName,
-        email: data.email,
-        phone: body.phoneNumber || null,
+        phone: normalizedPhone,
         studyType: data.studyType,
         propertyType: data.propertyType,
         city: data.city,
@@ -145,20 +145,14 @@ export async function POST(request: NextRequest) {
         bathrooms: data.bathrooms,
         livingRooms: data.livingRooms,
         kitchens: data.kitchens,
-        emailVerified: true,
+        phoneVerified: true,
         status: 'PENDING',
         paymentCode: paymentCode,
       },
     });
 
-    // Do NOT delete verified email records - keep them for 10 minutes
-    // Only clean up unverified records
-    await prisma.emailVerification.deleteMany({
-      where: {
-        email: data.email.toLowerCase(),
-        verified: false,
-      },
-    });
+    // Don't delete phone verification - it's valid for 24 hours and can be reused
+    // Clean up old expired verifications instead (via cron job)
 
     const response = NextResponse.json(
       { 

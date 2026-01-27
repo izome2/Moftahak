@@ -65,14 +65,19 @@ const EditableImageOverlay: React.FC<EditableImageOverlayProps> = ({
 
   // إغلاق التحديد عند النقر خارج العنصر
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (elementRef.current && !elementRef.current.contains(e.target as Node)) {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (elementRef.current && !elementRef.current.contains(target)) {
         setIsSelected(false);
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -83,6 +88,20 @@ const EditableImageOverlay: React.FC<EditableImageOverlayProps> = ({
       x: e.clientX / scale - item.x,
       y: e.clientY / scale - item.y,
     });
+  };
+
+  // Touch events للأجهزة اللمسية
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation();
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      setIsSelected(true);
+      setIsDragging(true);
+      setDragStart({
+        x: touch.clientX / scale - item.x,
+        y: touch.clientY / scale - item.y,
+      });
+    }
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -112,18 +131,65 @@ const EditableImageOverlay: React.FC<EditableImageOverlayProps> = ({
     }
   };
 
+  const handleTouchMove = (e: TouchEvent) => {
+    e.preventDefault(); // منع التمرير أثناء السحب
+    
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      
+      if (isDragging) {
+        const newX = touch.clientX / scale - dragStart.x;
+        const newY = touch.clientY / scale - dragStart.y;
+
+        onUpdate({
+          ...item,
+          x: newX,
+          y: newY,
+        });
+      } else if (isResizing) {
+        const deltaX = (touch.clientX - resizeStart.x) / scale;
+        const deltaY = (touch.clientY - resizeStart.y) / scale;
+        
+        // الحفاظ على نسبة العرض إلى الارتفاع
+        const aspectRatio = resizeStart.width / resizeStart.height;
+        const newWidth = Math.max(50, resizeStart.width + deltaX);
+        const newHeight = newWidth / aspectRatio;
+
+        onUpdate({
+          ...item,
+          width: newWidth,
+          height: newHeight,
+        });
+      }
+    }
+  };
+
   const handleMouseUp = () => {
+    setIsDragging(false);
+    setIsResizing(false);
+  };
+
+  const handleTouchEnd = () => {
     setIsDragging(false);
     setIsResizing(false);
   };
 
   useEffect(() => {
     if (isDragging || isResizing) {
+      // Mouse events
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      // Touch events
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
+      document.addEventListener('touchcancel', handleTouchEnd);
+      
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+        document.removeEventListener('touchcancel', handleTouchEnd);
       };
     }
   }, [isDragging, isResizing, dragStart, resizeStart, item, scale]);
@@ -137,6 +203,21 @@ const EditableImageOverlay: React.FC<EditableImageOverlayProps> = ({
       x: e.clientX,
       y: e.clientY,
     });
+  };
+
+  // Touch resize للأجهزة اللمسية
+  const handleResizeTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation();
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      setIsResizing(true);
+      setResizeStart({
+        width: item.width,
+        height: item.height,
+        x: touch.clientX,
+        y: touch.clientY,
+      });
+    }
   };
 
   const handleZoomIn = () => {
@@ -171,7 +252,7 @@ const EditableImageOverlay: React.FC<EditableImageOverlayProps> = ({
       ref={elementRef}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`absolute cursor-move select-none ${
+      className={`absolute cursor-move select-none touch-none ${
         isSelected ? 'z-[100]' : 'z-50'
       }`}
       style={{
@@ -181,6 +262,7 @@ const EditableImageOverlay: React.FC<EditableImageOverlayProps> = ({
         height: `${item.height}px`,
       }}
       onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
       onClick={(e) => {
         e.stopPropagation();
         setIsSelected(true);
@@ -228,23 +310,27 @@ const EditableImageOverlay: React.FC<EditableImageOverlayProps> = ({
         <>
           {/* الزاوية السفلية اليمنى */}
           <div
-            className="absolute -bottom-2 -right-2 w-4 h-4 bg-primary border-2 border-white shadow-lg cursor-se-resize rounded-full"
+            className="absolute -bottom-2 -right-2 w-6 h-6 bg-primary border-2 border-white shadow-lg cursor-se-resize rounded-full touch-none"
             onMouseDown={handleResizeStart}
+            onTouchStart={handleResizeTouchStart}
           />
           {/* الزاوية السفلية اليسرى */}
           <div
-            className="absolute -bottom-2 -left-2 w-4 h-4 bg-primary border-2 border-white shadow-lg cursor-sw-resize rounded-full"
+            className="absolute -bottom-2 -left-2 w-6 h-6 bg-primary border-2 border-white shadow-lg cursor-sw-resize rounded-full touch-none"
             onMouseDown={handleResizeStart}
+            onTouchStart={handleResizeTouchStart}
           />
           {/* الزاوية العلوية اليمنى */}
           <div
-            className="absolute -top-2 -right-2 w-4 h-4 bg-primary border-2 border-white shadow-lg cursor-ne-resize rounded-full"
+            className="absolute -top-2 -right-2 w-6 h-6 bg-primary border-2 border-white shadow-lg cursor-ne-resize rounded-full touch-none"
             onMouseDown={handleResizeStart}
+            onTouchStart={handleResizeTouchStart}
           />
           {/* الزاوية العلوية اليسرى */}
           <div
-            className="absolute -top-2 -left-2 w-4 h-4 bg-primary border-2 border-white shadow-lg cursor-nw-resize rounded-full"
+            className="absolute -top-2 -left-2 w-6 h-6 bg-primary border-2 border-white shadow-lg cursor-nw-resize rounded-full touch-none"
             onMouseDown={handleResizeStart}
+            onTouchStart={handleResizeTouchStart}
           />
         </>
       )}

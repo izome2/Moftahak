@@ -47,8 +47,9 @@ const EditableTextOverlay: React.FC<EditableTextOverlayProps> = ({
 
   // إغلاق التحديد عند النقر خارج العنصر
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (elementRef.current && !elementRef.current.contains(e.target as Node)) {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (elementRef.current && !elementRef.current.contains(target)) {
         setIsSelected(false);
         if (isEditing) {
           handleSave();
@@ -57,7 +58,11 @@ const EditableTextOverlay: React.FC<EditableTextOverlayProps> = ({
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, [isEditing, editContent]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -70,6 +75,22 @@ const EditableTextOverlay: React.FC<EditableTextOverlayProps> = ({
       x: e.clientX / scale - item.x,
       y: e.clientY / scale - item.y,
     });
+  };
+
+  // Touch events للأجهزة اللمسية
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation();
+    if (isEditing) return;
+    
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      setIsSelected(true);
+      setIsDragging(true);
+      setDragStart({
+        x: touch.clientX / scale - item.x,
+        y: touch.clientY / scale - item.y,
+      });
+    }
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -85,17 +106,47 @@ const EditableTextOverlay: React.FC<EditableTextOverlayProps> = ({
     });
   };
 
+  const handleTouchMove = (e: TouchEvent) => {
+    if (!isDragging) return;
+    e.preventDefault(); // منع التمرير أثناء السحب
+
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      const newX = touch.clientX / scale - dragStart.x;
+      const newY = touch.clientY / scale - dragStart.y;
+
+      onUpdate({
+        ...item,
+        x: newX,
+        y: newY,
+      });
+    }
+  };
+
   const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchEnd = () => {
     setIsDragging(false);
   };
 
   useEffect(() => {
     if (isDragging) {
+      // Mouse events
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      // Touch events
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
+      document.addEventListener('touchcancel', handleTouchEnd);
+      
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+        document.removeEventListener('touchcancel', handleTouchEnd);
       };
     }
   }, [isDragging, dragStart, item, scale]);
@@ -131,7 +182,7 @@ const EditableTextOverlay: React.FC<EditableTextOverlayProps> = ({
       ref={elementRef}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`absolute cursor-move select-none ${
+      className={`absolute cursor-move select-none touch-none ${
         isSelected ? 'z-[100]' : 'z-50'
       }`}
       style={{
@@ -139,6 +190,7 @@ const EditableTextOverlay: React.FC<EditableTextOverlayProps> = ({
         top: `${item.y}px`,
       }}
       onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
       onDoubleClick={handleDoubleClick}
     >
       {/* النص أو حقل التعديل - بدون خلفية */}

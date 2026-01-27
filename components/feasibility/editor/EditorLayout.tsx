@@ -177,7 +177,7 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
 
       {/* المحتوى الرئيسي */}
       <div className="flex-1 flex overflow-hidden">
-        {/* الشريط الجانبي */}
+        {/* الشريط الجانبي - يظهر على الديسكتوب (≥1280px) أو landscape (≥1024px) */}
         <motion.div
           initial={false}
           animate={{
@@ -185,7 +185,7 @@ const EditorLayout: React.FC<EditorLayoutProps> = ({
             opacity: isSidebarOpen ? 1 : 0
           }}
           transition={{ duration: 0.3, ease: 'easeInOut' }}
-          className="h-full overflow-hidden"
+          className="h-full overflow-hidden hidden xl:block lg:landscape:block"
         >
           <SlideManager
             slides={slides}

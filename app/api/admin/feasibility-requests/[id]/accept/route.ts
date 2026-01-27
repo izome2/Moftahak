@@ -262,7 +262,7 @@ export async function POST(
       data: {
         title: `دراسة جدوى`,
         clientName: feasibilityRequest.fullName,
-        clientEmail: feasibilityRequest.email,
+        clientPhone: feasibilityRequest.phone,
         studyType: feasibilityRequest.studyType, // حفظ نوع الدراسة
         bedrooms: feasibilityRequest.bedrooms,
         bathrooms: feasibilityRequest.bathrooms,

@@ -164,7 +164,7 @@ const CoverSlide: React.FC<CoverSlideProps> = ({
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        className="hidden"
+        style={{ display: 'none' }}
         onChange={handleImageUpload}
         onClick={(e) => e.stopPropagation()}
       />

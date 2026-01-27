@@ -61,12 +61,8 @@ export const step2Schema = z.object({
   longitude: z.number().optional(),
   phoneNumber: z
     .string()
-    .regex(/^(01[0125][0-9]{8})?$/, 'رقم هاتف مصري غير صالح')
-    .optional()
-    .or(z.literal('')),
-  email: z
-    .string()
-    .email('البريد الإلكتروني غير صالح'),
+    .min(9, 'رقم الهاتف قصير جداً')
+    .max(12, 'رقم الهاتف طويل جداً'),
 });
 
 // مخطط التحقق الكامل لطلب دراسة الجدوى
@@ -76,7 +72,7 @@ export const feasibilityRequestSchema = z.object({
   ...step2Schema.shape,
 });
 
-// مخطط التحقق من البريد الإلكتروني
+// مخطط التحقق من البريد الإلكتروني (Legacy - kept for backward compatibility)
 export const emailVerificationSchema = z.object({
   email: z
     .string()
@@ -84,13 +80,29 @@ export const emailVerificationSchema = z.object({
   name: z.string().optional(),
 });
 
-// مخطط التحقق من رمز OTP
+// مخطط التحقق من رمز OTP (Legacy)
 export const verifyCodeSchema = z.object({
   verificationId: z.string(),
   code: z
     .string()
     .length(6, 'رمز التحقق يجب أن يكون 6 أرقام')
     .regex(/^\d{6}$/, 'رمز التحقق يجب أن يحتوي على أرقام فقط'),
+});
+
+// مخطط التحقق من رقم الهاتف
+export const phoneVerificationSchema = z.object({
+  phoneNumber: z
+    .string()
+    .min(10, 'رقم الهاتف قصير جداً')
+    .max(11, 'رقم الهاتف طويل جداً')
+    .regex(/^0?1[0125][0-9]{8}$/, 'رقم هاتف مصري غير صالح'),
+});
+
+// مخطط تأكيد التحقق من الهاتف
+export const phoneVerificationConfirmSchema = z.object({
+  phoneNumber: z.string(),
+  firebaseUid: z.string(),
+  idToken: z.string().optional(),
 });
 
 // أنواع TypeScript
@@ -101,20 +113,21 @@ export type Step2Data = z.infer<typeof step2Schema>;
 export type FeasibilityRequestData = z.infer<typeof feasibilityRequestSchema>;
 export type EmailVerificationData = z.infer<typeof emailVerificationSchema>;
 export type VerifyCodeData = z.infer<typeof verifyCodeSchema>;
+export type PhoneVerificationData = z.infer<typeof phoneVerificationSchema>;
+export type PhoneVerificationConfirmData = z.infer<typeof phoneVerificationConfirmSchema>;
 
 // نوع بيانات النموذج مع خصائص إضافية
-export interface FeasibilityRequestFormData extends Omit<FeasibilityRequestData, 'isEmailVerified'> {
-  isEmailVerified: boolean;
+export interface FeasibilityRequestFormData extends Omit<FeasibilityRequestData, 'isPhoneVerified'> {
+  isPhoneVerified: boolean;
   latitude?: number;
   longitude?: number;
-  phoneNumber?: string;
+  phoneNumber: string;
 }
 
 // البيانات الافتراضية للفورم
 export const defaultFormData: Omit<FeasibilityRequestFormData, 'studyType'> = {
   fullName: '',
-  email: '',
-  isEmailVerified: false,
+  isPhoneVerified: false,
   propertyType: 'APARTMENT',
   city: '',
   district: '',

@@ -14,6 +14,7 @@ export type SlideType =
   | 'map'             
   | 'nearby-apartments' 
   | 'statistics'      
+  | 'notes'           
   | 'footer';         
 
 
@@ -110,6 +111,8 @@ export interface NearbyApartment {
   reviewsCount?: number;
   thumbnailUrl?: string;
   isClientApartment?: boolean; // هل هذه شقة العميل؟
+  occupancy?: number; // نسبة الإشغال (0-100)
+  annualRevenue?: number; // العوائد السنوية
 }
 
 
@@ -155,10 +158,21 @@ export interface StatisticsSlideData {
   totalCost: number;
   averageRent: number;
   roomsCost: { name: string; cost: number }[];
+  // المصاريف التشغيلية (إيجار، إنترنت، مياه، كهرباء، بواب...)
+  operationalCosts?: { name: string; cost: number }[];
   // إحصائيات المنطقة (للشقق المحيطة)
   areaStatistics?: AreaStatistics;
   // بيانات شارت الإشغال الشهري
   monthlyOccupancy?: MonthlyOccupancyData[];
+  // سنة الإشغال
+  year?: string;
+}
+
+// بيانات شريحة الملاحظات الإضافية (فقرة واحدة مع تنسيق)
+export interface NotesSlideData {
+  title: string;
+  content?: string; // محتوى HTML مع التنسيق
+  showDecoration?: boolean; // إظهار زخارف الخلفية
 }
 
 
@@ -188,6 +202,7 @@ export interface SlideData {
   map?: MapSlideData;
   nearbyApartments?: NearbyApartmentsSlideData;
   statistics?: StatisticsSlideData;
+  notes?: NotesSlideData;
   footer?: FooterSlideData;
 }
 

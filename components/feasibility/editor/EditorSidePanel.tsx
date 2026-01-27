@@ -40,8 +40,8 @@ const EditorSidePanel: React.FC<EditorSidePanelProps> = ({
 
   return (
     <>
-      {/* ======== Desktop Sidebar (≥1024px) ======== */}
-      <aside className="hidden lg:flex fixed right-8 top-24 h-[calc(100vh-8rem)] w-72 bg-white shadow-[0_8px_30px_rgba(237,191,140,0.5)] border-2 border-primary/20 flex-col overflow-hidden z-30 rounded-2xl">
+      {/* ======== Desktop Sidebar (≥1280px OR landscape ≥1024px) ======== */}
+      <aside className="hidden xl:flex lg:landscape:flex fixed right-8 top-24 h-[calc(100vh-8rem)] w-72 bg-white shadow-[0_8px_30px_rgba(237,191,140,0.5)] border-2 border-primary/20 flex-col overflow-hidden z-30 rounded-2xl">
         {/* Header */}
         <div className="px-4 py-5 border-b border-primary/20 bg-linear-to-br from-accent/30 to-transparent">
           <div className="flex items-center gap-3">
@@ -92,14 +92,14 @@ const EditorSidePanel: React.FC<EditorSidePanelProps> = ({
         </div>
       </aside>
 
-      {/* ======== Mobile/Tablet Button (< 1024px) ======== */}
-      {/* يظهر فوق شريط الأدوات بمسافة كافية (bottom-6 للشريط + ~60px ارتفاعه + مسافة) = bottom-[5.5rem] */}
+      {/* ======== Mobile/Tablet Button (<1280px portrait) ======== */}
+      {/* يظهر فوق شريط الأدوات بمسافة كافية */}
       <motion.button
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-4 z-40 px-5 py-3 rounded-full bg-white text-secondary hover:bg-primary/10 transition-all duration-300 hover:scale-105 lg:hidden flex items-center gap-2"
+        className="fixed bottom-10 right-4 z-40 px-4 py-3 rounded-full bg-white text-secondary hover:bg-primary/10 transition-all duration-300 hover:scale-105 xl:hidden lg:landscape:hidden flex items-center gap-2.5"
         style={{ boxShadow: 'rgba(16, 48, 43, 0.15) 0px 10px 40px, rgba(237, 191, 140, 0.3) 0px 0px 0px 1px' }}
         aria-label="فتح قائمة الشرائح"
       >
@@ -108,7 +108,7 @@ const EditorSidePanel: React.FC<EditorSidePanelProps> = ({
         <span className="bg-primary/20 px-2 py-0.5 rounded-full text-xs">{slides.length}</span>
       </motion.button>
 
-      {/* ======== Mobile/Tablet Bottom Sheet (< 1024px) ======== */}
+      {/* ======== Mobile/Tablet Bottom Sheet (<1280px portrait) ======== */}
       <AnimatePresence>
         {isOpen && (
           <>
@@ -118,7 +118,7 @@ const EditorSidePanel: React.FC<EditorSidePanelProps> = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="fixed inset-0 bg-black/25 z-40 lg:hidden backdrop-blur-[2px]"
+              className="fixed inset-0 bg-black/25 z-40 xl:hidden lg:landscape:hidden backdrop-blur-[2px]"
               onClick={() => setIsOpen(false)}
             />
             
@@ -136,7 +136,7 @@ const EditorSidePanel: React.FC<EditorSidePanelProps> = ({
                 }
               }}
               transition={{ type: 'spring', damping: 30, stiffness: 400 }}
-              className="fixed bottom-0 left-0 right-0 h-[70vh] bg-white shadow-[0_-4px_30px_rgba(16,48,43,0.15)] flex flex-col overflow-hidden z-50 lg:hidden rounded-t-3xl touch-none"
+              className="fixed bottom-0 left-0 right-0 h-[70vh] bg-white shadow-[0_-4px_30px_rgba(16,48,43,0.15)] flex flex-col overflow-hidden z-50 xl:hidden lg:landscape:hidden rounded-t-3xl touch-none"
             >
               {/* Drag Handle */}
               <div className="flex justify-center py-3 shrink-0">
