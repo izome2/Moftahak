@@ -1,21 +1,14 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { 
   Save, 
   Eye, 
   Share2, 
-  ZoomIn,
-  ZoomOut,
   MoreVertical,
-  MousePointer2,
-  Move,
   Type,
   ImagePlus,
-  Coins
 } from 'lucide-react';
 import CurrencySelector from '@/components/feasibility/shared/CurrencySelector';
 
@@ -40,11 +33,6 @@ const SHADOWS = {
 };
 
 const EditorToolbar: React.FC<EditorToolbarProps> = ({
-  studyId,
-  clientName,
-  zoom,
-  onZoomIn,
-  onZoomOut,
   onSave,
   onPreview,
   onShare,
@@ -54,7 +42,6 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
   lastSaved = null,
 }) => {
   const [showMoreMenu, setShowMoreMenu] = React.useState(false);
-  const [activeTool, setActiveTool] = React.useState<'select' | 'move'>('select');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // ضغط الصورة وتقليل حجمها
@@ -122,22 +109,6 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
       e.target.value = '';
     }
   };
-
-  // اختصارات الكيبورد للتكبير والتصغير
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        if (zoom < 200) onZoomIn();
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        if (zoom > 50) onZoomOut();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [zoom, onZoomIn, onZoomOut]);
 
   return (
     <>
@@ -248,8 +219,8 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
                     <span className="font-dubai text-sm">مشاركة</span>
                   </button>
                   {/* زر العملة للموبايل */}
-                  <div className="border-t border-primary/10">
-                    <CurrencySelector className="w-full" />
+                  <div className="border-t border-primary/10 p-2">
+                    <CurrencySelector className="w-full" isMobileMenu />
                   </div>
                 </motion.div>
               )}
@@ -266,95 +237,13 @@ const EditorToolbar: React.FC<EditorToolbarProps> = ({
         )}
       </div>
 
-      {/* ======== Desktop: شريط الأدوات السفلي المركزي (≥1280px OR landscape ≥1024px) ======== */}
-      <div 
-        data-toolbar="desktop"
-        className="hidden xl:block lg:landscape:block absolute bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
-      >
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="group relative flex items-center gap-3 bg-white rounded-xl px-4 py-2.5 pointer-events-auto border-2 border-primary/20 overflow-hidden"
-          style={{ boxShadow: 'rgba(237, 191, 140, 0.15) 0px 4px 20px' }}
-        >
-          {/* تأثير التحويم */}
-          <div 
-            className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            style={{ 
-              background: 'linear-gradient(90deg, transparent, rgba(237, 191, 140, 0.4), transparent)',
-              transform: 'translateX(-100%)',
-            }}
-          />
-          <div className="flex items-center gap-3 relative z-10">
-            {/* أداة التحديد */}
-            <button
-              onClick={() => setActiveTool('select')}
-              className={`p-2.5 rounded-lg transition-colors ${
-                activeTool === 'select' 
-                  ? 'bg-primary/20 text-primary border border-primary/30' 
-                  : 'text-secondary/60 hover:text-secondary hover:bg-primary/10'
-              }`}
-              title="أداة التحديد"
-            >
-              <MousePointer2 className="w-5 h-5" />
-            </button>
-
-            <div className="h-6 w-px bg-primary/20" />
-
-            {/* إضافة نص */}
-            <button
-              onClick={() => onAddText?.()}
-              className="p-2.5 rounded-lg transition-colors text-secondary/60 hover:text-secondary hover:bg-primary/10"
-              title="إضافة نص"
-            >
-              <Type className="w-5 h-5" />
-            </button>
-
-            {/* إضافة صورة */}
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="p-2.5 rounded-lg transition-colors text-secondary/60 hover:text-secondary hover:bg-primary/10"
-              title="إضافة صورة"
-            >
-              <ImagePlus className="w-5 h-5" />
-            </button>
-
-            <div className="h-6 w-px bg-primary/20" />
-
-            {/* التكبير والتصغير */}
-            <button
-              onClick={onZoomOut}
-              className="p-2 text-secondary/60 hover:text-secondary hover:bg-primary/10 rounded-lg transition-colors disabled:opacity-40"
-              title="تصغير (↓)"
-              disabled={zoom <= 25}
-            >
-              <ZoomOut className="w-5 h-5" />
-            </button>
-            
-            <span className="text-secondary text-sm w-14 text-center font-dubai font-bold bg-primary/10 rounded-lg py-1.5">
-              {zoom}%
-            </span>
-            
-            <button
-              onClick={onZoomIn}
-              className="p-2 text-secondary/60 hover:text-secondary hover:bg-primary/10 rounded-lg transition-colors disabled:opacity-40"
-              title="تكبير (↑)"
-              disabled={zoom >= 200}
-            >
-              <ZoomIn className="w-5 h-5" />
-            </button>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* ======== Mobile/Tablet: شريط أدوات مصغر على اليسار (<1280px portrait) ======== */}
+      {/* ======== شريط أدوات مصغر على اليسار (صورة ونص فقط) - يظهر في كل الأحجام ======== */}
       <motion.div 
         data-toolbar="mobile"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="xl:hidden lg:landscape:hidden fixed bottom-10 left-4 z-40 flex items-center gap-2 bg-white rounded-full px-3 py-2 border-2 border-primary/20"
+        className="fixed bottom-10 left-4 z-40 flex items-center gap-2 bg-white rounded-full px-3 py-2 border-2 border-primary/20"
         style={{ boxShadow: 'rgba(16, 48, 43, 0.15) 0px 10px 40px, rgba(237, 191, 140, 0.3) 0px 0px 0px 1px' }}
       >
         {/* إضافة نص */}

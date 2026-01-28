@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion, AnimatePresence, Reorder } from 'framer-motion';
+import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import { 
   Plus, 
   GripVertical,
@@ -89,6 +89,111 @@ interface SlideManagerProps {
   studyType?: 'WITH_FIELD_VISIT' | 'WITHOUT_FIELD_VISIT';
 }
 
+// مكون عنصر الشريحة مع دعم السحب على الأجهزة اللمسية
+interface SlideItemProps {
+  slide: Slide;
+  index: number;
+  isActive: boolean;
+  isLocked: boolean;
+  Icon: React.ElementType;
+  canDrag: boolean;
+  isTouchDevice: boolean;
+  onSlideSelect: (index: number) => void;
+  onContextMenu: (e: React.MouseEvent, slideId: string) => void;
+}
+
+const SlideItem: React.FC<SlideItemProps> = ({
+  slide,
+  index,
+  isActive,
+  isLocked,
+  Icon,
+  canDrag,
+  isTouchDevice,
+  onSlideSelect,
+  onContextMenu,
+}) => {
+  const dragControls = useDragControls();
+
+  return (
+    <Reorder.Item
+      value={slide}
+      dragListener={canDrag}
+      dragControls={dragControls}
+      className="outline-none touch-pan-y"
+    >
+      <motion.div
+        onClick={() => onSlideSelect(index)}
+        onContextMenu={(e) => onContextMenu(e, slide.id)}
+        className={`
+          relative w-full p-3 sm:p-2.5 flex items-center gap-3 sm:gap-2.5 cursor-pointer group rounded-xl overflow-hidden border-2
+          ${isActive 
+            ? 'bg-primary/10 border-primary/30 shadow-[0_4px_20px_rgba(237,191,140,0.25)]' 
+            : 'bg-white border-primary/20 hover:shadow-[0_4px_20px_rgba(237,191,140,0.15)]'
+          }
+        `}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        style={{ boxShadow: isActive ? 'rgba(237, 191, 140, 0.25) 0px 4px 20px' : undefined }}
+      >
+        {/* أيقونة خلفية شفافة */}
+        <div className="absolute -top-1 -left-1 opacity-[0.10] pointer-events-none">
+          <Icon className="w-12 h-12 text-primary" />
+        </div>
+        
+        {/* تأثير التحويم */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          style={{ 
+            background: 'linear-gradient(90deg, transparent, rgba(237, 191, 140, 0.4), transparent)',
+            transform: 'translateX(-100%)',
+          }}
+        />
+        
+        <div className="flex items-center gap-3 sm:gap-2.5 relative z-10 w-full">
+          {/* مقبض السحب - يعمل على الأجهزة اللمسية */}
+          {!isLocked && (
+            <div 
+              className={`transition-opacity cursor-grab active:cursor-grabbing touch-none ${
+                isTouchDevice ? 'opacity-100' : 'opacity-40 sm:opacity-0 group-hover:opacity-100'
+              }`}
+              onPointerDown={(e) => {
+                if (isTouchDevice && !isLocked) {
+                  dragControls.start(e);
+                }
+              }}
+            >
+              <GripVertical className="w-5 h-5 sm:w-4 sm:h-4 text-secondary/60" />
+            </div>
+          )}
+          
+          {/* أيقونة القفل للشرائح المقفلة */}
+          {isLocked && (
+            <div className="opacity-60">
+              <Lock className="w-5 h-5 sm:w-4 sm:h-4 text-secondary/60" />
+            </div>
+          )}
+
+          {/* معاينة الشريحة */}
+          <div className="w-11 h-11 sm:w-9 sm:h-9 bg-primary/20 flex items-center justify-center rounded-lg border border-primary/30 shrink-0">
+            <Icon className="w-5 h-5 sm:w-4 sm:h-4 text-primary" />
+          </div>
+
+          {/* معلومات الشريحة */}
+          <div className="flex-1 min-w-0 text-right">
+            <span className="text-base sm:text-sm font-dubai font-bold block truncate text-secondary">
+              {slide.title}
+            </span>
+            <span className="text-sm sm:text-xs text-secondary/60 block">
+              شريحة {index + 1}
+            </span>
+          </div>
+        </div>
+      </motion.div>
+    </Reorder.Item>
+  );
+};
+
 const SlideManager: React.FC<SlideManagerProps> = ({
   slides,
   activeSlideIndex,
@@ -108,6 +213,16 @@ const SlideManager: React.FC<SlideManagerProps> = ({
     x: number;
     y: number;
   } | null>(null);
+  
+  // الكشف عن الأجهزة اللمسية
+  const [isTouchDevice, setIsTouchDevice] = React.useState(false);
+  
+  React.useEffect(() => {
+    const checkTouchDevice = () => {
+      setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    };
+    checkTouchDevice();
+  }, []);
 
   // فلترة أنواع الشرائح حسب نوع الدراسة
   const filteredSlideTypes = React.useMemo(() => {
@@ -163,74 +278,24 @@ const SlideManager: React.FC<SlideManagerProps> = ({
             const isActive = index === activeSlideIndex;
             const isLocked = slide.isLocked;
             const bgColor = slideColors[slide.type];
+            
+            // على الأجهزة اللمسية، نعطل السحب من كامل العنصر
+            // السحب يكون فقط من مقبض السحب (GripVertical)
+            const canDrag = !isLocked && !isTouchDevice;
 
             return (
-              <Reorder.Item
+              <SlideItem
                 key={slide.id}
-                value={slide}
-                dragListener={!isLocked}
-                className="outline-none"
-              >
-                <motion.div
-                  onClick={() => onSlideSelect(index)}
-                  onContextMenu={(e) => handleContextMenu(e, slide.id)}
-                  className={`
-                    relative w-full p-3 sm:p-2.5 flex items-center gap-3 sm:gap-2.5 cursor-pointer group rounded-xl overflow-hidden border-2
-                    ${isActive 
-                      ? 'bg-primary/10 border-primary/30 shadow-[0_4px_20px_rgba(237,191,140,0.25)]' 
-                      : 'bg-white border-primary/20 hover:shadow-[0_4px_20px_rgba(237,191,140,0.15)]'
-                    }
-                  `}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  style={{ boxShadow: isActive ? 'rgba(237, 191, 140, 0.25) 0px 4px 20px' : undefined }}
-                >
-                  {/* أيقونة خلفية شفافة */}
-                  <div className="absolute -top-1 -left-1 opacity-[0.10] pointer-events-none">
-                    <Icon className="w-12 h-12 text-primary" />
-                  </div>
-                  
-                  {/* تأثير التحويم */}
-                  <div 
-                    className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    style={{ 
-                      background: 'linear-gradient(90deg, transparent, rgba(237, 191, 140, 0.4), transparent)',
-                      transform: 'translateX(-100%)',
-                    }}
-                  />
-                  
-                  <div className="flex items-center gap-3 sm:gap-2.5 relative z-10 w-full">
-                    {/* مقبض السحب */}
-                    {!isLocked && (
-                      <div className="opacity-40 sm:opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
-                        <GripVertical className="w-5 h-5 sm:w-4 sm:h-4 text-secondary/60" />
-                      </div>
-                    )}
-                    
-                    {/* أيقونة القفل للشرائح المقفلة */}
-                    {isLocked && (
-                      <div className="opacity-60">
-                        <Lock className="w-5 h-5 sm:w-4 sm:h-4 text-secondary/60" />
-                      </div>
-                    )}
-
-                    {/* معاينة الشريحة */}
-                    <div className="w-11 h-11 sm:w-9 sm:h-9 bg-primary/20 flex items-center justify-center rounded-lg border border-primary/30 shrink-0">
-                      <Icon className="w-5 h-5 sm:w-4 sm:h-4 text-primary" />
-                    </div>
-
-                    {/* معلومات الشريحة */}
-                    <div className="flex-1 min-w-0 text-right">
-                      <span className="text-base sm:text-sm font-dubai font-bold block truncate text-secondary">
-                        {slide.title}
-                      </span>
-                      <span className="text-sm sm:text-xs text-secondary/60 block">
-                        شريحة {index + 1}
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              </Reorder.Item>
+                slide={slide}
+                index={index}
+                isActive={isActive}
+                isLocked={isLocked}
+                Icon={Icon}
+                canDrag={canDrag}
+                isTouchDevice={isTouchDevice}
+                onSlideSelect={onSlideSelect}
+                onContextMenu={handleContextMenu}
+              />
             );
           })}
         </Reorder.Group>

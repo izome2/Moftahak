@@ -8,9 +8,10 @@ import { CURRENCY_LIST, getCurrencySymbol, type CurrencyCode } from '@/lib/feasi
 
 interface CurrencySelectorProps {
   className?: string;
+  isMobileMenu?: boolean;
 }
 
-const CurrencySelector: React.FC<CurrencySelectorProps> = ({ className = '' }) => {
+const CurrencySelector: React.FC<CurrencySelectorProps> = ({ className = '', isMobileMenu = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const editor = useFeasibilityEditorSafe();
@@ -20,6 +21,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ className = '' }) =
   
   const { currency, setCurrency } = editor;
   const currentSymbol = getCurrencySymbol(currency);
+  const currentCurrency = CURRENCY_LIST.find(c => c.code === currency);
 
   // إغلاق القائمة عند النقر خارجها
   useEffect(() => {
@@ -42,6 +44,63 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({ className = '' }) =
     setCurrency(code);
     setIsOpen(false);
   };
+
+  // عرض مختلف للموبايل داخل القائمة المنسدلة
+  if (isMobileMenu) {
+    return (
+      <div ref={dropdownRef} className={`relative ${className}`}>
+        {/* زر العملة للموبايل */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsOpen(!isOpen);
+          }}
+          className="w-full p-3 flex items-center gap-3 hover:bg-accent/50 transition-colors text-secondary rounded-lg"
+        >
+          <Coins className="w-4 h-4" />
+          <span className="font-dubai text-sm">العملة: {currentCurrency?.nameAr || currentSymbol}</span>
+        </button>
+
+        {/* القائمة المنسدلة للموبايل */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden bg-accent/30 rounded-lg mt-1"
+            >
+              {CURRENCY_LIST.map((curr) => (
+                <button
+                  key={curr.code}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelectCurrency(curr.code);
+                  }}
+                  className={`w-full px-4 py-2.5 flex items-center justify-between hover:bg-accent transition-colors ${
+                    currency === curr.code ? 'bg-primary/20' : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="font-dubai text-base font-bold text-primary min-w-[36px]">
+                      {curr.symbol}
+                    </span>
+                    <span className="font-dubai text-sm text-secondary">
+                      {curr.nameAr}
+                    </span>
+                  </div>
+                  {currency === curr.code && (
+                    <Check className="w-4 h-4 text-green-600" />
+                  )}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
 
   return (
     <div ref={dropdownRef} className={`relative ${className}`}>

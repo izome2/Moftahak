@@ -619,43 +619,43 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
               className="fixed bottom-4 left-4 right-4 h-[calc(100vh-6rem)] max-h-[70vh] bg-[#fefaf5] shadow-[0_-4px_30px_rgba(16,48,43,0.15)] flex flex-col overflow-hidden z-50 xl:hidden rounded-[1.5rem] touch-none"
             >
               {/* مقبض السحب */}
-              <div className="flex justify-center py-4">
-                <div className="w-20 h-1.5 bg-primary rounded-full" />
+              <div className="flex justify-center py-2.5">
+                <div className="w-16 h-1 bg-primary rounded-full" />
               </div>
 
               {/* رأس الشريط الجانبي مع الشعار واسم العميل */}
-              <div className="px-5 py-5 border-b border-primary/20 bg-linear-to-br from-accent/30 to-transparent">
-                <div className="flex items-center gap-4">
+              <div className="px-4 py-3 border-b border-primary/20 bg-linear-to-br from-accent/30 to-transparent">
+                <div className="flex items-center gap-3">
                   {/* شعار المنصة */}
-                  <div className="w-9 h-9 relative shrink-0">
+                  <div className="w-7 h-7 relative shrink-0">
                     <Image
                       src="/logos/logo-dark-icon.png"
                       alt="مفتاحك"
                       fill
                       className="object-contain"
-                      sizes="36px"
+                      sizes="28px"
                     />
                   </div>
                   {/* اسم الدراسة والعميل */}
-                  <div className="flex flex-col min-w-0 flex-1 mr-1">
-                    <span className="text-secondary font-dubai text-lg truncate">دراسة جدوى</span>
-                    <span className="text-secondary/60 text-base font-dubai truncate">{study.clientName}</span>
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <span className="text-secondary font-dubai text-base truncate">دراسة جدوى</span>
+                    <span className="text-secondary/60 text-sm font-dubai truncate">{study.clientName}</span>
                   </div>
                   {/* عدد الشرائح */}
-                  <span className="text-base text-secondary/60 bg-primary/20 px-3 py-1 rounded-full">
+                  <span className="text-sm text-secondary/60 bg-primary/20 px-2.5 py-0.5 rounded-full">
                     {sortedSlides.length}
                   </span>
                 </div>
               </div>
 
               {/* قائمة الشرائح */}
-              <div className="flex-1 overflow-y-auto px-4 py-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <div className="flex-1 overflow-y-auto px-3 py-3" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                 <style jsx>{`
                   div::-webkit-scrollbar {
                     display: none;
                   }
                 `}</style>
-                <ul className="space-y-3">
+                <ul className="space-y-2">
                   {sortedSlides.map((slide, index) => (
                     <li key={slide.id}>
                       <SlideItem slide={slide} index={index} />
