@@ -1,16 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Phone, Menu, X, User, ShoppingCart, Moon, Users, Award } from 'lucide-react';
-import Link from 'next/link';
+import { Phone, Moon, Users, Award } from 'lucide-react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from './ui/Button';
-import { 
-  scrollIndicator,
-  navbarSlideDown,
-  staggerContainer
-} from '@/lib/animations/variants';
+import { scrollIndicator } from '@/lib/animations/variants';
 import { useCounter } from '@/hooks/useCounter';
 
 interface HeroSectionProps {
@@ -32,7 +27,6 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   ], []);
   
   const [showFloatingButton, setShowFloatingButton] = useState(true);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
@@ -60,39 +54,18 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
     const handleScroll = () => {
       const scrollPercentage = (window.scrollY / document.documentElement.scrollHeight) * 100;
       setShowFloatingButton(scrollPercentage < 1);
-      
-      
-      if (isMobileMenuOpen) {
-        setIsMobileMenuOpen(false);
-      }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [isMobileMenuOpen]);
+  }, []);
 
   const scrollToNext = () => {
     const nextSection = document.getElementById('features');
     if (nextSection) {
       nextSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const navLinks = useMemo(() => [
-    { label: 'الرئيسية', href: '#home' },
-    { label: 'من أنا', href: '#about' },
-    { label: 'الخدمات', href: '#services' },
-    { label: 'المحتوى', href: '#content' },
-    { label: 'تواصل معي', href: '#contact' },
-  ], []);
-
-  const scrollToSection = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      setIsMobileMenuOpen(false);
     }
   };
 
@@ -103,122 +76,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
       className="relative min-h-screen flex items-center justify-center pt-16 pb-24 md:pb-16 px-4 sm:px-6 lg:px-8 bg-white"
       aria-label="hero section"
     >
-      {}
-      {isMobileMenuOpen && (
-        <motion.div 
-          className="xl:hidden absolute inset-0 bg-black/20 backdrop-blur-sm z-40"
-          onClick={() => setIsMobileMenuOpen(false)}
-          aria-hidden="true"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        />
-      )}
-
-      {}
-      <motion.div 
-        className="xl:hidden absolute top-8 left-6 right-6 md:top-10 md:left-12 md:right-12 z-50"
-        initial="hidden"
-        animate="visible"
-        variants={navbarSlideDown}
-      >
-        <div className="rounded-2xl px-2 md:px-4">
-          <nav className="flex items-center justify-between h-11 md:h-14">
-            {}
-            <Link href="/" className="flex items-center gap-1.5 md:gap-2 hover:opacity-80 transition-opacity">
-              <motion.div 
-                className="relative w-7 h-7 md:w-8 md:h-8"
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.6 }}
-              >
-                <Image
-                  src="/logos/logo-white-icon.png"
-                  alt="مفتاحك"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </motion.div>
-              <span className="text-sm md:text-lg font-bold text-accent font-bristone hidden sm:block">
-                MOFTAHAK
-              </span>
-            </Link>
-
-            {}
-            <motion.button
-              className="p-1 md:p-2 text-accent hover:text-primary transition-colors"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label="القائمة"
-              whileTap={{ scale: 0.9 }}
-            >
-              {isMobileMenuOpen ? <X size={24} className="md:hidden" /> : <Menu size={24} className="md:hidden" />}
-              {isMobileMenuOpen ? <X size={28} className="hidden md:block" /> : <Menu size={28} className="hidden md:block" />}
-            </motion.button>
-          </nav>
-
-          {}
-          {isMobileMenuOpen && (
-            <motion.div 
-              className="py-6 border-t border-accent bg-[#fdf6ee]/95 backdrop-blur-md rounded-2xl -mx-3 md:-mx-4 px-3 md:px-4 shadow-lg"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <motion.div 
-                className="flex flex-col gap-4"
-                variants={staggerContainer}
-                initial="hidden"
-                animate="visible"
-              >
-                {navLinks.map((link, index) => (
-                  <motion.button
-                    key={link.href}
-                    onClick={() => scrollToSection(link.href)}
-                    className="text-right text-secondary hover:text-primary font-semibold py-2 transition-colors duration-300"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ x: 5 }}
-                  >
-                    {link.label}
-                  </motion.button>
-                ))}
-                <div className="flex items-center gap-4 pt-4 border-t border-accent">
-                  <motion.button
-                    className="p-2 text-secondary hover:text-primary transition-colors"
-                    aria-label="السلة"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <ShoppingCart size={22} />
-                  </motion.button>
-                  <motion.button
-                    className="p-2 text-secondary hover:text-primary transition-colors"
-                    aria-label="تسجيل الدخول"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <User size={22} />
-                  </motion.button>
-                  <Button
-                    variant="primary"
-                    size="md"
-                    leftIcon={<Phone size={18} />}
-                    onClick={() => scrollToSection('#contact')}
-                    className="flex-1"
-                  >
-                    تواصل معي
-                  </Button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </div>
-      </motion.div>
-
-      {}
+      {/* SVG Clip Path for Hero */}
       <svg width="0" height="0" className="absolute hidden xl:block">
         <defs>
           <clipPath id="heroClip" clipPathUnits="objectBoundingBox">
@@ -231,7 +89,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
 
       {}
       <div 
-        className="absolute inset-4 bottom-8 xl:top-20 xl:left-16 xl:right-16 2xl:left-20 2xl:right-20 xl:bottom-12"
+        className="absolute top-20 left-4 right-4 bottom-6 md:top-22 md:bottom-8 xl:top-20 xl:left-16 xl:right-16 xl:bottom-12 2xl:left-20 2xl:right-20"
         style={{ 
           filter: 'drop-shadow(0px 10px 25px rgba(0, 0, 0, 0.35))',
         }}
