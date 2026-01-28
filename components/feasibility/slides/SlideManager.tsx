@@ -276,7 +276,7 @@ const SlideManager: React.FC<SlideManagerProps> = ({
           {slides.map((slide, index) => {
             const Icon = slideIcons[slide.type];
             const isActive = index === activeSlideIndex;
-            const isLocked = slide.isLocked;
+            const isLocked = slide.isLocked ?? false;
             const bgColor = slideColors[slide.type];
             
             // على الأجهزة اللمسية، نعطل السحب من كامل العنصر
