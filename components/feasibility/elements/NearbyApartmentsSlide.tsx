@@ -1020,67 +1020,70 @@ export default function NearbyApartmentsSlide({
   }, [apartments, localData]);
 
   // حفظ التغييرات تلقائياً عند تعديل localData
-  const localDataKeys = Object.keys(localData).join(',');
+  // نستخدم JSON.stringify لتتبع كل التغييرات في القيم وليس المفاتيح فقط
+  const localDataString = JSON.stringify(localData);
   useEffect(() => {
-    if (localDataKeys && onUpdateRef.current) {
-      // إنشاء البيانات المدمجة داخل useEffect لتجنب الحلقة
-      const updatedApartments = apartments.map(apt => ({
-        ...apt,
-        description: localData[apt.id]?.description ?? apt.description,
-        images: localData[apt.id]?.images ?? apt.images,
-        price: (localData[apt.id] as any)?.price ?? apt.price,
-        rooms: (localData[apt.id] as any)?.rooms ?? apt.rooms,
-        guests: (localData[apt.id] as any)?.guests ?? apt.guests,
-        beds: (localData[apt.id] as any)?.beds ?? apt.beds,
-        bathrooms: (localData[apt.id] as any)?.bathrooms ?? apt.bathrooms,
-        rating: (localData[apt.id] as any)?.rating ?? apt.rating,
-        thumbnailUrl: (localData[apt.id] as any)?.thumbnailUrl ?? apt.thumbnailUrl,
-        occupancy: (localData[apt.id] as any)?.occupancy ?? apt.occupancy,
-        annualRevenue: (localData[apt.id] as any)?.annualRevenue ?? apt.annualRevenue,
-        // الحفاظ على الخصائص الأصلية
-        airbnbUrl: apt.airbnbUrl,
-        isClientApartment: apt.isClientApartment,
-      }));
-      
-      onUpdateRef.current({
-        apartments: updatedApartments,
-        showFromMap: data.showFromMap,
-      });
+    // التحقق من وجود بيانات محلية للحفظ
+    if (Object.keys(localData).length === 0) return;
+    if (!onUpdateRef.current) return;
+    
+    // إنشاء البيانات المدمجة داخل useEffect لتجنب الحلقة
+    const updatedApartments = apartments.map(apt => ({
+      ...apt,
+      description: localData[apt.id]?.description ?? apt.description,
+      images: localData[apt.id]?.images ?? apt.images,
+      price: (localData[apt.id] as any)?.price ?? apt.price,
+      rooms: (localData[apt.id] as any)?.rooms ?? apt.rooms,
+      guests: (localData[apt.id] as any)?.guests ?? apt.guests,
+      beds: (localData[apt.id] as any)?.beds ?? apt.beds,
+      bathrooms: (localData[apt.id] as any)?.bathrooms ?? apt.bathrooms,
+      rating: (localData[apt.id] as any)?.rating ?? apt.rating,
+      thumbnailUrl: (localData[apt.id] as any)?.thumbnailUrl ?? apt.thumbnailUrl,
+      occupancy: (localData[apt.id] as any)?.occupancy ?? apt.occupancy,
+      annualRevenue: (localData[apt.id] as any)?.annualRevenue ?? apt.annualRevenue,
+      // الحفاظ على الخصائص الأصلية
+      airbnbUrl: apt.airbnbUrl,
+      isClientApartment: apt.isClientApartment,
+    }));
+    
+    onUpdateRef.current({
+      apartments: updatedApartments,
+      showFromMap: data.showFromMap,
+    });
 
-      // تحديث بيانات الخريطة أيضاً لتنعكس التغييرات على الـ pins
-      if (onUpdateMapDataRef.current && mapData) {
-        const updatedPins = mapData.pins.map(pin => {
-          if (!pin.apartment) return pin;
-          const updates = localData[pin.apartment.id];
-          if (!updates) return pin;
-          
-          return {
-            ...pin,
-            apartment: {
-              ...pin.apartment,
-              description: (updates as any)?.description ?? pin.apartment.description,
-              images: (updates as any)?.images ?? pin.apartment.images,
-              price: (updates as any)?.price ?? pin.apartment.price,
-              rooms: (updates as any)?.rooms ?? pin.apartment.rooms,
-              guests: (updates as any)?.guests ?? pin.apartment.guests,
-              beds: (updates as any)?.beds ?? pin.apartment.beds,
-              bathrooms: (updates as any)?.bathrooms ?? pin.apartment.bathrooms,
-              rating: (updates as any)?.rating ?? pin.apartment.rating,
-              thumbnailUrl: (updates as any)?.thumbnailUrl ?? pin.apartment.thumbnailUrl,
-              occupancy: (updates as any)?.occupancy ?? pin.apartment.occupancy,
-              annualRevenue: (updates as any)?.annualRevenue ?? pin.apartment.annualRevenue,
-            },
-          };
-        });
+    // تحديث بيانات الخريطة أيضاً لتنعكس التغييرات على الـ pins
+    if (onUpdateMapDataRef.current && mapData) {
+      const updatedPins = mapData.pins.map(pin => {
+        if (!pin.apartment) return pin;
+        const updates = localData[pin.apartment.id];
+        if (!updates) return pin;
         
-        onUpdateMapDataRef.current({
-          ...mapData,
-          pins: updatedPins,
-        });
-      }
+        return {
+          ...pin,
+          apartment: {
+            ...pin.apartment,
+            description: (updates as any)?.description ?? pin.apartment.description,
+            images: (updates as any)?.images ?? pin.apartment.images,
+            price: (updates as any)?.price ?? pin.apartment.price,
+            rooms: (updates as any)?.rooms ?? pin.apartment.rooms,
+            guests: (updates as any)?.guests ?? pin.apartment.guests,
+            beds: (updates as any)?.beds ?? pin.apartment.beds,
+            bathrooms: (updates as any)?.bathrooms ?? pin.apartment.bathrooms,
+            rating: (updates as any)?.rating ?? pin.apartment.rating,
+            thumbnailUrl: (updates as any)?.thumbnailUrl ?? pin.apartment.thumbnailUrl,
+            occupancy: (updates as any)?.occupancy ?? pin.apartment.occupancy,
+            annualRevenue: (updates as any)?.annualRevenue ?? pin.apartment.annualRevenue,
+          },
+        };
+      });
+      
+      onUpdateMapDataRef.current({
+        ...mapData,
+        pins: updatedPins,
+      });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localDataKeys]);
+  }, [localDataString]);
 
   // حساب أقرب المعالم مع التنوع في التصنيفات
   const nearestLandmarks = useMemo(() => {
@@ -1202,19 +1205,24 @@ export default function NearbyApartmentsSlide({
                 </span>
                 <span className="text-xs text-secondary/60 font-dubai">شقة</span>
               </div>
-              {mergedApartments.length > 1 && (
-                <div 
-                  className="text-center px-4 py-2 bg-primary/20 rounded-xl border-2 border-primary/30"
-                  style={{ boxShadow: SHADOWS.icon }}
-                >
-                  <span className="block text-xl font-bold text-secondary font-bristone">
-                    {Math.round(
-                      mergedApartments.slice(1).reduce((sum, a) => sum + a.price, 0) / (mergedApartments.length - 1)
-                    ).toLocaleString('ar-EG')}
-                  </span>
-                  <span className="text-xs text-secondary/60 font-dubai">متوسط إيجار المحيطة</span>
-                </div>
-              )}
+              {(() => {
+                // استبعاد شقة العميل من حساب المتوسط
+                const otherApartmentsForAvg = mergedApartments.filter(a => !a.isClientApartment);
+                if (otherApartmentsForAvg.length === 0) return null;
+                return (
+                  <div 
+                    className="text-center px-4 py-2 bg-primary/20 rounded-xl border-2 border-primary/30"
+                    style={{ boxShadow: SHADOWS.icon }}
+                  >
+                    <span className="block text-xl font-bold text-secondary font-bristone">
+                      {Math.round(
+                        otherApartmentsForAvg.reduce((sum, a) => sum + a.price, 0) / otherApartmentsForAvg.length
+                      ).toLocaleString('ar-EG')}
+                    </span>
+                    <span className="text-xs text-secondary/60 font-dubai">متوسط إيجار المحيطة</span>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </motion.div>

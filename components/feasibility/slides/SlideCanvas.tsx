@@ -308,8 +308,30 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
         const totalCostFromRooms = mergedRoomsCost.reduce((sum, r) => sum + r.cost, 0);
         
         // حساب إحصائيات المنطقة تلقائياً من الشقق المجاورة
+        // جلب بيانات الخريطة والشقق المحفوظة
         const nearbyApartmentsSlide = allSlides.find(s => s.type === 'nearby-apartments');
-        const nearbyApartments = nearbyApartmentsSlide?.data.nearbyApartments?.apartments || [];
+        const mapSlideForStats = allSlides.find(s => s.type === 'map');
+        const savedApartments = nearbyApartmentsSlide?.data.nearbyApartments?.apartments || [];
+        const mapPins = mapSlideForStats?.data?.map?.pins || [];
+        
+        // دمج بيانات الخريطة مع البيانات المحفوظة (نفس المنطق في NearbyApartmentsSlide)
+        let nearbyApartments: typeof savedApartments = [];
+        if (mapPins.length > 0) {
+          nearbyApartments = mapPins
+            .filter((pin: any) => pin.apartment)
+            .map((pin: any) => {
+              const savedApartment = savedApartments.find(a => a.id === pin.apartment.id);
+              return {
+                ...pin.apartment,
+                price: savedApartment?.price ?? pin.apartment.price ?? 0,
+                occupancy: savedApartment?.occupancy ?? pin.apartment.occupancy ?? 0,
+                isClientApartment: pin.apartment.isClientApartment,
+              };
+            });
+        } else {
+          nearbyApartments = savedApartments;
+        }
+        
         // استبعاد شقة العميل من الحسابات
         const otherApartments = nearbyApartments.filter(apt => !apt.isClientApartment);
         

@@ -423,8 +423,30 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
         const totalCostFromRooms = roomsCostForStats.reduce((sum, r) => sum + r.cost, 0);
         
         // حساب إحصائيات المنطقة تلقائياً من الشقق المجاورة
+        // جلب بيانات الخريطة والشقق المحفوظة
         const nearbyApartmentsSlideForStats = sortedSlides.find(s => s.type === 'nearby-apartments');
-        const nearbyApartmentsForStats = nearbyApartmentsSlideForStats?.data.nearbyApartments?.apartments || [];
+        const mapSlideForStatsViewer = sortedSlides.find(s => s.type === 'map');
+        const savedApartmentsForStats = nearbyApartmentsSlideForStats?.data.nearbyApartments?.apartments || [];
+        const mapPinsForStats = mapSlideForStatsViewer?.data?.map?.pins || [];
+        
+        // دمج بيانات الخريطة مع البيانات المحفوظة (نفس المنطق في NearbyApartmentsSlide)
+        let nearbyApartmentsForStats: typeof savedApartmentsForStats = [];
+        if (mapPinsForStats.length > 0) {
+          nearbyApartmentsForStats = mapPinsForStats
+            .filter((pin: any) => pin.apartment)
+            .map((pin: any) => {
+              const savedApartment = savedApartmentsForStats.find(a => a.id === pin.apartment.id);
+              return {
+                ...pin.apartment,
+                price: savedApartment?.price ?? pin.apartment.price ?? 0,
+                occupancy: savedApartment?.occupancy ?? pin.apartment.occupancy ?? 0,
+                isClientApartment: pin.apartment.isClientApartment,
+              };
+            });
+        } else {
+          nearbyApartmentsForStats = savedApartmentsForStats;
+        }
+        
         // استبعاد شقة العميل من الحسابات
         const otherApartmentsForStats = nearbyApartmentsForStats.filter(apt => !apt.isClientApartment);
         
