@@ -14,11 +14,13 @@ model User {
   id            String    @id @default(cuid())
   firstName     String    @map("first_name")
   lastName      String    @map("last_name")
-  email         String    @unique
+  email         String?   @unique
+  phone         String?   @unique
   password      String
   role          Role      @default(USER)
   image         String?   @default("/images/default-avatar.svg")
   emailVerified DateTime? @map("email_verified")
+  phoneVerified DateTime? @map("phone_verified")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
@@ -246,4 +248,23 @@ model LibraryItemCustomization {
 
   @@index([roomType])
   @@map("library_item_customizations")
+}
+
+// Password Reset Model - نموذج إعادة تعيين كلمة المرور
+model PasswordReset {
+  id          String    @id @default(cuid())
+  email       String?
+  phone       String?
+  code        String                               // 6-digit OTP code
+  expiresAt   DateTime  @map("expires_at")         // 10 minutes validity
+  used        Boolean   @default(false)
+  usedAt      DateTime? @map("used_at")
+  attempts    Int       @default(0)                // Failed verification attempts
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([email, code])
+  @@index([phone, code])
+  @@index([email, expiresAt])
+  @@index([phone, expiresAt])
+  @@map("password_resets")
 }

@@ -23,6 +23,7 @@ interface FirebasePhoneVerificationProps {
   error?: string;
   onPhoneChange: (phone: string, keepVerification?: boolean) => void;
   onVerified: (verified: boolean) => void;
+  userPhone?: string; // رقم هاتف المستخدم المسجل دخول (إذا كان مسجل برقم هاتف)
 }
 
 // localStorage key for phone verification
@@ -40,12 +41,20 @@ const extractLocalPhone = (fullPhone: string, code: '+20' | '+966'): string => {
   return digits;
 };
 
+// Detect country code from phone number
+const detectCountryCode = (phone: string): '+20' | '+966' => {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.startsWith('966')) return '+966';
+  return '+20';
+};
+
 export default function FirebasePhoneVerification({ 
   phoneNumber, 
   isVerified, 
   error,
   onPhoneChange,
-  onVerified 
+  onVerified,
+  userPhone
 }: FirebasePhoneVerificationProps) {
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -55,7 +64,10 @@ export default function FirebasePhoneVerification({
   const [countdown, setCountdown] = useState(0);
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null);
-  const [countryCode, setCountryCode] = useState<'+20' | '+966'>('+20');
+  
+  const [countryCode, setCountryCode] = useState<'+20' | '+966'>(() => 
+    userPhone ? detectCountryCode(userPhone) : '+20'
+  );
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   
   // Local phone display state (without country code)
@@ -73,8 +85,26 @@ export default function FirebasePhoneVerification({
     }
   }, [phoneNumber, countryCode, isVerified, localPhone]);
 
-  // Check localStorage for existing verification on mount
+  // Auto-verify if user is logged in with phone
   useEffect(() => {
+    if (userPhone && !isVerified) {
+      // User is logged in with phone - auto-verify and set the phone number
+      const detectedCode = detectCountryCode(userPhone);
+      const localPart = extractLocalPhone(userPhone, detectedCode);
+      
+      setCountryCode(detectedCode);
+      setLocalPhone(localPart);
+      onPhoneChange(userPhone.replace(/\D/g, ''), true);
+      onVerified(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userPhone]);
+
+  // Check localStorage for existing verification on mount (only if not verified via userPhone)
+  useEffect(() => {
+    // Skip if user is logged in with phone (already auto-verified)
+    if (userPhone) return;
+    
     if (phoneNumber && !isVerified) {
       const stored = localStorage.getItem(VERIFICATION_STORAGE_KEY);
       if (stored) {
@@ -108,7 +138,7 @@ export default function FirebasePhoneVerification({
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phoneNumber]);
+  }, [phoneNumber, userPhone]);
 
   // Countdown timer for resend
   useEffect(() => {
@@ -120,9 +150,14 @@ export default function FirebasePhoneVerification({
 
   // Store previous phone to detect changes
   const prevPhoneRef = useRef(phoneNumber);
+  const prevUserPhoneRef = useRef(userPhone);
 
-  // Reset state when phone changes
+  // Reset state when phone changes (but not for logged-in user with phone)
   useEffect(() => {
+    // Skip if user is logged in with phone
+    if (userPhone && prevUserPhoneRef.current === userPhone) return;
+    prevUserPhoneRef.current = userPhone;
+    
     // Only reset if phone actually changed (not on every render)
     if (prevPhoneRef.current !== phoneNumber) {
       prevPhoneRef.current = phoneNumber;
@@ -149,7 +184,7 @@ export default function FirebasePhoneVerification({
       }
       onVerified(false);
     }
-  }, [phoneNumber, onVerified]);
+  }, [phoneNumber, onVerified, userPhone]);
 
   // Cleanup recaptcha on unmount
   useEffect(() => {
@@ -399,6 +434,9 @@ export default function FirebasePhoneVerification({
     }
   };
 
+  // Check if verified via logged-in user phone
+  const isVerifiedViaLogin = isVerified && userPhone;
+
   // Verified state
   if (isVerified) {
     return (
@@ -412,7 +450,9 @@ export default function FirebasePhoneVerification({
             <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-secondary" />
           </div>
           <div className="flex-1">
-            <p className="font-medium text-secondary font-dubai text-sm md:text-base">تم التحقق من رقم الهاتف</p>
+            <p className="font-medium text-secondary font-dubai text-sm md:text-base">
+              {isVerifiedViaLogin ? 'محقق عبر حسابك' : 'تم التحقق من رقم الهاتف'}
+            </p>
             <p className="text-secondary/60 text-xs font-bristone" dir="ltr">
               {countryCode} {localPhone || extractLocalPhone(phoneNumber, countryCode)}
             </p>

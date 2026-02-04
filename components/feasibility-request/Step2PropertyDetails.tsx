@@ -14,13 +14,15 @@ interface Step2PropertyDetailsProps {
   errors: Record<string, string>;
   studyType: StudyRequestType;
   onChange: (data: Partial<FeasibilityRequestFormData>) => void;
+  userPhone?: string; // رقم هاتف المستخدم المسجل دخول (إذا كان مسجل برقم هاتف)
 }
 
 export default function Step2PropertyDetails({ 
   formData, 
   errors, 
   studyType,
-  onChange
+  onChange,
+  userPhone
 }: Step2PropertyDetailsProps) {
   return (
     <div className="space-y-5 md:space-y-8">
@@ -68,6 +70,7 @@ export default function Step2PropertyDetails({
           ...(keepVerification ? {} : { isPhoneVerified: false })
         })}
         onVerified={(verified) => onChange({ isPhoneVerified: verified })}
+        userPhone={userPhone}
       />
     </div>
   );

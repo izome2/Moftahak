@@ -2,31 +2,53 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Phone } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 import Button from '@/components/ui/Button';
 import { staggerFormFields, fieldVariant } from '@/lib/animations/modalVariants';
+import { isEmail, isPhone, looksLikePhone, normalizePhone } from '@/lib/validations/auth';
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
+  onSwitchToForgotPassword: () => void;
   onSuccess?: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onSuccess }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onSwitchToForgotPassword, onSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Detect if input LOOKS LIKE email or phone (for UI hints)
+  const startsWithLetter = /^[a-zA-Z]/.test(identifier);
+  const inputType = identifier.includes('@') || startsWithLetter ? 'email' : 'phone';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
     
+    // Validate input
+    if (!identifier.trim()) {
+      setError('يرجى إدخال البريد الإلكتروني أو رقم الهاتف');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!isEmail(identifier) && !isPhone(identifier)) {
+      setError('يرجى إدخال بريد إلكتروني أو رقم هاتف صالح');
+      setIsLoading(false);
+      return;
+    }
+    
     try {
+      // Normalize phone number if it's a phone
+      const normalizedIdentifier = isPhone(identifier) ? normalizePhone(identifier) : identifier;
+      
       const result = await signIn('credentials', {
-        email,
+        identifier: normalizedIdentifier,
         password,
         redirect: false,
       });
@@ -34,9 +56,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onSuccess }) 
       if (result?.error) {
         // Translate error messages to Arabic
         const errorMessages: { [key: string]: string } = {
-          'CredentialsSignin': 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
-          'البريد الإلكتروني وكلمة المرور مطلوبان': 'البريد الإلكتروني وكلمة المرور مطلوبان',
-          'البريد الإلكتروني أو كلمة المرور غير صحيحة': 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+          'CredentialsSignin': 'البيانات غير صحيحة',
+          'البريد الإلكتروني/رقم الهاتف وكلمة المرور مطلوبان': 'البريد الإلكتروني/رقم الهاتف وكلمة المرور مطلوبان',
+          'البيانات غير صحيحة': 'البيانات غير صحيحة',
+          'البريد الإلكتروني أو رقم الهاتف غير صالح': 'البريد الإلكتروني أو رقم الهاتف غير صالح',
         };
         
         setError(errorMessages[result.error] || 'فشل تسجيل الدخول. يرجى التحقق من بياناتك');
@@ -60,38 +83,36 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onSuccess }) 
       onSubmit={handleSubmit}
       className="space-y-6"
     >
-      {/* Email Input */}
+      {/* Email/Phone Input */}
       <motion.div variants={fieldVariant}>
-        <label className="block text-sm font-semibold text-secondary mb-2 font-dubai">
-          البريد الإلكتروني
-        </label>
         <div className="relative">
-          <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary/50" size={20} />
+          {inputType === 'email' ? (
+            <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary/50" size={20} />
+          ) : (
+            <Phone className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary/50" size={20} />
+          )}
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="example@email.com"
+            type="text"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            placeholder="رقم الهاتف أو البريد الإلكتروني"
             required
-            className="w-full px-4 pr-12 py-3.5 rounded-full border-2 border-accent bg-white text-secondary placeholder:text-secondary/50 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 shadow-md font-dubai"
+            className="w-full px-4 pr-12 py-3.5 rounded-full border-2 border-accent bg-white text-secondary placeholder:text-secondary/50 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 shadow-md font-dubai text-right"
           />
         </div>
       </motion.div>
 
       {/* Password Input */}
       <motion.div variants={fieldVariant}>
-        <label className="block text-sm font-semibold text-secondary mb-2 font-dubai">
-          كلمة المرور
-        </label>
         <div className="relative">
           <Lock className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary/50" size={20} />
           <input
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
+            placeholder="كلمة المرور"
             required
-            className="w-full px-4 pr-12 pl-12 py-3.5 rounded-full border-2 border-accent bg-white text-secondary placeholder:text-secondary/50 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 shadow-md font-dubai"
+            className="w-full px-4 pr-12 pl-12 py-3.5 rounded-full border-2 border-accent bg-white text-secondary placeholder:text-secondary/50 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 shadow-md font-dubai text-right"
           />
           <button
             type="button"
@@ -118,6 +139,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onSuccess }) 
       <motion.div variants={fieldVariant} className="text-left">
         <button
           type="button"
+          onClick={onSwitchToForgotPassword}
           className="text-sm text-secondary hover:text-secondary/70 font-semibold transition-colors font-dubai"
         >
           نسيت كلمة المرور؟

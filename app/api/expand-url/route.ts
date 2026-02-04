@@ -28,6 +28,9 @@ export async function GET(request: NextRequest) {
 
     // The final URL after redirects
     const expandedUrl = response.url;
+    
+    // Also get the HTML content for more patterns
+    const html = await response.text();
 
     let coordinates = null;
     
@@ -47,9 +50,9 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    // Pattern 3: q=lat,lng query param
+    // Pattern 3: q=lat,lng query param (numeric coordinates only)
     if (!coordinates) {
-      const qPattern = /[?&]q=(-?\d+\.?\d*),\+?(-?\d+\.?\d*)/;
+      const qPattern = /[?&]q=(-?\d+\.?\d*),\+?(-?\d+\.?\d*)(?:&|$)/;
       const qMatch = expandedUrl.match(qPattern);
       if (qMatch) {
         coordinates = { lat: parseFloat(qMatch[1]), lng: parseFloat(qMatch[2]) };
@@ -71,6 +74,63 @@ export async function GET(request: NextRequest) {
       const llMatch = expandedUrl.match(llPattern);
       if (llMatch) {
         coordinates = { lat: parseFloat(llMatch[1]), lng: parseFloat(llMatch[2]) };
+      }
+    }
+    
+    // Pattern 5b: Try to decode ftid (Feature ID) to coordinates
+    // ftid format: 0x[hex_lng]:0x[hex_lat] where the values are encoded coordinates
+    if (!coordinates) {
+      const ftidPattern = /ftid=0x([0-9a-f]+):0x([0-9a-f]+)/i;
+      const ftidMatch = expandedUrl.match(ftidPattern);
+      if (ftidMatch) {
+        try {
+          // The ftid contains encoded place IDs, not direct coordinates
+          // But we can try to extract from the expanded URL's place data
+          // For now, we'll need to use Google Places API or alternative approach
+          console.log('Found ftid:', ftidMatch[0]);
+        } catch {
+          // Ignore decode errors
+        }
+      }
+    }
+    
+    // Pattern 6: Extract from HTML content - look for coordinates in script/meta tags
+    if (!coordinates && html) {
+      // Format: Look for coordinates after "center" or in data arrays
+      // This pattern matches coordinates like [30.0247405,31.2293735] in various contexts
+      
+      // Pattern 6a: @lat,lng in HTML (most reliable)
+      const atInHtmlPattern = /@(-?\d+\.\d{4,}),(-?\d+\.\d{4,})/;
+      const atInHtmlMatch = html.match(atInHtmlPattern);
+      if (atInHtmlMatch) {
+        coordinates = { lat: parseFloat(atInHtmlMatch[1]), lng: parseFloat(atInHtmlMatch[2]) };
+      }
+      
+      // Pattern 6b: !3d and !4d in HTML
+      if (!coordinates) {
+        const data3d4dPattern = /!3d(-?\d+\.\d{4,})!4d(-?\d+\.\d{4,})/;
+        const data3d4dMatch = html.match(data3d4dPattern);
+        if (data3d4dMatch) {
+          coordinates = { lat: parseFloat(data3d4dMatch[1]), lng: parseFloat(data3d4dMatch[2]) };
+        }
+      }
+      
+      // Pattern 6c: Look for [null,null,lat,lng] pattern
+      if (!coordinates) {
+        const jsonCoordsPattern = /\[null,null,(-?\d+\.\d+),(-?\d+\.\d+)\]/;
+        const jsonMatch = html.match(jsonCoordsPattern);
+        if (jsonMatch) {
+          coordinates = { lat: parseFloat(jsonMatch[1]), lng: parseFloat(jsonMatch[2]) };
+        }
+      }
+      
+      // Pattern 6d: ,"lat":30.123,"lng":31.456
+      if (!coordinates) {
+        const latLngPattern = /"lat":\s*(-?\d+\.\d+).*?"lng":\s*(-?\d+\.\d+)/;
+        const latLngMatch = html.match(latLngPattern);
+        if (latLngMatch) {
+          coordinates = { lat: parseFloat(latLngMatch[1]), lng: parseFloat(latLngMatch[2]) };
+        }
       }
     }
 

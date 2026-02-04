@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
-import { User, Mail } from 'lucide-react';
+import { User, Mail, Phone } from 'lucide-react';
 import Button from '@/components/ui/Button';
 
 interface ProfileFormProps {
@@ -126,23 +126,30 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ onSuccess }) => {
         </div>
       </div>
 
-      {/* Email (readonly) */}
+      {/* Email or Phone (readonly) */}
       <div>
         <label className="block text-sm font-bold text-secondary mb-3 font-dubai">
-          البريد الإلكتروني
+          {session?.user?.phone ? 'رقم الهاتف' : 'البريد الإلكتروني'}
         </label>
         <div className="relative">
-          <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary/40" size={20} />
+          {session?.user?.phone ? (
+            <Phone className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary/40" size={20} />
+          ) : (
+            <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary/40" size={20} />
+          )}
           <input
-            type="email"
-            value={session?.user?.email || ''}
+            type={session?.user?.phone ? 'tel' : 'email'}
+            value={session?.user?.phone 
+              ? `+${session.user.phone.startsWith('20') ? session.user.phone.replace(/^20/, '20 ') : session.user.phone.startsWith('966') ? session.user.phone.replace(/^966/, '966 ') : session.user.phone}`
+              : session?.user?.email || ''}
             readOnly
+            dir="ltr"
             className="w-full px-4 pr-12 py-4 rounded-xl border-2 border-accent bg-accent/30 text-secondary/60 cursor-not-allowed font-dubai"
           />
         </div>
         <p className="mt-2 text-xs text-secondary/50 font-dubai flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-secondary/30"></span>
-          لا يمكن تغيير البريد الإلكتروني
+          {session?.user?.phone ? 'لا يمكن تغيير رقم الهاتف' : 'لا يمكن تغيير البريد الإلكتروني'}
         </p>
       </div>
 

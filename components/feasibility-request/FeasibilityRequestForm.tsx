@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Send, Copy, Check, MessageCircle, AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 import FormStepper from './FormStepper';
 import Step1BasicInfo from './Step1BasicInfo';
 import Step2PropertyDetails from './Step2PropertyDetails';
@@ -30,6 +31,7 @@ export default function FeasibilityRequestForm({
   studyType, 
   onBack 
 }: FeasibilityRequestFormProps) {
+  const { data: session } = useSession();
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
   const [formData, setFormData] = useState<FeasibilityRequestFormData>({
     ...defaultFormData,
@@ -45,6 +47,9 @@ export default function FeasibilityRequestForm({
   const [redirectCountdown, setRedirectCountdown] = useState<number>(3);
   const manualRedirectRef = useRef(false); // Use ref to track manual redirect (doesn't trigger re-render)
   const [hideCountdown, setHideCountdown] = useState(false); // State to hide countdown message
+  
+  // Get user phone if logged in with phone (has phone and no email)
+  const userPhone = session?.user?.phone && !session?.user?.email ? session.user.phone : undefined;
   
   // Ref for the scrollable content area
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -421,6 +426,7 @@ export default function FeasibilityRequestForm({
                 errors={errors}
                 studyType={studyType}
                 onChange={updateFormData}
+                userPhone={userPhone}
               />
             </motion.div>
           )}

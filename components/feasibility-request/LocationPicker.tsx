@@ -268,18 +268,18 @@ export default function LocationPicker({
         try {
           // Use our API to expand the URL and extract coordinates
           const response = await fetch(`/api/expand-url?url=${encodeURIComponent(urlToProcess)}`);
-          if (response.ok) {
-            const data = await response.json();
-            if (data.coordinates) {
-              // Use coordinates extracted by the API
-              coords = data.coordinates;
-            } else if (data.expandedUrl) {
-              // Try to parse the expanded URL
-              urlToProcess = data.expandedUrl;
-              coords = extractCoordsFromLink(urlToProcess);
-            }
+          const data = await response.json();
+          
+          if (response.ok && data.coordinates) {
+            // Use coordinates extracted by the API
+            coords = data.coordinates;
+          } else if (response.ok && data.expandedUrl) {
+            // Try to parse the expanded URL
+            urlToProcess = data.expandedUrl;
+            coords = extractCoordsFromLink(urlToProcess);
           }
-        } catch {
+        } catch (err) {
+          console.error('API Error:', err);
           // If expansion fails, try to parse the original URL
           coords = extractCoordsFromLink(urlToProcess);
         }
@@ -296,7 +296,7 @@ export default function LocationPicker({
           mapRef.current.flyTo([coords.lat, coords.lng], 16, { duration: 1 });
         }
       } else {
-        setLocationError('لم نتمكن من استخراج الموقع من الرابط. جرب نسخ رابط الموقع الكامل من Google Maps');
+        setLocationError('لم يتم العثور على الموقع من خلال الرابط. استخدم الخريطة الموجودة أمامك');
       }
     } catch {
       setLocationError('حدث خطأ أثناء معالجة الرابط');

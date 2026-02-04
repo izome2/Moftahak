@@ -2,43 +2,58 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
 import { prisma } from './prisma';
+import { isEmail, isPhone, normalizePhone } from './validations/auth';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
       name: 'credentials',
       credentials: {
-        email: { label: 'Email', type: 'email' },
+        identifier: { label: 'Email or Phone', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error('البريد الإلكتروني وكلمة المرور مطلوبان');
+        if (!credentials?.identifier || !credentials?.password) {
+          throw new Error('البريد الإلكتروني/رقم الهاتف وكلمة المرور مطلوبان');
         }
 
-        const email = credentials.email as string;
+        const identifier = credentials.identifier as string;
         const password = credentials.password as string;
 
-        // Find user by email
-        const user = await prisma.user.findUnique({
-          where: { email },
-        });
+        // Find user by email or phone
+        let user;
+        
+        if (isEmail(identifier)) {
+          // Search by email
+          user = await prisma.user.findUnique({
+            where: { email: identifier },
+          });
+        } else if (isPhone(identifier)) {
+          // Normalize phone number to match database format
+          const normalizedPhoneNumber = normalizePhone(identifier);
+          user = await prisma.user.findUnique({
+            where: { phone: normalizedPhoneNumber },
+          });
+        } else {
+          throw new Error('البريد الإلكتروني أو رقم الهاتف غير صالح');
+        }
 
         if (!user) {
-          throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+          throw new Error('البيانات غير صحيحة');
         }
 
         // Verify password
         const isPasswordValid = await compare(password, user.password);
 
         if (!isPasswordValid) {
-          throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+          throw new Error('البيانات غير صحيحة');
         }
 
         // Return user without password
         return {
           id: user.id,
-          email: user.email,
+          email: user.email || undefined,
+          phone: user.phone || undefined,
           name: `${user.firstName} ${user.lastName}`,
           firstName: user.firstName,
           lastName: user.lastName,
@@ -58,6 +73,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.firstName = user.firstName;
         token.lastName = user.lastName;
         token.image = user.image;
+        token.phone = user.phone;
+        token.email = user.email; // Store email from user
       }
 
       // Update session
@@ -77,6 +94,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.firstName = token.firstName as string;
         session.user.lastName = token.lastName as string;
         session.user.image = token.image as string | null;
+        session.user.phone = token.phone as string | undefined;
+        session.user.email = token.email as string | undefined; // Use email from token
       }
       return session;
     },
