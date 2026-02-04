@@ -95,7 +95,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.lastName = token.lastName as string;
         session.user.image = token.image as string | null;
         session.user.phone = token.phone as string | undefined;
-        session.user.email = token.email as string | undefined; // Use email from token
+        session.user.email = (token.email as string) || session.user.email; // Use email from token with fallback
       }
       return session;
     },
