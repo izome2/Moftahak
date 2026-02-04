@@ -171,6 +171,10 @@ const AboutSection: React.FC = () => {
                 variant="primary"
                 size="md"
                 rightIcon={<ArrowLeft size={20} />}
+                onClick={() => {
+                  const section = document.getElementById('contact');
+                  section?.scrollIntoView({ behavior: 'smooth' });
+                }}
               >
               المزيد عن عبد الله
             </Button>

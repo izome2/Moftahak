@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, ArrowLeft, Sparkles, TrendingUp, CheckCircle2, User, MessageSquare, Facebook, Instagram, Youtube, Linkedin, Twitter, Phone, MapPin, Loader2 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { Mail, ArrowLeft, Sparkles, TrendingUp, CheckCircle2, User, MessageSquare, Facebook, Instagram, Linkedin, Phone, MapPin, Loader2 } from 'lucide-react';
+import { FaTiktok } from 'react-icons/fa';
 import Container from './ui/Container';
 import Input from './ui/Input';
 import Button from './ui/Button';
@@ -15,13 +17,48 @@ const CTASection: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useScrollAnimation(ref as React.RefObject<Element>, { threshold: 0.1, rootMargin: '0px 0px 200px 0px', once: true });
+  const { data: session } = useSession();
   
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    email: '',
+    phone: '',
     message: '',
   });
+  
+  // تحويل رقم الهاتف الدولي إلى محلي (إزالة رمز الدولة)
+  const formatPhoneToLocal = (phone: string): string => {
+    if (!phone) return '';
+    // مصر: 20 -> 0
+    if (phone.startsWith('20') && phone.length === 12) {
+      return '0' + phone.slice(2);
+    }
+    // السعودية: 966 -> 0
+    if (phone.startsWith('966') && phone.length === 12) {
+      return '0' + phone.slice(3);
+    }
+    // إذا كان يبدأ بـ + نزيله ونحوله
+    if (phone.startsWith('+20')) {
+      return '0' + phone.slice(3);
+    }
+    if (phone.startsWith('+966')) {
+      return '0' + phone.slice(4);
+    }
+    return phone;
+  };
+
+  // تعبئة بيانات المستخدم تلقائياً إذا كان مسجلاً
+  useEffect(() => {
+    if (session?.user) {
+      setFormData(prev => ({
+        ...prev,
+        firstName: session.user.firstName || '',
+        lastName: session.user.lastName || '',
+        // إضافة رقم الهاتف إذا كان مسجلاً به (محول للصيغة المحلية)
+        phone: formatPhoneToLocal(session.user.phone || ''),
+      }));
+    }
+  }, [session]);
   
   // حالات الإرسال
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,11 +83,10 @@ const CTASection: React.FC = () => {
   };
 
   const socialLinks = [
+    { icon: FaTiktok, href: 'https://www.tiktok.com/@abdullahelkhedr', label: 'TikTok' },
     { icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
     { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
-    { icon: Youtube, href: 'https://youtube.com', label: 'YouTube' },
     { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
-    { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
   ];
 
   const scrollToSection = (href: string) => {
@@ -79,7 +115,7 @@ const CTASection: React.FC = () => {
       }
       
       setSubmitSuccess(true);
-      setFormData({ firstName: '', lastName: '', email: '', message: '' });
+      setFormData({ firstName: '', lastName: '', phone: '', message: '' });
       
       // إخفاء رسالة النجاح بعد 5 ثوان
       setTimeout(() => setSubmitSuccess(false), 5000);
@@ -176,7 +212,7 @@ const CTASection: React.FC = () => {
                     value={formData.firstName}
                     onChange={handleInputChange}
                     leftIcon={<User size={20} />}
-                    className="bg-[#fffffff1] border-2 border-primary/20 focus:border-primary rounded-xl h-12"
+                    className="bg-[#fffffff1] border border-primary/20 focus:border-primary rounded-xl h-12"
                     required
                   />
                   <Input
@@ -186,21 +222,22 @@ const CTASection: React.FC = () => {
                     value={formData.lastName}
                     onChange={handleInputChange}
                     leftIcon={<User size={20} />}
-                    className="bg-[#fffffff1] border-2 border-primary/20 focus:border-primary rounded-xl h-12"
+                    className="bg-[#fffffff1] border border-primary/20 focus:border-primary rounded-xl h-12"
                     required
                   />
                 </motion.div>
                 
                 <motion.div variants={fadeInUp}>
                   <Input
-                    type="email"
-                    name="email"
-                    placeholder="البريد الإلكتروني"
-                    value={formData.email}
+                    type="tel"
+                    name="phone"
+                    placeholder="رقم الهاتف"
+                    value={formData.phone}
                     onChange={handleInputChange}
-                    leftIcon={<Mail size={20} />}
-                    className="bg-[#fffffff1] border-2 border-primary/20 focus:border-primary rounded-xl h-12"
+                    rightIcon={<Phone size={20} />}
+                    className="bg-[#fffffff1] border border-primary/20 focus:border-primary rounded-xl h-12 text-right"
                     required
+                    dir="ltr"
                   />
                 </motion.div>
 
@@ -212,7 +249,7 @@ const CTASection: React.FC = () => {
                     value={formData.message}
                     onChange={handleInputChange}
                     rows={4}
-                    className="w-full pr-10 pl-4 py-3 bg-[#fdf6ee] border-2 border-primary/20 focus:border-primary rounded-xl text-secondary placeholder:text-secondary/40 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                    className="w-full pr-10 pl-4 py-3 bg-[#fdf6ee] border border-primary/20 focus:border-primary rounded-xl text-secondary placeholder:text-secondary/40 focus:outline-none transition-all resize-none"
                     required
                   />
                 </motion.div>

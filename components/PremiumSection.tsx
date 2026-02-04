@@ -296,6 +296,10 @@ const MagneticCard: React.FC<{
           whileTap={{ scale: 0.95 }}
           onMouseEnter={() => setButtonHovered(true)}
           onMouseLeave={() => setButtonHovered(false)}
+          onClick={() => {
+            const section = document.getElementById('contact');
+            section?.scrollIntoView({ behavior: 'smooth' });
+          }}
           initial={{ opacity: 0, y: 0 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 0 }}
           transition={{ 

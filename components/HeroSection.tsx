@@ -430,7 +430,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
       {showFloatingButton && (
         <motion.button
           onClick={() => {
-            const section = document.getElementById('cta');
+            const section = document.getElementById('contact');
             section?.scrollIntoView({ behavior: 'smooth' });
           }}
           className="fixed bottom-12 right-8 sm:right-8 lg:right-10 xl:right-12 z-50 group bg-primary hover:bg-primary/90 text-secondary px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2.5"
