@@ -14,7 +14,6 @@ export type SlideType =
   | 'map'             
   | 'nearby-apartments' 
   | 'statistics'      
-  | 'notes'           
   | 'footer';         
 
 
@@ -166,8 +165,13 @@ export interface StatisticsSlideData {
   monthlyOccupancy?: MonthlyOccupancyData[];
   // سنة الإشغال
   year?: string;
+  // الملاحظات الإضافية (مدمجة أسفل ملخص الدراسة)
+  notesTitle?: string;
+  notesContent?: string; // محتوى HTML مع التنسيق
+  showNotesSection?: boolean;
 }
 
+// @deprecated - تم دمج الملاحظات في شريحة الإحصائيات
 // بيانات شريحة الملاحظات الإضافية (فقرة واحدة مع تنسيق)
 export interface NotesSlideData {
   title: string;
@@ -202,7 +206,6 @@ export interface SlideData {
   map?: MapSlideData;
   nearbyApartments?: NearbyApartmentsSlideData;
   statistics?: StatisticsSlideData;
-  notes?: NotesSlideData;
   footer?: FooterSlideData;
 }
 

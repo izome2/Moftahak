@@ -33,8 +33,7 @@ import {
   BathroomSlide, 
   MapSlide, 
   NearbyApartmentsSlide, 
-  StatisticsSlide,
-  NotesSlide 
+  StatisticsSlide
 } from '@/components/feasibility/elements';
 import { ViewerCurrencyProvider } from './CurrencyContext';
 import type { CurrencyCode } from '@/lib/feasibility/currency';
@@ -81,7 +80,6 @@ const slideIcons: Record<SlideType, React.ElementType> = {
   map: MapPin,
   'nearby-apartments': Building2,
   statistics: BarChart3,
-  notes: FileText,
   footer: FileText,
 };
 
@@ -99,7 +97,6 @@ const slideColors: Record<SlideType, string> = {
   map: 'bg-emerald-100',
   'nearby-apartments': 'bg-teal-100',
   statistics: 'bg-indigo-100',
-  notes: 'bg-amber-100',
   footer: 'bg-secondary',
 };
 
@@ -496,14 +493,6 @@ const StudyViewer: React.FC<StudyViewerProps> = ({ study }) => {
               },
               socialLinks: {}
             }}
-            isEditing={false}
-          />
-        );
-      
-      case 'notes':
-        return (
-          <NotesSlide
-            data={slide.data.notes || { title: 'ملاحظات إضافية', content: '', showDecoration: true }}
             isEditing={false}
           />
         );

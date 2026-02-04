@@ -29,9 +29,6 @@ export { default as CostChart } from './CostChart';
 export { default as ComparisonChart } from './ComparisonChart';
 export { default as StatisticsSlide } from './StatisticsSlide';
 
-// تصدير مكونات الملاحظات
-export { default as NotesSlide } from './NotesSlide';
-
 // تصدير الأنواع والثوابت
 export { roomTypesConfig } from './RoomSelector';
 export type { RoomCounts, RoomTypeConfig } from './RoomSelector';

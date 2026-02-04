@@ -24,7 +24,6 @@ import CostSummarySlide from './CostSummarySlide';
 import AreaStudyIntroSlide from './AreaStudyIntroSlide';
 import FooterSlide from './FooterSlide';
 import { RoomSetupSlide, KitchenSlide, BedroomSlide, LivingRoomSlide, BathroomSlide, MapSlide, NearbyApartmentsSlide, StatisticsSlide } from '@/components/feasibility/elements';
-import NotesSlide from '@/components/feasibility/elements/NotesSlide';
 
 // أيقونات الشرائح
 const slideIcons: Record<SlideType, React.ElementType> = {
@@ -40,7 +39,6 @@ const slideIcons: Record<SlideType, React.ElementType> = {
   map: MapPin,
   'nearby-apartments': Building2,
   statistics: BarChart3,
-  notes: FileText,
   footer: FileText,
 };
 
@@ -372,14 +370,6 @@ const SlideCanvas: React.FC<SlideCanvasProps> = ({
             data={statisticsWithData}
             isEditing={isEditing}
             onUpdate={(data) => onUpdateSlideData?.({ statistics: data })}
-          />
-        );
-      case 'notes':
-        return (
-          <NotesSlide
-            data={slide.data.notes}
-            isEditing={isEditing}
-            onUpdate={(data) => onUpdateSlideData?.({ notes: data })}
           />
         );
       case 'footer':

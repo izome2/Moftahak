@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   BarChart3, 
@@ -16,7 +16,13 @@ import {
   Calculator,
   Percent,
   MapPin,
-  Wallet
+  Wallet,
+  FileText,
+  Bold,
+  Italic,
+  Underline,
+  List,
+  ALargeSmall
 } from 'lucide-react';
 import { StatisticsSlideData, AreaStatistics, MonthlyOccupancyData } from '@/types/feasibility';
 import CostChart from './CostChart';
@@ -44,6 +50,12 @@ const SHADOWS = {
   button: '0 4px 16px rgba(237, 191, 140, 0.4)',
   modal: '0 25px 60px rgba(16, 48, 43, 0.25)',
 };
+
+// ألوان الهايلايت للملاحظات (البيج والأخضر من الهوية)
+const HIGHLIGHT_COLORS = [
+  { id: 'beige', color: 'rgba(237, 191, 140, 0.5)', textColor: '#10302b', label: 'بيج' },
+  { id: 'green', color: 'rgba(16, 48, 43, 0.8)', textColor: '#edbf8c', label: 'أخضر' },
+];
 
 // الأشهر بالعربي
 const MONTHS_AR = [
@@ -116,6 +128,11 @@ export default function StatisticsSlide({
   const [isEditingYear, setIsEditingYear] = useState(false);
   const yearInputRef = useRef<HTMLInputElement>(null);
   
+  // حالة الملاحظات
+  const [notesTitle, setNotesTitle] = useState(data.notesTitle || 'ملاحظات إضافية');
+  const [notesContent, setNotesContent] = useState(data.notesContent || '');
+  const notesEditorRef = useRef<HTMLDivElement>(null);
+  
   // السنة من البيانات أو السنة الحالية افتراضياً
   const year = slideData.year || new Date().getFullYear().toString();
 
@@ -129,7 +146,23 @@ export default function StatisticsSlide({
       // الحفاظ على السنة من البيانات أو السابقة
       year: data.year || prev.year,
     }));
-  }, [data]);
+    // تحديث الملاحظات
+    setNotesTitle(data.notesTitle || 'ملاحظات إضافية');
+    setNotesContent(data.notesContent || '');
+    // تحديث محتوى الـ contentEditable
+    if (notesEditorRef.current && !isEditing) {
+      notesEditorRef.current.innerHTML = data.notesContent || '';
+    }
+  }, [data, isEditing]);
+
+  // تهيئة محتوى الملاحظات عند التحرير
+  useEffect(() => {
+    if (notesEditorRef.current && isEditing && notesContent) {
+      if (notesEditorRef.current.innerHTML === '') {
+        notesEditorRef.current.innerHTML = notesContent;
+      }
+    }
+  }, [isEditing, notesContent]);
 
   // حفظ مرجع لـ onUpdate لتجنب infinite loop
   const onUpdateRef = useRef(onUpdate);
@@ -248,6 +281,243 @@ export default function StatisticsSlide({
     setSlideData(newData);
     if (onUpdateRef.current) onUpdateRef.current(newData);
   };
+
+  // === دوال الملاحظات ===
+  
+  // تحديث عنوان الملاحظات
+  const handleNotesTitleBlur = () => {
+    if (notesTitle !== slideData.notesTitle) {
+      const newData = { ...slideData, notesTitle };
+      setSlideData(newData);
+      onUpdateRef.current?.(newData);
+    }
+  };
+
+  // تحديث محتوى الملاحظات
+  const handleNotesContentBlur = () => {
+    if (notesEditorRef.current) {
+      const content = notesEditorRef.current.innerHTML;
+      if (content !== slideData.notesContent) {
+        const newData = { ...slideData, notesContent: content };
+        setSlideData(newData);
+        onUpdateRef.current?.(newData);
+      }
+    }
+  };
+
+  // حفظ التحديد الحالي للملاحظات
+  const saveSelection = useCallback(() => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      return selection.getRangeAt(0).cloneRange();
+    }
+    return null;
+  }, []);
+
+  // استعادة التحديد
+  const restoreSelection = useCallback((range: Range | null) => {
+    if (range) {
+      const selection = window.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    }
+  }, []);
+
+  // تطبيق التنسيق
+  const applyFormat = useCallback((command: string, value?: string) => {
+    const savedRange = saveSelection();
+    document.execCommand(command, false, value);
+    restoreSelection(savedRange);
+    notesEditorRef.current?.focus();
+  }, [saveSelection, restoreSelection]);
+
+  // تطبيق الهايلايت مع تغيير لون النص
+  const applyHighlight = useCallback((colorData: typeof HIGHLIGHT_COLORS[0]) => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+      const range = selection.getRangeAt(0);
+      const selectedText = range.toString();
+      
+      if (selectedText.trim()) {
+        const span = document.createElement('span');
+        span.style.backgroundColor = colorData.color;
+        span.style.color = colorData.textColor;
+        span.style.padding = '1px 4px';
+        span.style.borderRadius = '3px';
+        span.style.userSelect = 'text';
+        span.style.cursor = 'text';
+        span.setAttribute('data-highlight', colorData.id);
+        
+        const fragment = range.extractContents();
+        span.appendChild(fragment);
+        range.insertNode(span);
+        
+        selection.removeAllRanges();
+        const newRange = document.createRange();
+        newRange.selectNodeContents(span);
+        selection.addRange(newRange);
+      }
+    }
+    notesEditorRef.current?.focus();
+  }, []);
+
+  // إزالة الهايلايت
+  const removeHighlight = useCallback(() => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+      
+      let highlightSpan: HTMLElement | null = null;
+      if (container.nodeType === Node.TEXT_NODE) {
+        highlightSpan = container.parentElement?.closest('span[data-highlight]') as HTMLElement;
+      } else if (container instanceof HTMLElement) {
+        highlightSpan = container.closest('span[data-highlight]') as HTMLElement;
+      }
+      
+      if (highlightSpan && highlightSpan.parentNode) {
+        const textContent = highlightSpan.textContent || '';
+        const textNode = document.createTextNode(textContent);
+        highlightSpan.parentNode.replaceChild(textNode, highlightSpan);
+      }
+    }
+    notesEditorRef.current?.focus();
+  }, []);
+
+  // إضافة نقطة رأسية
+  const insertBullet = useCallback(() => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0 || !notesEditorRef.current) return;
+    
+    const range = selection.getRangeAt(0);
+    const bulletText = '    • ';
+    const textNode = document.createTextNode(bulletText);
+    range.insertNode(textNode);
+    
+    range.setStartAfter(textNode);
+    range.setEndAfter(textNode);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }, []);
+
+  // تكبير/تصغير حجم الخط
+  const toggleFontSize = useCallback(() => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+      
+      let fontSpan: HTMLElement | null = null;
+      if (container.nodeType === Node.TEXT_NODE) {
+        fontSpan = container.parentElement?.closest('span[data-fontsize="large"]') as HTMLElement;
+      } else if (container instanceof HTMLElement) {
+        fontSpan = container.closest('span[data-fontsize="large"]') as HTMLElement;
+      }
+      
+      if (fontSpan && fontSpan.parentNode) {
+        const textContent = fontSpan.textContent || '';
+        const textNode = document.createTextNode(textContent);
+        fontSpan.parentNode.replaceChild(textNode, fontSpan);
+      } else {
+        const selectedText = range.toString();
+        if (selectedText.trim()) {
+          const span = document.createElement('span');
+          span.style.fontSize = '1.2em';
+          span.setAttribute('data-fontsize', 'large');
+          
+          const fragment = range.extractContents();
+          span.appendChild(fragment);
+          range.insertNode(span);
+          
+          selection.removeAllRanges();
+          const newRange = document.createRange();
+          newRange.selectNodeContents(span);
+          selection.addRange(newRange);
+        }
+      }
+    }
+    notesEditorRef.current?.focus();
+  }, []);
+
+  // معالجة الخروج من الهايلايت عند الضغط على الأسهم
+  const handleNotesKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const container = range.startContainer;
+        
+        // البحث عن span الهايلايت
+        let highlightSpan: HTMLElement | null = null;
+        if (container.nodeType === Node.TEXT_NODE) {
+          highlightSpan = container.parentElement?.closest('span[data-highlight]') as HTMLElement;
+        } else if (container instanceof HTMLElement) {
+          highlightSpan = container.closest('span[data-highlight]') as HTMLElement;
+        }
+        
+        if (highlightSpan) {
+          const offset = range.startOffset;
+          const textLength = container.textContent?.length || 0;
+          
+          // إذا كان المؤشر في النهاية وضغط سهم يمين (أو البداية وسهم يسار في RTL)
+          if ((e.key === 'ArrowRight' && offset === 0) || 
+              (e.key === 'ArrowLeft' && offset === textLength)) {
+            // إنشاء مسافة بعد الهايلايت للخروج منه
+            const space = document.createTextNode('\u200B'); // Zero-width space
+            if (e.key === 'ArrowLeft') {
+              highlightSpan.parentNode?.insertBefore(space, highlightSpan.nextSibling);
+            } else {
+              highlightSpan.parentNode?.insertBefore(space, highlightSpan);
+            }
+          }
+        }
+      }
+    }
+  }, []);
+
+  // معالجة النقر - الخروج من الهايلايت عند النقر خارجه
+  const handleNotesClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    // تأخير صغير للسماح للتحديد بالتحديث
+    setTimeout(() => {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0 && selection.isCollapsed) {
+        const range = selection.getRangeAt(0);
+        const container = range.startContainer;
+        
+        // التحقق مما إذا كان المؤشر داخل هايلايت
+        let highlightSpan: HTMLElement | null = null;
+        if (container.nodeType === Node.TEXT_NODE) {
+          highlightSpan = container.parentElement?.closest('span[data-highlight]') as HTMLElement;
+        } else if (container instanceof HTMLElement) {
+          highlightSpan = container.closest('span[data-highlight]') as HTMLElement;
+        }
+        
+        // إذا كان داخل هايلايت، أضف مسافة غير مرئية للخروج منه
+        if (highlightSpan && highlightSpan.parentNode) {
+          const offset = range.startOffset;
+          const textLength = container.textContent?.length || 0;
+          
+          // إذا كان في بداية أو نهاية الهايلايت
+          if (offset === 0 || offset === textLength) {
+            const space = document.createTextNode('\u200B');
+            if (offset === textLength) {
+              highlightSpan.parentNode.insertBefore(space, highlightSpan.nextSibling);
+            } else {
+              highlightSpan.parentNode.insertBefore(space, highlightSpan);
+            }
+            // نقل المؤشر إلى المسافة الجديدة
+            const newRange = document.createRange();
+            newRange.setStart(space, offset === 0 ? 0 : 1);
+            newRange.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+          }
+        }
+      }
+    }, 0);
+  }, []);
 
   // حساب التكلفة الإجمالية من الغرف
   const totalFromRooms = slideData.roomsCost.reduce((sum, item) => sum + item.cost, 0);
@@ -1024,6 +1294,142 @@ export default function StatisticsSlide({
                 </div>
               )}
             </div>
+          </div>
+        </motion.div>
+
+        {/* قسم الملاحظات الإضافية */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-white p-5 sm:p-6 border-2 border-primary/20"
+          style={{ boxShadow: SHADOWS.card }}
+        >
+          {/* Background Decoration */}
+          <div className="absolute -top-6 -left-6 opacity-[0.06] pointer-events-none">
+            <FileText className="w-40 h-40 text-primary" strokeWidth={1.5} />
+          </div>
+
+          <div className="relative z-10">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4">
+              <motion.div 
+                className="p-3 rounded-xl bg-primary/20 border-2 border-primary/30"
+                whileHover={{ scale: 1.05, rotate: 5 }}
+                style={{ boxShadow: SHADOWS.icon }}
+              >
+                <FileText className="w-6 h-6 text-primary" strokeWidth={2} />
+              </motion.div>
+              <div className="flex-1">
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={notesTitle}
+                    onChange={(e) => setNotesTitle(e.target.value)}
+                    onBlur={handleNotesTitleBlur}
+                    className="text-xl sm:text-2xl font-bold text-secondary font-dubai bg-transparent border-b-2 border-transparent focus:border-primary/30 focus:outline-none transition-colors w-full"
+                    placeholder="عنوان الملاحظات"
+                  />
+                ) : (
+                  <h2 className="text-xl sm:text-2xl font-bold text-secondary font-dubai">
+                    {notesTitle}
+                  </h2>
+                )}
+              </div>
+            </div>
+
+            {/* شريط الأدوات */}
+            {isEditing && (
+              <div className="flex items-center gap-1 mb-4 pb-3 border-b border-primary/10 flex-wrap">
+                <button
+                  onMouseDown={(e) => { e.preventDefault(); applyFormat('bold'); }}
+                  className="p-2 rounded-lg bg-white text-secondary/60 hover:text-secondary hover:bg-primary/10 border border-primary/20 transition-colors"
+                  title="نص عريض (Ctrl+B)"
+                >
+                  <Bold className="w-4 h-4" />
+                </button>
+                <button
+                  onMouseDown={(e) => { e.preventDefault(); applyFormat('italic'); }}
+                  className="p-2 rounded-lg bg-white text-secondary/60 hover:text-secondary hover:bg-primary/10 border border-primary/20 transition-colors"
+                  title="نص مائل (Ctrl+I)"
+                >
+                  <Italic className="w-4 h-4" />
+                </button>
+                <button
+                  onMouseDown={(e) => { e.preventDefault(); applyFormat('underline'); }}
+                  className="p-2 rounded-lg bg-white text-secondary/60 hover:text-secondary hover:bg-primary/10 border border-primary/20 transition-colors"
+                  title="خط تحت النص (Ctrl+U)"
+                >
+                  <Underline className="w-4 h-4" />
+                </button>
+                
+                <div className="w-px h-6 bg-primary/20 mx-1" />
+                
+                {/* تكبير الخط */}
+                <button
+                  onMouseDown={(e) => { e.preventDefault(); toggleFontSize(); }}
+                  className="p-2 rounded-lg bg-white text-secondary/60 hover:text-secondary hover:bg-primary/10 border border-primary/20 transition-colors"
+                  title="تكبير/تصغير الخط"
+                >
+                  <ALargeSmall className="w-4 h-4" />
+                </button>
+                
+                {/* نقطة رأسية */}
+                <button
+                  onMouseDown={(e) => { e.preventDefault(); insertBullet(); }}
+                  className="p-2 rounded-lg bg-white text-secondary/60 hover:text-secondary hover:bg-primary/10 border border-primary/20 transition-colors"
+                  title="إضافة نقطة رأسية"
+                >
+                  <List className="w-4 h-4" />
+                </button>
+                
+                <div className="w-px h-6 bg-primary/20 mx-1" />
+                
+                {/* أزرار الهايلايت */}
+                {HIGHLIGHT_COLORS.map((hl) => (
+                  <button
+                    key={hl.id}
+                    onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); applyHighlight(hl); }}
+                    className="w-6 h-6 rounded-full border-2 transition-transform hover:scale-110"
+                    style={{ 
+                      backgroundColor: hl.color,
+                      borderColor: hl.id === 'beige' ? '#d4ad82' : '#1a3a34'
+                    }}
+                    title={`تمييز ${hl.label}`}
+                  />
+                ))}
+                <button
+                  onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); removeHighlight(); }}
+                  className="w-6 h-6 rounded-full border-2 border-red-400 bg-white text-red-400 text-sm font-bold flex items-center justify-center transition-transform hover:scale-110"
+                  style={{ paddingTop: '2px' }}
+                  title="إزالة التمييز"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* محرر النص */}
+            {isEditing ? (
+              <div
+                ref={notesEditorRef}
+                contentEditable
+                onBlur={handleNotesContentBlur}
+                onKeyDown={handleNotesKeyDown}
+                onClick={handleNotesClick}
+                className="w-full min-h-32 p-4 bg-accent/20 rounded-xl border-2 border-primary/10 focus:border-primary/30 focus:outline-none font-dubai text-secondary text-base leading-relaxed transition-colors"
+                dir="rtl"
+                style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word' }}
+                suppressContentEditableWarning
+              />
+            ) : (
+              <div 
+                className="font-dubai text-secondary text-base leading-relaxed w-full"
+                dir="rtl"
+                style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word' }}
+                dangerouslySetInnerHTML={{ __html: notesContent || '<p class="text-secondary/50">لا توجد ملاحظات</p>' }}
+              />
+            )}
           </div>
         </motion.div>
       </motion.div>

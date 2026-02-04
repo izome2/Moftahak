@@ -157,16 +157,9 @@ const defaultSlideTemplates: Record<SlideType, { title: string; data: SlideData;
         totalCost: 0,
         averageRent: 0,
         roomsCost: [],
-      },
-    },
-  },
-  notes: {
-    title: 'ملاحظات إضافية',
-    data: {
-      notes: {
-        title: 'ملاحظات إضافية',
-        content: '',
-        showDecoration: true,
+        notesTitle: 'ملاحظات إضافية',
+        notesContent: '',
+        showNotesSection: true,
       },
     },
   },
@@ -307,14 +300,6 @@ export function useSlides(options: UseSlidesOptions = {}): UseSlidesReturn {
 
     setSlides(prev => {
       let insertIndex = afterIndex !== undefined ? afterIndex + 1 : prev.length;
-      
-      // إذا كانت شريحة ملاحظات، ضعها قبل الخاتمة تلقائياً
-      if (type === 'notes' && afterIndex === undefined) {
-        const footerIndex = prev.findIndex(s => s.type === 'footer');
-        if (footerIndex !== -1) {
-          insertIndex = footerIndex;
-        }
-      }
       
       finalInsertIndex = insertIndex;
       
