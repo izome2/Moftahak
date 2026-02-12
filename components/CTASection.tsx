@@ -460,7 +460,7 @@ const CTASection: React.FC = () => {
                         href="mailto:abdullah.she7ata@gmail.com"
                         className="text-white/70 hover:text-primary transition-colors duration-300 text-sm"
                       >
-                        info@moftahak-eg.com
+                        info@moftahak.com
                       </a>
                     </li>
                     <li className="flex items-start gap-2">
