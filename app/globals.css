@@ -1,0 +1,541 @@
+@import "tailwindcss";
+@import "./editor-touch.css";
+
+:root {
+  --background: #ead3b9;  /* لون فاتح (بيج فاتح) للخلفية */
+  --foreground: #10302b;  /* لون غامق للنصوص */
+  
+  /* Moftahak Brand Colors */
+  --primary: #edbf8c;     /* ذهبي فاتح */
+  --primary-rgb: 237, 191, 140;
+  --secondary: #10302b;   /* أخضر داكن - للأزرار */
+  --secondary-rgb: 16, 48, 43;
+  --accent: #ead3b9;      /* بيج فاتح - للخلفية */
+  --accent-rgb: 234, 211, 185;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-dubai);
+  --font-en: var(--font-bristone);
+}
+
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-dubai), Arial, sans-serif;
+  overflow-x: hidden;
+  /* تحسينات الأداء */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  overflow-x: hidden;
+  /* تحسين السكرول */
+  scroll-behavior: smooth;
+  /* تحسين الأداء */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* إزالة outline عند التركيز (focus) */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: none;
+}
+
+button:focus,
+button:active {
+  outline: none;
+}
+
+/* إخفاء شريط التمرير الافتراضي على اللابتوب والأيباد */
+@media (min-width: 768px) {
+  /* Firefox */
+  html {
+    scrollbar-width: none;
+  }
+  
+  /* Chrome, Safari, Edge */
+  html::-webkit-scrollbar {
+    display: none;
+  }
+  
+  body::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* إخفاء شريط التمرير في Modals */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.font-en {
+  font-family: var(--font-bristone), sans-serif;
+}
+
+.font-ar {
+  font-family: var(--font-dubai), sans-serif;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* تحسين الأداء - will-change فقط للعناصر النشطة */
+.animating {
+  will-change: transform, opacity;
+}
+
+/* إزالة will-change بعد انتهاء الأنيميشن */
+.motion-safe\:animate-none,
+.animation-complete {
+  animation: none !important;
+  will-change: auto !important;
+}
+
+/* تحسين تحميل الصور - إزالة التأثير التدريجي */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  /* إزالة التأثير التدريجي - الصورة تظهر فورًا */
+  image-rendering: auto;
+  content-visibility: auto;
+}
+
+/* Next.js Image optimization - ظهور فوري بدون تأثير تدريجي */
+img[loading="lazy"] {
+  image-rendering: auto;
+}
+
+/* تحميل أسرع للصور */
+img {
+  decoding: async;
+  loading: lazy;
+}
+
+/* الصور ذات الأولوية (priority) تحمل مباشرة */
+img[fetchpriority="high"],
+img[loading="eager"] {
+  content-visibility: auto;
+  decoding: sync;
+}
+
+/* Custom shadow colors with beige tone */
+.shadow-sm {
+  --tw-shadow: 0 1px 2px 0 rgb(180 130 80 / 0.04);
+  --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.shadow {
+  --tw-shadow: 0 1px 3px 0 rgb(180 130 80 / 0.08), 0 1px 2px -1px rgb(180 130 80 / 0.06);
+  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.shadow-md {
+  --tw-shadow: 0 4px 6px -1px rgb(180 130 80 / 0.08), 0 2px 4px -2px rgb(180 130 80 / 0.06);
+  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.shadow-lg {
+  --tw-shadow: 0 10px 15px -3px rgb(180 130 80 / 0.1), 0 4px 6px -4px rgb(180 130 80 / 0.08);
+  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.shadow-xl {
+  --tw-shadow: 0 20px 25px -5px rgb(180 130 80 / 0.1), 0 8px 10px -6px rgb(180 130 80 / 0.08);
+  --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.shadow-2xl {
+  --tw-shadow: 0 25px 50px -12px rgb(180 130 80 / 0.15);
+  --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.hover\:shadow-xl:hover {
+  --tw-shadow: 0 20px 25px -5px rgb(180 130 80 / 0.1), 0 8px 10px -6px rgb(180 130 80 / 0.08);
+  --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.hover\:shadow-2xl:hover {
+  --tw-shadow: 0 25px 50px -12px rgb(180 130 80 / 0.15);
+  --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+/* Highlight Text Animation - RTL (Right to Left) */
+.highlight-text {
+  background: linear-gradient(90deg, rgba(237, 191, 140, 0.25) 0%, rgba(237, 191, 140, 0.25) 100%);
+  background-size: 0% 100%;
+  background-repeat: no-repeat;
+  background-position: right;
+  padding: 1px 3px;
+  margin: 0 -3px;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  display: inline;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.highlight-text.highlight-active {
+  animation: highlight-appear-disappear 2.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation-delay: var(--highlight-delay, 0s);
+}
+
+@keyframes highlight-appear-disappear {
+  0% {
+    background-size: 0% 100%;
+  }
+  40% {
+    background-size: 100% 100%;
+  }
+  60% {
+    background-size: 100% 100%;
+  }
+  100% {
+    background-size: 0% 100%;
+  }
+}
+
+/* Custom Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-from-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-in {
+  animation-duration: 0.7s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fade-in;
+}
+
+.slide-in-from-bottom {
+  animation-name: slide-in-from-bottom;
+}
+
+.slide-in-from-left {
+  animation-name: slide-in-from-left;
+}
+
+.slide-in-from-right {
+  animation-name: slide-in-from-right;
+}
+
+.slide-in-from-top {
+  animation-name: slide-in-from-top;
+}
+
+.zoom-in {
+  animation-name: zoom-in;
+}
+
+/* Delay utilities */
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+.delay-700 {
+  animation-delay: 700ms;
+}
+
+/* Duration utilities */
+.duration-300 {
+  animation-duration: 300ms;
+}
+
+.duration-500 {
+  animation-duration: 500ms;
+}
+
+.duration-700 {
+  animation-duration: 700ms;
+}
+
+.duration-1000 {
+  animation-duration: 1000ms;
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Custom Selection */
+::selection {
+  background-color: var(--primary);
+  color: var(--secondary);
+}
+
+/* Line Clamp Utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Scroll Down Icon Animations */
+@keyframes float-down {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(2px); }
+}
+
+@keyframes float-frame {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(0.5px); }
+}
+
+.animate-float-delay-0 {
+  animation: float-down 2s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.animate-float-delay-1 {
+  animation: float-down 2s ease-in-out infinite;
+  animation-delay: 0.1s;
+}
+
+.animate-float-delay-2 {
+  animation: float-down 2s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+
+.animate-float-reverse {
+  animation: float-frame 2s ease-in-out infinite;
+  animation-delay: 0.3s;
+}
+
+/* Custom background white color */
+.bg-white {
+  background-color: #fdf6ee;
+}
+
+/* Hero Section Clip Path - Only on large screens (1200px+) */
+@media (min-width: 1200px) {
+  [style*="--hero-clip-path"] {
+    --hero-clip-path: url(#heroClip) !important;
+  }
+}
+
+/* Slideshow Animations with Ken Burns Effect */
+@keyframes ken-burns-zoom {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.15);
+  }
+}
+
+@keyframes slideshow-crossfade {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  8% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  17% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 1;
+  }
+  33% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-slideshow-1 {
+  animation: slideshow-crossfade 20s ease-in-out infinite, ken-burns-zoom 15s ease-out infinite;
+  animation-delay: 0s, 0s;
+  opacity: 1;
+}
+
+.animate-slideshow-2 {
+  animation: slideshow-crossfade 20s ease-in-out infinite, ken-burns-zoom 15s ease-out infinite;
+  animation-delay: 5s, 5s;
+  opacity: 0;
+}
+
+.animate-slideshow-3 {
+  animation: slideshow-crossfade 20s ease-in-out infinite, ken-burns-zoom 15s ease-out infinite;
+  animation-delay: 10s, 10s;
+  opacity: 0;
+}
+
+.animate-slideshow-4 {
+  animation: slideshow-crossfade 20s ease-in-out infinite, ken-burns-zoom 15s ease-out infinite;
+  animation-delay: 15s, 15s;
+  opacity: 0;
+}
+
+/* ============================================
+   Custom Cursor for Feasibility Editor
+   ============================================ */
+.editor-cursor,
+.editor-cursor *,
+.editor-cursor button,
+.editor-cursor input,
+.editor-cursor textarea,
+.editor-cursor select {
+  cursor: url("/images/editor-cursor.svg") 4 4, auto !important;
+}
+
+.editor-cursor .cursor-pointer,
+.editor-cursor button:hover,
+.editor-cursor a:hover {
+  cursor: url("/images/editor-cursor.svg") 4 4, pointer !important;
+}
+
+.editor-cursor .cursor-grab {
+  cursor: url("/images/editor-cursor.svg") 4 4, grab !important;
+}
+
+.editor-cursor .cursor-grabbing {
+  cursor: url("/images/editor-cursor.svg") 4 4, grabbing !important;
+}
+
+.editor-cursor .cursor-text,
+.editor-cursor input:focus,
+.editor-cursor textarea:focus {
+  cursor: url("/images/editor-cursor.svg") 4 4, text !important;
+}
+
+.editor-cursor .cursor-move {
+  cursor: url("/images/editor-cursor.svg") 4 4, move !important;
+}
+
+.editor-cursor .cursor-default {
+  cursor: url("/images/editor-cursor.svg") 4 4, default !important;
+}

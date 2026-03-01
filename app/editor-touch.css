@@ -1,0 +1,132 @@
+/**
+ * ملف CSS للأجهزة اللمسية في المحرر
+ * يجعل العناصر التي تظهر عند التحويم (hover) مرئية دائماً
+ * لأن الأجهزة اللمسية لا تدعم التحويم
+ */
+
+/* 
+ * نستهدف الأجهزة التي لا تدعم hover (الأجهزة اللمسية)
+ * @media (hover: none) - الجهاز لا يدعم hover
+ * @media (pointer: coarse) - المؤشر غير دقيق (إصبع بدلاً من ماوس)
+ */
+
+@media (hover: none), (pointer: coarse) {
+  
+  /* ===== شريط الأدوات - إظهار البسيط وإخفاء الكامل على الأجهزة اللمسية ===== */
+  
+  /* إخفاء شريط الأدوات الكامل (Desktop) على الأجهزة اللمسية */
+  [data-toolbar="desktop"] {
+    display: none !important;
+  }
+  
+  /* إظهار شريط الأدوات البسيط (Mobile) على الأجهزة اللمسية */
+  [data-toolbar="mobile"] {
+    display: flex !important;
+  }
+  
+  /* ===== إظهار كل العناصر المخفية بـ opacity-0 ===== */
+  
+  /* طريقة شاملة - استهداف أي عنصر له opacity-0 داخل group */
+  .group .opacity-0,
+  .group\/cover .opacity-0,
+  .group\/img .opacity-0,
+  .group\/item .opacity-0,
+  .group\/content .opacity-0,
+  .group\/card .opacity-0,
+  .group\/widget .opacity-0,
+  .group\/row .opacity-0 {
+    opacity: 0.75 !important;
+  }
+  
+  /* ===== الاستثناءات - عناصر يجب أن تبقى مخفية ===== */
+  
+  /* pointer-events-none عادة تكون overlays للتزيين */
+  .pointer-events-none.opacity-0 {
+    opacity: 0 !important;
+  }
+  
+  /* ===== جعل العناصر المخفية بـ invisible مرئية ===== */
+  .group .invisible,
+  .group\/content .invisible,
+  .group\/item .invisible {
+    visibility: visible !important;
+  }
+  
+  /* ===== جعل العناصر المخفية بـ hidden مرئية ===== */
+  .group .hidden:not([data-stay-hidden]),
+  .group\/item .hidden:not([data-stay-hidden]) {
+    display: flex !important;
+  }
+  
+  /* ===== أيقونات التحرير ===== */
+  
+  /* إظهار كل الأيقونات داخل group */
+  .group svg.opacity-0,
+  .group\/item svg.opacity-0 {
+    opacity: 0.7 !important;
+  }
+  
+  /* ===== أزرار الحذف والتعديل ===== */
+  
+  .group button.opacity-0,
+  .group\/item button.opacity-0,
+  .group div.opacity-0,
+  .group\/item div.opacity-0 {
+    opacity: 0.75 !important;
+  }
+  
+  /* ===== مقابض السحب (drag handles) ===== */
+  
+  .cursor-grab.opacity-0,
+  .cursor-grab.opacity-40 {
+    opacity: 0.6 !important;
+  }
+  
+  /* ===== تأثيرات hover الأخرى ===== */
+  
+  /* إزالة تأثيرات hover:scale لأنها قد تسبب مشاكل على اللمس */
+  .hover\:scale-105:hover,
+  .hover\:scale-110:hover {
+    transform: none !important;
+  }
+  
+  /* الاحتفاظ بتأثيرات الضغط (active) بدلاً من hover */
+  .hover\:bg-primary\/10:active,
+  .hover\:bg-primary\/20:active,
+  .hover\:bg-white\/50:active {
+    background-color: rgba(237, 191, 140, 0.2) !important;
+  }
+  
+  /* ===== تحسينات للأزرار العائمة ===== */
+  
+  /* جعل الأزرار العائمة أكبر للمس */
+  .fixed.bottom-6 button,
+  .fixed.bottom-6 .rounded-full {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  /* ===== تحسينات عامة للمس ===== */
+  
+  /* تأثير الضغط */
+  a:active,
+  button:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+  
+  /* ===== إصلاحات للمكونات المحددة ===== */
+  
+  /* SlideManager - إظهار أزرار الحذف والنسخ */
+  .slide-item .opacity-0 {
+    opacity: 0.7 !important;
+  }
+}
+
+/* 
+ * للأجهزة التي تدعم hover (الكمبيوتر)
+ * نحتفظ بالسلوك الافتراضي
+ */
+@media (hover: hover) and (pointer: fine) {
+  /* السلوك الافتراضي - لا نغير شيء */
+}

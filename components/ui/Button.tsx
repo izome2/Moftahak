@@ -1,0 +1,54 @@
+import React from 'react';
+
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  children: React.ReactNode;
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ 
+    variant = 'primary', 
+    size = 'md', 
+    leftIcon, 
+    rightIcon, 
+    children, 
+    className = '', 
+    disabled,
+    ...props 
+  }, ref) => {
+    const baseStyles = 'inline-flex items-center justify-center gap-2 font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden';
+    
+    const variantStyles = {
+      primary: 'bg-gradient-to-tl from-[#d9a46f] to-[#e5b483] text-secondary shadow-[0_0_15px_rgba(180,130,80,0.25)] hover:shadow-[0_0_20px_rgba(180,130,80,0.35)] active:scale-95 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-full hover:before:translate-x-[-100%] before:transition-transform before:duration-700 before:skew-x-[-20deg]',
+      secondary: 'bg-secondary text-primary hover:bg-secondary/90 shadow-[0_0_15px_rgba(180,130,80,0.25)] hover:shadow-[0_0_20px_rgba(180,130,80,0.35)] active:scale-95 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-full hover:before:translate-x-[-100%] before:transition-transform before:duration-700 before:skew-x-[-20deg]',
+      outline: 'border border-primary text-primary hover:bg-primary hover:text-secondary active:scale-95 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-primary/20 before:to-transparent before:translate-x-full hover:before:translate-x-[-100%] before:transition-transform before:duration-700 before:skew-x-[-20deg]',
+      ghost: 'text-primary hover:bg-primary/10 active:scale-95 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-primary/10 before:to-transparent before:translate-x-full hover:before:translate-x-[-100%] before:transition-transform before:duration-700 before:skew-x-[-20deg]',
+    };
+    
+    const sizeStyles = {
+      sm: 'px-4 py-2 text-sm rounded-lg',
+      md: 'px-6 py-3 text-base rounded-xl',
+      lg: 'px-8 py-4 text-lg rounded-xl',
+    };
+    
+    return (
+      <button
+        ref={ref}
+        className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+        disabled={disabled}
+        {...props}
+      >
+        {leftIcon && <span className="flex-shrink-0 relative z-10">{leftIcon}</span>}
+        <span className="relative z-10">{children}</span>
+        {rightIcon && <span className="flex-shrink-0 relative z-10">{rightIcon}</span>}
+      </button>
+    );
+  }
+);
+
+Button.displayName = 'Button';
+
+export default Button;
