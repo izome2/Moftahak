@@ -1,162 +1,180 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   AlertTriangle,
-  Download,
-  Upload,
   RotateCcw,
   Shield,
   CheckCircle2,
   XCircle,
   Loader2,
-  FileJson,
   Clock,
   Database,
-  Users,
   Trash2,
+  Archive,
+  ExternalLink,
+  History,
 } from 'lucide-react';
 
 type ActionState = 'idle' | 'loading' | 'success' | 'error';
+type ModalStep = 'none' | 'ask-backup' | 'name-backup' | 'confirm-reset' | 'open-backup' | 'delete-backup';
+
+interface BackupEntry {
+  id: string;
+  name: string;
+  stats: Record<string, number>;
+  createdByName: string;
+  createdAt: string;
+}
 
 export default function SystemManager() {
-  const [backupState, setBackupState] = useState<ActionState>('idle');
-  const [restoreState, setRestoreState] = useState<ActionState>('idle');
   const [resetState, setResetState] = useState<ActionState>('idle');
+  const [backupState, setBackupState] = useState<ActionState>('idle');
   const [message, setMessage] = useState('');
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
-  const [confirmText, setConfirmText] = useState('');
-  const [keepUsers, setKeepUsers] = useState(true);
-  const [restoreFile, setRestoreFile] = useState<File | null>(null);
-  const [restorePreview, setRestorePreview] = useState<any>(null);
-  const [deletedStats, setDeletedStats] = useState<Record<string, number> | null>(null);
-  const [restoredStats, setRestoredStats] = useState<Record<string, number> | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [messageType, setMessageType] = useState<'success' | 'error'>('success');
+  const [modalStep, setModalStep] = useState<ModalStep>('none');
+  const [backupName, setBackupName] = useState('');
+  const [backups, setBackups] = useState<BackupEntry[]>([]);
+  const [loadingBackups, setLoadingBackups] = useState(true);
+  const [selectedBackup, setSelectedBackup] = useState<BackupEntry | null>(null);
 
   // ═══════════════════════════════════════
-  // 📥 نسخة احتياطية
+  // جلب قائمة النسخ الاحتياطية
   // ═══════════════════════════════════════
-  const handleBackup = async () => {
-    setBackupState('loading');
-    setMessage('');
+  useEffect(() => {
+    fetchBackups();
+  }, []);
+
+  const fetchBackups = async () => {
     try {
-      const res = await fetch('/api/accounting/system/backup');
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'فشل في إنشاء النسخة الاحتياطية');
+      setLoadingBackups(true);
+      const res = await fetch('/api/accounting/system/backups');
+      if (res.ok) {
+        const data = await res.json();
+        setBackups(data.backups || []);
       }
-      const data = await res.json();
-
-      // Download as JSON file
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `moftahak-backup-${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      setBackupState('success');
-      setMessage(`تم تحميل النسخة الاحتياطية — ${data.stats?.bookings || 0} حجز، ${data.stats?.expenses || 0} مصروف`);
-      setTimeout(() => { setBackupState('idle'); setMessage(''); }, 5000);
-    } catch (e: any) {
-      setBackupState('error');
-      setMessage(e.message);
-      setTimeout(() => { setBackupState('idle'); setMessage(''); }, 5000);
-    }
-  };
-
-  // ═══════════════════════════════════════
-  // 📤 استعادة
-  // ═══════════════════════════════════════
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const text = await file.text();
-      const data = JSON.parse(text);
-
-      if (data.system !== 'moftahak-accounting' || !data.version || !data.data) {
-        setMessage('ملف غير صالح — يجب أن يكون ملف نسخة احتياطية من النظام');
-        setRestoreState('error');
-        setTimeout(() => { setRestoreState('idle'); setMessage(''); }, 5000);
-        return;
-      }
-
-      setRestoreFile(file);
-      setRestorePreview(data);
-      setShowRestoreConfirm(true);
     } catch {
-      setMessage('ملف تالف — لا يمكن قراءة JSON');
-      setRestoreState('error');
-      setTimeout(() => { setRestoreState('idle'); setMessage(''); }, 5000);
+      // Silent fail
+    } finally {
+      setLoadingBackups(false);
     }
   };
 
-  const handleRestore = async () => {
-    if (!restorePreview) return;
-    setRestoreState('loading');
-    setShowRestoreConfirm(false);
-    setMessage('');
+  const showMessage = (msg: string, type: 'success' | 'error') => {
+    setMessage(msg);
+    setMessageType(type);
+    setTimeout(() => setMessage(''), 6000);
+  };
+
+  // ═══════════════════════════════════════
+  // النقر على زر إعادة التعيين
+  // ═══════════════════════════════════════
+  const handleResetClick = () => {
+    setModalStep('ask-backup');
+  };
+
+  // ═══════════════════════════════════════
+  // إنشاء نسخة احتياطية
+  // ═══════════════════════════════════════
+  const handleCreateBackup = async () => {
+    if (!backupName.trim()) return;
+    setBackupState('loading');
 
     try {
-      const res = await fetch('/api/accounting/system/restore', {
+      const res = await fetch('/api/accounting/system/backups', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(restorePreview),
+        body: JSON.stringify({ name: backupName.trim() }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'فشل في الاستعادة');
+      if (!res.ok) throw new Error(data.error || 'فشل في إنشاء النسخة الاحتياطية');
 
-      setRestoreState('success');
-      setRestoredStats(data.restored);
-      setMessage('تمت الاستعادة بنجاح');
-      setRestoreFile(null);
-      setRestorePreview(null);
-      setTimeout(() => { setRestoreState('idle'); setMessage(''); setRestoredStats(null); }, 8000);
+      setBackupState('idle');
+      setBackupName('');
+      await fetchBackups();
+
+      // Now proceed to reset confirmation
+      setModalStep('confirm-reset');
     } catch (e: any) {
-      setRestoreState('error');
-      setMessage(e.message);
-      setTimeout(() => { setRestoreState('idle'); setMessage(''); }, 5000);
+      setBackupState('idle');
+      showMessage(e.message, 'error');
+      setModalStep('none');
     }
   };
 
   // ═══════════════════════════════════════
-  // 🗑️ تصفية
+  // تصفية النظام
   // ═══════════════════════════════════════
   const handleReset = async () => {
-    if (confirmText !== 'تأكيد التصفية') return;
     setResetState('loading');
-    setShowResetConfirm(false);
-    setMessage('');
+    setModalStep('none');
 
     try {
       const res = await fetch('/api/accounting/system/reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confirmText: 'تأكيد التصفية', keepUsers }),
+        body: JSON.stringify({ confirmText: 'تأكيد التصفية', keepUsers: true }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'فشل في التصفية');
 
       setResetState('success');
-      setDeletedStats(data.deleted);
-      setMessage('تمت تصفية النظام بالكامل');
-      setConfirmText('');
-      setTimeout(() => { setResetState('idle'); setMessage(''); setDeletedStats(null); }, 8000);
+      showMessage('تمت تصفية النظام بالكامل بنجاح', 'success');
+      setTimeout(() => setResetState('idle'), 5000);
     } catch (e: any) {
       setResetState('error');
-      setMessage(e.message);
-      setConfirmText('');
-      setTimeout(() => { setResetState('idle'); setMessage(''); }, 5000);
+      showMessage(e.message, 'error');
+      setTimeout(() => setResetState('idle'), 5000);
     }
   };
 
+  // ═══════════════════════════════════════
+  // فتح نسخة احتياطية في تبويب جديد
+  // ═══════════════════════════════════════
+  const handleOpenBackup = (backup: BackupEntry) => {
+    setSelectedBackup(backup);
+    setModalStep('open-backup');
+  };
+
+  const confirmOpenBackup = () => {
+    if (selectedBackup) {
+      window.open(`/accounting/backup/${selectedBackup.id}`, '_blank');
+    }
+    setModalStep('none');
+    setSelectedBackup(null);
+  };
+
+  // ═══════════════════════════════════════
+  // حذف نسخة احتياطية
+  // ═══════════════════════════════════════
+  const handleDeleteBackup = (backup: BackupEntry) => {
+    setSelectedBackup(backup);
+    setModalStep('delete-backup');
+  };
+
+  const confirmDeleteBackup = async () => {
+    if (!selectedBackup) return;
+    try {
+      const res = await fetch(`/api/accounting/system/backups/${selectedBackup.id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'فشل في الحذف');
+
+      showMessage(`تم حذف "${selectedBackup.name}"`, 'success');
+      await fetchBackups();
+    } catch (e: any) {
+      showMessage(e.message, 'error');
+    } finally {
+      setModalStep('none');
+      setSelectedBackup(null);
+    }
+  };
+
+  // ═══════════════════════════════════════
+  // العرض
+  // ═══════════════════════════════════════
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -165,7 +183,7 @@ export default function SystemManager() {
         <h2 className="text-lg font-bold font-dubai">إدارة النظام</h2>
       </div>
       <p className="text-sm text-secondary/60 font-dubai -mt-3">
-        نسخ احتياطي، استعادة، وإعادة تعيين نظام المحاسبة
+        إعادة تعيين النظام وإدارة النسخ الاحتياطية
       </p>
 
       {/* Message Banner */}
@@ -176,12 +194,12 @@ export default function SystemManager() {
             animate={{ opacity: 1, y: 0, height: 'auto' }}
             exit={{ opacity: 0, y: -10, height: 0 }}
             className={`px-4 py-3 rounded-xl text-sm font-dubai flex items-center gap-2 ${
-              backupState === 'success' || restoreState === 'success' || resetState === 'success'
+              messageType === 'success'
                 ? 'bg-green-50 border border-green-200 text-green-700'
                 : 'bg-red-50 border border-red-200 text-red-700'
             }`}
           >
-            {(backupState === 'success' || restoreState === 'success' || resetState === 'success')
+            {messageType === 'success'
               ? <CheckCircle2 className="w-4 h-4 shrink-0" />
               : <XCircle className="w-4 h-4 shrink-0" />
             }
@@ -190,297 +208,368 @@ export default function SystemManager() {
         )}
       </AnimatePresence>
 
-      {/* Cards Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-
-        {/* 📥 Backup Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="border-2 border-primary/20 rounded-2xl p-5 space-y-4 hover:border-primary/40 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-200">
-              <Download className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <h3 className="font-bold text-secondary font-dubai">نسخة احتياطية</h3>
-              <p className="text-xs text-secondary/50 font-dubai">تحميل كل البيانات كملف JSON</p>
-            </div>
+      {/* Reset Button */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="border-2 border-red-200 rounded-2xl p-5 space-y-4 hover:border-red-300 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-red-50 border border-red-200">
+            <RotateCcw className="w-5 h-5 text-red-600" />
           </div>
-          <p className="text-xs text-secondary/60 font-dubai leading-relaxed">
-            يتم تصدير جميع المشاريع، الشقق، الحجوزات، المصروفات، المستثمرين، المسحوبات، سجل المراجعة، وإعدادات النظام في ملف واحد.
-          </p>
-          <button
-            onClick={handleBackup}
-            disabled={backupState === 'loading'}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-dubai font-bold text-sm
-              bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {backupState === 'loading' ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> جاري التحميل...</>
-            ) : (
-              <><Download className="w-4 h-4" /> تحميل نسخة احتياطية</>
-            )}
-          </button>
-        </motion.div>
-
-        {/* 📤 Restore Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="border-2 border-primary/20 rounded-2xl p-5 space-y-4 hover:border-primary/40 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200">
-              <Upload className="w-5 h-5 text-amber-600" />
-            </div>
-            <div>
-              <h3 className="font-bold text-secondary font-dubai">استعادة نسخة</h3>
-              <p className="text-xs text-secondary/50 font-dubai">رفع ملف JSON لاستعادة البيانات</p>
-            </div>
+          <div>
+            <h3 className="font-bold text-red-700 font-dubai">إعادة تعيين النظام</h3>
+            <p className="text-xs text-secondary/50 font-dubai">حذف كل بيانات المحاسبة والبدء من جديد</p>
           </div>
-          <p className="text-xs text-secondary/60 font-dubai leading-relaxed">
-            ⚠️ سيتم حذف جميع البيانات الحالية واستبدالها بالنسخة المرفوعة. يُنصح بأخذ نسخة احتياطية أولاً.
-          </p>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={restoreState === 'loading'}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-dubai font-bold text-sm
-              bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {restoreState === 'loading' ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> جاري الاستعادة...</>
-            ) : (
-              <><Upload className="w-4 h-4" /> رفع نسخة احتياطية</>
-            )}
-          </button>
-
-          {/* Restored Stats */}
-          {restoredStats && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-xs text-green-700 bg-green-50 rounded-lg p-3 space-y-1"
-            >
-              <p className="font-bold">تم الاستعادة:</p>
-              {Object.entries(restoredStats).filter(([, v]) => v > 0).map(([k, v]) => (
-                <p key={k} className="font-dubai">• {translateKey(k)}: {v}</p>
-              ))}
-            </motion.div>
+        </div>
+        <p className="text-xs text-secondary/60 font-dubai leading-relaxed">
+          سيتم حذف جميع المشاريع، الشقق، الحجوزات، المصروفات، المستثمرين، وسجل المراجعة.
+          سيُعرض عليك حفظ نسخة احتياطية قبل التصفية.
+        </p>
+        <button
+          onClick={handleResetClick}
+          disabled={resetState === 'loading'}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-dubai font-bold text-sm
+            bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {resetState === 'loading' ? (
+            <><Loader2 className="w-4 h-4 animate-spin" /> جاري التصفية...</>
+          ) : (
+            <><RotateCcw className="w-4 h-4" /> إعادة تعيين النظام</>
           )}
-        </motion.div>
+        </button>
+      </motion.div>
 
-        {/* 🗑️ Reset Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="border-2 border-red-200 rounded-2xl p-5 space-y-4 hover:border-red-300 transition-colors sm:col-span-2 lg:col-span-1"
-        >
+      {/* Backup History */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="border-2 border-primary/20 rounded-2xl p-5 space-y-4"
+      >
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-red-50 border border-red-200">
-              <Trash2 className="w-5 h-5 text-red-600" />
+            <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/30">
+              <History className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-bold text-red-700 font-dubai">تصفية النظام</h3>
-              <p className="text-xs text-red-400 font-dubai">حذف كل بيانات المحاسبة</p>
+              <h3 className="font-bold text-secondary font-dubai">سجل النسخ الاحتياطية</h3>
+              <p className="text-xs text-secondary/50 font-dubai">
+                {backups.length > 0 ? `${backups.length} نسخة محفوظة` : 'لا توجد نسخ احتياطية'}
+              </p>
             </div>
           </div>
-          <p className="text-xs text-secondary/60 font-dubai leading-relaxed">
-            ⛔ عملية لا رجعة فيها! يتم حذف جميع المشاريع، الشقق، الحجوزات، المصروفات، المستثمرين، وسجل المراجعة. يمكن الاحتفاظ بأعضاء الفريق.
-          </p>
-          <button
-            onClick={() => { setShowResetConfirm(true); setConfirmText(''); }}
-            disabled={resetState === 'loading'}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-dubai font-bold text-sm
-              bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {resetState === 'loading' ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> جاري التصفية...</>
-            ) : (
-              <><RotateCcw className="w-4 h-4" /> تصفية المشروع</>
-            )}
-          </button>
+        </div>
 
-          {/* Deleted Stats */}
-          {deletedStats && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-xs text-red-700 bg-red-50 rounded-lg p-3 space-y-1"
-            >
-              <p className="font-bold">تم الحذف:</p>
-              {Object.entries(deletedStats).filter(([, v]) => v > 0).map(([k, v]) => (
-                <p key={k} className="font-dubai">• {translateKey(k)}: {v}</p>
-              ))}
-            </motion.div>
-          )}
-        </motion.div>
-      </div>
+        {loadingBackups ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+          </div>
+        ) : backups.length === 0 ? (
+          <div className="text-center py-8">
+            <Archive className="w-10 h-10 text-secondary/20 mx-auto mb-2" />
+            <p className="text-sm text-secondary/40 font-dubai">لا توجد نسخ احتياطية محفوظة</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {backups.map((backup, i) => (
+              <motion.div
+                key={backup.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.03 }}
+                className="group bg-primary/5 rounded-xl px-4 py-3 flex items-center justify-between hover:bg-primary/10 transition-colors"
+              >
+                <button
+                  onClick={() => handleOpenBackup(backup)}
+                  className="flex items-center gap-3 flex-1 text-right"
+                >
+                  <div className="p-1.5 rounded-lg bg-white border border-primary/20">
+                    <Database className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-secondary font-dubai">{backup.name}</p>
+                    <div className="flex items-center gap-2 text-[11px] text-secondary/40 font-dubai">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-2.5 h-2.5" />
+                        {new Date(backup.createdAt).toLocaleDateString('ar-EG', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                      {backup.stats && (
+                        <span className="text-secondary/30">
+                          • {backup.stats.bookings || 0} حجز
+                          • {backup.stats.expenses || 0} مصروف
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleOpenBackup(backup); }}
+                    className="p-1.5 hover:bg-white rounded-lg transition text-secondary/40 hover:text-primary"
+                    title="فتح"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDeleteBackup(backup); }}
+                    className="p-1.5 hover:bg-red-50 rounded-lg transition text-secondary/40 hover:text-red-500"
+                    title="حذف"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </motion.div>
 
       {/* ═══════════════════════════════════════
-          Restore Confirmation Modal
+          Modal: هل تريد إنشاء نسخة احتياطية؟
           ═══════════════════════════════════════ */}
       <AnimatePresence>
-        {showRestoreConfirm && restorePreview && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-            onClick={() => setShowRestoreConfirm(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl border-2 border-amber-200 space-y-4"
-              dir="rtl"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200">
-                  <AlertTriangle className="w-5 h-5 text-amber-600" />
-                </div>
-                <h3 className="font-bold text-lg text-secondary font-dubai">تأكيد الاستعادة</h3>
+        {modalStep === 'ask-backup' && (
+          <ModalOverlay onClose={() => setModalStep('none')}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200">
+                <AlertTriangle className="w-5 h-5 text-amber-600" />
               </div>
-
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs space-y-2">
-                <div className="flex items-center gap-2 text-amber-700">
-                  <FileJson className="w-4 h-4" />
-                  <span className="font-bold font-dubai">{restoreFile?.name}</span>
-                </div>
-                <div className="flex items-center gap-2 text-amber-600">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span className="font-dubai">{new Date(restorePreview.createdAt).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-                <div className="text-secondary/70 font-dubai pt-1 space-y-0.5">
-                  {Object.entries(restorePreview.stats || {}).filter(([, v]) => (v as number) > 0).map(([k, v]) => (
-                    <p key={k}>• {translateKey(k)}: {v as number}</p>
-                  ))}
-                </div>
-              </div>
-
-              <p className="text-xs text-red-600 font-dubai bg-red-50 border border-red-200 rounded-lg p-3">
-                ⚠️ سيتم حذف جميع البيانات الحالية واستبدالها ببيانات هذه النسخة. هل أنت متأكد؟
-              </p>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={handleRestore}
-                  className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-amber-600 text-white hover:bg-amber-700 transition-colors"
-                >
-                  تأكيد الاستعادة
-                </button>
-                <button
-                  onClick={() => { setShowRestoreConfirm(false); setRestoreFile(null); setRestorePreview(null); }}
-                  className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary/10 text-secondary hover:bg-secondary/20 transition-colors"
-                >
-                  إلغاء
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
+              <h3 className="font-bold text-lg text-secondary font-dubai">نسخة احتياطية</h3>
+            </div>
+            <p className="text-sm text-secondary/70 font-dubai mb-5">
+              أنت على وشك تصفية النظام بالكامل. هل تريد إنشاء نسخة احتياطية قبل المتابعة؟
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setBackupName('');
+                  setModalStep('name-backup');
+                }}
+                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary text-white hover:bg-secondary/90 transition-colors"
+              >
+                نعم، أنشئ نسخة
+              </button>
+              <button
+                onClick={() => setModalStep('confirm-reset')}
+                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+              >
+                لا، تابع التصفية
+              </button>
+            </div>
+          </ModalOverlay>
         )}
       </AnimatePresence>
 
       {/* ═══════════════════════════════════════
-          Reset Confirmation Modal
+          Modal: تسمية النسخة الاحتياطية
           ═══════════════════════════════════════ */}
       <AnimatePresence>
-        {showResetConfirm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-            onClick={() => setShowResetConfirm(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl border-2 border-red-200 space-y-5"
+        {modalStep === 'name-backup' && (
+          <ModalOverlay onClose={() => setModalStep('none')}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/30">
+                <Archive className="w-5 h-5 text-primary" />
+              </div>
+              <h3 className="font-bold text-lg text-secondary font-dubai">تسمية النسخة الاحتياطية</h3>
+            </div>
+            <p className="text-sm text-secondary/60 font-dubai mb-3">
+              أدخل اسماً مميزاً للنسخة الاحتياطية حتى تتمكن من التعرف عليها لاحقاً.
+            </p>
+            <input
+              type="text"
+              value={backupName}
+              onChange={(e) => setBackupName(e.target.value)}
+              placeholder="مثال: نسخة قبل بداية 2026"
+              autoFocus
+              className="w-full px-4 py-2.5 rounded-xl border-2 border-primary/20 text-sm text-secondary font-dubai
+                focus:border-primary focus:outline-none transition-colors"
               dir="rtl"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-red-50 border border-red-200">
-                  <Shield className="w-5 h-5 text-red-600" />
-                </div>
-                <h3 className="font-bold text-lg text-red-700 font-dubai">تأكيد التصفية الكاملة</h3>
-              </div>
+              onKeyDown={(e) => e.key === 'Enter' && backupName.trim() && handleCreateBackup()}
+            />
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={handleCreateBackup}
+                disabled={!backupName.trim() || backupState === 'loading'}
+                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary text-white
+                  hover:bg-secondary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              >
+                {backupState === 'loading' ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> جاري الحفظ...</>
+                ) : (
+                  'حفظ ومتابعة'
+                )}
+              </button>
+              <button
+                onClick={() => setModalStep('none')}
+                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary/10 text-secondary hover:bg-secondary/20 transition-colors"
+              >
+                إلغاء
+              </button>
+            </div>
+          </ModalOverlay>
+        )}
+      </AnimatePresence>
 
-              <p className="text-sm text-secondary/70 font-dubai">
-                ⛔ هذا الإجراء سيحذف <span className="text-red-600 font-bold">جميع</span> بيانات المحاسبة بدون رجعة.
-                يُنصح بشدة بتحميل نسخة احتياطية قبل المتابعة.
+      {/* ═══════════════════════════════════════
+          Modal: تأكيد التصفية
+          ═══════════════════════════════════════ */}
+      <AnimatePresence>
+        {modalStep === 'confirm-reset' && (
+          <ModalOverlay onClose={() => setModalStep('none')}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-red-50 border border-red-200">
+                <Shield className="w-5 h-5 text-red-600" />
+              </div>
+              <h3 className="font-bold text-lg text-red-700 font-dubai">تأكيد التصفية</h3>
+            </div>
+            <p className="text-sm text-secondary/70 font-dubai mb-2">
+              ⛔ سيتم حذف <span className="text-red-600 font-bold">جميع</span> بيانات المحاسبة نهائياً.
+            </p>
+            <p className="text-xs text-red-600 font-dubai bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+              تشمل: المشاريع، الشقق، الحجوزات، المصروفات، المستثمرين، المسحوبات، وسجل المراجعة.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={handleReset}
+                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-red-600 text-white hover:bg-red-700 transition-colors"
+              >
+                نعم، صفّ النظام
+              </button>
+              <button
+                onClick={() => setModalStep('none')}
+                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary/10 text-secondary hover:bg-secondary/20 transition-colors"
+              >
+                إلغاء
+              </button>
+            </div>
+          </ModalOverlay>
+        )}
+      </AnimatePresence>
+
+      {/* ═══════════════════════════════════════
+          Modal: فتح نسخة احتياطية
+          ═══════════════════════════════════════ */}
+      <AnimatePresence>
+        {modalStep === 'open-backup' && selectedBackup && (
+          <ModalOverlay onClose={() => { setModalStep('none'); setSelectedBackup(null); }}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/30">
+                <Database className="w-5 h-5 text-primary" />
+              </div>
+              <h3 className="font-bold text-lg text-secondary font-dubai">فتح النسخة الاحتياطية</h3>
+            </div>
+            <div className="bg-primary/5 rounded-xl p-4 mb-4 space-y-2">
+              <p className="text-sm font-bold text-secondary font-dubai">{selectedBackup.name}</p>
+              <p className="text-xs text-secondary/50 font-dubai flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {new Date(selectedBackup.createdAt).toLocaleDateString('ar-EG', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
               </p>
-
-              {/* Keep Users Toggle */}
-              <label className="flex items-center gap-3 cursor-pointer bg-secondary/5 rounded-xl p-3">
-                <input
-                  type="checkbox"
-                  checked={keepUsers}
-                  onChange={(e) => setKeepUsers(e.target.checked)}
-                  className="w-4 h-4 rounded accent-secondary"
-                />
-                <div>
-                  <span className="text-sm font-bold text-secondary font-dubai flex items-center gap-1.5">
-                    <Users className="w-3.5 h-3.5" />
-                    الاحتفاظ بأعضاء الفريق
-                  </span>
-                  <span className="text-xs text-secondary/50 font-dubai block mt-0.5">
-                    يحافظ على حسابات المستخدمين (المدير، الحجوزات، المستثمرين)
-                  </span>
+              {selectedBackup.stats && (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {Object.entries(selectedBackup.stats).filter(([, v]) => (v as number) > 0).map(([k, v]) => (
+                    <span key={k} className="text-[10px] bg-white rounded-md px-2 py-0.5 text-secondary/60 font-dubai border border-primary/15">
+                      {translateKey(k)}: {v as number}
+                    </span>
+                  ))}
                 </div>
-              </label>
+              )}
+            </div>
+            <p className="text-xs text-secondary/50 font-dubai mb-4">
+              سيتم فتح النسخة في تبويب جديد للقراءة فقط — لن تتأثر البيانات الحالية.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={confirmOpenBackup}
+                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary text-white hover:bg-secondary/90 transition-colors flex items-center justify-center gap-2"
+              >
+                <ExternalLink className="w-4 h-4" />
+                فتح في تبويب جديد
+              </button>
+              <button
+                onClick={() => { setModalStep('none'); setSelectedBackup(null); }}
+                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary/10 text-secondary hover:bg-secondary/20 transition-colors"
+              >
+                إلغاء
+              </button>
+            </div>
+          </ModalOverlay>
+        )}
+      </AnimatePresence>
 
-              {/* Confirmation Input */}
-              <div>
-                <label className="block text-xs text-secondary/60 font-dubai mb-1.5">
-                  اكتب <span className="text-red-600 font-bold">تأكيد التصفية</span> للمتابعة:
-                </label>
-                <input
-                  type="text"
-                  value={confirmText}
-                  onChange={(e) => setConfirmText(e.target.value)}
-                  placeholder="تأكيد التصفية"
-                  className="w-full px-4 py-2.5 rounded-xl border-2 border-secondary/20 text-sm text-secondary font-dubai
-                    focus:border-red-400 focus:outline-none transition-colors text-center"
-                  dir="rtl"
-                />
+      {/* ═══════════════════════════════════════
+          Modal: تأكيد حذف النسخة
+          ═══════════════════════════════════════ */}
+      <AnimatePresence>
+        {modalStep === 'delete-backup' && selectedBackup && (
+          <ModalOverlay onClose={() => { setModalStep('none'); setSelectedBackup(null); }}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-red-50 border border-red-200">
+                <Trash2 className="w-5 h-5 text-red-600" />
               </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={handleReset}
-                  disabled={confirmText !== 'تأكيد التصفية'}
-                  className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-red-600 text-white
-                    hover:bg-red-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                >
-                  تصفية الآن
-                </button>
-                <button
-                  onClick={() => { setShowResetConfirm(false); setConfirmText(''); }}
-                  className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary/10 text-secondary hover:bg-secondary/20 transition-colors"
-                >
-                  إلغاء
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
+              <h3 className="font-bold text-lg text-red-700 font-dubai">حذف النسخة الاحتياطية</h3>
+            </div>
+            <p className="text-sm text-secondary/70 font-dubai mb-4">
+              هل أنت متأكد من حذف النسخة الاحتياطية <span className="font-bold text-secondary">&quot;{selectedBackup.name}&quot;</span>؟
+              لا يمكن التراجع عن هذا الإجراء.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={confirmDeleteBackup}
+                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-red-600 text-white hover:bg-red-700 transition-colors"
+              >
+                نعم، احذف
+              </button>
+              <button
+                onClick={() => { setModalStep('none'); setSelectedBackup(null); }}
+                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary/10 text-secondary hover:bg-secondary/20 transition-colors"
+              >
+                إلغاء
+              </button>
+            </div>
+          </ModalOverlay>
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+// ═══════════════════════════════════════
+// Modal Overlay Component
+// ═══════════════════════════════════════
+function ModalOverlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl border-2 border-primary/20 space-y-0"
+        dir="rtl"
+      >
+        {children}
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -493,14 +582,8 @@ function translateKey(key: string): string {
     expenses: 'المصروفات',
     investors: 'المستثمرين',
     withdrawals: 'المسحوبات',
-    currencyRates: 'أسعار الصرف',
-    snapshots: 'اللقطات الشهرية',
-    settings: 'الإعدادات',
+    snapshots: 'اللقطات',
     auditLogs: 'سجل المراجعة',
-    monthlySnapshots: 'اللقطات الشهرية',
-    monthlyInvestorSnapshots: 'لقطات المستثمرين',
-    apartmentInvestors: 'استثمارات الشقق',
-    systemSettings: 'إعدادات النظام',
   };
   return map[key] || key;
 }

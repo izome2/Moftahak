@@ -584,3 +584,18 @@ model MonthlyInvestorSnapshot {
   @@index([month])
   @@map("monthly_investor_snapshots")
 }
+
+// SystemBackup Model - النسخ الاحتياطية للنظام
+// تُخزَّن في قاعدة البيانات بدلاً من ملفات JSON
+model SystemBackup {
+  id            String   @id @default(cuid())
+  name          String                            // اسم النسخة الاحتياطية
+  data          Json                              // بيانات النسخة الكاملة
+  stats         Json?                             // إحصائيات ملخصة للعرض
+  createdBy     String   @map("created_by")       // معرف المستخدم الذي أنشأ النسخة
+  createdByName String   @map("created_by_name")  // اسم المستخدم
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("system_backups")
+}
