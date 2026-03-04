@@ -10,7 +10,7 @@
  * - ألوان متناسقة مع التصميم العام
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, 
@@ -26,7 +26,9 @@ import {
   UserCog,
   Trash2,
   Eye,
-  Crown
+  Crown,
+  TrendingUp,
+  ChevronDown
 } from 'lucide-react';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
@@ -53,7 +55,7 @@ interface User {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'USER' | 'ADMIN';
+  role: string;
   image?: string;
   createdAt: string;
 }
@@ -70,11 +72,39 @@ const roleConfig: Record<string, {
   icon: React.ElementType;
 }> = {
   ADMIN: { 
-    label: 'مسؤول', 
+    label: 'مسؤول الموقع', 
     bgColor: 'bg-emerald-400/15',
     textColor: 'text-emerald-700',
     borderColor: 'border-emerald-500/30',
     icon: Crown
+  },
+  GENERAL_MANAGER: { 
+    label: 'مدير عام', 
+    bgColor: 'bg-purple-500/10',
+    textColor: 'text-purple-700',
+    borderColor: 'border-purple-500/30',
+    icon: Shield
+  },
+  OPS_MANAGER: { 
+    label: 'مدير عمليات', 
+    bgColor: 'bg-orange-500/10',
+    textColor: 'text-orange-700',
+    borderColor: 'border-orange-500/30',
+    icon: UserCog
+  },
+  BOOKING_MANAGER: { 
+    label: 'مدير حجوزات', 
+    bgColor: 'bg-cyan-500/10',
+    textColor: 'text-cyan-700',
+    borderColor: 'border-cyan-500/30',
+    icon: Calendar
+  },
+  INVESTOR: { 
+    label: 'مستثمر', 
+    bgColor: 'bg-amber-500/10',
+    textColor: 'text-amber-700',
+    borderColor: 'border-amber-500/30',
+    icon: TrendingUp
   },
   USER: { 
     label: 'مستخدم', 
@@ -92,7 +122,7 @@ const roleConfig: Record<string, {
 interface UserCardProps {
   user: User;
   index: number;
-  onToggleRole: (userId: string, currentRole: string) => void;
+  onChangeRole: (userId: string, newRole: string) => void;
   onDelete: (userId: string) => void;
   menuOpen: string | null;
   setMenuOpen: (id: string | null) => void;
@@ -103,7 +133,7 @@ interface UserCardProps {
 const UserCard: React.FC<UserCardProps> = ({ 
   user, 
   index, 
-  onToggleRole,
+  onChangeRole,
   onDelete,
   menuOpen,
   setMenuOpen,
@@ -113,6 +143,21 @@ const UserCard: React.FC<UserCardProps> = ({
   const role = roleConfig[user.role] || roleConfig.USER;
   const RoleIcon = role.icon;
   const isCurrentUser = user.id === currentUserId;
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setRoleDropdownOpen(false);
+      }
+    };
+    if (roleDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [roleDropdownOpen]);
 
   return (
     <motion.div
@@ -125,7 +170,7 @@ const UserCard: React.FC<UserCardProps> = ({
         ease: [0.25, 0.1, 0.25, 1],
       }}
       whileHover={{ y: -4 }}
-      className={`group relative bg-white border-2 border-primary/20 rounded-2xl overflow-visible will-change-transform ${menuOpen === user.id ? 'z-[200]' : 'z-10'}`}
+      className={`group relative bg-white border-2 border-primary/20 rounded-2xl overflow-visible will-change-transform ${(menuOpen === user.id || roleDropdownOpen) ? 'z-[200]' : 'z-10'}`}
       style={{ 
         boxShadow: SHADOWS.card,
         transform: 'translateZ(0)',
@@ -194,33 +239,76 @@ const UserCard: React.FC<UserCardProps> = ({
 
           {/* الإجراءات */}
           <div className="flex items-center gap-2">
-            {!isCurrentUser && (
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => onToggleRole(user.id, user.role)}
-                disabled={actionLoading === user.id}
-                className={`hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl font-dubai font-medium text-sm transition-colors ${
-                  user.role === 'ADMIN' 
-                    ? 'bg-red-500/10 text-red-700 hover:bg-red-500/20 border border-red-500/30'
-                    : 'bg-emerald-400/15 text-emerald-700 hover:bg-emerald-400/25 border border-emerald-500/30'
-                }`}
-              >
-                {actionLoading === user.id ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : user.role === 'ADMIN' ? (
-                  <>
-                    <ShieldOff className="w-4 h-4" />
-                    إزالة الصلاحيات
-                  </>
-                ) : (
-                  <>
-                    <Shield className="w-4 h-4" />
-                    جعله مسؤول
-                  </>
-                )}
-              </motion.button>
-            )}
+            <div className="hidden sm:flex items-center gap-2 relative" ref={dropdownRef}>
+              {actionLoading === user.id ? (
+                <div className="px-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white">
+                  <Loader2 className="w-4 h-4 animate-spin text-secondary/60" />
+                </div>
+              ) : (
+                <div className="relative">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-dubai font-medium text-sm border-2 transition-all cursor-pointer ${
+                      roleDropdownOpen 
+                        ? 'border-primary/50 bg-primary/5' 
+                        : 'border-primary/20 bg-white hover:border-primary/40'
+                    }`}
+                    style={{ boxShadow: 'rgba(237, 191, 140, 0.1) 0px 2px 8px' }}
+                  >
+                    <RoleIcon className={`w-4 h-4 ${role.textColor}`} />
+                    <span className="text-secondary">{role.label}</span>
+                    <ChevronDown className={`w-4 h-4 text-secondary/40 transition-transform duration-200 ${roleDropdownOpen ? 'rotate-180' : ''}`} />
+                  </motion.button>
+
+                  <AnimatePresence>
+                    {roleDropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: -5 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute left-0 top-full mt-2 bg-white rounded-2xl border-2 border-primary/30 py-2 z-[300] min-w-[200px] overflow-hidden"
+                        style={{ boxShadow: SHADOWS.popup }}
+                      >
+                        <p className="px-4 py-1.5 text-xs font-dubai text-secondary/40 font-medium">اختر الدور</p>
+                        <div className="px-1.5">
+                          {Object.entries(roleConfig).map(([value, config]) => {
+                            const ItemIcon = config.icon;
+                            const isActive = user.role === value;
+                            return (
+                              <button
+                                key={value}
+                                onClick={() => {
+                                  if (!isActive) onChangeRole(user.id, value);
+                                  setRoleDropdownOpen(false);
+                                }}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-dubai transition-colors group/role ${
+                                  isActive
+                                    ? `${config.bgColor} ${config.textColor} font-bold`
+                                    : 'text-secondary/70 hover:bg-primary/5'
+                                }`}
+                              >
+                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
+                                  isActive ? config.bgColor : 'bg-secondary/5 group-hover/role:bg-secondary/10'
+                                }`}>
+                                  <ItemIcon className="w-4 h-4" />
+                                </div>
+                                <span className="flex-1 text-right">{config.label}</span>
+                                {isActive && (
+                                  <span className={`text-xs ${config.textColor} opacity-70`}>✓</span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+            </div>
 
             {/* قائمة المزيد */}
             <div className="relative">
@@ -262,34 +350,39 @@ const UserCard: React.FC<UserCardProps> = ({
                         </button>
                       </div>
                       
-                      {!isCurrentUser && (
-                        <>
-                          {/* خيار تغيير الصلاحية للموبايل */}
-                          <div className="px-2 py-1 sm:hidden">
+                      {/* خيار تغيير الصلاحية للموبايل */}
+                      <div className="px-2 py-1 sm:hidden">
+                        <p className="px-3 py-1.5 text-xs font-dubai text-secondary/40 font-medium">تغيير الدور</p>
+                        {Object.entries(roleConfig).map(([value, config]) => {
+                          const RIcon = config.icon;
+                          const isActive = user.role === value;
+                          return (
                             <button
+                              key={value}
                               onClick={() => {
-                                onToggleRole(user.id, user.role);
+                                if (!isActive) onChangeRole(user.id, value);
                                 setMenuOpen(null);
                               }}
-                              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-dubai transition-colors group/item ${
-                                user.role === 'ADMIN' 
-                                  ? 'text-red-600 hover:bg-red-50'
-                                  : 'text-emerald-700 hover:bg-emerald-50'
+                              className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-dubai transition-colors group/item ${
+                                isActive 
+                                  ? `${config.bgColor} ${config.textColor} font-medium`
+                                  : 'text-secondary/70 hover:bg-primary/5'
                               }`}
                             >
-                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                                user.role === 'ADMIN' 
-                                  ? 'bg-red-50 group-hover/item:bg-red-100'
-                                  : 'bg-emerald-50 group-hover/item:bg-emerald-100'
+                              <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+                                isActive ? config.bgColor : 'bg-secondary/5 group-hover/item:bg-secondary/10'
                               }`}>
-                                {user.role === 'ADMIN' ? <ShieldOff className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
+                                <RIcon className="w-3.5 h-3.5" />
                               </div>
-                              <span className="flex-1 text-right">
-                                {user.role === 'ADMIN' ? 'إزالة الصلاحيات' : 'جعله مسؤول'}
-                              </span>
+                              <span className="flex-1 text-right">{config.label}</span>
+                              {isActive && <span className="text-xs opacity-60">✓</span>}
                             </button>
-                          </div>
-                          
+                          );
+                        })}
+                      </div>
+                      
+                      {!isCurrentUser && (
+                        <>
                           <div className="h-px bg-primary/10 my-1" />
                           
                           <div className="px-2 py-1">
@@ -369,10 +462,9 @@ export default function UsersPage() {
   }, [status, session, fetchUsers]);
 
   // تغيير صلاحية المستخدم
-  const handleToggleRole = async (userId: string, currentRole: string) => {
+  const handleChangeRole = async (userId: string, newRole: string) => {
     setActionLoading(userId);
     try {
-      const newRole = currentRole === 'ADMIN' ? 'USER' : 'ADMIN';
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -421,9 +513,11 @@ export default function UsersPage() {
   });
 
   // إحصائيات
+  const accountingRoles = ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER', 'INVESTOR'];
   const stats = {
     total: users.length,
     admins: users.filter(u => u.role === 'ADMIN').length,
+    accounting: users.filter(u => accountingRoles.includes(u.role)).length,
     users: users.filter(u => u.role === 'USER').length,
   };
 
@@ -483,7 +577,7 @@ export default function UsersPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.05, ease: [0.25, 0.1, 0.25, 1] }}
-          className="grid grid-cols-3 gap-4 will-change-transform"
+          className="grid grid-cols-2 sm:grid-cols-4 gap-4 will-change-transform"
           style={{ transform: 'translateZ(0)' }}
         >
           <div 
@@ -506,6 +600,17 @@ export default function UsersPage() {
             </div>
             <p className="text-2xl font-bold text-emerald-700 font-bristone">{stats.admins}</p>
             <p className="text-xs text-secondary/60 font-dubai">المسؤولين</p>
+          </div>
+          
+          <div 
+            className="bg-white border-2 border-purple-500/20 rounded-2xl p-4 text-center"
+            style={{ boxShadow: SHADOWS.card }}
+          >
+            <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto mb-2">
+              <Shield className="w-5 h-5 text-purple-700" />
+            </div>
+            <p className="text-2xl font-bold text-purple-700 font-bristone">{stats.accounting}</p>
+            <p className="text-xs text-secondary/60 font-dubai">فريق الحسابات</p>
           </div>
           
           <div 
@@ -632,7 +737,7 @@ export default function UsersPage() {
                   key={user.id}
                   user={user}
                   index={index}
-                  onToggleRole={handleToggleRole}
+                  onChangeRole={handleChangeRole}
                   onDelete={handleDelete}
                   menuOpen={menuOpen}
                   setMenuOpen={setMenuOpen}

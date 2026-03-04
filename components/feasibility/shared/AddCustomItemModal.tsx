@@ -207,10 +207,11 @@ const AddCustomItemModal: React.FC<AddCustomItemModalProps> = ({
       >
         {/* Backdrop */}
         <motion.div 
-          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          className="absolute inset-0 bg-black/50"
+          initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+          animate={{ opacity: 1, backdropFilter: 'blur(6px)' }}
+          exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+          transition={{ duration: 0.25, ease: 'easeInOut' }}
         />
 
         {/* Modal */}

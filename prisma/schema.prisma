@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -27,13 +28,22 @@ model User {
   // العلاقات
   feasibilityStudies FeasibilityStudy[] @relation("AdminStudies")
 
+  // علاقات نظام الحسابات
+  investments       ApartmentInvestor[]
+  createdBookings   Booking[]    @relation("BookingCreator")
+  createdExpenses   Expense[]    @relation("ExpenseCreator")
+
   @@map("users")
 }
 
 // Role Enum - أدوار المستخدمين
 enum Role {
-  USER  // مستخدم عادي
-  ADMIN // مدير
+  USER              // مستخدم عادي
+  ADMIN             // مدير (النظام القديم)
+  GENERAL_MANAGER   // المدير العام - صلاحيات كاملة
+  OPS_MANAGER       // مدير التشغيل - مصروفات + متابعة يومية
+  BOOKING_MANAGER   // مدير الحجوزات - إضافة وتعديل الحجوزات
+  INVESTOR          // المستثمر - عرض حساباته فقط
 }
 
 // Consultation Status - حالات طلب الاستشارة
@@ -267,4 +277,310 @@ model PasswordReset {
   @@index([email, expiresAt])
   @@index([phone, expiresAt])
   @@map("password_resets")
+}
+
+// ============================================================================
+// نظام الحسابات - Accounting System
+// ============================================================================
+
+// Project Model - نموذج المشروع
+model Project {
+  id          String      @id @default(cuid())
+  name        String                               // اسم المشروع (مثلاً: المنيل)
+  description String?
+  apartments  Apartment[]
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@map("projects")
+}
+
+// Apartment Model - نموذج الشقة
+model Apartment {
+  id              String              @id @default(cuid())
+  name            String                                  // اسم الشقة (مثلاً: المنيل - الدور الخامس)
+  floor           String?                                 // رقم الدور
+  type            String?                                 // نوع الشقة (عادي / بانوراما)
+  project         Project             @relation(fields: [projectId], references: [id])
+  projectId       String              @map("project_id")
+
+  // العلاقات
+  bookings         Booking[]
+  expenses         Expense[]
+  investors        ApartmentInvestor[]
+  monthlySnapshots MonthlySnapshot[]
+
+  isActive        Boolean             @default(true) @map("is_active")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  @@index([projectId])
+  @@map("apartments")
+}
+
+// Booking Model - نموذج الحجز
+model Booking {
+  id              String        @id @default(cuid())
+  apartment       Apartment     @relation(fields: [apartmentId], references: [id])
+  apartmentId     String        @map("apartment_id")
+
+  // بيانات العميل
+  clientName      String        @map("client_name")
+  clientPhone     String?       @map("client_phone")
+
+  // تفاصيل الحجز
+  checkIn         DateTime      @map("check_in")          // تاريخ الدخول
+  checkOut        DateTime      @map("check_out")         // تاريخ الخروج
+  nights          Int                                      // عدد الليالي (محسوب)
+  amount          Float                                    // القيمة المالية للحجز
+  currency        String        @default("USD")
+  source          BookingSource                            // مصدر الحجز
+
+  // بيانات الوصول
+  arrivalTime     String?       @map("arrival_time")      // وقت الوصول
+  flightNumber    String?       @map("flight_number")     // رقم الرحلة
+  notes           String?                                  // ملاحظات أخرى
+
+  // المشرفين
+  receptionSupervisor  String?  @map("reception_supervisor")   // مشرف الاستقبال
+  deliverySupervisor   String?  @map("delivery_supervisor")    // مشرف الاستلام (الخروج)
+
+  // الحالة
+  status          BookingStatus @default(CONFIRMED)
+
+  // 🔒 Soft Delete - لا نحذف البيانات المالية فعلياً
+  deletedAt       DateTime?     @map("deleted_at")
+
+  createdBy       User          @relation("BookingCreator", fields: [createdById], references: [id])
+  createdById     String        @map("created_by_id")
+
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  // Indexes للأداء - فلترة بالشقة والشهر
+  @@index([apartmentId, checkIn])
+  @@index([apartmentId, checkOut])
+  @@index([deletedAt])
+  @@index([createdById])
+  @@index([status])
+  @@index([source])
+  @@map("bookings")
+}
+
+// مصدر الحجز
+enum BookingSource {
+  AIRBNB
+  EXTERNAL        // خارجي
+  DIRECT          // مباشر
+  BOOKING_COM
+  OTHER
+}
+
+// حالة الحجز
+enum BookingStatus {
+  CONFIRMED       // مؤكد
+  CHECKED_IN      // تم الدخول
+  CHECKED_OUT     // تم الخروج
+  CANCELLED       // ملغي
+}
+
+// Expense Model - نموذج المصروفات
+model Expense {
+  id              String          @id @default(cuid())
+  apartment       Apartment       @relation(fields: [apartmentId], references: [id])
+  apartmentId     String          @map("apartment_id")
+
+  description     String                                // الوصف
+  category        ExpenseCategory                       // القسم (نظافة، انترنت، مياه...)
+  amount          Float                                 // المبلغ
+  currency        String          @default("USD")
+  date            DateTime                              // تاريخ المصروف
+  notes           String?
+
+  // 🔒 Soft Delete
+  deletedAt       DateTime?       @map("deleted_at")
+
+  createdBy       User            @relation("ExpenseCreator", fields: [createdById], references: [id])
+  createdById     String          @map("created_by_id")
+
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  // Indexes للأداء
+  @@index([apartmentId, date])
+  @@index([deletedAt])
+  @@index([createdById])
+  @@index([category])
+  @@map("expenses")
+}
+
+// أقسام المصروفات
+enum ExpenseCategory {
+  CLEANING           // تنظيف الشقة
+  INTERNET           // انترنت
+  WATER              // مياه
+  GAS                // غاز
+  ELECTRICITY        // كهرباء
+  MAINTENANCE        // صيانة
+  SUPPLIES           // مستلزمات (صابون، مناشيل...)
+  FURNITURE          // أثاث
+  LAUNDRY            // غسيل ملاءات
+  TOWELS             // مناشيل حمام
+  KITCHEN_SUPPLIES   // مستلزمات المطبخ
+  AIR_CONDITIONING   // تكييف
+  OTHER              // أخرى
+}
+
+// ApartmentInvestor Model - نموذج المستثمر في الشقة (جدول وسيط)
+model ApartmentInvestor {
+  id               String       @id @default(cuid())
+  apartment        Apartment    @relation(fields: [apartmentId], references: [id])
+  apartmentId      String       @map("apartment_id")
+  user             User         @relation(fields: [userId], references: [id])
+  userId           String       @map("user_id")
+
+  percentage       Float                                // نسبة المستثمر (مثلاً 0.20 = 20%)
+  investmentTarget Float        @default(0) @map("investment_target") // الهدف السنوي للاستثمار
+
+  // العلاقات
+  withdrawals              Withdrawal[]
+  monthlyInvestorSnapshots MonthlyInvestorSnapshot[]
+
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+
+  // يمنع تكرار نفس المستثمر في نفس الشقة
+  @@unique([apartmentId, userId])
+  @@index([userId])
+  @@map("apartment_investors")
+}
+
+// Withdrawal Model - نموذج المسحوبات
+model Withdrawal {
+  id                    String             @id @default(cuid())
+  apartmentInvestor     ApartmentInvestor  @relation(fields: [apartmentInvestorId], references: [id])
+  apartmentInvestorId   String             @map("apartment_investor_id")
+
+  amount                Float                              // المبلغ المسحوب
+  currency              String             @default("USD")
+  date                  DateTime                           // تاريخ السحب
+  comments              String?                            // ملاحظات
+
+  // 🔒 Soft Delete
+  deletedAt             DateTime?          @map("deleted_at")
+
+  createdAt             DateTime           @default(now()) @map("created_at")
+  updatedAt             DateTime           @updatedAt @map("updated_at")
+
+  @@index([apartmentInvestorId])
+  @@index([deletedAt])
+  @@index([date])
+  @@map("withdrawals")
+}
+
+// CurrencyRate Model - نموذج سعر صرف العملة
+model CurrencyRate {
+  id            String   @id @default(cuid())
+  fromCurrency  String   @map("from_currency")      // مثلاً: USD
+  toCurrency    String   @map("to_currency")         // مثلاً: EGP
+  rate          Float                                 // سعر الصرف
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@unique([fromCurrency, toCurrency])
+  @@map("currency_rates")
+}
+
+// MonthlySnapshot Model - نموذج الملخص الشهري (للأداء)
+// ⚡ يُحسب مسبقاً ويُحدّث تلقائياً عند كل عملية مالية
+model MonthlySnapshot {
+  id              String    @id @default(cuid())
+  apartment       Apartment @relation(fields: [apartmentId], references: [id])
+  apartmentId     String    @map("apartment_id")
+  month           String                               // "2026-03" format
+
+  // الأرقام المحسوبة
+  totalRevenue    Float     @default(0) @map("total_revenue")
+  totalExpenses   Float     @default(0) @map("total_expenses")
+  profit          Float     @default(0)
+  bookingsCount   Int       @default(0) @map("bookings_count")
+  occupiedNights  Int       @default(0) @map("occupied_nights")
+
+  // تقسيم الإيرادات حسب المصدر
+  revenueBySource Json?     @map("revenue_by_source")  // { "AIRBNB": 5000, "DIRECT": 2000, ... }
+
+  // تقسيم المصروفات حسب القسم
+  expensesByCategory Json?  @map("expenses_by_category") // { "CLEANING": 400, "INTERNET": 200, ... }
+
+  // 🔒 قفل الشهر - لمنع التعديل والحفاظ على تاريخ النسب
+  isLocked        Boolean   @default(false) @map("is_locked")
+  lockedAt        DateTime? @map("locked_at")
+  lockedById      String?   @map("locked_by_id")
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // كل شقة لها ملخص واحد فقط لكل شهر
+  @@unique([apartmentId, month])
+  @@index([month])
+  @@index([isLocked])
+  @@map("monthly_snapshots")
+}
+
+// SystemSetting Model - إعدادات النظام (مفتاح → قيمة JSON)
+// تُستخدم لتخزين إعدادات مثل قائمة المشرفين وأقسام المصروفات المخصصة
+model SystemSetting {
+  key       String   @id                       // e.g. "supervisors", "expense_categories"
+  value     Json                               // القيمة بصيغة JSON
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_settings")
+}
+
+// ============================================================================
+// Enterprise Features - ميزات المؤسسات
+// ============================================================================
+
+// AuditLog Model - سجل المراجعة (تتبع كل العمليات)
+// 🔒 يسجل مَن فعل ماذا ومتى مع القيم قبل وبعد التغيير
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")           // معرف المستخدم الذي نفذ العملية
+  userName    String   @map("user_name")          // اسم المستخدم (محفوظ للعرض بدون join)
+
+  action      String                              // CREATE | UPDATE | DELETE | LOCK_MONTH | UNLOCK_MONTH | WITHDRAWAL
+  entity      String                              // BOOKING | EXPENSE | INVESTOR | WITHDRAWAL | MONTH
+  entityId    String?  @map("entity_id")          // معرف الكيان المتأثر
+
+  before      Json?                               // حالة الكيان قبل التغيير
+  after       Json?                               // حالة الكيان بعد التغيير
+  metadata    Json?                               // بيانات إضافية (apartmentId, month, etc.)
+
+  ipAddress   String?  @map("ip_address")
+
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+// MonthlyInvestorSnapshot Model - لقطة النسبة الشهرية للمستثمر
+// ⚡ تُنشأ تلقائياً عند قفل الشهر لحفظ النسب التاريخية
+// تحل مشكلة: تغيير النسبة لا يؤثر على الأشهر المقفلة
+model MonthlyInvestorSnapshot {
+  id                    String            @id @default(cuid())
+  apartmentInvestor     ApartmentInvestor @relation(fields: [apartmentInvestorId], references: [id])
+  apartmentInvestorId   String            @map("apartment_investor_id")
+  month                 String                                          // "YYYY-MM" format
+
+  percentage            Float                                           // النسبة الفعلية وقت القفل
+  investorProfit        Float             @default(0) @map("investor_profit") // ربح المستثمر المحسوب
+
+  createdAt             DateTime          @default(now()) @map("created_at")
+
+  @@unique([apartmentInvestorId, month])
+  @@index([month])
+  @@map("monthly_investor_snapshots")
 }

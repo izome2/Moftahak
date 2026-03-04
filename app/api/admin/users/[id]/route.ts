@@ -24,17 +24,9 @@ export async function PATCH(
 
     const { role } = await request.json();
 
-    if (!role || !['USER', 'ADMIN'].includes(role)) {
+    if (!role || !['USER', 'ADMIN', 'GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER', 'INVESTOR'].includes(role)) {
       return NextResponse.json(
         { error: 'دور غير صحيح' },
-        { status: 400 }
-      );
-    }
-
-    // منع المستخدم من تغيير دوره الخاص
-    if (id === session.user.id) {
-      return NextResponse.json(
-        { error: 'لا يمكنك تغيير دورك الخاص' },
         { status: 400 }
       );
     }

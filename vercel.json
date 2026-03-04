@@ -1,13 +1,16 @@
 {
   "version": 2,
-  "buildCommand": "prisma db push --accept-data-loss && prisma generate && next build",
-  "ignoreCommand": "exit 1",
+  "buildCommand": "prisma generate && prisma migrate deploy && next build",
   "framework": "nextjs",
   "regions": ["iad1"],
   "crons": [
     {
       "path": "/api/cron/cleanup-verifications",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/refresh-snapshots",
+      "schedule": "0 3 * * *"
     }
   ]
 }

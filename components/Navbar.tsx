@@ -1,14 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Menu, X, Phone, User, ShoppingCart } from 'lucide-react';
+import { Menu, X, Phone, User, ShoppingCart, Calculator } from 'lucide-react';
 import Button from './ui/Button';
 import AuthModal from './auth/AuthModal';
 import UserDropdown from './user/UserDropdown';
+
+// الأدوار المسموح لها بالوصول لنظام الحسابات
+const ACCOUNTING_ROLES = ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER', 'INVESTOR'];
 
 interface NavLink {
   label: string;
@@ -55,6 +58,15 @@ const Navbar: React.FC = () => {
     { label: 'المحتوى', href: '#content' },
     { label: 'تواصل معي', href: '#contact' },
   ];
+
+  // إضافة رابط الحسابات إذا كان المستخدم لديه صلاحية
+  const hasAccountingAccess = useMemo(() => {
+    const role = session?.user?.role;
+    return role && ACCOUNTING_ROLES.includes(role);
+  }, [session?.user?.role]);
+
+  // رابط الحسابات المناسب لدور المستثمر
+  const accountingHref = session?.user?.role === 'INVESTOR' ? '/accounting/my-investments' : '/accounting';
 
   const handleNavClick = (link: NavLink) => {
     if (link.isPage) {
@@ -125,6 +137,16 @@ const Navbar: React.FC = () => {
                   <span className="absolute top-[calc(100%+4px)] right-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
                 </button>
               ))}
+              {hasAccountingAccess && (
+                <Link
+                  href={accountingHref}
+                  className="font-semibold text-base transition-colors duration-300 relative group text-secondary hover:text-primary flex items-center gap-1.5"
+                >
+                  <Calculator size={16} />
+                  الحسابات
+                  <span className="absolute top-[calc(100%+4px)] right-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
+                </Link>
+              )}
             </div>
 
             {/* Desktop Actions - positioned absolutely on the left */}
@@ -249,6 +271,17 @@ const Navbar: React.FC = () => {
                   </button>
                 ))}
                 
+                {hasAccountingAccess && (
+                  <Link
+                    href={accountingHref}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full text-right font-semibold py-3 px-4 transition-all duration-200 text-secondary hover:text-primary hover:bg-primary/5 rounded-lg flex items-center justify-end gap-2"
+                  >
+                    الحسابات
+                    <Calculator size={18} />
+                  </Link>
+                )}
+
                 <div className="pt-3 mt-3 border-t border-accent/30">
                   <Button
                     variant="primary"

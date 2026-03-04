@@ -83,11 +83,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onClose, onOpen }) => {
       <AnimatePresence>
         {isMobile && isMobileOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-secondary/50 backdrop-blur-sm z-40 lg:hidden"
+            initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+            animate={{ opacity: 1, backdropFilter: 'blur(6px)' }}
+            exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            className="fixed inset-0 bg-secondary/50 z-40 lg:hidden"
             onClick={onClose}
           />
         )}

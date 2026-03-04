@@ -114,11 +114,11 @@ const EditorSidePanel: React.FC<EditorSidePanelProps> = ({
           <>
             {/* Backdrop */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+              animate={{ opacity: 1, backdropFilter: 'blur(4px)' }}
+              exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
               transition={{ duration: 0.15 }}
-              className="fixed inset-0 bg-black/25 z-40 xl:hidden lg:landscape:hidden backdrop-blur-[2px]"
+              className="fixed inset-0 bg-black/25 z-40 xl:hidden lg:landscape:hidden"
               onClick={() => setIsOpen(false)}
             />
             

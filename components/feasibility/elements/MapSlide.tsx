@@ -2152,10 +2152,11 @@ export default function MapSlide({ data = defaultData, isEditing = false, onUpda
       <AnimatePresence>
         {showAddPinModal && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-9999 p-4"
+            initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+            animate={{ opacity: 1, backdropFilter: 'blur(6px)' }}
+            exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            className="fixed inset-0 bg-black/60 flex items-center justify-center z-9999 p-4"
             onClick={() => setShowAddPinModal(false)}
           >
             <motion.div

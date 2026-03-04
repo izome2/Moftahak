@@ -90,7 +90,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
             animate="visible"
             exit="exit"
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-md z-[9998]"
+            className="fixed inset-0 bg-black/40 z-[9998]"
             style={{ touchAction: 'none' }}
           />
 

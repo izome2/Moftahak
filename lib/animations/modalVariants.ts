@@ -9,14 +9,17 @@ import { Variants } from 'framer-motion';
 export const overlayVariants: Variants = {
   hidden: { 
     opacity: 0,
+    backdropFilter: 'blur(0px)',
     transition: { duration: 0.3 }
   },
   visible: { 
     opacity: 1,
+    backdropFilter: 'blur(8px)',
     transition: { duration: 0.4, ease: [0.25, 1, 0.5, 1] }
   },
   exit: {
     opacity: 0,
+    backdropFilter: 'blur(0px)',
     transition: { duration: 0.3, delay: 0.2 }
   }
 };

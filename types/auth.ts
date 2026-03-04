@@ -17,6 +17,6 @@ export interface SessionUser {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'USER' | 'ADMIN';
+  role: 'USER' | 'ADMIN' | 'GENERAL_MANAGER' | 'OPS_MANAGER' | 'BOOKING_MANAGER' | 'INVESTOR';
   image?: string | null;
 }
