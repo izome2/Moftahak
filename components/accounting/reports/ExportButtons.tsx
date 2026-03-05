@@ -1,13 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import {
-  FileText,
-  Table,
-  Printer,
-  Loader2,
-} from 'lucide-react';
+import { FileDown, Loader2 } from 'lucide-react';
 
 interface ExportButtonsProps {
   month: string;
@@ -18,114 +13,55 @@ interface ExportButtonsProps {
 const ExportButtons: React.FC<ExportButtonsProps> = ({
   month,
   reportType,
-  apartmentId,
 }) => {
-  const [loadingType, setLoadingType] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const buildCsvUrl = () => {
-    const base = reportType === 'annual'
-      ? `/api/accounting/reports/annual?year=${month.split('-')[0]}`
-      : `/api/accounting/reports/monthly?month=${month}`;
-    return apartmentId ? `${base}&apartmentId=${apartmentId}` : base;
-  };
-
-  const handleCsvExport = async () => {
-    setLoadingType('csv');
+  const handlePdfExport = useCallback(async () => {
+    setIsExporting(true);
     try {
-      const res = await fetch(buildCsvUrl());
+      // Fetch fresh data
+      const url = reportType === 'annual'
+        ? `/api/accounting/reports/annual?year=${month}`
+        : `/api/accounting/reports/monthly?month=${month}`;
+
+      const res = await fetch(url);
       const json = await res.json();
       if (!res.ok) return;
 
-      const data = json.data;
-      let csv = '\uFEFF'; // UTF-8 BOM for Arabic
+      // Dynamically import PDF generator (keep bundle small)
+      const { generateMonthlyPDF, generateAnnualPDF } = await import('@/lib/accounting/pdf-report');
 
-      if (reportType === 'annual' && data.apartmentBreakdown) {
-        csv += 'الشقة,الإيرادات,المصروفات,الربح,الحجوزات,الليالي\n';
-        for (const apt of data.apartmentBreakdown) {
-          csv += `${apt.name},${apt.revenue},${apt.expenses},${apt.profit},${apt.bookings},${apt.nights}\n`;
-        }
-        csv += `\nالإجمالي,${data.totals.revenue},${data.totals.expenses},${data.totals.profit},${data.totals.bookings},${data.totals.nights}\n`;
-      } else if (data.apartments) {
-        csv += 'الشقة,الإيرادات,المصروفات,الربح,الحجوزات,ليالي الإشغال\n';
-        for (const apt of data.apartments) {
-          csv += `${apt.name},${apt.revenue},${apt.expenses},${apt.profit},${apt.bookings},${apt.occupiedNights}\n`;
-        }
-        csv += `\nالإجمالي,${data.totals.totalRevenue},${data.totals.totalExpenses},${data.totals.profit},,\n`;
+      if (reportType === 'annual') {
+        await generateAnnualPDF(json);
+      } else {
+        await generateMonthlyPDF(json);
       }
-
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `report-${month}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      // silent
+    } catch (err) {
+      console.error('PDF export error:', err);
     } finally {
-      setLoadingType(null);
+      setIsExporting(false);
     }
-  };
-
-  const handlePdfExport = () => {
-    // Use browser print-to-PDF
-    setLoadingType('pdf');
-    setTimeout(() => {
-      window.print();
-      setLoadingType(null);
-    }, 100);
-  };
+  }, [month, reportType]);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
-      className="flex flex-wrap items-center gap-2"
     >
       <button
         onClick={handlePdfExport}
-        disabled={!!loadingType}
-        className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium
-          bg-[#c09080]/8 border border-[#c09080]/20 rounded-xl text-[#c09080]
-          hover:bg-[#c09080]/15 transition-all duration-200 disabled:opacity-50 font-dubai"
+        disabled={isExporting}
+        className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold
+          bg-secondary text-white rounded-xl
+          hover:bg-secondary/90 transition-all duration-200 disabled:opacity-50 font-dubai shadow-md"
       >
-        {loadingType === 'pdf' ? (
-          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        {isExporting ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
         ) : (
-          <FileText className="w-3.5 h-3.5" />
+          <FileDown className="w-4 h-4" />
         )}
-        PDF
-      </button>
-
-      <button
-        onClick={handleCsvExport}
-        disabled={!!loadingType}
-        className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium
-          bg-[#8a9a7a]/8 border border-[#8a9a7a]/20 rounded-xl text-[#8a9a7a]
-          hover:bg-[#8a9a7a]/15 transition-all duration-200 disabled:opacity-50 font-dubai"
-      >
-        {loadingType === 'csv' ? (
-          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-        ) : (
-          <Table className="w-3.5 h-3.5" />
-        )}
-        Excel / CSV
-      </button>
-
-      <button
-        onClick={handlePrint}
-        disabled={!!loadingType}
-        className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium
-          bg-primary/10 border border-primary/20 rounded-xl text-secondary/70
-          hover:bg-primary/20 transition-all duration-200 disabled:opacity-50 font-dubai"
-      >
-        <Printer className="w-3.5 h-3.5" />
-        طباعة
+        {isExporting ? 'جاري التحميل...' : 'تحميل PDF'}
       </button>
     </motion.div>
   );

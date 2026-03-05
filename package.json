@@ -25,6 +25,8 @@
     "enhanced-resolve": "^5.18.4",
     "firebase": "^12.8.0",
     "framer-motion": "^12.23.26",
+    "jspdf": "^4.2.0",
+    "jspdf-autotable": "^5.0.7",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.562.0",
     "nanoid": "^5.1.6",

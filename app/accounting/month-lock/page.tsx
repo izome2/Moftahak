@@ -305,13 +305,11 @@ export default function MonthLockPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm font-dubai text-blue-800"
+        className="bg-primary/5 border border-primary/20 rounded-xl px-4 py-3 text-sm font-dubai text-secondary/70 max-w-xl"
       >
-        <p className="font-bold mb-1">⚡ ملاحظة مهمة</p>
-        <ul className="space-y-1 text-xs text-blue-700 list-disc list-inside">
+        <ul className="space-y-1 text-xs list-disc list-inside">
           <li>قفل الشهر يمنع إضافة أو تعديل أو حذف الحجوزات والمصروفات لذلك الشهر</li>
           <li>عند القفل، يتم حفظ نسب المستثمرين الحالية كلقطة تاريخية</li>
-          <li>تغيير نسبة المستثمر بعد القفل لن يؤثر على حسابات الشهر المقفل</li>
           <li>فتح القفل يسمح بالتعديل لكن النسب التاريخية المحفوظة تبقى كسجل</li>
         </ul>
       </motion.div>

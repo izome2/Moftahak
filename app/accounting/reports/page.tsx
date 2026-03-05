@@ -219,7 +219,7 @@ export default function ReportsPage() {
   const yearOptions = Array.from({ length: 5 }, (_, i) => String(currentYear - i));
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 print:space-y-4" dir="rtl">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6" dir="rtl">
       {/* Page Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -238,7 +238,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 print:hidden">
+        <div className="flex items-center gap-2">
           <ExportButtons
             month={mode === 'monthly' ? month : year}
             reportType={mode}
@@ -259,7 +259,7 @@ export default function ReportsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
         className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4
-          bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)] print:hidden"
+          bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
       >
         {/* Mode toggle */}
         <div className="flex items-center gap-1 bg-primary/5 rounded-xl p-1">
