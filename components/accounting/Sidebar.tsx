@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import type { AccountingRole } from '@/lib/permissions';
+import { type AccountingRole, getEffectiveAccountingRole } from '@/lib/permissions';
 
 // ============================================================================
 // تعريف عناصر القائمة
@@ -110,7 +110,8 @@ const ALL_MENU_ITEMS: MenuItem[] = [
 // ترجمة الأدوار
 // ============================================================================
 
-const ROLE_LABELS: Record<AccountingRole, string> = {
+const ROLE_LABELS: Record<string, string> = {
+  ADMIN: 'مسؤول الموقع و مدير عام',
   GENERAL_MANAGER: 'المدير العام',
   OPS_MANAGER: 'مدير التشغيل',
   BOOKING_MANAGER: 'مدير الحجوزات',
@@ -167,9 +168,10 @@ const AccountingSidebar: React.FC<AccountingSidebarProps> = ({
     };
   }, [isMobile, isMobileOpen]);
 
-  // فلترة العناصر حسب دور المستخدم
+  // فلترة العناصر حسب دور المستخدم (ADMIN يُعامَل كـ GENERAL_MANAGER)
+  const effectiveRole = getEffectiveAccountingRole(userRole) || userRole;
   const visibleItems = ALL_MENU_ITEMS.filter(item =>
-    item.roles.includes(userRole as AccountingRole)
+    item.roles.includes(effectiveRole as AccountingRole)
   );
 
   const handleLogout = async () => {
@@ -247,7 +249,7 @@ const AccountingSidebar: React.FC<AccountingSidebarProps> = ({
                   {session.user.firstName} {session.user.lastName}
                 </p>
                 <p className="text-xs text-secondary/60 font-dubai">
-                  {ROLE_LABELS[userRole as AccountingRole] || userRole}
+                  {ROLE_LABELS[userRole] || ROLE_LABELS[effectiveRole] || userRole}
                 </p>
               </div>
               <Link

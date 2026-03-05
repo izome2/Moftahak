@@ -72,7 +72,7 @@ const roleConfig: Record<string, {
   icon: React.ElementType;
 }> = {
   ADMIN: { 
-    label: 'مسؤول الموقع', 
+    label: 'مسؤول الموقع و مدير عام', 
     bgColor: 'bg-emerald-400/15',
     textColor: 'text-emerald-700',
     borderColor: 'border-emerald-500/30',

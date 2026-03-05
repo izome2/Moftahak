@@ -27,6 +27,7 @@ interface TeamMember {
 }
 
 const ROLE_LABELS: Record<string, string> = {
+  ADMIN: 'مسؤول الموقع و مدير عام',
   GENERAL_MANAGER: 'المدير العام',
   OPS_MANAGER: 'مدير التشغيل',
   BOOKING_MANAGER: 'مدير الحجوزات',
@@ -34,6 +35,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 const ROLE_COLORS: Record<string, string> = {
+  ADMIN: 'bg-emerald-50 text-emerald-600',
   GENERAL_MANAGER: 'bg-purple-50 text-purple-600',
   OPS_MANAGER: 'bg-blue-50 text-blue-600',
   BOOKING_MANAGER: 'bg-green-50 text-green-600',
