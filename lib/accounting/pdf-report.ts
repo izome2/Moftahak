@@ -1,23 +1,13 @@
 'use client';
 
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import html2canvas from 'html2canvas-pro';
 
 // ============================================================================
 // PDF Report Generator - مولد التقارير
-// Professional Arabic PDF reports matching Moftahak branding
+// Renders a beautiful branded HTML report → captures with html2canvas → jsPDF
+// Full Arabic support with Dubai font, matches Moftahak design system
 // ============================================================================
-
-// Brand colors
-const COLORS = {
-  primary: [237, 191, 140] as [number, number, number],      // #edbf8c
-  secondary: [16, 48, 43] as [number, number, number],       // #10302b
-  accent: [234, 211, 185] as [number, number, number],       // #ead3b9
-  white: [253, 246, 238] as [number, number, number],        // #fdf6ee
-  green: [34, 197, 94] as [number, number, number],
-  red: [239, 68, 68] as [number, number, number],
-  textMuted: [16, 48, 43, 0.5] as [number, number, number, number],
-};
 
 // ============================================================================
 // Types
@@ -79,11 +69,11 @@ interface AnnualReportData {
 // Utils
 // ============================================================================
 
-function formatCurrency(val: number): string {
+function fmt(val: number): string {
   return new Intl.NumberFormat('ar-EG').format(Math.round(val));
 }
 
-function formatMonthArabic(month: string): string {
+function fmtMonth(month: string): string {
   const [y, m] = month.split('-');
   const months = [
     'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
@@ -92,7 +82,7 @@ function formatMonthArabic(month: string): string {
   return `${months[parseInt(m) - 1]} ${y}`;
 }
 
-function formatDateArabic(): string {
+function fmtDate(): string {
   return new Intl.DateTimeFormat('ar-EG', {
     year: 'numeric',
     month: 'long',
@@ -102,222 +92,172 @@ function formatDateArabic(): string {
   }).format(new Date());
 }
 
-// ============================================================================
-// PDF Document Builder
-// ============================================================================
-
-async function loadLogoAsBase64(): Promise<string | null> {
-  try {
-    const response = await fetch('/logos/logo-dark.png');
-    const blob = await response.blob();
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => resolve(null);
-      reader.readAsDataURL(blob);
-    });
-  } catch {
-    return null;
-  }
+function profitColor(val: number): string {
+  return val >= 0 ? '#059669' : '#dc2626';
 }
 
-function drawHeader(
-  doc: jsPDF,
+// ============================================================================
+// HTML Report Builder — renders styled HTML matching Moftahak design
+// ============================================================================
+
+function buildReportHTML(
   title: string,
   subtitle: string,
-  logoBase64: string | null,
-  pageWidth: number
-) {
-  const margin = 20;
-  
-  // Header background band
-  doc.setFillColor(...COLORS.secondary);
-  doc.rect(0, 0, pageWidth, 42, 'F');
+  summaryCards: { label: string; value: string; color?: string }[],
+  sections: { title: string; html: string }[],
+): string {
+  const cardItems = summaryCards.map(c => `
+    <div style="flex:1; min-width:120px; background:#fdf6ee; border:2px solid rgba(237,191,140,0.3); border-radius:16px; padding:16px 12px; text-align:center;">
+      <div style="font-size:22px; font-weight:700; color:${c.color || '#10302b'}; margin-bottom:4px; font-family:'Dubai',sans-serif;">${c.value}</div>
+      <div style="font-size:11px; color:rgba(16,48,43,0.55); font-family:'Dubai',sans-serif;">${c.label}</div>
+    </div>
+  `).join('');
 
-  // Gold accent line under header
-  doc.setFillColor(...COLORS.primary);
-  doc.rect(0, 42, pageWidth, 3, 'F');
+  const sectionBlocks = sections.map(s => `
+    <div style="margin-bottom:24px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+        <div style="width:4px; height:20px; background:#edbf8c; border-radius:4px;"></div>
+        <div style="font-size:15px; font-weight:700; color:#10302b; font-family:'Dubai',sans-serif;">${s.title}</div>
+      </div>
+      ${s.html}
+    </div>
+  `).join('');
 
-  // Logo (right side for RTL)
-  if (logoBase64) {
-    try {
-      doc.addImage(logoBase64, 'PNG', pageWidth - margin - 30, 6, 30, 30);
-    } catch {
-      // Skip logo if it fails
-    }
-  }
+  return `
+    <div id="moftahak-report" style="width:794px; font-family:'Dubai','Segoe UI',sans-serif; direction:rtl; background:#fff; color:#10302b;">
+      
+      <!-- Header -->
+      <div style="background:#10302b; padding:24px 32px; display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <div style="font-size:22px; font-weight:700; color:#fdf6ee; font-family:'Dubai',sans-serif; margin-bottom:4px;">${title}</div>
+          <div style="font-size:12px; color:#edbf8c; font-family:'Dubai',sans-serif;">${subtitle}</div>
+        </div>
+        <div style="text-align:left;">
+          <img src="/logos/logo-white.png" style="height:40px; object-fit:contain;" crossorigin="anonymous" />
+        </div>
+      </div>
 
-  // Title text (left-aligned since PDF is LTR but we simulate RTL)
-  doc.setTextColor(253, 246, 238);
-  doc.setFontSize(18);
-  doc.setFont('helvetica', 'bold');
-  doc.text(title, pageWidth - margin - 38, 20, { align: 'right' });
+      <!-- Gold accent line -->
+      <div style="height:3px; background:linear-gradient(90deg, #edbf8c, #ead3b9, #edbf8c);"></div>
 
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(237, 191, 140);
-  doc.text(subtitle, pageWidth - margin - 38, 32, { align: 'right' });
+      <!-- Content -->
+      <div style="padding:24px 32px;">
+        
+        <!-- Summary Cards -->
+        <div style="display:flex; gap:12px; margin-bottom:28px; flex-wrap:wrap;">
+          ${cardItems}
+        </div>
 
-  // Date stamp (left side)
-  doc.setFontSize(8);
-  doc.setTextColor(200, 200, 200);
-  doc.text(formatDateArabic(), margin, 20);
-  doc.text('Moftahak - Report', margin, 30);
+        <!-- Sections -->
+        ${sectionBlocks}
+      </div>
 
-  return 52; // Y position after header
+      <!-- Footer -->
+      <div style="border-top:2px solid rgba(237,191,140,0.3); padding:12px 32px; display:flex; align-items:center; justify-content:space-between;">
+        <div style="font-size:10px; color:rgba(16,48,43,0.4); font-family:'Dubai',sans-serif;">نظام مفتاحك المحاسبي</div>
+        <div style="font-size:10px; color:rgba(16,48,43,0.3); font-family:'Dubai',sans-serif;">www.moftahak.com</div>
+        <div style="font-size:10px; color:rgba(16,48,43,0.4); font-family:'Dubai',sans-serif;">${fmtDate()}</div>
+      </div>
+    </div>
+  `;
 }
 
-function drawSectionTitle(doc: jsPDF, title: string, y: number, pageWidth: number): number {
-  const margin = 20;
-  
-  // Section title with gold left bar
-  doc.setFillColor(...COLORS.primary);
-  doc.roundedRect(pageWidth - margin - 4, y, 4, 14, 2, 2, 'F');
-  
-  doc.setTextColor(...COLORS.secondary);
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.text(title, pageWidth - margin - 10, y + 10, { align: 'right' });
-
-  return y + 20;
-}
-
-function drawSummaryCards(
-  doc: jsPDF,
-  cards: { label: string; value: string; color?: [number, number, number] }[],
-  y: number,
-  pageWidth: number
-): number {
-  const margin = 20;
-  const usableWidth = pageWidth - margin * 2;
-  const cardWidth = (usableWidth - (cards.length - 1) * 6) / cards.length;
-
-  cards.forEach((card, i) => {
-    const x = pageWidth - margin - (i * (cardWidth + 6)) - cardWidth;
-
-    // Card background
-    doc.setFillColor(253, 246, 238);
-    doc.roundedRect(x, y, cardWidth, 30, 3, 3, 'F');
-
-    // Card border
-    doc.setDrawColor(...COLORS.primary);
-    doc.setLineWidth(0.5);
-    doc.roundedRect(x, y, cardWidth, 30, 3, 3, 'S');
-
-    // Value
-    const valueColor = card.color || COLORS.secondary;
-    doc.setTextColor(...valueColor);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text(card.value, x + cardWidth / 2, y + 13, { align: 'center' });
-
-    // Label
-    doc.setTextColor(16, 48, 43);
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'normal');
-    doc.text(card.label, x + cardWidth / 2, y + 24, { align: 'center' });
-  });
-
-  return y + 38;
-}
-
-function drawTable(
-  doc: jsPDF,
+function buildTable(
   headers: string[],
-  rows: (string | number)[][],
-  y: number,
-  options?: {
-    totalsRow?: (string | number)[];
-    columnStyles?: Record<number, { halign?: string; cellWidth?: number }>;
+  rows: string[][],
+  totalsRow?: string[],
+): string {
+  const ths = headers.map(h =>
+    `<th style="padding:10px 12px; font-size:11px; font-weight:700; color:#fdf6ee; background:#10302b; font-family:'Dubai',sans-serif; text-align:center; white-space:nowrap;">${h}</th>`
+  ).join('');
+
+  const trs = rows.map((row, idx) => {
+    const bg = idx % 2 === 0 ? '#fff' : '#fdf6ee';
+    const tds = row.map((cell, ci) =>
+      `<td style="padding:9px 12px; font-size:11px; color:#10302b; font-family:'Dubai',sans-serif; text-align:${ci === 0 ? 'right' : 'center'}; background:${bg}; border-bottom:1px solid rgba(237,191,140,0.15);">${cell}</td>`
+    ).join('');
+    return `<tr>${tds}</tr>`;
+  }).join('');
+
+  let totalsHtml = '';
+  if (totalsRow) {
+    const tds = totalsRow.map((cell, ci) =>
+      `<td style="padding:10px 12px; font-size:12px; font-weight:700; color:#10302b; font-family:'Dubai',sans-serif; text-align:${ci === 0 ? 'right' : 'center'}; background:#edbf8c; border-top:2px solid rgba(16,48,43,0.15);">${cell}</td>`
+    ).join('');
+    totalsHtml = `<tr>${tds}</tr>`;
   }
-): number {
-  const margin = 20;
 
-  // Reverse headers and rows for RTL display
-  const rtlHeaders = [...headers].reverse();
-  const rtlRows = rows.map(row => [...row].reverse());
-  const rtlTotals = options?.totalsRow ? [...options.totalsRow].reverse() : undefined;
-
-  // Build column styles for RTL
-  const colCount = headers.length;
-  const rtlColumnStyles: Record<number, { halign: 'left' | 'center' | 'right'; cellWidth?: number }> = {};
-  for (let i = 0; i < colCount; i++) {
-    rtlColumnStyles[i] = { halign: 'center' };
-  }
-  // First column (was last) is the name — align right
-  rtlColumnStyles[colCount - 1] = { halign: 'right' };
-
-  const allRows = rtlTotals ? [...rtlRows, rtlTotals] : rtlRows;
-
-  autoTable(doc, {
-    head: [rtlHeaders],
-    body: allRows.map(row => row.map(cell => String(cell))),
-    startY: y,
-    margin: { left: margin, right: margin },
-    styles: {
-      fontSize: 8,
-      cellPadding: 4,
-      lineColor: [237, 191, 140],
-      lineWidth: 0.3,
-      textColor: [16, 48, 43],
-      font: 'helvetica',
-      halign: 'center',
-    },
-    headStyles: {
-      fillColor: COLORS.secondary,
-      textColor: [253, 246, 238],
-      fontSize: 8,
-      fontStyle: 'bold',
-      halign: 'center',
-    },
-    alternateRowStyles: {
-      fillColor: [253, 246, 238],
-    },
-    bodyStyles: {
-      fillColor: [255, 255, 255],
-    },
-    columnStyles: rtlColumnStyles,
-    didParseCell: (data) => {
-      // Style totals row
-      if (rtlTotals && data.section === 'body' && data.row.index === allRows.length - 1) {
-        data.cell.styles.fillColor = [237, 191, 140];
-        data.cell.styles.textColor = [16, 48, 43];
-        data.cell.styles.fontStyle = 'bold';
-        data.cell.styles.fontSize = 9;
-      }
-
-      // Color profit cells (green/red)
-      if (data.section === 'body') {
-        const cellText = data.cell.text.join('');
-        // Check if this cell contains a negative indicator
-        if (cellText.startsWith('-') || cellText.startsWith('−')) {
-          data.cell.styles.textColor = [239, 68, 68]; // red
-        }
-      }
-    },
-  });
-
-  return (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
+  return `
+    <table style="width:100%; border-collapse:collapse; border:2px solid rgba(237,191,140,0.3); border-radius:12px; overflow:hidden;">
+      <thead><tr>${ths}</tr></thead>
+      <tbody>${trs}${totalsHtml}</tbody>
+    </table>
+  `;
 }
 
-function drawFooter(doc: jsPDF, pageWidth: number, pageHeight: number) {
-  const y = pageHeight - 15;
+// ============================================================================
+// HTML → PDF Converter
+// ============================================================================
 
-  // Footer line
-  doc.setDrawColor(...COLORS.primary);
-  doc.setLineWidth(0.5);
-  doc.line(20, y - 5, pageWidth - 20, y - 5);
+async function htmlToPdf(html: string, filename: string): Promise<void> {
+  // Create offscreen container
+  const container = document.createElement('div');
+  container.style.position = 'fixed';
+  container.style.left = '-9999px';
+  container.style.top = '0';
+  container.style.zIndex = '-1';
+  container.innerHTML = html;
+  document.body.appendChild(container);
 
-  doc.setTextColor(16, 48, 43);
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Moftahak Accounting System', 20, y);
-  
-  doc.setTextColor(160, 160, 160);
-  doc.text('www.moftahak.com', pageWidth / 2, y, { align: 'center' });
+  // Wait for fonts and images to load
+  await document.fonts.ready;
+  await new Promise(resolve => setTimeout(resolve, 300));
 
-  doc.setTextColor(16, 48, 43);
-  doc.text(formatDateArabic(), pageWidth - 20, y, { align: 'right' });
+  const reportEl = container.querySelector('#moftahak-report') as HTMLElement;
+  if (!reportEl) {
+    document.body.removeChild(container);
+    return;
+  }
+
+  try {
+    const canvas = await html2canvas(reportEl, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const imgWidth = 210; // A4 width in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    const pageHeight = 297; // A4 height in mm
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    // First page
+    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    // Additional pages if content overflows
+    while (heightLeft > 0) {
+      position -= pageHeight;
+      doc.addPage();
+      doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    doc.save(filename);
+  } finally {
+    document.body.removeChild(container);
+  }
 }
 
 // ============================================================================
@@ -325,106 +265,78 @@ function drawFooter(doc: jsPDF, pageWidth: number, pageHeight: number) {
 // ============================================================================
 
 export async function generateMonthlyPDF(data: MonthlyReportData): Promise<void> {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const logoBase64 = await loadLogoAsBase64();
-
-  // --- Page 1: Summary ---
-  let y = drawHeader(
-    doc,
-    `Monthly Report - ${formatMonthArabic(data.month)}`,
-    `${data.apartments.length} apartments | Moftahak`,
-    logoBase64,
-    pageWidth,
-  );
-
-  // Summary cards
-  const profitColor: [number, number, number] = data.totals.profit >= 0 ? COLORS.green : COLORS.red;
-  y = drawSummaryCards(doc, [
-    { label: 'Net Profit ($)', value: formatCurrency(data.totals.profit), color: profitColor },
-    { label: 'Total Expenses ($)', value: formatCurrency(data.totals.totalExpenses) },
-    { label: 'Total Revenue ($)', value: formatCurrency(data.totals.totalRevenue) },
-    { label: 'Apartments', value: String(data.totals.apartmentsCount) },
-  ], y, pageWidth);
-
-  // --- Apartments table ---
-  y = drawSectionTitle(doc, 'Apartment Performance', y + 4, pageWidth);
-
-  const aptHeaders = ['Apartment', 'Revenue ($)', 'Expenses ($)', 'Profit ($)', 'Bookings', 'Nights'];
-  const aptRows = data.apartments.map(a => [
-    a.name,
-    formatCurrency(a.revenue),
-    formatCurrency(a.expenses),
-    (a.profit < 0 ? '-' : '') + formatCurrency(Math.abs(a.profit)),
-    String(a.bookings),
-    String(a.occupiedNights || 0),
-  ]);
-
   const totalNights = data.apartments.reduce((s, a) => s + (a.occupiedNights || 0), 0);
   const totalBookings = data.apartments.reduce((s, a) => s + a.bookings, 0);
-  const aptTotals = [
-    'Total',
-    formatCurrency(data.totals.totalRevenue),
-    formatCurrency(data.totals.totalExpenses),
-    (data.totals.profit < 0 ? '-' : '') + formatCurrency(Math.abs(data.totals.profit)),
-    String(totalBookings),
-    String(totalNights),
+
+  const summaryCards = [
+    { label: 'عدد الشقق', value: String(data.totals.apartmentsCount) },
+    { label: 'إجمالي الإيرادات', value: `${fmt(data.totals.totalRevenue)} $` },
+    { label: 'إجمالي المصروفات', value: `${fmt(data.totals.totalExpenses)} $` },
+    { label: 'صافي الربح', value: `${fmt(data.totals.profit)} $`, color: profitColor(data.totals.profit) },
   ];
 
-  y = drawTable(doc, aptHeaders, aptRows, y, { totalsRow: aptTotals });
+  const sections: { title: string; html: string }[] = [];
 
-  // --- Booking Sources ---
+  // Apartment performance table
+  if (data.apartments.length > 0) {
+    const aptHeaders = ['الشقة', 'الإيرادات ($)', 'المصروفات ($)', 'الربح ($)', 'الحجوزات', 'ليالي الإشغال'];
+    const aptRows = data.apartments.map(a => [
+      a.name,
+      fmt(a.revenue),
+      fmt(a.expenses),
+      `<span style="color:${profitColor(a.profit)}">${fmt(a.profit)}</span>`,
+      String(a.bookings),
+      String(a.occupiedNights || 0),
+    ]);
+    const aptTotals = ['الإجمالي', fmt(data.totals.totalRevenue), fmt(data.totals.totalExpenses), fmt(data.totals.profit), String(totalBookings), String(totalNights)];
+
+    sections.push({
+      title: 'أداء الشقق',
+      html: buildTable(aptHeaders, aptRows, aptTotals),
+    });
+  }
+
+  // Booking sources
   if (data.bookingsBySource && Object.keys(data.bookingsBySource).length > 0) {
-    if (y > pageHeight - 80) {
-      drawFooter(doc, pageWidth, pageHeight);
-      doc.addPage();
-      y = 20;
-    }
-
-    y = drawSectionTitle(doc, 'Booking Sources', y + 4, pageWidth);
-
-    const sourceHeaders = ['Source', 'Revenue ($)', 'Nights', 'Bookings'];
-    const sourceRows = Object.entries(data.bookingsBySource).map(([source, d]) => [
+    const srcHeaders = ['المصدر', 'الإيرادات ($)', 'الليالي', 'عدد الحجوزات'];
+    const srcRows = Object.entries(data.bookingsBySource).map(([source, d]) => [
       source,
-      formatCurrency(d.amount),
+      fmt(d.amount),
       String(d.nights),
       String(d.count),
     ]);
 
-    y = drawTable(doc, sourceHeaders, sourceRows, y);
-  }
-
-  // --- Expense Categories ---
-  if (data.expensesByCategory && Object.keys(data.expensesByCategory).length > 0) {
-    if (y > pageHeight - 80) {
-      drawFooter(doc, pageWidth, pageHeight);
-      doc.addPage();
-      y = 20;
-    }
-
-    y = drawSectionTitle(doc, 'Expense Categories', y + 4, pageWidth);
-
-    const expHeaders = ['Category', 'Amount ($)', 'Count'];
-    const expRows = Object.entries(data.expensesByCategory).map(([cat, d]) => [
-      cat,
-      formatCurrency(d.amount),
-      String(d.count),
-    ]);
-
-    const expTotal = Object.values(data.expensesByCategory).reduce((s, d) => s + d.amount, 0);
-    const expCountTotal = Object.values(data.expensesByCategory).reduce((s, d) => s + d.count, 0);
-
-    y = drawTable(doc, expHeaders, expRows, y, {
-      totalsRow: ['Total', formatCurrency(expTotal), String(expCountTotal)],
+    sections.push({
+      title: 'مصادر الحجوزات',
+      html: buildTable(srcHeaders, srcRows),
     });
   }
 
-  // Footer
-  drawFooter(doc, pageWidth, pageHeight);
+  // Expense categories
+  if (data.expensesByCategory && Object.keys(data.expensesByCategory).length > 0) {
+    const expHeaders = ['القسم', 'المبلغ ($)', 'العدد'];
+    const expRows = Object.entries(data.expensesByCategory).map(([cat, d]) => [
+      cat,
+      fmt(d.amount),
+      String(d.count),
+    ]);
+    const expTotal = Object.values(data.expensesByCategory).reduce((s, d) => s + d.amount, 0);
+    const expCount = Object.values(data.expensesByCategory).reduce((s, d) => s + d.count, 0);
 
-  // Save
-  doc.save(`Moftahak-Report-${data.month}.pdf`);
+    sections.push({
+      title: 'توزيع المصروفات',
+      html: buildTable(expHeaders, expRows, ['الإجمالي', fmt(expTotal), String(expCount)]),
+    });
+  }
+
+  const html = buildReportHTML(
+    `تقرير شهر ${fmtMonth(data.month)}`,
+    `${data.apartments.length} شقة • نظام مفتاحك المحاسبي`,
+    summaryCards,
+    sections,
+  );
+
+  await htmlToPdf(html, `Moftahak-Report-${data.month}.pdf`);
 }
 
 // ============================================================================
@@ -432,86 +344,59 @@ export async function generateMonthlyPDF(data: MonthlyReportData): Promise<void>
 // ============================================================================
 
 export async function generateAnnualPDF(data: AnnualReportData): Promise<void> {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const logoBase64 = await loadLogoAsBase64();
-
-  // --- Page 1: Summary ---
-  let y = drawHeader(
-    doc,
-    `Annual Report - ${data.year}`,
-    `${data.apartmentBreakdown.length} apartments | 12 months | Moftahak`,
-    logoBase64,
-    pageWidth,
-  );
-
-  // Summary cards
-  const profitColor: [number, number, number] = data.totals.profit >= 0 ? COLORS.green : COLORS.red;
-  y = drawSummaryCards(doc, [
-    { label: 'Net Profit ($)', value: formatCurrency(data.totals.profit), color: profitColor },
-    { label: 'Total Expenses ($)', value: formatCurrency(data.totals.expenses) },
-    { label: 'Total Revenue ($)', value: formatCurrency(data.totals.revenue) },
-    { label: 'Total Bookings', value: String(data.totals.bookings) },
-  ], y, pageWidth);
-
-  // --- Monthly breakdown ---
-  y = drawSectionTitle(doc, 'Monthly Breakdown', y + 4, pageWidth);
-
-  const monthHeaders = ['Month', 'Revenue ($)', 'Expenses ($)', 'Profit ($)', 'Bookings', 'Nights'];
-  const monthRows = data.monthlyBreakdown.map(m => [
-    formatMonthArabic(m.month),
-    formatCurrency(m.revenue),
-    formatCurrency(m.expenses),
-    (m.profit < 0 ? '-' : '') + formatCurrency(Math.abs(m.profit)),
-    String(m.bookings),
-    String(m.nights),
-  ]);
-
-  const monthTotals = [
-    'Total',
-    formatCurrency(data.totals.revenue),
-    formatCurrency(data.totals.expenses),
-    (data.totals.profit < 0 ? '-' : '') + formatCurrency(Math.abs(data.totals.profit)),
-    String(data.totals.bookings),
-    String(data.totals.nights),
+  const summaryCards = [
+    { label: 'عدد الشقق', value: String(data.apartmentBreakdown.length) },
+    { label: 'إجمالي الإيرادات', value: `${fmt(data.totals.revenue)} $` },
+    { label: 'إجمالي المصروفات', value: `${fmt(data.totals.expenses)} $` },
+    { label: 'صافي الربح', value: `${fmt(data.totals.profit)} $`, color: profitColor(data.totals.profit) },
   ];
 
-  y = drawTable(doc, monthHeaders, monthRows, y, { totalsRow: monthTotals });
+  const sections: { title: string; html: string }[] = [];
 
-  // --- Apartment breakdown ---
-  if (y > pageHeight - 80) {
-    drawFooter(doc, pageWidth, pageHeight);
-    doc.addPage();
-    y = 20;
+  // Monthly breakdown
+  if (data.monthlyBreakdown.length > 0) {
+    const monthHeaders = ['الشهر', 'الإيرادات ($)', 'المصروفات ($)', 'الربح ($)', 'الحجوزات', 'الليالي'];
+    const monthRows = data.monthlyBreakdown.map(m => [
+      fmtMonth(m.month),
+      fmt(m.revenue),
+      fmt(m.expenses),
+      `<span style="color:${profitColor(m.profit)}">${fmt(m.profit)}</span>`,
+      String(m.bookings),
+      String(m.nights),
+    ]);
+    const monthTotals = ['الإجمالي', fmt(data.totals.revenue), fmt(data.totals.expenses), fmt(data.totals.profit), String(data.totals.bookings), String(data.totals.nights)];
+
+    sections.push({
+      title: 'التفصيل الشهري',
+      html: buildTable(monthHeaders, monthRows, monthTotals),
+    });
   }
 
-  y = drawSectionTitle(doc, 'Apartment Performance (Annual)', y + 4, pageWidth);
+  // Apartment breakdown
+  if (data.apartmentBreakdown.length > 0) {
+    const aptHeaders = ['الشقة', 'الإيرادات ($)', 'المصروفات ($)', 'الربح ($)', 'الحجوزات', 'الليالي'];
+    const aptRows = data.apartmentBreakdown.map(a => [
+      a.name,
+      fmt(a.revenue),
+      fmt(a.expenses),
+      `<span style="color:${profitColor(a.profit)}">${fmt(a.profit)}</span>`,
+      String(a.bookings),
+      String(a.nights),
+    ]);
+    const aptTotals = ['الإجمالي', fmt(data.totals.revenue), fmt(data.totals.expenses), fmt(data.totals.profit), String(data.totals.bookings), String(data.totals.nights)];
 
-  const aptHeaders = ['Apartment', 'Revenue ($)', 'Expenses ($)', 'Profit ($)', 'Bookings', 'Nights'];
-  const aptRows = data.apartmentBreakdown.map(a => [
-    a.name,
-    formatCurrency(a.revenue),
-    formatCurrency(a.expenses),
-    (a.profit < 0 ? '-' : '') + formatCurrency(Math.abs(a.profit)),
-    String(a.bookings),
-    String(a.nights),
-  ]);
+    sections.push({
+      title: 'أداء الشقق (سنوي)',
+      html: buildTable(aptHeaders, aptRows, aptTotals),
+    });
+  }
 
-  const aptTotals = [
-    'Total',
-    formatCurrency(data.totals.revenue),
-    formatCurrency(data.totals.expenses),
-    (data.totals.profit < 0 ? '-' : '') + formatCurrency(Math.abs(data.totals.profit)),
-    String(data.totals.bookings),
-    String(data.totals.nights),
-  ];
+  const html = buildReportHTML(
+    `التقرير السنوي ${data.year}`,
+    `${data.apartmentBreakdown.length} شقة • ${data.monthlyBreakdown.length} شهر • نظام مفتاحك المحاسبي`,
+    summaryCards,
+    sections,
+  );
 
-  y = drawTable(doc, aptHeaders, aptRows, y, { totalsRow: aptTotals });
-
-  // Footer
-  drawFooter(doc, pageWidth, pageHeight);
-
-  // Save
-  doc.save(`Moftahak-Annual-Report-${data.year}.pdf`);
+  await htmlToPdf(html, `Moftahak-Annual-Report-${data.year}.pdf`);
 }
