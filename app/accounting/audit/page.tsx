@@ -82,12 +82,14 @@ interface AuditPagination {
 // ============================================================================
 
 const ACTION_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-  CREATE: { label: 'إنشاء', color: 'text-green-700', bg: 'bg-green-100' },
-  UPDATE: { label: 'تعديل', color: 'text-blue-700', bg: 'bg-blue-100' },
-  DELETE: { label: 'حذف', color: 'text-red-700', bg: 'bg-red-100' },
-  LOCK_MONTH: { label: 'قفل شهر', color: 'text-amber-700', bg: 'bg-amber-100' },
-  UNLOCK_MONTH: { label: 'فتح شهر', color: 'text-orange-700', bg: 'bg-orange-100' },
-  WITHDRAWAL: { label: 'سحب', color: 'text-purple-700', bg: 'bg-purple-100' },
+  CREATE: { label: 'إنشاء', color: 'text-emerald-800', bg: 'bg-emerald-50' },
+  UPDATE: { label: 'تعديل', color: 'text-sky-800', bg: 'bg-sky-50' },
+  DELETE: { label: 'حذف', color: 'text-rose-800', bg: 'bg-rose-50' },
+  LOCK_MONTH: { label: 'قفل شهر', color: 'text-amber-800', bg: 'bg-amber-50' },
+  UNLOCK_MONTH: { label: 'فتح شهر', color: 'text-orange-800', bg: 'bg-orange-50' },
+  WITHDRAWAL: { label: 'سحب', color: 'text-violet-800', bg: 'bg-violet-50' },
+  SYSTEM_RESET: { label: 'تصفية النظام', color: 'text-rose-800', bg: 'bg-rose-50' },
+  RESTORE: { label: 'استعادة', color: 'text-teal-800', bg: 'bg-teal-50' },
 };
 
 const ENTITY_LABELS: Record<string, string> = {
@@ -99,6 +101,7 @@ const ENTITY_LABELS: Record<string, string> = {
   PROJECT: 'مشروع',
   APARTMENT: 'شقة',
   SETTING: 'إعدادات',
+  SYSTEM: 'النظام',
 };
 
 const ENTITY_OPTIONS = [
@@ -108,6 +111,7 @@ const ENTITY_OPTIONS = [
   { value: 'INVESTOR', label: 'مستثمر' },
   { value: 'WITHDRAWAL', label: 'مسحوبات' },
   { value: 'MONTH', label: 'قفل شهر' },
+  { value: 'SYSTEM', label: 'النظام' },
 ];
 
 const ACTION_OPTIONS = [
@@ -118,6 +122,8 @@ const ACTION_OPTIONS = [
   { value: 'LOCK_MONTH', label: 'قفل شهر' },
   { value: 'UNLOCK_MONTH', label: 'فتح شهر' },
   { value: 'WITHDRAWAL', label: 'سحب' },
+  { value: 'SYSTEM_RESET', label: 'تصفية النظام' },
+  { value: 'RESTORE', label: 'استعادة' },
 ];
 
 // ترجمة أسماء الحقول التقنية للعربية
@@ -179,6 +185,26 @@ const FIELD_LABELS: Record<string, string> = {
   investmentTarget: 'هدف الاستثمار',
   investorName: 'المستثمر',
   apartmentName: 'الشقة',
+  keepUsers: 'الاحتفاظ بالمستخدمين',
+  deleted: 'تم حذفه',
+  previousCounts: 'الأعداد السابقة',
+  bookings: 'الحجوزات',
+  apartments: 'الشقق',
+  projects: 'المشاريع',
+  investors: 'المستثمرين',
+  withdrawals: 'المسحوبات',
+  auditLogs: 'سجل المراجعة',
+  currencyRates: 'أسعار الصرف',
+  systemSettings: 'إعدادات النظام',
+  monthlySnapshots: 'اللقطات الشهرية',
+  monthlyInvestorSnapshots: 'لقطات المستثمرين',
+  apartmentInvestors: 'استثمارات الشقق',
+  snapshots: 'اللقطات',
+  settings: 'الإعدادات',
+  currencies: 'العملات',
+  backupVersion: 'إصدار النسخة',
+  backupDate: 'تاريخ النسخة',
+  restored: 'تم استعادته',
 };
 
 /** أيقونة لكل حقل */
@@ -335,7 +361,21 @@ const formatValue = (
   if (typeof value === 'number') {
     return new Intl.NumberFormat('ar-EG').format(value);
   }
-  if (typeof value === 'object') return JSON.stringify(value);
+  if (typeof value === 'object') {
+    // Handle nested objects (like deleted, previousCounts) by converting to readable Arabic
+    const obj = value as Record<string, unknown>;
+    const parts = Object.entries(obj)
+      .filter(([, v]) => v !== null && v !== undefined && v !== 0 && v !== '')
+      .map(([k, v]) => {
+        const label = FIELD_LABELS[k] || k;
+        if (typeof v === 'boolean') return `${label}: ${v ? 'نعم' : 'لا'}`;
+        if (typeof v === 'number') return `${label}: ${new Intl.NumberFormat('ar-EG').format(v)}`;
+        if (typeof v === 'object') return null; // skip deeply nested
+        return `${label}: ${v}`;
+      })
+      .filter(Boolean);
+    return parts.join(' • ');
+  }
   return String(value);
 };
 
@@ -542,10 +582,10 @@ export default function AuditLogPage() {
             {[...changedKeys].map(key => (
               <div key={key} className="grid grid-cols-3 px-4 py-2 border-t border-secondary/5">
                 <span className="text-xs font-bold text-secondary font-dubai"><FieldLabel fieldKey={key} /></span>
-                <span className="text-xs text-red-600/70 font-dubai" style={{ textDecoration: 'line-through', textDecorationColor: 'rgba(220,38,38,0.4)', textUnderlineOffset: '0px' }}>
+                <span className="text-xs text-secondary/50 font-dubai" style={{ textDecoration: 'line-through', textDecorationColor: 'rgba(16,48,43,0.25)', textUnderlineOffset: '0px' }}>
                   {formatValue(key, log.before?.[key], ctx)}
                 </span>
-                <span className="text-xs text-green-700 font-bold font-dubai">
+                <span className="text-xs text-secondary font-bold font-dubai">
                   {formatValue(key, log.after?.[key], ctx)}
                 </span>
               </div>

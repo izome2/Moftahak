@@ -113,11 +113,11 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-2xl p-8 shadow-xl border-2 border-red-200 max-w-md text-center space-y-4"
+          className="bg-white rounded-2xl p-8 shadow-xl border-2 border-rose-200/60 max-w-md text-center space-y-4"
           dir="rtl"
         >
-          <div className="p-3 rounded-xl bg-red-50 border border-red-200 w-fit mx-auto">
-            <AlertTriangle className="w-8 h-8 text-red-500" />
+          <div className="p-3 rounded-xl bg-rose-50/80 border border-rose-200/60 w-fit mx-auto">
+            <AlertTriangle className="w-8 h-8 text-rose-400" />
           </div>
           <h2 className="text-xl font-bold text-secondary font-dubai">خطأ</h2>
           <p className="text-secondary/60 font-dubai text-sm">{error || 'النسخة الاحتياطية غير موجودة'}</p>
@@ -143,7 +143,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
         animate={{ opacity: 1, y: 0 }}
         className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b-2 border-primary/20 shadow-lg"
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-primary/10 border-2 border-primary/30">
               <Database className="w-5 h-5 text-primary" />
@@ -180,7 +180,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
       </motion.div>
 
       {/* Stats Cards */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

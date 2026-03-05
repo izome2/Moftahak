@@ -154,7 +154,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                   <button
                     onClick={() => onAddWithdrawal?.(investor)}
                     className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium
-                      bg-[#c09080]/10 text-[#c09080] rounded-lg hover:bg-[#c09080]/20 transition-colors font-dubai"
+                      bg-rose-50 text-rose-700 border border-rose-200/60 rounded-lg hover:bg-rose-100 transition-colors font-dubai"
                   >
                     <ArrowDownCircle className="w-3 h-3" />
                     تسجيل مسحوبة

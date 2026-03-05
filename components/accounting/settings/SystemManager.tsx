@@ -176,7 +176,7 @@ export default function SystemManager() {
   // العرض
   // ═══════════════════════════════════════
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-2xl">
       {/* Header */}
       <div className="flex items-center gap-2 text-secondary">
         <Database className="w-5 h-5 text-primary" />
@@ -212,14 +212,14 @@ export default function SystemManager() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="border-2 border-red-200 rounded-2xl p-5 space-y-4 hover:border-red-300 transition-colors"
+        className="border-2 border-rose-200/60 rounded-2xl p-5 space-y-4 hover:border-rose-200 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-red-50 border border-red-200">
-            <RotateCcw className="w-5 h-5 text-red-600" />
+          <div className="p-2.5 rounded-xl bg-rose-50/80 border border-rose-200/60">
+            <RotateCcw className="w-5 h-5 text-rose-400" />
           </div>
           <div>
-            <h3 className="font-bold text-red-700 font-dubai">إعادة تعيين النظام</h3>
+            <h3 className="font-bold text-secondary font-dubai">إعادة تعيين النظام</h3>
             <p className="text-xs text-secondary/50 font-dubai">حذف كل بيانات المحاسبة والبدء من جديد</p>
           </div>
         </div>
@@ -230,8 +230,8 @@ export default function SystemManager() {
         <button
           onClick={handleResetClick}
           disabled={resetState === 'loading'}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-dubai font-bold text-sm
-            bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-dubai font-bold text-sm
+            bg-rose-100 text-rose-700 border-2 border-rose-200 hover:bg-rose-200/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {resetState === 'loading' ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> جاري التصفية...</>
@@ -320,7 +320,7 @@ export default function SystemManager() {
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); handleDeleteBackup(backup); }}
-                    className="p-1.5 hover:bg-red-50 rounded-lg transition text-secondary/40 hover:text-red-500"
+                    className="p-1.5 hover:bg-rose-50 rounded-lg transition text-secondary/40 hover:text-rose-400"
                     title="حذف"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -359,7 +359,7 @@ export default function SystemManager() {
               </button>
               <button
                 onClick={() => setModalStep('confirm-reset')}
-                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-rose-50 text-rose-600 border border-rose-200/60 hover:bg-rose-100 transition-colors"
               >
                 لا، تابع التصفية
               </button>
@@ -425,21 +425,21 @@ export default function SystemManager() {
         {modalStep === 'confirm-reset' && (
           <ModalOverlay onClose={() => setModalStep('none')}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-xl bg-red-50 border border-red-200">
-                <Shield className="w-5 h-5 text-red-600" />
+              <div className="p-2.5 rounded-xl bg-rose-50/80 border border-rose-200/60">
+                <Shield className="w-5 h-5 text-rose-400" />
               </div>
-              <h3 className="font-bold text-lg text-red-700 font-dubai">تأكيد التصفية</h3>
+              <h3 className="font-bold text-lg text-secondary font-dubai">تأكيد التصفية</h3>
             </div>
             <p className="text-sm text-secondary/70 font-dubai mb-2">
-              ⛔ سيتم حذف <span className="text-red-600 font-bold">جميع</span> بيانات المحاسبة نهائياً.
+              ⛔ سيتم حذف <span className="text-rose-600 font-bold">جميع</span> بيانات المحاسبة نهائياً.
             </p>
-            <p className="text-xs text-red-600 font-dubai bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+            <p className="text-xs text-rose-600 font-dubai bg-rose-50/80 border border-rose-200/60 rounded-lg p-3 mb-4">
               تشمل: المشاريع، الشقق، الحجوزات، المصروفات، المستثمرين، المسحوبات، وسجل المراجعة.
             </p>
             <div className="flex gap-2">
               <button
                 onClick={handleReset}
-                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-red-600 text-white hover:bg-red-700 transition-colors"
+                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-rose-100 text-rose-700 border-2 border-rose-200 hover:bg-rose-200/80 transition-colors"
               >
                 نعم، صفّ النظام
               </button>
@@ -517,10 +517,10 @@ export default function SystemManager() {
         {modalStep === 'delete-backup' && selectedBackup && (
           <ModalOverlay onClose={() => { setModalStep('none'); setSelectedBackup(null); }}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-xl bg-red-50 border border-red-200">
-                <Trash2 className="w-5 h-5 text-red-600" />
+              <div className="p-2.5 rounded-xl bg-rose-50/80 border border-rose-200/60">
+                <Trash2 className="w-5 h-5 text-rose-400" />
               </div>
-              <h3 className="font-bold text-lg text-red-700 font-dubai">حذف النسخة الاحتياطية</h3>
+              <h3 className="font-bold text-lg text-secondary font-dubai">حذف النسخة الاحتياطية</h3>
             </div>
             <p className="text-sm text-secondary/70 font-dubai mb-4">
               هل أنت متأكد من حذف النسخة الاحتياطية <span className="font-bold text-secondary">&quot;{selectedBackup.name}&quot;</span>؟
@@ -529,7 +529,7 @@ export default function SystemManager() {
             <div className="flex gap-2">
               <button
                 onClick={confirmDeleteBackup}
-                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-red-600 text-white hover:bg-red-700 transition-colors"
+                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-rose-100 text-rose-700 border-2 border-rose-200 hover:bg-rose-200/80 transition-colors"
               >
                 نعم، احذف
               </button>
