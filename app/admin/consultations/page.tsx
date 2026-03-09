@@ -37,6 +37,8 @@ import {
   Trash2
 } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ============================================
 // 🎨 DESIGN TOKENS
@@ -81,28 +83,24 @@ interface Pagination {
 // ============================================
 
 const statusConfig: Record<string, { 
-  label: string; 
   bgColor: string;
   textColor: string;
   borderColor: string;
   icon: React.ElementType;
 }> = {
   PENDING: { 
-    label: 'جديد', 
     bgColor: 'bg-amber-500/10',
     textColor: 'text-amber-700',
     borderColor: 'border-amber-500/30',
     icon: Clock
   },
   READ: { 
-    label: 'تم القراءة', 
     bgColor: 'bg-blue-500/10',
     textColor: 'text-blue-700',
     borderColor: 'border-blue-500/30',
     icon: Eye
   },
   COMPLETED: { 
-    label: 'مكتمل', 
     bgColor: 'bg-primary/20',
     textColor: 'text-primary',
     borderColor: 'border-primary/30',
@@ -133,6 +131,13 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
   menuOpen,
   setMenuOpen
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const statusLabels: Record<string, string> = {
+    PENDING: t.admin.consultationStatus.new,
+    READ: t.admin.consultationStatus.read,
+    COMPLETED: t.admin.consultationStatus.completed,
+  };
   const status = statusConfig[consultation.status] || statusConfig.PENDING;
   const StatusIcon = status.icon;
   const hasRoomConfig = consultation.bedrooms > 0 || consultation.livingRooms > 0 || consultation.kitchens > 0 || consultation.bathrooms > 0;
@@ -183,7 +188,7 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
               </h3>
               <span className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-dubai font-medium border ${status.bgColor} ${status.textColor} ${status.borderColor}`}>
                 <StatusIcon className="w-3 h-3 inline ml-1" />
-                {status.label}
+                {statusLabels[consultation.status] || consultation.status}
               </span>
             </div>
             
@@ -201,7 +206,7 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
               )}
               <span className="flex items-center gap-1 sm:gap-1.5">
                 <Calendar className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-                {new Date(consultation.createdAt).toLocaleDateString('ar-EG')}
+                {new Date(consultation.createdAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US')}
               </span>
             </div>
 
@@ -251,7 +256,7 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
               style={{ boxShadow: SHADOWS.button }}
             >
               <Eye className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-              تفاصيل
+              {t.admin.consultationsPage.details}
             </motion.button>
 
             {/* قائمة المزيد */}
@@ -291,7 +296,7 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
                           <div className="w-8 h-8 bg-secondary/5 rounded-lg flex items-center justify-center group-hover/item:bg-secondary/10 transition-colors">
                             <Eye className="w-4 h-4" />
                           </div>
-                          <span className="flex-1 text-right">عرض التفاصيل</span>
+                          <span className="flex-1 text-right">{t.admin.viewDetails}</span>
                         </button>
                       </div>
                       
@@ -308,7 +313,7 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
                           <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center group-hover/item:bg-primary/30 transition-colors">
                             <Trash2 className="w-4 h-4" />
                           </div>
-                          <span className="flex-1 text-right">حذف الطلب</span>
+                          <span className="flex-1 text-right">{t.admin.consultationsPage.deleteRequest}</span>
                         </button>
                       </div>
                     </motion.div>
@@ -328,6 +333,8 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
 // ============================================
 
 export default function ConsultationsPage() {
+  const t = useTranslation();
+  const { language } = useLanguage();
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [loading, setLoading] = useState(true);
@@ -339,11 +346,18 @@ export default function ConsultationsPage() {
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
 
+  // Status label lookup
+  const statusLabels: Record<string, string> = {
+    PENDING: t.admin.consultationStatus.new,
+    READ: t.admin.consultationStatus.read,
+    COMPLETED: t.admin.consultationStatus.completed,
+  };
+
   // خيارات فلتر الحالة
   const filterOptions = [
-    { value: '', label: 'كل الحالات', icon: null },
-    { value: 'PENDING', label: 'جديد', config: statusConfig.PENDING },
-    { value: 'COMPLETED', label: 'مكتمل', config: statusConfig.COMPLETED },
+    { value: '', label: t.admin.consultationsPage.allStatuses, icon: null },
+    { value: 'PENDING', label: t.admin.consultationStatus.new, config: statusConfig.PENDING },
+    { value: 'COMPLETED', label: t.admin.consultationStatus.completed, config: statusConfig.COMPLETED },
   ];
 
   const currentFilterOption = filterOptions.find(opt => opt.value === statusFilter) || filterOptions[0];
@@ -367,7 +381,7 @@ export default function ConsultationsPage() {
       setConsultations(data.consultations);
       setPagination(data.pagination);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ أثناء جلب البيانات');
+      setError(err instanceof Error ? err.message : t.admin.errorFetchingData);
     } finally {
       setLoading(false);
     }
@@ -379,7 +393,7 @@ export default function ConsultationsPage() {
 
   // حذف الاستشارة
   const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذه الاستشارة؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+    if (!confirm(t.admin.consultationsPage.confirmDelete)) return;
     
     setActionLoading(id);
     try {
@@ -393,7 +407,7 @@ export default function ConsultationsPage() {
       fetchConsultations(pagination?.page || 1);
       setSelectedConsultation(null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'حدث خطأ');
+      alert(err instanceof Error ? err.message : t.admin.errorOccurred);
     } finally {
       setActionLoading(null);
     }
@@ -415,7 +429,7 @@ export default function ConsultationsPage() {
       fetchConsultations(pagination?.page || 1);
       setSelectedConsultation(null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'حدث خطأ');
+      alert(err instanceof Error ? err.message : t.admin.errorOccurred);
     } finally {
       setActionLoading(null);
     }
@@ -450,13 +464,13 @@ export default function ConsultationsPage() {
             </motion.div>
             <div className="flex-1">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-secondary font-dubai">
-                طلبات الاستشارة
+                {t.admin.consultationsPage.title}
               </h1>
               <p className="text-secondary/60 text-xs sm:text-sm mt-0.5 sm:mt-1 font-dubai">
-                إدارة طلبات الاستشارة من العملاء
+                {t.admin.consultationsPage.subtitle}
                 {pagination && (
                   <span className="mr-2 px-2 py-0.5 bg-primary/20 rounded-full text-xs">
-                    {pagination.total} طلب
+                    {pagination.total} {t.admin.requests}
                   </span>
                 )}
               </p>
@@ -472,7 +486,7 @@ export default function ConsultationsPage() {
                 style={{ boxShadow: SHADOWS.button }}
               >
                 <FileText className="w-4 sm:w-5 h-4 sm:h-5" />
-                <span>الدراسات</span>
+                <span>{t.admin.consultationsPage.studies}</span>
               </motion.button>
             </Link>
           </div>
@@ -497,7 +511,7 @@ export default function ConsultationsPage() {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="ابحث بالاسم أو البريد الإلكتروني..."
+                placeholder={t.admin.searchByNameOrEmail}
                 className="flex-1 px-4 py-4 bg-transparent text-secondary placeholder-secondary/40 focus:outline-none font-dubai"
               />
               {searchTerm && (
@@ -616,7 +630,7 @@ export default function ConsultationsPage() {
             >
               <Loader2 className="w-8 h-8 text-secondary animate-spin" />
             </div>
-            <p className="text-secondary/60 font-dubai">جاري تحميل الطلبات...</p>
+            <p className="text-secondary/60 font-dubai">{t.admin.loadingRequests}</p>
           </motion.div>
         ) : filteredConsultations.length === 0 ? (
           <motion.div
@@ -637,12 +651,12 @@ export default function ConsultationsPage() {
               </motion.div>
               
               <h3 className="text-xl font-dubai font-bold text-secondary mb-2">
-                {searchTerm || statusFilter ? 'لا توجد نتائج' : 'لا توجد طلبات'}
+                {searchTerm || statusFilter ? t.admin.noResults : t.admin.consultationsPage.noRequests}
               </h3>
               <p className="text-secondary/60 text-sm font-dubai mb-6">
                 {searchTerm || statusFilter
-                  ? 'جرب تغيير معايير البحث أو الفلترة'
-                  : 'لم يتم استلام أي طلبات استشارة بعد'
+                  ? t.admin.tryChangingCriteria
+                  : t.admin.consultationsPage.noRequestsReceived
                 }
               </p>
               
@@ -657,7 +671,7 @@ export default function ConsultationsPage() {
                   className="flex items-center gap-2 mx-auto px-5 py-3 bg-white border-2 border-primary/30 rounded-xl font-dubai font-medium text-secondary hover:border-primary/50 transition-colors"
                 >
                   <RefreshCw className="w-5 h-5" />
-                  إعادة تعيين الفلاتر
+                  {t.admin.resetFilters}
                 </motion.button>
               )}
             </div>
@@ -740,9 +754,9 @@ export default function ConsultationsPage() {
                     <MessageSquare className="w-6 h-6 text-secondary" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-dubai font-bold text-secondary">تفاصيل الطلب</h2>
+                    <h2 className="text-xl font-dubai font-bold text-secondary">{t.admin.consultationsPage.requestDetails}</h2>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-dubai font-medium border ${statusConfig[selectedConsultation.status].bgColor} ${statusConfig[selectedConsultation.status].textColor} ${statusConfig[selectedConsultation.status].borderColor}`}>
-                      {statusConfig[selectedConsultation.status].label}
+                      {statusLabels[selectedConsultation.status] || selectedConsultation.status}
                     </span>
                   </div>
                 </div>
@@ -758,55 +772,55 @@ export default function ConsultationsPage() {
               
               <div className="space-y-4">
                 <div className="p-4 bg-accent/30 rounded-xl">
-                  <label className="text-xs text-secondary/60 font-dubai">الاسم</label>
+                  <label className="text-xs text-secondary/60 font-dubai">{t.admin.consultationsPage.name}</label>
                   <p className="font-medium text-secondary font-dubai">{selectedConsultation.firstName} {selectedConsultation.lastName}</p>
                 </div>
                 
                 <div className="p-4 bg-accent/30 rounded-xl">
-                  <label className="text-xs text-secondary/60 font-dubai">البريد الإلكتروني</label>
+                  <label className="text-xs text-secondary/60 font-dubai">{t.admin.consultationsPage.email}</label>
                   <p className="font-medium text-secondary font-dubai">{selectedConsultation.email}</p>
                 </div>
                 
                 {selectedConsultation.phone && (
                   <div className="p-4 bg-accent/30 rounded-xl">
-                    <label className="text-xs text-secondary/60 font-dubai">الهاتف</label>
+                    <label className="text-xs text-secondary/60 font-dubai">{t.admin.consultationsPage.phone}</label>
                     <p className="font-medium text-secondary font-dubai">{selectedConsultation.phone}</p>
                   </div>
                 )}
                 
                 <div className="p-4 bg-accent/30 rounded-xl">
-                  <label className="text-xs text-secondary/60 font-dubai">الرسالة</label>
+                  <label className="text-xs text-secondary/60 font-dubai">{t.admin.consultationsPage.messageLabel}</label>
                   <p className="font-medium text-secondary whitespace-pre-wrap font-dubai mt-1">{selectedConsultation.message}</p>
                 </div>
                 
                 {(selectedConsultation.bedrooms > 0 || selectedConsultation.livingRooms > 0) && (
                   <div className="p-4 bg-accent/30 rounded-xl">
-                    <label className="text-xs text-secondary/60 font-dubai mb-3 block">تكوين الشقة</label>
+                    <label className="text-xs text-secondary/60 font-dubai mb-3 block">{t.admin.consultationsPage.apartmentConfig}</label>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="flex items-center gap-2 p-3 bg-white rounded-xl border border-primary/20">
                         <Bed className="w-5 h-5 text-secondary/60" />
-                        <span className="text-secondary font-dubai">{selectedConsultation.bedrooms} غرف نوم</span>
+                        <span className="text-secondary font-dubai">{selectedConsultation.bedrooms} {t.admin.consultationsPage.bedrooms}</span>
                       </div>
                       <div className="flex items-center gap-2 p-3 bg-white rounded-xl border border-primary/20">
                         <Sofa className="w-5 h-5 text-secondary/60" />
-                        <span className="text-secondary font-dubai">{selectedConsultation.livingRooms} صالة</span>
+                        <span className="text-secondary font-dubai">{selectedConsultation.livingRooms} {t.admin.consultationsPage.livingRoom}</span>
                       </div>
                       <div className="flex items-center gap-2 p-3 bg-white rounded-xl border border-primary/20">
                         <ChefHat className="w-5 h-5 text-secondary/60" />
-                        <span className="text-secondary font-dubai">{selectedConsultation.kitchens} مطبخ</span>
+                        <span className="text-secondary font-dubai">{selectedConsultation.kitchens} {t.admin.consultationsPage.kitchen}</span>
                       </div>
                       <div className="flex items-center gap-2 p-3 bg-white rounded-xl border border-primary/20">
                         <Bath className="w-5 h-5 text-secondary/60" />
-                        <span className="text-secondary font-dubai">{selectedConsultation.bathrooms} حمام</span>
+                        <span className="text-secondary font-dubai">{selectedConsultation.bathrooms} {t.admin.consultationsPage.bathroom}</span>
                       </div>
                     </div>
                   </div>
                 )}
                 
                 <div className="p-4 bg-accent/30 rounded-xl">
-                  <label className="text-xs text-secondary/60 font-dubai">تاريخ الإرسال</label>
+                  <label className="text-xs text-secondary/60 font-dubai">{t.admin.consultationsPage.sentDate}</label>
                   <p className="font-medium text-secondary font-dubai">
-                    {new Date(selectedConsultation.createdAt).toLocaleDateString('ar-EG', {
+                    {new Date(selectedConsultation.createdAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
@@ -826,7 +840,7 @@ export default function ConsultationsPage() {
                   disabled={actionLoading === selectedConsultation.id || selectedConsultation.status === 'COMPLETED'}
                   className="flex-1 py-2.5 bg-secondary hover:bg-secondary/90 text-accent rounded-xl text-sm font-dubai transition-colors border-2 border-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {selectedConsultation.status === 'COMPLETED' ? 'مكتمل ✓' : 'تعيين كمكتمل'}
+                  {selectedConsultation.status === 'COMPLETED' ? t.admin.consultationsPage.completedCheck : t.admin.consultationsPage.markCompleted}
                 </motion.button>
                 
                 <motion.button
@@ -836,7 +850,7 @@ export default function ConsultationsPage() {
                   disabled={actionLoading === selectedConsultation.id}
                   className="flex-1 py-2.5 text-red-700 hover:bg-red-500/10 rounded-xl text-sm font-dubai transition-colors border-2 border-red-500/30 disabled:opacity-50"
                 >
-                  {actionLoading === selectedConsultation.id ? 'جاري الحذف...' : 'حذف الطلب'}
+                  {actionLoading === selectedConsultation.id ? t.admin.consultationsPage.deleting : t.admin.consultationsPage.deleteRequest}
                 </motion.button>
               </div>
             </motion.div>

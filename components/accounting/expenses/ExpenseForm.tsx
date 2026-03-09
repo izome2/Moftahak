@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Receipt, Loader2, Building2, FileText, Calendar, CreditCard } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
 import NumberInput from '@/components/accounting/shared/NumberInput';
-import { CATEGORY_MAP } from './CategoryBadge';
+import { CATEGORY_STYLE_MAP } from './CategoryBadge';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Apartment {
   id: string;
@@ -32,13 +34,6 @@ interface ExpenseFormProps {
   apartments: Apartment[];
 }
 
-const CATEGORY_OPTIONS = Object.entries(CATEGORY_MAP).map(([value, config]) => ({
-  value,
-  label: config.label,
-  icon: config.icon,
-  className: config.className,
-}));
-
 const ExpenseForm: React.FC<ExpenseFormProps> = ({
   isOpen,
   onClose,
@@ -46,7 +41,18 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   initialData,
   apartments,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
   const isEdit = !!initialData?.id;
+
+  const expenseCats = t.accounting.expenseCategories as Record<string, string>;
+
+  const CATEGORY_OPTIONS = Object.entries(CATEGORY_STYLE_MAP).map(([value, config]) => ({
+    value,
+    label: expenseCats[value] || value,
+    icon: config.icon,
+    className: config.className,
+  }));
 
   const defaultForm: ExpenseFormData = {
     apartmentId: apartments[0]?.id || '',
@@ -83,11 +89,11 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.apartmentId) { setError('يجب اختيار الشقة'); return; }
-    if (!formData.description.trim()) { setError('الوصف مطلوب'); return; }
-    if (!formData.category) { setError('يجب اختيار القسم'); return; }
-    if (formData.amount <= 0) { setError('المبلغ يجب أن يكون أكبر من 0'); return; }
-    if (!formData.date) { setError('التاريخ مطلوب'); return; }
+    if (!formData.apartmentId) { setError(t.accounting.expenseForm.apartmentRequired); return; }
+    if (!formData.description.trim()) { setError(t.accounting.expenseForm.descriptionRequired); return; }
+    if (!formData.category) { setError(t.accounting.expenseForm.categoryRequired); return; }
+    if (formData.amount <= 0) { setError(t.accounting.expenseForm.amountMustBePositive); return; }
+    if (!formData.date) { setError(t.accounting.expenseForm.dateRequired); return; }
 
     try {
       setIsSubmitting(true);
@@ -98,20 +104,20 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      setError(err instanceof Error ? err.message : t.accounting.errors.unexpected);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const selectedCategory = CATEGORY_MAP[formData.category] || CATEGORY_MAP.OTHER;
+  const selectedCategory = CATEGORY_STYLE_MAP[formData.category] || CATEGORY_STYLE_MAP.OTHER;
   const SelectedIcon = selectedCategory.icon;
 
   // Group apartments by project
   const grouped = (() => {
     const map = new Map<string, Apartment[]>();
     for (const apt of apartments) {
-      const key = apt.project?.name || 'بدون مشروع';
+      const key = apt.project?.name || t.accounting.common.noProject;
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(apt);
     }
@@ -151,7 +157,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   <Receipt size={16} className="text-[#c09080]" />
                 </div>
                 <h2 className="text-lg font-bold text-secondary font-dubai">
-                  {isEdit ? 'تعديل المصروف' : 'إضافة مصروف جديد'}
+                  {isEdit ? t.accounting.expenseForm.editTitle : t.accounting.expenseForm.addTitle}
                 </h2>
               </div>
               <button
@@ -168,15 +174,15 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               <div>
                 <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                   <Building2 size={14} className="text-secondary/50" />
-                  الشقة <span className="text-red-500">*</span>
+                  {t.accounting.expenseForm.apartment} <span className="text-red-500">*</span>
                 </label>
                 <CustomSelect
                   value={formData.apartmentId}
                   onChange={(v) => update('apartmentId', v)}
                   className="w-full"
-                  placeholder="اختر الشقة"
+                  placeholder={t.accounting.expenseForm.selectApartment}
                   required
-                  emptyMessage="لا يوجد شقق حتى الآن"
+                  emptyMessage={t.accounting.expenseForm.noApartments}
                   options={Array.from(grouped.entries()).map(([project, apts]) => ({
                     label: project,
                     options: apts.map(a => ({ value: a.id, label: a.name })),
@@ -188,13 +194,13 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               <div>
                 <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                   <FileText size={14} className="text-secondary/50" />
-                  الوصف <span className="text-red-500">*</span>
+                  {t.accounting.expenseForm.description} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.description}
                   onChange={(e) => update('description', e.target.value)}
-                  placeholder="مثال: تنظيف الشقة بعد خروج الضيف"
+                  placeholder={t.accounting.expenseForm.descriptionPlaceholder}
                   className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
                   required
                 />
@@ -203,7 +209,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               {/* Category Picker */}
               <div>
                 <label className="text-sm font-bold text-secondary font-dubai mb-1.5 block">
-                  القسم <span className="text-red-500">*</span>
+                  {t.accounting.expenseForm.category} <span className="text-red-500">*</span>
                 </label>
                 {/* Selected category button */}
                 <button
@@ -215,7 +221,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   <span className={`p-1 rounded-lg ${selectedCategory.className}`}>
                     <SelectedIcon size={14} />
                   </span>
-                  <span className="text-secondary">{selectedCategory.label}</span>
+                  <span className="text-secondary">{expenseCats[formData.category] || formData.category}</span>
                   <span className="mr-auto text-secondary/30 text-xs">▼</span>
                 </button>
 
@@ -263,7 +269,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 <div>
                   <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                     <CreditCard size={14} className="text-[#c09080]" />
-                    المبلغ <span className="text-red-500">*</span>
+                    {t.accounting.expenseForm.amount} <span className="text-red-500">*</span>
                   </label>
                   <NumberInput
                     value={formData.amount || ''}
@@ -277,7 +283,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 <div>
                   <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                     <Calendar size={14} className="text-secondary/50" />
-                    التاريخ <span className="text-red-500">*</span>
+                    {t.accounting.expenseForm.date} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
@@ -293,12 +299,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               <div>
                 <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                   <FileText size={14} className="text-secondary/50" />
-                  ملاحظات
+                  {t.accounting.expenseForm.notes}
                 </label>
                 <textarea
                   value={formData.notes || ''}
                   onChange={(e) => update('notes', e.target.value)}
-                  placeholder="ملاحظات إضافية..."
+                  placeholder={t.accounting.expenseForm.notesPlaceholder}
                   rows={2}
                   className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30 resize-none"
                 />
@@ -318,7 +324,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   onClick={onClose}
                   className="flex-1 p-3 rounded-xl border-2 border-primary/20 text-secondary font-dubai text-sm font-bold hover:bg-accent/30 transition-colors"
                 >
-                  إلغاء
+                  {t.accounting.common.cancel}
                 </button>
                 <button
                   type="submit"
@@ -328,10 +334,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   {isSubmitting ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
-                      جاري الحفظ...
+                      {t.accounting.common.saving}
                     </>
                   ) : (
-                    isEdit ? 'حفظ التعديلات' : 'حفظ المصروف'
+                    isEdit ? t.accounting.expenseForm.saveEdit : t.accounting.expenseForm.saveExpense
                   )}
                 </button>
               </div>

@@ -16,6 +16,8 @@ import { useSession } from 'next-auth/react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
 import NumberInput from '@/components/accounting/shared/NumberInput';
 import { getEffectiveAccountingRole } from '@/lib/permissions';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // --- Types ---
 interface CustodyRecord {
@@ -33,31 +35,28 @@ interface CustodyRecord {
 }
 
 // --- Month helpers ---
-const MONTH_NAMES: Record<string, string> = {
-  '01': 'يناير', '02': 'فبراير', '03': 'مارس',
-  '04': 'أبريل', '05': 'مايو', '06': 'يونيو',
-  '07': 'يوليو', '08': 'أغسطس', '09': 'سبتمبر',
-  '10': 'أكتوبر', '11': 'نوفمبر', '12': 'ديسمبر',
-};
-
 const getCurrentMonth = () => {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 };
 
-const formatMonthDisplay = (month: string) => {
-  const [year, m] = month.split('-');
-  return `${MONTH_NAMES[m] || m} ${year}`;
-};
-
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
-
 // --- Component ---
 export default function CustodyPage() {
   const { data: session } = useSession();
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
   const effectiveRole = getEffectiveAccountingRole(session?.user?.role || '');
   const isGeneralManager = effectiveRole === 'GENERAL_MANAGER';
+
+  const formatMonthDisplay = (month: string) => {
+    const [year, m] = month.split('-');
+    const monthIndex = parseInt(m, 10) - 1;
+    return `${t.accounting.months[monthIndex] || m} ${year}`;
+  };
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat(locale).format(amount) + ' ' + t.accounting.common.currency;
 
   const [records, setRecords] = useState<CustodyRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,10 +80,10 @@ export default function CustodyPage() {
       setError(null);
       const res = await fetch('/api/accounting/custody');
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'خطأ في جلب البيانات');
+      if (!res.ok) throw new Error(json.error || t.accounting.errors.fetchCustody);
       setRecords(json.records || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ');
+      setError(err instanceof Error ? err.message : t.accounting.errors.generic);
     } finally {
       setIsLoading(false);
     }
@@ -124,7 +123,7 @@ export default function CustodyPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formManagerId || !formApartmentId || !formAmount) {
-      setFormError('جميع الحقول مطلوبة');
+      setFormError(t.accounting.errors.allFieldsRequired);
       return;
     }
 
@@ -145,7 +144,7 @@ export default function CustodyPage() {
       });
       const json = await res.json();
       if (!res.ok) {
-        setFormError(json.error || 'حدث خطأ');
+        setFormError(json.error || t.accounting.errors.generic);
         return;
       }
       setShowCreate(false);
@@ -155,7 +154,7 @@ export default function CustodyPage() {
       setFormNotes('');
       fetchRecords();
     } catch {
-      setFormError('فشل الاتصال');
+      setFormError(t.accounting.errors.connectionFailed);
     } finally {
       setIsSaving(false);
     }
@@ -180,9 +179,9 @@ export default function CustodyPage() {
             <Wallet size={24} className="text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">العهدة</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">{t.accounting.custody.title}</h1>
             <p className="text-sm text-secondary/60 font-dubai">
-              {isGeneralManager ? 'إدارة عُهَد مديري التشغيل' : 'العُهَد المسلّمة إليك'}
+              {isGeneralManager ? t.accounting.custody.subtitleAdmin : t.accounting.custody.subtitleUser}
             </p>
           </div>
         </div>
@@ -194,20 +193,20 @@ export default function CustodyPage() {
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 transition-colors"
             >
               <Plus size={16} />
-              <span className="hidden sm:inline">عهدة جديدة</span>
+              <span className="hidden sm:inline">{t.accounting.custody.newCustody}</span>
             </button>
           )}
           <button
             onClick={fetchRecords}
             className="p-2 hover:bg-primary/10 rounded-lg transition-colors"
-            aria-label="تحديث"
+            aria-label={t.accounting.common.refresh}
           >
             <RefreshCw size={20} className={`text-secondary/60 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('openAccountingMenu'))}
             className="lg:hidden p-2 hover:bg-primary/10 rounded-lg transition-colors"
-            aria-label="فتح القائمة"
+            aria-label={t.accounting.common.openMenu}
           >
             <Menu size={28} className="text-secondary" />
           </button>
@@ -222,7 +221,7 @@ export default function CustodyPage() {
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-xl border-2 border-primary/20 p-4 shadow-[0_4px_20px_rgba(237,191,140,0.12)]"
           >
-            <p className="text-xs text-secondary/60 font-dubai mb-1">إجمالي العُهَد</p>
+            <p className="text-xs text-secondary/60 font-dubai mb-1">{t.accounting.custody.totalCustody}</p>
             <p className="text-lg font-bold text-secondary font-dubai">{formatCurrency(totalAmount)}</p>
           </motion.div>
           <motion.div
@@ -231,7 +230,7 @@ export default function CustodyPage() {
             transition={{ delay: 0.05 }}
             className="bg-white rounded-xl border-2 border-primary/20 p-4 shadow-[0_4px_20px_rgba(237,191,140,0.12)]"
           >
-            <p className="text-xs text-secondary/60 font-dubai mb-1">المصروف</p>
+            <p className="text-xs text-secondary/60 font-dubai mb-1">{t.accounting.custody.spent}</p>
             <p className="text-lg font-bold text-[#c09080] font-dubai">{formatCurrency(totalSpent)}</p>
           </motion.div>
           <motion.div
@@ -240,7 +239,7 @@ export default function CustodyPage() {
             transition={{ delay: 0.1 }}
             className="bg-white rounded-xl border-2 border-primary/20 p-4 shadow-[0_4px_20px_rgba(237,191,140,0.12)]"
           >
-            <p className="text-xs text-secondary/60 font-dubai mb-1">المتبقي</p>
+            <p className="text-xs text-secondary/60 font-dubai mb-1">{t.accounting.custody.remaining}</p>
             <p className="text-lg font-bold text-[#8a9a7a] font-dubai">{formatCurrency(totalRemaining)}</p>
           </motion.div>
         </div>
@@ -251,7 +250,7 @@ export default function CustodyPage() {
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-center">
           <p className="text-red-600 font-dubai text-sm">{error}</p>
           <button onClick={fetchRecords} className="mt-2 text-sm text-red-500 underline font-dubai">
-            إعادة المحاولة
+            {t.accounting.common.retry}
           </button>
         </div>
       )}
@@ -264,7 +263,7 @@ export default function CustodyPage() {
       ) : records.length === 0 ? (
         <div className="text-center py-16">
           <Wallet size={48} className="text-secondary/20 mx-auto mb-3" />
-          <p className="text-secondary/50 font-dubai">لا توجد عُهَد مسجّلة</p>
+          <p className="text-secondary/50 font-dubai">{t.accounting.custody.noCustody}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -298,11 +297,11 @@ export default function CustodyPage() {
                   </span>
                   {rec.isSettled ? (
                     <span className="text-[10px] bg-green-50 text-green-600 px-2 py-0.5 rounded-full font-dubai flex items-center gap-0.5">
-                      <Check size={10} /> مُقفَلة
+                      <Check size={10} /> {t.accounting.custody.locked}
                     </span>
                   ) : (
                     <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full font-dubai">
-                      مفتوحة
+                      {t.accounting.custody.unlocked}
                     </span>
                   )}
                 </div>
@@ -311,15 +310,15 @@ export default function CustodyPage() {
               {/* Amounts */}
               <div className="grid grid-cols-3 gap-3">
                 <div className="bg-primary/5 rounded-xl p-2.5 text-center">
-                  <p className="text-[10px] text-secondary/50 font-dubai mb-0.5">العهدة</p>
+                  <p className="text-[10px] text-secondary/50 font-dubai mb-0.5">{t.accounting.custody.custodyLabel}</p>
                   <p className="text-sm font-bold text-secondary font-dubai">{formatCurrency(rec.amount)}</p>
                 </div>
                 <div className="bg-[#c09080]/8 rounded-xl p-2.5 text-center">
-                  <p className="text-[10px] text-[#c09080]/70 font-dubai mb-0.5">المصروف</p>
+                  <p className="text-[10px] text-[#c09080]/70 font-dubai mb-0.5">{t.accounting.custody.spent}</p>
                   <p className="text-sm font-bold text-[#c09080] font-dubai">{formatCurrency(rec.spent)}</p>
                 </div>
                 <div className="bg-[#8a9a7a]/8 rounded-xl p-2.5 text-center">
-                  <p className="text-[10px] text-[#8a9a7a]/70 font-dubai mb-0.5">المتبقي</p>
+                  <p className="text-[10px] text-[#8a9a7a]/70 font-dubai mb-0.5">{t.accounting.custody.remaining}</p>
                   <p className="text-sm font-bold text-[#8a9a7a] font-dubai">{formatCurrency(rec.remaining)}</p>
                 </div>
               </div>
@@ -352,21 +351,21 @@ export default function CustodyPage() {
               className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-md z-10 overflow-hidden border-2 border-[#e0cdb8]"
             >
               <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
-                <h4 className="text-sm font-bold text-secondary font-dubai">عهدة جديدة</h4>
+                <h4 className="text-sm font-bold text-secondary font-dubai">{t.accounting.custody.newCustodyTitle}</h4>
                 <button onClick={() => setShowCreate(false)}>
                   <X className="w-4 h-4 text-secondary/40" />
                 </button>
               </div>
               <form onSubmit={handleCreate} className="p-5 space-y-3" dir="rtl">
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">مدير التشغيل *</label>
+                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.custody.opsManager}</label>
                   <CustomSelect
                     value={formManagerId}
                     onChange={setFormManagerId}
-                    placeholder="اختر..."
+                    placeholder={t.accounting.common.choose}
                     required
                     className="w-full"
-                    emptyMessage="لا يوجد مديرين حتى الآن"
+                    emptyMessage={t.accounting.custody.noManagers}
                     options={managers.map((m) => ({
                       value: m.id,
                       label: `${m.firstName} ${m.lastName}`,
@@ -374,14 +373,14 @@ export default function CustodyPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">الشقة *</label>
+                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.custody.apartmentLabel}</label>
                   <CustomSelect
                     value={formApartmentId}
                     onChange={setFormApartmentId}
-                    placeholder="اختر..."
+                    placeholder={t.accounting.common.choose}
                     required
                     className="w-full"
-                    emptyMessage="لا يوجد شقق حتى الآن"
+                    emptyMessage={t.accounting.custody.noApartments}
                     options={apartments.map((a) => ({
                       value: a.id,
                       label: a.name,
@@ -390,7 +389,7 @@ export default function CustodyPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">المبلغ (ج.م) *</label>
+                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.custody.amountLabel(t.accounting.common.currency)}</label>
                     <NumberInput
                       value={formAmount}
                       onChange={(e) => setFormAmount(e.target.value)}
@@ -400,7 +399,7 @@ export default function CustodyPage() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">الشهر *</label>
+                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.custody.monthLabel}</label>
                     <input
                       type="month"
                       value={formMonth}
@@ -412,7 +411,7 @@ export default function CustodyPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">ملاحظات</label>
+                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.custody.notesLabel}</label>
                   <textarea
                     value={formNotes}
                     onChange={(e) => setFormNotes(e.target.value)}
@@ -428,7 +427,7 @@ export default function CustodyPage() {
                     hover:bg-secondary/90 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {isSaving ? 'جاري الحفظ...' : 'إنشاء العهدة'}
+                  {isSaving ? t.accounting.common.saving : t.accounting.custody.createCustody}
                 </button>
               </form>
             </motion.div>

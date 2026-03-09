@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Building2, Loader2 } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface Project {
   id: string;
@@ -34,6 +35,7 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
   initialData,
   projects,
 }) => {
+  const t = useTranslation();
   const isEdit = !!initialData?.id;
   const [formData, setFormData] = useState<ApartmentData>({
     name: '',
@@ -61,11 +63,11 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
-      setError('اسم الشقة مطلوب');
+      setError(t.accounting.apartmentForm.nameRequired);
       return;
     }
     if (!formData.projectId) {
-      setError('يجب اختيار المشروع');
+      setError(t.accounting.apartmentForm.projectRequired);
       return;
     }
 
@@ -78,7 +80,7 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
       });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      setError(err instanceof Error ? err.message : t.accounting.errors.unexpected);
     } finally {
       setIsSubmitting(false);
     }
@@ -115,7 +117,7 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
               <div className="flex items-center gap-2">
                 <Building2 size={20} className="text-primary" />
                 <h2 className="text-lg font-bold text-secondary font-dubai">
-                  {isEdit ? 'تعديل الشقة' : 'إضافة شقة جديدة'}
+                  {isEdit ? t.accounting.apartmentForm.editTitle : t.accounting.apartmentForm.addTitle}
                 </h2>
               </div>
               <button
@@ -131,15 +133,15 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
               {/* Project */}
               <div>
                 <label className="block text-sm font-bold text-secondary font-dubai mb-1.5">
-                  المشروع <span className="text-red-500">*</span>
+                  {t.accounting.apartmentForm.project} <span className="text-red-500">*</span>
                 </label>
                 <CustomSelect
                   value={formData.projectId}
                   onChange={(v) => setFormData(prev => ({ ...prev, projectId: v }))}
                   className="w-full"
-                  placeholder="اختر المشروع"
+                  placeholder={t.accounting.apartmentForm.selectProject}
                   required
-                  emptyMessage="لا يوجد مشاريع حتى الآن"
+                  emptyMessage={t.accounting.apartmentForm.noProjects}
                   options={projects.map(p => ({ value: p.id, label: p.name }))}
                 />
               </div>
@@ -147,13 +149,13 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
               {/* Name */}
               <div>
                 <label className="block text-sm font-bold text-secondary font-dubai mb-1.5">
-                  اسم الشقة <span className="text-red-500">*</span>
+                  {t.accounting.apartmentForm.apartmentName} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="مثال: المنيل - الدور الخامس"
+                  placeholder={t.accounting.apartmentForm.namePlaceholder}
                   className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
                   required
                 />
@@ -163,25 +165,25 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-bold text-secondary font-dubai mb-1.5">
-                    رقم الدور
+                    {t.accounting.apartmentForm.floorNumber}
                   </label>
                   <input
                     type="text"
                     value={formData.floor || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, floor: e.target.value }))}
-                    placeholder="مثال: 5"
+                    placeholder={t.accounting.apartmentForm.floorPlaceholder}
                     className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-secondary font-dubai mb-1.5">
-                    نوع الشقة
+                    {t.accounting.apartmentForm.apartmentType}
                   </label>
                   <input
                     type="text"
                     value={formData.type || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
-                    placeholder="مثال: بانوراما"
+                    placeholder={t.accounting.apartmentForm.typePlaceholder}
                     className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
                   />
                 </div>
@@ -201,7 +203,7 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
                   onClick={onClose}
                   className="flex-1 p-3 rounded-xl border-2 border-primary/20 text-secondary font-dubai text-sm font-bold hover:bg-accent/30 transition-colors"
                 >
-                  إلغاء
+                  {t.accounting.common.cancel}
                 </button>
                 <button
                   type="submit"
@@ -211,10 +213,10 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
                   {isSubmitting ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
-                      جاري الحفظ...
+                      {t.accounting.common.saving}
                     </>
                   ) : (
-                    isEdit ? 'حفظ التعديلات' : 'إضافة الشقة'
+                    isEdit ? t.accounting.apartmentForm.saveEdit : t.accounting.apartmentForm.addApartment
                   )}
                 </button>
               </div>

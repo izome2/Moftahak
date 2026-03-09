@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import MonthlySummary from './MonthlySummary';
 import ProgressBar from './ProgressBar';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // --- Types ---
 interface MonthlyBreakdown {
@@ -43,15 +45,20 @@ interface ApartmentViewProps {
   currency?: string;
 }
 
-const formatCurrency = (amount: number, currency: string = 'USD') => {
-  if (currency === 'EGP') return new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
-  return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(amount);
-};
-
 const ApartmentView: React.FC<ApartmentViewProps> = ({
   investment,
   currency = 'USD',
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currencyLabel = ' ' + t.accounting.common.currency;
+
+  const formatCurrency = (amount: number, cur: string = currency) => {
+    if (cur === 'EGP') return new Intl.NumberFormat(locale).format(amount) + currencyLabel;
+    return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(amount);
+  };
+
   const [expanded, setExpanded] = useState(false);
 
   // Group monthly breakdown by year
@@ -90,13 +97,13 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
           <div className="flex items-center gap-3 mt-0.5">
             <span className="flex items-center gap-1 text-xs text-secondary/55 font-dubai">
               <Percent className="w-3 h-3" />
-              نسبتي: {(investment.percentage * 100).toFixed(1)}%
+              {t.accounting.investorPortal.myPercentage} {(investment.percentage * 100).toFixed(1)}%
             </span>
             <span className={`flex items-center gap-1 text-xs font-bold font-dubai ${
               investment.balance >= 0 ? 'text-[#8a9a7a]' : 'text-[#c09080]'
             }`}>
               <DollarSign className="w-3 h-3" />
-              الرصيد: {formatCurrency(investment.balance, currency)}
+              {t.accounting.investorPortal.balance} {formatCurrency(investment.balance, currency)}
             </span>
           </div>
         </div>
@@ -128,7 +135,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                 <DollarSign className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h4 className="text-base font-bold text-white font-dubai">الملخص المالي</h4>
+                <h4 className="text-base font-bold text-white font-dubai">{t.accounting.investorPortal.financialSummary}</h4>
                 <p className="text-[11px] text-white/35 font-dubai">{investment.apartment.name}</p>
               </div>
             </div>
@@ -144,7 +151,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                 >
                   <TrendingUp className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#b5c4a5]" />
                 </div>
-                <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">إجمالي الإيرادات</p>
+                <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.investorPortal.totalRevenue}</p>
                 <p className="text-sm sm:text-[15px] font-bold text-[#b5c4a5] font-dubai leading-tight">
                   {formatCurrency(investment.totalRevenue, currency)}
                 </p>
@@ -159,7 +166,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                 >
                   <TrendingDown className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#d4b0a0]" />
                 </div>
-                <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">إجمالي المصروفات</p>
+                <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.investorPortal.totalExpenses}</p>
                 <p className="text-sm sm:text-[15px] font-bold text-[#d4b0a0] font-dubai leading-tight">
                   {formatCurrency(investment.totalExpenses, currency)}
                 </p>
@@ -179,7 +186,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                     investment.profit >= 0 ? 'text-[#b5c4a5]' : 'text-[#d4b0a0]'
                   }`} />
                 </div>
-                <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">صافي الربح</p>
+                <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.investorPortal.netProfit}</p>
                 <p className={`text-[15px] sm:text-lg font-bold font-dubai leading-tight ${
                   investment.profit >= 0 ? 'text-[#b5c4a5]' : 'text-[#d4b0a0]'
                 }`}>
@@ -191,15 +198,15 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
 
           {/* My Share */}
           <div className="bg-primary/8 rounded-xl p-4">
-            <h4 className="text-sm font-bold text-secondary font-dubai mb-2">نسبتي في هذه الشقة</h4>
+            <h4 className="text-sm font-bold text-secondary font-dubai mb-2">{t.accounting.investorPortal.myPercentageInApartment}</h4>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                    <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">النسبة</th>
-                    <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">الربح</th>
-                    <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">المسحوبات</th>
-                    <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">المتبقي</th>
+                    <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investors.percentageLabel}</th>
+                    <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.profit}</th>
+                    <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.totalWithdrawals}</th>
+                    <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.remainingBalance}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -237,7 +244,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
           {/* Progress bar if target exists */}
           {investment.investmentTarget > 0 && (
             <ProgressBar
-              label="التقدم السنوي"
+              label={t.accounting.investorPortal.yearlyProgress}
               current={investment.investorProfit}
               target={investment.investmentTarget}
               currency={currency}

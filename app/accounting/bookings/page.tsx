@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 import MonthSelector from '@/components/accounting/apartments/MonthSelector';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
 import BookingForm, { type BookingFormData } from '@/components/accounting/bookings/BookingForm';
@@ -56,27 +58,31 @@ const getCurrentMonth = () => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 };
 
-const SOURCE_OPTIONS = [
-  { value: '', label: 'كل المصادر' },
-  { value: 'AIRBNB', label: 'Airbnb' },
-  { value: 'BOOKING_COM', label: 'Booking.com' },
-  { value: 'EXTERNAL', label: 'خارجي' },
-  { value: 'DIRECT', label: 'مباشر' },
-  { value: 'OTHER', label: 'أخرى' },
-];
-
-const STATUS_OPTIONS = [
-  { value: '', label: 'كل الحالات' },
-  { value: 'CONFIRMED', label: 'مؤكد' },
-  { value: 'CHECKED_IN', label: 'دخل' },
-  { value: 'CHECKED_OUT', label: 'خرج' },
-  { value: 'CANCELLED', label: 'ملغي' },
-];
-
 export default function BookingsPage() {
   const { data: session } = useSession();
   const toast = useToast();
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currency = t.accounting.common.currency;
   const userRole = session?.user?.role;
+
+  const SOURCE_OPTIONS = useMemo(() => [
+    { value: '', label: t.accounting.bookingSourceFilters.all },
+    { value: 'AIRBNB', label: 'Airbnb' },
+    { value: 'BOOKING_COM', label: 'Booking.com' },
+    { value: 'EXTERNAL', label: t.accounting.bookingSourceFilters.EXTERNAL },
+    { value: 'DIRECT', label: t.accounting.bookingSourceFilters.DIRECT },
+    { value: 'OTHER', label: t.accounting.bookingSourceFilters.OTHER },
+  ], [t]);
+
+  const STATUS_OPTIONS = useMemo(() => [
+    { value: '', label: t.accounting.bookingStatusFilters.all },
+    { value: 'CONFIRMED', label: t.accounting.bookingStatusFilters.CONFIRMED },
+    { value: 'CHECKED_IN', label: t.accounting.bookingStatusFilters.CHECKED_IN },
+    { value: 'CHECKED_OUT', label: t.accounting.bookingStatusFilters.CHECKED_OUT },
+    { value: 'CANCELLED', label: t.accounting.bookingStatusFilters.CANCELLED },
+  ], [t]);
   const canAdd = userRole === 'GENERAL_MANAGER' || userRole === 'ADMIN' || userRole === 'BOOKING_MANAGER';
   const canEdit = userRole === 'GENERAL_MANAGER' || userRole === 'ADMIN' || userRole === 'BOOKING_MANAGER';
   const canDelete = userRole === 'GENERAL_MANAGER' || userRole === 'ADMIN';
@@ -128,12 +134,12 @@ export default function BookingsPage() {
       const res = await fetch(`/api/accounting/bookings?${params}`);
       const json = await res.json();
 
-      if (!res.ok) throw new Error(json.error || 'خطأ في جلب الحجوزات');
+      if (!res.ok) throw new Error(json.error || t.accounting.errors.fetchBookings);
 
       setBookings(json.bookings || []);
       setTotals(json.totals || { count: 0, amount: 0, nights: 0 });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      setError(err instanceof Error ? err.message : t.accounting.errors.unexpected);
     } finally {
       setIsLoading(false);
     }
@@ -222,9 +228,9 @@ export default function BookingsPage() {
     });
 
     const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'حدث خطأ أثناء الحفظ');
+    if (!res.ok) throw new Error(json.error || t.accounting.errors.saveFailed);
 
-    toast.success(isEditOp ? 'تم تحديث الحجز بنجاح' : 'تم إضافة الحجز بنجاح');
+    toast.success(isEditOp ? t.accounting.success.bookingUpdated : t.accounting.success.bookingAdded);
     await fetchBookings();
   };
 
@@ -235,12 +241,12 @@ export default function BookingsPage() {
       setIsDeleting(true);
       const res = await fetch(`/api/accounting/bookings/${deleteConfirm.id}`, { method: 'DELETE' });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'حدث خطأ أثناء الحذف');
-      toast.success('تم حذف الحجز بنجاح');
+      if (!res.ok) throw new Error(json.error || t.accounting.errors.deleteFailed);
+      toast.success(t.accounting.success.bookingDeleted);
       setDeleteConfirm(null);
       await fetchBookings();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'حدث خطأ أثناء الحذف');
+      toast.error(err instanceof Error ? err.message : t.accounting.errors.deleteFailed);
     } finally {
       setIsDeleting(false);
     }
@@ -285,9 +291,9 @@ export default function BookingsPage() {
             <CalendarCheck size={24} className="text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-secondary font-dubai">الحجوزات</h1>
+            <h1 className="text-2xl font-bold text-secondary font-dubai">{t.accounting.bookings.title}</h1>
             <p className="text-sm text-secondary/60 font-dubai">
-              {hideFinancials ? 'إدارة الحجوزات والإشغال' : 'شيت الإيرادات والحجوزات'}
+              {hideFinancials ? t.accounting.bookings.subtitle : t.accounting.bookings.altSubtitle}
             </p>
           </div>
         </div>
@@ -297,7 +303,7 @@ export default function BookingsPage() {
             onClick={fetchBookings}
             disabled={isLoading}
             className="p-2.5 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors"
-            title="تحديث"
+            title={t.accounting.common.refresh}
           >
             <RefreshCw size={18} className={`text-secondary ${isLoading ? 'animate-spin' : ''}`} />
           </button>
@@ -305,7 +311,7 @@ export default function BookingsPage() {
             <button
               onClick={() => setShowCharts(prev => !prev)}
               className={`p-2.5 rounded-xl transition-colors ${showCharts ? 'bg-secondary text-white' : 'bg-primary/10 text-secondary hover:bg-primary/20'}`}
-              title={showCharts ? 'إخفاء الرسوم البيانية' : 'إظهار الرسوم البيانية'}
+              title={showCharts ? t.accounting.common.hideCharts : t.accounting.common.showCharts}
             >
               <BarChart3 size={18} />
             </button>
@@ -316,7 +322,7 @@ export default function BookingsPage() {
               className="flex items-center gap-2 px-4 py-2.5 bg-secondary text-white rounded-xl font-dubai text-sm font-bold hover:bg-secondary/90 transition-colors shadow-sm"
             >
               <Plus size={16} />
-              إضافة حجز
+              {t.accounting.bookings.addBooking}
             </button>
           )}
         </div>
@@ -334,7 +340,7 @@ export default function BookingsPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="بحث بالاسم أو رقم الهاتف..."
+            placeholder={t.accounting.bookings.searchPlaceholder}
             className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
           />
         </div>
@@ -346,7 +352,7 @@ export default function BookingsPage() {
           variant="filter"
           icon={<Filter size={14} className="text-secondary/30" />}
           options={[
-            { value: '', label: 'كل الشقق' },
+            { value: '', label: t.accounting.bookings.allApartments },
             ...apartments.map(apt => ({
               value: apt.id,
               label: `${apt.name}${apt.project ? ` (${apt.project.name})` : ''}`,
@@ -432,10 +438,10 @@ export default function BookingsPage() {
         isOpen={!!deleteConfirm}
         onClose={() => !isDeleting && setDeleteConfirm(null)}
         onConfirm={handleDeleteBooking}
-        title="حذف الحجز؟"
-        message={`سيتم حذف حجز "${deleteConfirm?.clientName || ''}" بشكل نهائي. لا يمكن التراجع عن هذا الإجراء.`}
-        confirmLabel="تأكيد الحذف"
-        cancelLabel="إلغاء"
+        title={t.accounting.bookings.deleteBooking}
+        message={t.accounting.bookings.deleteConfirm(deleteConfirm?.clientName || '')}
+        confirmLabel={t.accounting.common.confirmDelete}
+        cancelLabel={t.accounting.common.cancel}
         variant="danger"
         isLoading={isDeleting}
       />

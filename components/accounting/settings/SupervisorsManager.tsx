@@ -10,8 +10,12 @@ import {
   Check,
   X,
 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const SupervisorsManager: React.FC = () => {
+  const t = useTranslation();
+  const { language } = useLanguage();
   const [supervisors, setSupervisors] = useState<string[]>([]);
   const [original, setOriginal] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,7 +47,7 @@ const SupervisorsManager: React.FC = () => {
     const trimmed = newName.trim();
     if (!trimmed) return;
     if (supervisors.includes(trimmed)) {
-      setError('هذا المشرف موجود بالفعل');
+      setError(t.accounting.errors.supervisorExists);
       return;
     }
     setSupervisors([...supervisors, trimmed]);
@@ -57,7 +61,7 @@ const SupervisorsManager: React.FC = () => {
 
   const handleSave = async () => {
     if (supervisors.length === 0) {
-      setError('يجب إضافة مشرف واحد على الأقل');
+      setError(t.accounting.errors.minOneSupervisor);
       return;
     }
 
@@ -72,14 +76,14 @@ const SupervisorsManager: React.FC = () => {
         body: JSON.stringify({ supervisors }),
       });
       const json = await res.json();
-      if (!res.ok) { setError(json.error || 'حدث خطأ'); return; }
+      if (!res.ok) { setError(json.error || t.accounting.errors.generic); return; }
       const saved = json.supervisors || supervisors;
       setSupervisors(saved);
       setOriginal(saved);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch {
-      setError('فشل الاتصال');
+      setError(t.accounting.errors.connectionFailed);
     } finally {
       setIsSaving(false);
     }
@@ -91,7 +95,7 @@ const SupervisorsManager: React.FC = () => {
     <div className="space-y-4">
       <h3 className="text-sm font-bold text-secondary font-dubai flex items-center gap-2">
         <UserCheck className="w-4 h-4" />
-        قائمة المشرفين
+        {t.accounting.settings.supervisors.title}
       </h3>
 
       {isLoading ? (
@@ -106,7 +110,7 @@ const SupervisorsManager: React.FC = () => {
               value={newName}
               onChange={e => setNewName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addSupervisor())}
-              placeholder="اسم المشرف الجديد..."
+              placeholder={t.accounting.settings.supervisors.newSupervisorPlaceholder}
               className="flex-1 px-3 py-2 text-sm border-2 border-primary/20 rounded-xl
                 focus:outline-none focus:border-primary font-dubai placeholder:text-secondary/30"
             />
@@ -122,7 +126,7 @@ const SupervisorsManager: React.FC = () => {
 
           {/* List */}
           {supervisors.length === 0 ? (
-            <p className="text-xs text-secondary/50 font-dubai text-center py-4">لا يوجد مشرفين</p>
+            <p className="text-xs text-secondary/50 font-dubai text-center py-4">{t.accounting.settings.supervisors.noSupervisors}</p>
           ) : (
             <div className="flex flex-wrap gap-2">
               {supervisors.map(name => (
@@ -161,7 +165,7 @@ const SupervisorsManager: React.FC = () => {
             ) : saved ? (
               <Check className="w-3.5 h-3.5" />
             ) : null}
-            {isSaving ? 'جاري الحفظ...' : saved ? 'تم الحفظ' : 'حفظ التغييرات'}
+            {isSaving ? t.accounting.common.saving : saved ? t.accounting.common.saved : t.accounting.common.saveChanges}
           </button>
         </motion.div>
       )}

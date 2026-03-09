@@ -9,8 +9,13 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import NumberInput from '@/components/accounting/shared/NumberInput';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const CurrencyRateManager: React.FC = () => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
   const [rate, setRate] = useState<number | null>(null);
   const [inputRate, setInputRate] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -42,7 +47,7 @@ const CurrencyRateManager: React.FC = () => {
   const handleSave = async () => {
     const newRate = parseFloat(inputRate);
     if (isNaN(newRate) || newRate <= 0) {
-      setError('سعر الصرف يجب أن يكون رقماً موجباً');
+      setError(t.accounting.errors.exchangeRateMustBePositive);
       return;
     }
 
@@ -61,13 +66,13 @@ const CurrencyRateManager: React.FC = () => {
         }),
       });
       const json = await res.json();
-      if (!res.ok) { setError(json.error || 'حدث خطأ'); return; }
+      if (!res.ok) { setError(json.error || t.accounting.errors.generic); return; }
       setRate(newRate);
       setLastUpdated(json.rate.updatedAt);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch {
-      setError('فشل الاتصال');
+      setError(t.accounting.errors.connectionFailed);
     } finally {
       setIsSaving(false);
     }
@@ -79,7 +84,7 @@ const CurrencyRateManager: React.FC = () => {
     <div className="space-y-4">
       <h3 className="text-sm font-bold text-secondary font-dubai flex items-center gap-2">
         <DollarSign className="w-4 h-4" />
-        سعر الصرف
+        {t.accounting.settings.exchangeRate.title}
       </h3>
 
       {isLoading ? (
@@ -111,7 +116,7 @@ const CurrencyRateManager: React.FC = () => {
 
             {lastUpdated && (
               <p className="text-[10px] text-secondary/50 font-dubai">
-                آخر تحديث: {new Date(lastUpdated).toLocaleDateString('ar-EG', {
+                {t.accounting.settings.exchangeRate.lastUpdate} {new Date(lastUpdated).toLocaleDateString(locale, {
                   year: 'numeric', month: 'long', day: 'numeric',
                   hour: '2-digit', minute: '2-digit',
                 })}
@@ -136,7 +141,7 @@ const CurrencyRateManager: React.FC = () => {
               ) : saved ? (
                 <Check className="w-3.5 h-3.5" />
               ) : null}
-              {isSaving ? 'جاري الحفظ...' : saved ? 'تم الحفظ' : 'حفظ التغييرات'}
+              {isSaving ? t.accounting.common.saving : saved ? t.accounting.common.saved : t.accounting.common.saveChanges}
             </button>
             <button
               onClick={fetchRate}

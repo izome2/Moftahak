@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users,
@@ -13,6 +13,8 @@ import {
   Phone,
 } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TeamMember {
   id: string;
@@ -25,14 +27,6 @@ interface TeamMember {
   createdAt: string;
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  ADMIN: 'مسؤول الموقع و مدير عام',
-  GENERAL_MANAGER: 'المدير العام',
-  OPS_MANAGER: 'مدير التشغيل',
-  BOOKING_MANAGER: 'مدير الحجوزات',
-  INVESTOR: 'مستثمر',
-};
-
 const ROLE_COLORS: Record<string, string> = {
   ADMIN: 'bg-emerald-50 text-emerald-600',
   GENERAL_MANAGER: 'bg-purple-50 text-purple-600',
@@ -44,6 +38,16 @@ const ROLE_COLORS: Record<string, string> = {
 const ACCOUNTING_ROLES = ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER', 'INVESTOR'] as const;
 
 const TeamManager: React.FC = () => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+
+  const ROLE_LABELS: Record<string, string> = useMemo(() => ({
+    ADMIN: t.accounting.roles.ADMIN,
+    GENERAL_MANAGER: t.accounting.roles.GENERAL_MANAGER,
+    OPS_MANAGER: t.accounting.roles.OPS_MANAGER,
+    BOOKING_MANAGER: t.accounting.roles.BOOKING_MANAGER,
+    INVESTOR: t.accounting.roles.INVESTOR,
+  }), [t]);
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -97,11 +101,11 @@ const TeamManager: React.FC = () => {
         }),
       });
       const json = await res.json();
-      if (!res.ok) { setEditError(json.error || 'حدث خطأ'); return; }
+      if (!res.ok) { setEditError(json.error || t.accounting.errors.generic); return; }
       setEditMember(null);
       fetchTeam();
     } catch {
-      setEditError('فشل الاتصال');
+      setEditError(t.accounting.errors.connectionFailed);
     } finally {
       setEditSaving(false);
     }
@@ -113,10 +117,10 @@ const TeamManager: React.FC = () => {
     try {
       const res = await fetch(`/api/accounting/settings/team/${deleteTarget.id}`, { method: 'DELETE' });
       const json = await res.json();
-      if (!res.ok) setError(json.error || 'حدث خطأ');
+      if (!res.ok) setError(json.error || t.accounting.errors.generic);
       else fetchTeam();
     } catch {
-      setError('فشل الاتصال');
+      setError(t.accounting.errors.connectionFailed);
     } finally {
       setIsDeleting(false);
       setDeleteTarget(null);
@@ -128,7 +132,7 @@ const TeamManager: React.FC = () => {
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-secondary font-dubai flex items-center gap-2">
           <Users className="w-4 h-4" />
-          أعضاء الفريق الحاليين
+          {t.accounting.settings.team.title}
         </h3>
       </div>
 
@@ -144,7 +148,7 @@ const TeamManager: React.FC = () => {
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
         </div>
       ) : members.length === 0 ? (
-        <p className="text-xs text-secondary/50 font-dubai text-center py-4">لا يوجد أعضاء فريق</p>
+        <p className="text-xs text-secondary/50 font-dubai text-center py-4">{t.accounting.settings.team.noMembers}</p>
       ) : (
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
           {members.map(m => (
@@ -203,20 +207,20 @@ const TeamManager: React.FC = () => {
               className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm z-10 overflow-hidden border-2 border-[#e0cdb8]"
             >
               <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
-                <h4 className="text-sm font-bold text-secondary font-dubai">تعديل العضو</h4>
+                <h4 className="text-sm font-bold text-secondary font-dubai">{t.accounting.settings.team.editMember}</h4>
                 <button onClick={() => setEditMember(null)}><X className="w-4 h-4 text-secondary/40" /></button>
               </div>
-              <div className="p-5 space-y-3" dir="rtl">
+              <div className="p-5 space-y-3" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">الاسم الأول</label>
+                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.settings.team.firstName}</label>
                     <input
                       value={editFirstName} onChange={e => setEditFirstName(e.target.value)}
                       className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">اسم العائلة</label>
+                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.settings.team.lastName}</label>
                     <input
                       value={editLastName} onChange={e => setEditLastName(e.target.value)}
                       className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
@@ -225,7 +229,7 @@ const TeamManager: React.FC = () => {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai flex items-center gap-1">
-                    <Shield className="w-3 h-3" /> الدور
+                    <Shield className="w-3 h-3" /> {t.accounting.settings.team.role}
                   </label>
                   <CustomSelect
                     value={editRole}
@@ -242,7 +246,7 @@ const TeamManager: React.FC = () => {
                     hover:bg-secondary/90 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {editSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {editSaving ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+                  {editSaving ? t.accounting.common.saving : t.accounting.common.saveChanges}
                 </button>
               </div>
             </motion.div>
@@ -263,10 +267,10 @@ const TeamManager: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
               className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm p-5 z-10 border-2 border-[#e0cdb8]"
             >
-              <h4 className="text-sm font-bold text-secondary font-dubai mb-2">حذف العضو</h4>
+              <h4 className="text-sm font-bold text-secondary font-dubai mb-2">{t.accounting.settings.team.deleteMember}</h4>
               <p className="text-xs text-secondary/70 font-dubai mb-4">
-                هل تريد حذف <strong>{deleteTarget.firstName} {deleteTarget.lastName}</strong>؟
-                هذا الإجراء لا يمكن التراجع عنه.
+                {t.accounting.settings.team.confirmDeleteMember(`${deleteTarget.firstName} ${deleteTarget.lastName}`)}
+                {' '}{t.accounting.settings.team.cannotUndo}
               </p>
               <div className="flex gap-2">
                 <button
@@ -275,13 +279,13 @@ const TeamManager: React.FC = () => {
                     hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-1"
                 >
                   {isDeleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  حذف
+                  {t.accounting.common.delete}
                 </button>
                 <button
                   onClick={() => setDeleteTarget(null)}
                   className="flex-1 py-2 bg-primary/10 text-secondary rounded-xl text-xs font-medium font-dubai hover:bg-primary/20"
                 >
-                  إلغاء
+                  {t.accounting.common.cancel}
                 </button>
               </div>
             </motion.div>

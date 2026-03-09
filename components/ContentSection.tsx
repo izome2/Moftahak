@@ -5,6 +5,7 @@ import { Play, Heart, MessageCircle, Repeat2, Instagram, ThumbsUp, Flame } from 
 import { motion, AnimatePresence } from 'framer-motion';
 import Container from './ui/Container';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface Video {
   id: number;
@@ -263,6 +264,7 @@ const ContentSection: React.FC = () => {
   const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInView = useScrollAnimation(containerRef as React.RefObject<Element>, { threshold: 0.2, once: true });
   const isHeaderInView = useScrollAnimation(headerRef as React.RefObject<Element>, { threshold: 0.5, once: false });
+  const t = useTranslation();
 
   React.useEffect(() => {
     if (isInView) {
@@ -521,7 +523,7 @@ const ContentSection: React.FC = () => {
         <div ref={headerRef} className="text-center mb-16 animate-in fade-in slide-in-from-bottom duration-700">
           <div className="relative inline-block overflow-visible">
             <h2 className="text-4xl md:text-5xl font-bold text-secondary mb-4 font-bristone">
-              سوشيال
+              {t.contentSection.title}
             </h2>
             
             {}
@@ -595,7 +597,7 @@ const ContentSection: React.FC = () => {
           </div>
           
           <p className="text-lg text-secondary/70 max-w-2xl mx-auto mb-6">
-            تابعني, وشاهد أحدث المحتوى
+            {t.contentSection.subtitle}
           </p>
         </div>
 

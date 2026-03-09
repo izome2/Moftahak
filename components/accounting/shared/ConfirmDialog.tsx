@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, X } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // ============================================================================
 // ConfirmDialog - نافذة تأكيد قبل الحذف / الإجراءات الحرجة
@@ -42,14 +43,19 @@ export default function ConfirmDialog({
   isOpen,
   onClose,
   onConfirm,
-  title = 'تأكيد الإجراء',
-  message = 'هل أنت متأكد من هذا الإجراء؟ لا يمكن التراجع عنه.',
-  confirmLabel = 'تأكيد',
-  cancelLabel = 'إلغاء',
+  title,
+  message,
+  confirmLabel,
+  cancelLabel,
   variant = 'danger',
   isLoading = false,
 }: ConfirmDialogProps) {
+  const t = useTranslation();
   const styles = VARIANT_STYLES[variant];
+  const displayTitle = title || t.accounting.common.confirmAction;
+  const displayMessage = message || t.accounting.common.confirmActionMessage;
+  const displayConfirm = confirmLabel || t.accounting.common.confirm;
+  const displayCancel = cancelLabel || t.accounting.common.cancel;
 
   return (
     <AnimatePresence>
@@ -89,10 +95,10 @@ export default function ConfirmDialog({
 
               {/* Content */}
               <h3 className="text-lg font-bold text-secondary font-dubai text-center mb-2">
-                {title}
+                {displayTitle}
               </h3>
               <p className="text-sm text-secondary/60 font-dubai text-center mb-6 leading-relaxed">
-                {message}
+                {displayMessage}
               </p>
 
               {/* Actions */}
@@ -102,7 +108,7 @@ export default function ConfirmDialog({
                   disabled={isLoading}
                   className="flex-1 px-4 py-2.5 rounded-xl border-2 border-secondary/10 text-secondary font-dubai text-sm hover:bg-secondary/5 transition-colors disabled:opacity-50"
                 >
-                  {cancelLabel}
+                  {displayCancel}
                 </button>
                 <button
                   onClick={onConfirm}
@@ -112,10 +118,10 @@ export default function ConfirmDialog({
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2">
                       <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      جاري...
+                      {t.accounting.common.processing}
                     </span>
                   ) : (
-                    confirmLabel
+                    displayConfirm
                   )}
                 </button>
               </div>

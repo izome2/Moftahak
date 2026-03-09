@@ -10,7 +10,9 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
-import { CATEGORY_MAP, CATEGORY_COLORS } from './CategoryBadge';
+import { CATEGORY_COLORS } from './CategoryBadge';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CategoryData {
   category: string;
@@ -32,31 +34,6 @@ interface CategoryPieChartProps {
 const FALLBACK_COLORS = ['#3b82f6', '#8b5cf6', '#06b6d4', '#f97316', '#eab308', '#6b7280', '#22c55e'];
 
 const BAR_COLORS = ['#ef4444', '#f97316', '#eab308', '#10302b', '#8b5cf6', '#06b6d4', '#22c55e'];
-
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomPieTooltip = ({ active, payload }: any) => {
-  if (!active || !payload?.length) return null;
-  const entry = payload[0];
-  return (
-    <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.payload.fill }} />
-        <span className="font-bold text-secondary">{entry.name}</span>
-      </div>
-      <p className="text-secondary/70">
-        المبلغ: <span className="font-bold text-[#c09080]">{formatCurrency(entry.value)}</span>
-      </p>
-      {entry.payload.count !== undefined && (
-        <p className="text-secondary/70">
-          العدد: <span className="font-bold text-secondary">{entry.payload.count}</span>
-        </p>
-      )}
-    </div>
-  );
-};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
@@ -86,6 +63,35 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
   apartmentData,
   isLoading,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currency = t.accounting.common.currency;
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat(locale).format(amount) + ' ' + currency;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const CustomPieTooltip = ({ active, payload }: any) => {
+    if (!active || !payload?.length) return null;
+    const entry = payload[0];
+    return (
+      <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.payload.fill }} />
+          <span className="font-bold text-secondary">{entry.name}</span>
+        </div>
+        <p className="text-secondary/70">
+          {t.accounting.expenses.amountLabel} <span className="font-bold text-[#c09080]">{formatCurrency(entry.value)}</span>
+        </p>
+        {entry.payload.count !== undefined && (
+          <p className="text-secondary/70">
+            {t.accounting.expenses.countLabel} <span className="font-bold text-secondary">{entry.payload.count}</span>
+          </p>
+        )}
+      </div>
+    );
+  };
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -99,8 +105,9 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
     );
   }
 
+  const expenseCats = t.accounting.expenseCategoriesShort as Record<string, string>;
   const pieData = categoryData.map(d => ({
-    name: CATEGORY_MAP[d.category]?.label || d.category,
+    name: expenseCats[d.category] || d.category,
     value: d.amount,
     count: d.count,
     catKey: d.category,
@@ -118,11 +125,11 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
         className="bg-white rounded-xl border-2 border-primary/20 shadow-[0_4px_20px_rgba(237,191,140,0.12)] p-4"
       >
         <h3 className="text-sm font-bold text-secondary font-dubai mb-2 text-center">
-          توزيع المصروفات حسب القسم
+          {t.accounting.expenses.categoryDistribution}
         </h3>
         {pieData.length === 0 ? (
           <div className="h-[280px] flex items-center justify-center text-secondary/40 font-dubai text-sm">
-            لا توجد بيانات
+            {t.accounting.common.noData}
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={340}>
@@ -169,11 +176,11 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
         className="bg-white rounded-xl border-2 border-primary/20 shadow-[0_4px_20px_rgba(237,191,140,0.12)] p-4"
       >
         <h3 className="text-sm font-bold text-secondary font-dubai mb-4 text-center">
-          مقارنة مصروفات الشقق
+          {t.accounting.expenses.apartmentComparison}
         </h3>
         {!hasBarData ? (
           <div className="h-[280px] flex items-center justify-center text-secondary/40 font-dubai text-sm">
-            لا توجد بيانات
+            {t.accounting.common.noData}
           </div>
         ) : (
           <div className="space-y-2.5 px-1">

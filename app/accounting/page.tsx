@@ -16,7 +16,6 @@ import {
   ClipboardCheck,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { formatNumber } from '@/lib/utils';
 import AccountingStatsCard from '@/components/accounting/dashboard/StatsCards';
 import RevenueExpenseChart from '@/components/accounting/dashboard/RevenueExpenseChart';
 import ExpensePieChart from '@/components/accounting/dashboard/ExpensePieChart';
@@ -24,6 +23,8 @@ import BookingSourceChart from '@/components/accounting/dashboard/BookingSourceC
 import RecentBookings from '@/components/accounting/dashboard/RecentBookings';
 import RecentExpenses from '@/components/accounting/dashboard/RecentExpenses';
 import DailyAlerts from '@/components/accounting/dashboard/DailyAlerts';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // --- Types ---
 interface DashboardStats {
@@ -110,21 +111,9 @@ interface DashboardData {
 }
 
 // --- Month helpers ---
-const MONTH_NAMES: Record<string, string> = {
-  '01': 'يناير', '02': 'فبراير', '03': 'مارس',
-  '04': 'أبريل', '05': 'مايو', '06': 'يونيو',
-  '07': 'يوليو', '08': 'أغسطس', '09': 'سبتمبر',
-  '10': 'أكتوبر', '11': 'نوفمبر', '12': 'ديسمبر',
-};
-
 const getCurrentMonth = () => {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-};
-
-const formatMonthDisplay = (month: string) => {
-  const [year, m] = month.split('-');
-  return `${MONTH_NAMES[m] || m} ${year}`;
 };
 
 const changeMonth = (month: string, delta: number) => {
@@ -133,16 +122,28 @@ const changeMonth = (month: string, delta: number) => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 };
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
-};
-
 // --- Component ---
 export default function AccountingDashboardPage() {
   const [month, setMonth] = useState(getCurrentMonth);
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslation();
+  const { language } = useLanguage();
+
+  const formatMonthDisplay = (month: string) => {
+    const [year, m] = month.split('-');
+    const monthIndex = parseInt(m, 10) - 1;
+    return `${t.accounting.months[monthIndex] || m} ${year}`;
+  };
+
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat(locale).format(amount) + ' ' + t.accounting.common.currency;
+  };
+
+  const fmtNum = (n: number) => new Intl.NumberFormat(locale).format(n);
 
   const fetchDashboard = useCallback(async (m: string) => {
     try {
@@ -152,12 +153,12 @@ export default function AccountingDashboardPage() {
       const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(json.error || 'حدث خطأ أثناء جلب البيانات');
+        throw new Error(json.error || t.accounting.errors.fetchData);
       }
 
       setData(json);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      setError(err instanceof Error ? err.message : t.accounting.errors.unexpected);
     } finally {
       setIsLoading(false);
     }
@@ -190,10 +191,10 @@ export default function AccountingDashboardPage() {
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
-              لوحة التحكم
+              {t.accounting.dashboard.title}
             </h1>
             <p className="text-sm text-secondary/60 font-dubai">
-              نظرة عامة على الحسابات
+              {t.accounting.dashboard.subtitle}
             </p>
           </div>
         </div>
@@ -203,8 +204,8 @@ export default function AccountingDashboardPage() {
           <button
             onClick={() => fetchDashboard(month)}
             className="p-2 hover:bg-primary/10 rounded-lg transition-colors"
-            aria-label="تحديث البيانات"
-            title="تحديث"
+            aria-label={t.accounting.common.refresh}
+            title={t.accounting.common.refresh}
           >
             <RefreshCw size={20} className={`text-secondary/60 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
@@ -214,7 +215,7 @@ export default function AccountingDashboardPage() {
               window.dispatchEvent(event);
             }}
             className="lg:hidden p-2 hover:bg-primary/10 rounded-lg transition-colors"
-            aria-label="فتح القائمة"
+            aria-label={t.accounting.common.openMenu}
           >
             <Menu size={28} className="text-secondary" />
           </button>
@@ -231,7 +232,7 @@ export default function AccountingDashboardPage() {
         <button
           onClick={goToPrevMonth}
           className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors"
-          aria-label="الشهر السابق"
+          aria-label={t.accounting.monthSelector.prevMonth}
         >
           <ChevronRight size={20} className="text-secondary" />
         </button>
@@ -244,7 +245,7 @@ export default function AccountingDashboardPage() {
           onClick={goToNextMonth}
           disabled={isCurrentMonth}
           className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          aria-label="الشهر التالي"
+          aria-label={t.accounting.monthSelector.nextMonth}
         >
           <ChevronLeft size={20} className="text-secondary" />
         </button>
@@ -262,7 +263,7 @@ export default function AccountingDashboardPage() {
             onClick={() => fetchDashboard(month)}
             className="mt-2 text-sm text-red-500 underline font-dubai"
           >
-            إعادة المحاولة
+            {t.accounting.common.retry}
           </button>
         </motion.div>
       )}
@@ -277,10 +278,8 @@ export default function AccountingDashboardPage() {
         {role !== 'OPS_MANAGER' && role !== 'BOOKING_MANAGER' && (
           <AccountingStatsCard
             icon={DollarSign}
-            label="إجمالي الإيرادات"
+            label={t.accounting.dashboard.totalRevenue}
             value={data ? formatCurrency(data.stats.totalRevenue ?? 0) : '...'}
-            iconBgColor="bg-green-100"
-            iconColor="text-green-600"
             index={0}
             isLoading={isLoading}
           />
@@ -289,10 +288,8 @@ export default function AccountingDashboardPage() {
         {role !== 'BOOKING_MANAGER' && (
           <AccountingStatsCard
             icon={Receipt}
-            label="إجمالي المصروفات"
+            label={t.accounting.dashboard.totalExpenses}
             value={data ? formatCurrency(data.stats.totalExpenses) : '...'}
-            iconBgColor="bg-red-100"
-            iconColor="text-red-500"
             index={1}
             isLoading={isLoading}
           />
@@ -301,10 +298,8 @@ export default function AccountingDashboardPage() {
         {role === 'GENERAL_MANAGER' && (
           <AccountingStatsCard
             icon={TrendingUp}
-            label="صافي الربح"
+            label={t.accounting.dashboard.netProfit}
             value={data ? formatCurrency(data.stats.profit ?? 0) : '...'}
-            iconBgColor="bg-primary/20"
-            iconColor="text-primary"
             index={2}
             isLoading={isLoading}
           />
@@ -313,10 +308,8 @@ export default function AccountingDashboardPage() {
         {role !== 'OPS_MANAGER' && (
           <AccountingStatsCard
             icon={CalendarCheck}
-            label="عدد الحجوزات"
-            value={data ? formatNumber(data.stats.bookingsCount ?? 0) : '...'}
-            iconBgColor="bg-blue-100"
-            iconColor="text-blue-600"
+            label={t.accounting.dashboard.bookingsCount}
+            value={data ? fmtNum(data.stats.bookingsCount ?? 0) : '...'}
             index={3}
             isLoading={isLoading}
           />
@@ -324,10 +317,8 @@ export default function AccountingDashboardPage() {
         {/* عدد الشقق - للجميع */}
         <AccountingStatsCard
           icon={Building2}
-          label="عدد الشقق"
-          value={data ? formatNumber(data.stats.apartmentsCount) : '...'}
-          iconBgColor="bg-purple-100"
-          iconColor="text-purple-600"
+          label={t.accounting.dashboard.apartmentsCount}
+          value={data ? fmtNum(data.stats.apartmentsCount) : '...'}
           index={4}
           isLoading={isLoading}
         />
@@ -335,11 +326,9 @@ export default function AccountingDashboardPage() {
         {role !== 'OPS_MANAGER' && (
           <AccountingStatsCard
             icon={Percent}
-            label="نسبة الإشغال"
-            value={data ? `${formatNumber(data.stats.occupancyRate ?? 0)}%` : '...'}
-            subtitle={data ? `من ${formatNumber(data.stats.apartmentsCount)} شقة` : undefined}
-            iconBgColor="bg-orange-100"
-            iconColor="text-orange-600"
+            label={t.accounting.dashboard.occupancyRate}
+            value={data ? `${fmtNum(data.stats.occupancyRate ?? 0)}%` : '...'}
+            subtitle={data ? t.accounting.common.ofNApartments(data.stats.apartmentsCount) : undefined}
             index={5}
             isLoading={isLoading}
           />
@@ -348,10 +337,8 @@ export default function AccountingDashboardPage() {
         {role === 'GENERAL_MANAGER' && (data?.stats.pendingExpensesCount ?? 0) > 0 && (
           <AccountingStatsCard
             icon={ClipboardCheck}
-            label="بانتظار الموافقة"
-            value={data ? formatNumber(data.stats.pendingExpensesCount ?? 0) : '...'}
-            iconBgColor="bg-amber-100"
-            iconColor="text-amber-600"
+            label={t.accounting.dashboard.pendingApproval}
+            value={data ? fmtNum(data.stats.pendingExpensesCount ?? 0) : '...'}
             index={6}
             isLoading={isLoading}
           />
@@ -372,7 +359,7 @@ export default function AccountingDashboardPage() {
           >
             <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
               <TrendingUp size={18} className="text-primary" />
-              الإيرادات والمصروفات (آخر 12 شهر)
+              {t.accounting.dashboard.revenueExpenses12Months}
             </h3>
             <RevenueExpenseChart
               data={data?.charts.monthlyTrend || []}
@@ -391,7 +378,7 @@ export default function AccountingDashboardPage() {
           >
             <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
               <Receipt size={18} className="text-red-400" />
-              توزيع المصروفات حسب القسم
+              {t.accounting.dashboard.expensesByCategory}
             </h3>
             <ExpensePieChart
               data={data?.charts.expensesByCategory || []}
@@ -410,8 +397,8 @@ export default function AccountingDashboardPage() {
           className="bg-white border-2 border-primary/20 p-5 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
         >
           <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
-            <CalendarCheck size={18} className="text-blue-500" />
-            مصادر الحجوزات
+            <CalendarCheck size={18} className="text-primary" />
+            {t.accounting.dashboard.bookingSources}
           </h3>
           <div className="max-w-xl mx-auto">
             <BookingSourceChart

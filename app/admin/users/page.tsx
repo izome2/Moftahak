@@ -33,6 +33,8 @@ import {
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ============================================
 // 🎨 DESIGN TOKENS
@@ -65,49 +67,42 @@ interface User {
 // ============================================
 
 const roleConfig: Record<string, { 
-  label: string; 
   bgColor: string;
   textColor: string;
   borderColor: string;
   icon: React.ElementType;
 }> = {
   ADMIN: { 
-    label: 'مسؤول الموقع و مدير عام', 
     bgColor: 'bg-emerald-400/15',
     textColor: 'text-emerald-700',
     borderColor: 'border-emerald-500/30',
     icon: Crown
   },
   GENERAL_MANAGER: { 
-    label: 'مدير عام', 
     bgColor: 'bg-purple-500/10',
     textColor: 'text-purple-700',
     borderColor: 'border-purple-500/30',
     icon: Shield
   },
   OPS_MANAGER: { 
-    label: 'مدير عمليات', 
     bgColor: 'bg-orange-500/10',
     textColor: 'text-orange-700',
     borderColor: 'border-orange-500/30',
     icon: UserCog
   },
   BOOKING_MANAGER: { 
-    label: 'مدير حجوزات', 
     bgColor: 'bg-cyan-500/10',
     textColor: 'text-cyan-700',
     borderColor: 'border-cyan-500/30',
     icon: Calendar
   },
   INVESTOR: { 
-    label: 'مستثمر', 
     bgColor: 'bg-amber-500/10',
     textColor: 'text-amber-700',
     borderColor: 'border-amber-500/30',
     icon: TrendingUp
   },
   USER: { 
-    label: 'مستخدم', 
     bgColor: 'bg-blue-500/10',
     textColor: 'text-blue-700',
     borderColor: 'border-blue-500/30',
@@ -140,7 +135,9 @@ const UserCard: React.FC<UserCardProps> = ({
   actionLoading,
   currentUserId
 }) => {
+  const t = useTranslation();
   const role = roleConfig[user.role] || roleConfig.USER;
+  const roleLabel = t.admin.roles[user.role as keyof typeof t.admin.roles] || t.admin.roles.USER;
   const RoleIcon = role.icon;
   const isCurrentUser = user.id === currentUserId;
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
@@ -215,12 +212,12 @@ const UserCard: React.FC<UserCardProps> = ({
               </h3>
               {isCurrentUser && (
                 <span className="px-2 py-0.5 rounded-full text-xs font-dubai font-medium bg-primary/20 text-primary border border-primary/30">
-                  أنت
+                  {t.admin.usersPage.you}
                 </span>
               )}
               <span className={`px-3 py-1 rounded-full text-xs font-dubai font-medium border ${role.bgColor} ${role.textColor} ${role.borderColor}`}>
                 <RoleIcon className="w-3 h-3 inline ml-1" />
-                {role.label}
+                {roleLabel}
               </span>
             </div>
             
@@ -258,7 +255,7 @@ const UserCard: React.FC<UserCardProps> = ({
                     style={{ boxShadow: 'rgba(237, 191, 140, 0.1) 0px 2px 8px' }}
                   >
                     <RoleIcon className={`w-4 h-4 ${role.textColor}`} />
-                    <span className="text-secondary">{role.label}</span>
+                    <span className="text-secondary">{roleLabel}</span>
                     <ChevronDown className={`w-4 h-4 text-secondary/40 transition-transform duration-200 ${roleDropdownOpen ? 'rotate-180' : ''}`} />
                   </motion.button>
 
@@ -272,7 +269,7 @@ const UserCard: React.FC<UserCardProps> = ({
                         className="absolute left-0 top-full mt-2 bg-white rounded-2xl border-2 border-primary/30 py-2 z-[300] min-w-[200px] overflow-hidden"
                         style={{ boxShadow: SHADOWS.popup }}
                       >
-                        <p className="px-4 py-1.5 text-xs font-dubai text-secondary/40 font-medium">اختر الدور</p>
+                        <p className="px-4 py-1.5 text-xs font-dubai text-secondary/40 font-medium">{t.admin.usersPage.chooseRole}</p>
                         <div className="px-1.5">
                           {Object.entries(roleConfig).map(([value, config]) => {
                             const ItemIcon = config.icon;
@@ -295,7 +292,7 @@ const UserCard: React.FC<UserCardProps> = ({
                                 }`}>
                                   <ItemIcon className="w-4 h-4" />
                                 </div>
-                                <span className="flex-1 text-right">{config.label}</span>
+                                <span className="flex-1 text-right">{t.admin.roles[value as keyof typeof t.admin.roles] || value}</span>
                                 {isActive && (
                                   <span className={`text-xs ${config.textColor} opacity-70`}>✓</span>
                                 )}
@@ -346,13 +343,13 @@ const UserCard: React.FC<UserCardProps> = ({
                           <div className="w-8 h-8 bg-secondary/5 rounded-lg flex items-center justify-center group-hover/item:bg-secondary/10 transition-colors">
                             <Eye className="w-4 h-4" />
                           </div>
-                          <span className="flex-1 text-right">عرض التفاصيل</span>
+                          <span className="flex-1 text-right">{t.admin.viewDetails}</span>
                         </button>
                       </div>
                       
                       {/* خيار تغيير الصلاحية للموبايل */}
                       <div className="px-2 py-1 sm:hidden">
-                        <p className="px-3 py-1.5 text-xs font-dubai text-secondary/40 font-medium">تغيير الدور</p>
+                        <p className="px-3 py-1.5 text-xs font-dubai text-secondary/40 font-medium">{t.admin.usersPage.changeRole}</p>
                         {Object.entries(roleConfig).map(([value, config]) => {
                           const RIcon = config.icon;
                           const isActive = user.role === value;
@@ -374,7 +371,7 @@ const UserCard: React.FC<UserCardProps> = ({
                               }`}>
                                 <RIcon className="w-3.5 h-3.5" />
                               </div>
-                              <span className="flex-1 text-right">{config.label}</span>
+                              <span className="flex-1 text-right">{t.admin.roles[value as keyof typeof t.admin.roles] || value}</span>
                               {isActive && <span className="text-xs opacity-60">✓</span>}
                             </button>
                           );
@@ -396,7 +393,7 @@ const UserCard: React.FC<UserCardProps> = ({
                               <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center group-hover/item:bg-red-100 transition-colors">
                                 <Trash2 className="w-4 h-4" />
                               </div>
-                              <span className="flex-1 text-right">حذف المستخدم</span>
+                              <span className="flex-1 text-right">{t.admin.usersPage.deleteUser}</span>
                             </button>
                           </div>
                         </>
@@ -426,6 +423,8 @@ export default function UsersPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const { data: session, status } = useSession();
   const router = useRouter();
+  const t = useTranslation();
+  const { language } = useLanguage();
 
   // حماية الصفحة
   useEffect(() => {
@@ -485,7 +484,7 @@ export default function UsersPage() {
 
   // حذف المستخدم
   const handleDelete = async (userId: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+    if (!confirm(t.admin.usersPage.confirmDelete)) return;
     
     setActionLoading(userId);
     try {
@@ -532,7 +531,7 @@ export default function UsersPage() {
           >
             <Loader2 className="w-8 h-8 text-secondary animate-spin" />
           </div>
-          <p className="text-secondary/60 font-dubai">جاري التحميل...</p>
+          <p className="text-secondary/60 font-dubai">{t.admin.loading}</p>
         </div>
       </div>
     );
@@ -560,12 +559,12 @@ export default function UsersPage() {
             </motion.div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
-                إدارة المستخدمين
+                {t.admin.usersPage.title}
               </h1>
               <p className="text-secondary/60 text-sm mt-1 font-dubai">
-                إدارة وتعديل صلاحيات المستخدمين
+                {t.admin.usersPage.subtitle}
                 <span className="mr-2 px-2 py-0.5 bg-primary/20 rounded-full text-xs">
-                  {stats.total} مستخدم
+                  {stats.total} {t.admin.usersPage.userCount}
                 </span>
               </p>
             </div>
@@ -588,7 +587,7 @@ export default function UsersPage() {
               <Users className="w-5 h-5 text-secondary" />
             </div>
             <p className="text-2xl font-bold text-secondary font-bristone">{stats.total}</p>
-            <p className="text-xs text-secondary/60 font-dubai">إجمالي المستخدمين</p>
+            <p className="text-xs text-secondary/60 font-dubai">{t.admin.usersPage.totalUsers}</p>
           </div>
           
           <div 
@@ -599,7 +598,7 @@ export default function UsersPage() {
               <Crown className="w-5 h-5 text-emerald-700" />
             </div>
             <p className="text-2xl font-bold text-emerald-700 font-bristone">{stats.admins}</p>
-            <p className="text-xs text-secondary/60 font-dubai">المسؤولين</p>
+            <p className="text-xs text-secondary/60 font-dubai">{t.admin.usersPage.admins}</p>
           </div>
           
           <div 
@@ -610,7 +609,7 @@ export default function UsersPage() {
               <Shield className="w-5 h-5 text-purple-700" />
             </div>
             <p className="text-2xl font-bold text-purple-700 font-bristone">{stats.accounting}</p>
-            <p className="text-xs text-secondary/60 font-dubai">فريق الحسابات</p>
+            <p className="text-xs text-secondary/60 font-dubai">{t.admin.usersPage.accountingTeam}</p>
           </div>
           
           <div 
@@ -621,7 +620,7 @@ export default function UsersPage() {
               <Users className="w-5 h-5 text-blue-700" />
             </div>
             <p className="text-2xl font-bold text-blue-700 font-bristone">{stats.users}</p>
-            <p className="text-xs text-secondary/60 font-dubai">المستخدمين العاديين</p>
+            <p className="text-xs text-secondary/60 font-dubai">{t.admin.usersPage.regularUsers}</p>
           </div>
         </motion.div>
 
@@ -643,7 +642,7 @@ export default function UsersPage() {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="ابحث بالاسم أو البريد الإلكتروني..."
+                placeholder={t.admin.searchByNameOrEmail}
                 className="flex-1 px-4 py-4 bg-transparent text-secondary placeholder-secondary/40 focus:outline-none font-dubai"
               />
               {searchTerm && (
@@ -687,7 +686,7 @@ export default function UsersPage() {
             >
               <Loader2 className="w-8 h-8 text-secondary animate-spin" />
             </div>
-            <p className="text-secondary/60 font-dubai">جاري تحميل المستخدمين...</p>
+            <p className="text-secondary/60 font-dubai">{t.admin.loadingUsers}</p>
           </motion.div>
         ) : filteredUsers.length === 0 ? (
           <motion.div
@@ -707,12 +706,12 @@ export default function UsersPage() {
               </motion.div>
               
               <h3 className="text-xl font-dubai font-bold text-secondary mb-2">
-                {searchTerm ? 'لا توجد نتائج' : 'لا يوجد مستخدمين'}
+                {searchTerm ? t.admin.noResults : t.admin.usersPage.noUsers}
               </h3>
               <p className="text-secondary/60 font-dubai mb-6">
                 {searchTerm 
-                  ? 'جرب البحث بكلمات مختلفة'
-                  : 'لم يتم تسجيل أي مستخدمين بعد'
+                  ? t.admin.tryDifferentSearch
+                  : t.admin.usersPage.noUsersRegistered
                 }
               </p>
               
@@ -724,7 +723,7 @@ export default function UsersPage() {
                   className="flex items-center gap-2 mx-auto px-5 py-3 bg-white border-2 border-primary/30 rounded-xl font-dubai font-medium text-secondary hover:border-primary/50 transition-colors"
                 >
                   <RefreshCw className="w-5 h-5" />
-                  إعادة تعيين البحث
+                  {t.admin.resetSearch}
                 </motion.button>
               )}
             </div>

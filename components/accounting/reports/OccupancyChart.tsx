@@ -12,6 +12,7 @@ import {
   Tooltip,
   Cell,
 } from 'recharts';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface OccupancyData {
   name: string;
@@ -31,22 +32,22 @@ const COLORS = [
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, labels }: any) => {
   if (!active || !payload?.length) return null;
   const entry = payload[0];
   return (
     <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
       <p className="text-secondary font-bold mb-1.5">{label}</p>
       <div className="flex items-center gap-2 py-0.5">
-        <span className="text-secondary/70">ليالي مشغولة:</span>
-        <span className="font-bold text-secondary">{entry.value} ليلة</span>
+        <span className="text-secondary/70">{labels.busyNights}</span>
+        <span className="font-bold text-secondary">{entry.value} {labels.night}</span>
       </div>
       <div className="flex items-center gap-2 py-0.5">
-        <span className="text-secondary/70">نسبة الإشغال:</span>
+        <span className="text-secondary/70">{labels.occupancyRate}</span>
         <span className="font-bold text-secondary">{entry.payload?.occupancyPct}%</span>
       </div>
       <div className="flex items-center gap-2 py-0.5">
-        <span className="text-secondary/70">عدد الحجوزات:</span>
+        <span className="text-secondary/70">{labels.occupancyCount}</span>
         <span className="font-bold text-secondary">{entry.payload?.bookings}</span>
       </div>
     </div>
@@ -58,6 +59,8 @@ const OccupancyChart: React.FC<OccupancyChartProps> = ({
   daysInMonth,
   isLoading,
 }) => {
+  const t = useTranslation();
+
   if (isLoading) {
     return (
       <div className="h-[320px] flex items-center justify-center">
@@ -69,7 +72,7 @@ const OccupancyChart: React.FC<OccupancyChartProps> = ({
   if (!data.length) {
     return (
       <div className="h-[320px] flex items-center justify-center text-secondary/50 font-dubai">
-        لا توجد بيانات إشغال
+        {t.accounting.reports.noOccupancyData}
       </div>
     );
   }
@@ -106,10 +109,10 @@ const OccupancyChart: React.FC<OccupancyChartProps> = ({
             domain={[0, daysInMonth]}
             tickFormatter={(v) => `${v}`}
           />
-          <Tooltip content={<CustomTooltip />} cursor={false} />
+          <Tooltip content={<CustomTooltip labels={{ busyNights: t.accounting.reports.busyNights, occupancyRate: t.accounting.reports.occupancyRate, occupancyCount: t.accounting.reports.occupancyCount, night: t.accounting.common.night }} />} cursor={false} />
           <Bar
             dataKey="nights"
-            name="ليالي مشغولة"
+            name={t.accounting.reports.busyNightsLegend}
             radius={[6, 6, 0, 0]}
             maxBarSize={50}
           >

@@ -9,6 +9,8 @@ import { Menu, X, Phone, User, ShoppingCart, Calculator } from 'lucide-react';
 import Button from './ui/Button';
 import AuthModal from './auth/AuthModal';
 import UserDropdown from './user/UserDropdown';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // الأدوار المسموح لها بالوصول لنظام الحسابات
 const ACCOUNTING_ROLES = ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER', 'INVESTOR'];
@@ -22,6 +24,8 @@ interface NavLink {
 const Navbar: React.FC = () => {
   const { data: session } = useSession();
   const router = useRouter();
+  const { language, toggleLanguage } = useLanguage();
+  const t = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -51,12 +55,12 @@ const Navbar: React.FC = () => {
   }, [isMobileMenuOpen]);
 
   const navLinks: NavLink[] = [
-    { label: 'الرئيسية', href: '#home' },
-    { label: 'من أنا', href: '#about' },
-    { label: 'الخدمات', href: '#services' },
-    { label: 'دراسة الجدوى', href: '/feasibility-request', isPage: true },
-    { label: 'المحتوى', href: '#content' },
-    { label: 'تواصل معي', href: '#contact' },
+    { label: t.nav.home, href: '#home' },
+    { label: t.nav.about, href: '#about' },
+    { label: t.nav.services, href: '#services' },
+    { label: t.nav.feasibility, href: '/feasibility-request', isPage: true },
+    { label: t.nav.content, href: '#content' },
+    { label: t.nav.contact, href: '#contact' },
   ];
 
   // إضافة رابط الحسابات إذا كان المستخدم لديه صلاحية
@@ -97,6 +101,7 @@ const Navbar: React.FC = () => {
     <>
       {/* Desktop Navbar */}
       <header
+        dir="ltr"
         className={`hidden xl:block fixed z-50 transition-all duration-500 top-3 left-[10%] right-[10%] rounded-2xl ${
           isScrolled
             ? 'bg-[#fdf6ee]/88 backdrop-blur-md shadow-[0_0_25px_rgba(180,130,80,0.30)]'
@@ -106,7 +111,7 @@ const Navbar: React.FC = () => {
         <div className="mx-auto px-3 md:px-4">
           <nav className="flex items-center justify-center h-14 md:h-16 lg:h-14 relative">
             {/* Logo - positioned absolutely on the right */}
-            <Link href="/" className="absolute right-0 flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <Link href="/" className="absolute end-0 flex items-center gap-2 hover:opacity-80 transition-opacity">
               <span className="text-lg font-bold text-secondary font-bristone hidden sm:block">
                 MOFTAHAK
               </span>
@@ -134,7 +139,7 @@ const Navbar: React.FC = () => {
                   }`}
                 >
                   {link.label}
-                  <span className="absolute top-[calc(100%+4px)] right-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute top-[calc(100%+4px)] end-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
                 </button>
               ))}
               {hasAccountingAccess && (
@@ -143,17 +148,24 @@ const Navbar: React.FC = () => {
                   className="font-semibold text-base transition-colors duration-300 relative group text-secondary hover:text-primary flex items-center gap-1.5"
                 >
                   <Calculator size={16} />
-                  الحسابات
-                  <span className="absolute top-[calc(100%+4px)] right-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
+                  {t.nav.accounting}
+                  <span className="absolute top-[calc(100%+4px)] end-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
                 </Link>
               )}
             </div>
 
             {/* Desktop Actions - positioned absolutely on the left */}
-            <div className="hidden xl:flex items-center gap-4 absolute left-0">
+            <div className="hidden xl:flex items-center gap-4 absolute start-0">
+              <button
+                onClick={toggleLanguage}
+                className="px-2.5 py-1 text-sm font-bold text-secondary hover:text-primary transition-colors duration-300 border border-secondary/20 rounded-lg hover:border-primary/40"
+                aria-label="Switch language"
+              >
+                {language === 'ar' ? 'EN' : 'AR'}
+              </button>
               <button
                 className="p-2 text-secondary hover:text-primary transition-colors duration-300"
-                aria-label="السلة"
+                aria-label={t.nav.cart}
               >
                 <ShoppingCart size={22} />
               </button>
@@ -163,7 +175,7 @@ const Navbar: React.FC = () => {
                 <button
                   onClick={() => setIsAuthModalOpen(true)}
                   className="p-2 text-secondary hover:text-primary transition-colors duration-300"
-                  aria-label="تسجيل الدخول"
+                  aria-label={t.nav.login}
                 >
                   <User size={22} />
                 </button>
@@ -175,7 +187,7 @@ const Navbar: React.FC = () => {
                 onClick={() => scrollToSection('#contact')}
                 className="shadow-none"
               >
-                تواصل معي
+                {t.nav.contactMe}
               </Button>
             </div>
           </nav>
@@ -217,8 +229,15 @@ const Navbar: React.FC = () => {
             {/* Mobile Actions */}
             <div className="flex items-center gap-2 z-10">
               <button
+                onClick={(e) => { e.stopPropagation(); toggleLanguage(); }}
+                className="px-2 py-1 text-xs font-bold text-secondary hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-secondary/20"
+                aria-label="Switch language"
+              >
+                {language === 'ar' ? 'EN' : 'AR'}
+              </button>
+              <button
                 className="p-2 text-secondary hover:text-primary transition-colors rounded-lg hover:bg-primary/10"
-                aria-label="السلة"
+                aria-label={t.nav.cart}
                 onClick={(e) => e.stopPropagation()}
               >
                 <ShoppingCart size={22} />
@@ -235,7 +254,7 @@ const Navbar: React.FC = () => {
                     setIsAuthModalOpen(true);
                   }}
                   className="p-2 text-secondary hover:text-primary transition-colors rounded-lg hover:bg-primary/10"
-                  aria-label="تسجيل الدخول"
+                  aria-label={t.nav.login}
                 >
                   <User size={22} />
                 </button>
@@ -247,7 +266,7 @@ const Navbar: React.FC = () => {
                   e.stopPropagation();
                   setIsMobileMenuOpen(!isMobileMenuOpen);
                 }}
-                aria-label="القائمة"
+                aria-label={t.nav.menu}
               >
                 {isMobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
               </button>
@@ -277,7 +296,7 @@ const Navbar: React.FC = () => {
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="w-full text-right font-semibold py-3 px-4 transition-all duration-200 text-secondary hover:text-primary hover:bg-primary/5 rounded-lg flex items-center justify-end gap-2"
                   >
-                    الحسابات
+                    {t.nav.accounting}
                     <Calculator size={18} />
                   </Link>
                 )}
@@ -290,7 +309,7 @@ const Navbar: React.FC = () => {
                     onClick={() => scrollToSection('#contact')}
                     className="w-full justify-center"
                   >
-                    تواصل معي
+                    {t.nav.contactMe}
                   </Button>
                 </div>
               </div>

@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, CalendarCheck, Loader2, Calendar, Phone, User, CreditCard, Clock, FileText, Building2 } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
 import NumberInput from '@/components/accounting/shared/NumberInput';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Apartment {
   id: string;
@@ -38,20 +40,13 @@ interface BookingFormProps {
   blockPastDates?: boolean;
 }
 
-const SOURCE_OPTIONS = [
-  { value: 'AIRBNB', label: 'Airbnb', color: '#FF5A5F' },
-  { value: 'BOOKING_COM', label: 'Booking.com', color: '#003B95' },
-  { value: 'EXTERNAL', label: 'خارجي', color: '#10302b' },
-  { value: 'DIRECT', label: 'مباشر', color: '#edbf8c' },
-  { value: 'OTHER', label: 'أخرى', color: '#6b7280' },
-];
-
-const STATUS_OPTIONS = [
-  { value: 'CONFIRMED', label: 'مؤكد' },
-  { value: 'CHECKED_IN', label: 'دخل' },
-  { value: 'CHECKED_OUT', label: 'خرج' },
-  { value: 'CANCELLED', label: 'ملغي' },
-];
+const SOURCE_COLORS: Record<string, string> = {
+  AIRBNB: '#FF5A5F',
+  BOOKING_COM: '#003B95',
+  EXTERNAL: '#10302b',
+  DIRECT: '#edbf8c',
+  OTHER: '#6b7280',
+};
 
 const calcNights = (checkIn: string, checkOut: string): number => {
   if (!checkIn || !checkOut) return 0;
@@ -68,7 +63,25 @@ const BookingForm: React.FC<BookingFormProps> = ({
   hideFinancials = false,
   blockPastDates = false,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
   const isEdit = !!initialData?.id;
+
+  const SOURCE_OPTIONS = useMemo(() => [
+    { value: 'AIRBNB', label: 'Airbnb', color: SOURCE_COLORS.AIRBNB },
+    { value: 'BOOKING_COM', label: 'Booking.com', color: SOURCE_COLORS.BOOKING_COM },
+    { value: 'EXTERNAL', label: t.accounting.bookingSources.EXTERNAL, color: SOURCE_COLORS.EXTERNAL },
+    { value: 'DIRECT', label: t.accounting.bookingSources.DIRECT, color: SOURCE_COLORS.DIRECT },
+    { value: 'OTHER', label: t.accounting.bookingSources.OTHER, color: SOURCE_COLORS.OTHER },
+  ], [t]);
+
+  const STATUS_OPTIONS = useMemo(() => [
+    { value: 'CONFIRMED', label: t.accounting.bookingStatuses.CONFIRMED },
+    { value: 'CHECKED_IN', label: t.accounting.bookingStatuses.CHECKED_IN },
+    { value: 'CHECKED_OUT', label: t.accounting.bookingStatuses.CHECKED_OUT },
+    { value: 'CANCELLED', label: t.accounting.bookingStatuses.CANCELLED },
+  ], [t]);
 
   const getToday = () => {
     const d = new Date();
@@ -141,12 +154,12 @@ const BookingForm: React.FC<BookingFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.apartmentId) { setError('يجب اختيار الشقة'); return; }
-    if (!formData.clientName.trim()) { setError('اسم العميل مطلوب'); return; }
-    if (!formData.checkIn) { setError('تاريخ الدخول مطلوب'); return; }
-    if (!formData.checkOut) { setError('تاريخ الخروج مطلوب'); return; }
-    if (computedNights < 1) { setError('تاريخ الخروج يجب أن يكون بعد تاريخ الدخول'); return; }
-    if (!hideFinancials && formData.amount <= 0) { setError('القيمة المالية يجب أن تكون أكبر من 0'); return; }
+    if (!formData.apartmentId) { setError(t.accounting.bookingForm.apartmentRequired); return; }
+    if (!formData.clientName.trim()) { setError(t.accounting.bookingForm.clientNameRequired); return; }
+    if (!formData.checkIn) { setError(t.accounting.bookingForm.checkInRequired); return; }
+    if (!formData.checkOut) { setError(t.accounting.bookingForm.checkOutRequired); return; }
+    if (computedNights < 1) { setError(t.accounting.bookingForm.checkOutAfterCheckIn); return; }
+    if (!hideFinancials && formData.amount <= 0) { setError(t.accounting.bookingForm.amountMustBePositive); return; }
 
     try {
       setIsSubmitting(true);
@@ -158,7 +171,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
       });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      setError(err instanceof Error ? err.message : t.accounting.errors.unexpected);
     } finally {
       setIsSubmitting(false);
     }
@@ -168,7 +181,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
   const grouped = useMemo(() => {
     const map = new Map<string, Apartment[]>();
     for (const apt of apartments) {
-      const key = apt.project?.name || 'بدون مشروع';
+      const key = apt.project?.name || t.accounting.common.noProject;
       if (!map.has(key)) map.set(key, []);
       map.get(key)!.push(apt);
     }
@@ -208,7 +221,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                   <CalendarCheck size={16} className="text-primary" />
                 </div>
                 <h2 className="text-lg font-bold text-secondary font-dubai">
-                  {isEdit ? 'تعديل الحجز' : 'إضافة حجز جديد'}
+                  {isEdit ? t.accounting.bookingForm.editTitle : t.accounting.bookingForm.addTitle}
                 </h2>
               </div>
               <button
@@ -225,15 +238,15 @@ const BookingForm: React.FC<BookingFormProps> = ({
               <div>
                 <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                   <Building2 size={14} className="text-secondary/50" />
-                  الشقة <span className="text-red-500">*</span>
+                  {t.accounting.bookingForm.apartment} <span className="text-red-500">*</span>
                 </label>
                 <CustomSelect
                   value={formData.apartmentId}
                   onChange={(v) => update('apartmentId', v)}
                   className="w-full"
-                  placeholder="اختر الشقة"
+                  placeholder={t.accounting.bookingForm.selectApartment}
                   required
-                  emptyMessage="لا يوجد شقق حتى الآن"
+                  emptyMessage={t.accounting.bookingForm.noApartments}
                   options={Array.from(grouped.entries()).map(([project, apts]) => ({
                     label: project,
                     options: apts.map(a => ({ value: a.id, label: a.name })),
@@ -246,13 +259,13 @@ const BookingForm: React.FC<BookingFormProps> = ({
                 <div>
                   <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                     <User size={14} className="text-secondary/50" />
-                    اسم العميل <span className="text-red-500">*</span>
+                    {t.accounting.bookingForm.clientName} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={formData.clientName}
                     onChange={(e) => update('clientName', e.target.value)}
-                    placeholder="اسم الضيف"
+                    placeholder={t.accounting.bookingForm.guestName}
                     className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
                     required
                   />
@@ -260,7 +273,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                 <div>
                   <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                     <Phone size={14} className="text-secondary/50" />
-                    رقم التواصل
+                    {t.accounting.bookingForm.contactNumber}
                   </label>
                   <input
                     type="text"
@@ -277,7 +290,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
               <div>
                 <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                   <CreditCard size={14} className="text-secondary/50" />
-                  مصدر الحجز <span className="text-red-500">*</span>
+                  {t.accounting.bookingForm.bookingSource} <span className="text-red-500">*</span>
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {SOURCE_OPTIONS.map(src => (
@@ -307,7 +320,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                 <div>
                   <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                     <Calendar size={14} className="text-[#8a9a7a]" />
-                    تاريخ الدخول <span className="text-red-500">*</span>
+                    {t.accounting.bookingForm.checkInDate} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
@@ -321,7 +334,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                 <div>
                   <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                     <Calendar size={14} className="text-[#c09080]" />
-                    تاريخ الخروج <span className="text-red-500">*</span>
+                    {t.accounting.bookingForm.checkOutDate} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
@@ -338,13 +351,13 @@ const BookingForm: React.FC<BookingFormProps> = ({
               <div className={`grid gap-3 ${hideFinancials ? 'grid-cols-1' : 'grid-cols-2'}`}>
                 <div>
                   <label className="text-sm font-bold text-secondary font-dubai mb-1.5 block">
-                    عدد الليالي
+                    {t.accounting.bookingForm.nightsCount}
                   </label>
                   <div className="p-3 rounded-xl border-2 border-primary/10 bg-primary/5 text-secondary font-dubai text-sm font-bold text-center">
                     {computedNights > 0 ? (
-                      <span className="text-primary">{computedNights} ليلة</span>
+                      <span className="text-primary">{computedNights} {t.accounting.common.night}</span>
                     ) : (
-                      <span className="text-secondary/30">محسوب تلقائياً</span>
+                      <span className="text-secondary/30">{t.accounting.common.autoCalculated}</span>
                     )}
                   </div>
                 </div>
@@ -352,7 +365,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                 <div>
                   <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                     <CreditCard size={14} className="text-[#8a9a7a]" />
-                    القيمة المالية <span className="text-red-500">*</span>
+                    {t.accounting.bookingForm.financialValue} <span className="text-red-500">*</span>
                   </label>
                   <NumberInput
                     value={formData.amount || ''}
@@ -371,7 +384,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                 <div>
                   <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                     <Clock size={14} className="text-secondary/50" />
-                    وقت الوصول
+                    {t.accounting.bookingForm.arrivalTime}
                   </label>
                   <input
                     type="time"
@@ -383,7 +396,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                 {isEdit && (
                   <div>
                     <label className="text-sm font-bold text-secondary font-dubai mb-1.5 block">
-                      الحالة
+                      {t.accounting.bookingForm.status}
                     </label>
                     <CustomSelect
                       value={formData.status || 'CONFIRMED'}
@@ -399,12 +412,12 @@ const BookingForm: React.FC<BookingFormProps> = ({
               <div>
                 <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                   <FileText size={14} className="text-secondary/50" />
-                  ملاحظات
+                  {t.accounting.bookingForm.notes}
                 </label>
                 <textarea
                   value={formData.notes || ''}
                   onChange={(e) => update('notes', e.target.value)}
-                  placeholder="ملاحظات إضافية..."
+                  placeholder={t.accounting.bookingForm.notesPlaceholder}
                   rows={2}
                   className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30 resize-none"
                 />
@@ -424,7 +437,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                   onClick={onClose}
                   className="flex-1 p-3 rounded-xl border-2 border-primary/20 text-secondary font-dubai text-sm font-bold hover:bg-accent/30 transition-colors"
                 >
-                  إلغاء
+                  {t.accounting.common.cancel}
                 </button>
                 <button
                   type="submit"
@@ -434,10 +447,10 @@ const BookingForm: React.FC<BookingFormProps> = ({
                   {isSubmitting ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
-                      جاري الحفظ...
+                      {t.accounting.common.saving}
                     </>
                   ) : (
-                    isEdit ? 'حفظ التعديلات' : 'حفظ الحجز'
+                    isEdit ? t.accounting.bookingForm.saveEdit : t.accounting.bookingForm.saveBooking
                   )}
                 </button>
               </div>

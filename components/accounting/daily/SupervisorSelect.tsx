@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { User, ChevronDown, Check, Loader2 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface SupervisorSelectProps {
   bookingId: string;
@@ -39,6 +40,7 @@ const SupervisorSelect: React.FC<SupervisorSelectProps> = ({
   const btnRef = useRef<HTMLButtonElement>(null);
   const [mounted, setMounted] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const t = useTranslation();
 
   const isAnimIn = animState === 'entering';
   const isAnimOut = animState === 'leaving';
@@ -156,7 +158,7 @@ const SupervisorSelect: React.FC<SupervisorSelectProps> = ({
             <User className="w-3.5 h-3.5" />
           )}
           <span className="truncate max-w-[80px]">
-            {saving ? 'جاري الحفظ...' : current || 'اختر مشرف'}
+            {saving ? t.accounting.common.saving : current || t.accounting.daily.selectSupervisor}
           </span>
         </span>
         <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
@@ -211,7 +213,7 @@ const SupervisorSelect: React.FC<SupervisorSelectProps> = ({
                 type="text"
                 value={customInput}
                 onChange={(e) => setCustomInput(e.target.value)}
-                placeholder="اسم مخصص..."
+                placeholder={t.accounting.daily.customName}
                 className="w-full px-2.5 py-1.5 text-sm border-2 border-primary/20 rounded-xl
                   focus:outline-none focus:border-primary
                   placeholder:text-secondary/30 text-right"

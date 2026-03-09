@@ -10,8 +10,6 @@ interface StatsCardProps {
   label: string;
   value: string;
   subtitle?: string;
-  iconBgColor?: string;
-  iconColor?: string;
   index?: number;
   isLoading?: boolean;
 }
@@ -21,8 +19,6 @@ const AccountingStatsCard: React.FC<StatsCardProps> = ({
   label,
   value,
   subtitle,
-  iconBgColor = 'bg-primary/10',
-  iconColor = 'text-primary',
   index = 0,
   isLoading = false,
 }) => {
@@ -116,11 +112,11 @@ const AccountingStatsCard: React.FC<StatsCardProps> = ({
         {/* Header: Icon + Label */}
         <div className="flex items-center gap-3 mb-3">
           <motion.div
-            className={`p-2.5 rounded-xl ${iconBgColor} shadow-md border-2 border-primary/30`}
+            className="p-2.5 rounded-xl bg-primary/10 shadow-md border-2 border-primary/30"
             style={{ x: iconX, y: iconY }}
             whileHover={{ scale: 1.1 }}
           >
-            <Icon size={22} className={iconColor} strokeWidth={2} />
+            <Icon size={22} className="text-primary" strokeWidth={2} />
           </motion.div>
           <p className="text-secondary/60 font-dubai text-xs sm:text-sm leading-tight">
             {label}

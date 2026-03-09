@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Button from './ui/Button';
 import { scrollIndicator } from '@/lib/animations/variants';
 import { useCounter } from '@/hooks/useCounter';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface HeroSectionProps {
   title?: string;
@@ -17,14 +18,9 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
   title = 'مُفتاحك للاستثمار العقاري',
   subtitle = 'طور مشروعك ومهاراتك في العقارات مع عبد الله الخضر',
 }) => {
+  const t = useTranslation();
   // useMemo for sentences array
-  const sentences = useMemo(() => [
-    'طور مشروعك ومهاراتك في العقارات مع عبد الله الخضر',
-    'حوّل وحدتك إلى استثمار فندقي ناجح مع عبد الله الخضر',
-    'ارتقِ بالإيجارات قصيرة الأجل بخبرة عبد الله الخضر',
-    'استثمر بذكاء في الشقق الفندقية مع عبد الله الخضر',
-    'ابْنِ نموذجًا عقاريًا مربحًا مع عبد الله الخضر',
-  ], []);
+  const sentences = useMemo(() => t.hero.sentences as unknown as string[], [t]);
   
   const [showFloatingButton, setShowFloatingButton] = useState(true);
   const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
@@ -163,8 +159,8 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <span className="block sm:inline">مُفتاحك</span>
-              <span className="block sm:inline"> للاستثمار العقاري</span>
+              <span className="block sm:inline">{t.hero.titlePart1}</span>
+              <span className="block sm:inline">{t.hero.titlePart2}</span>
             </motion.h1>
 
             {}
@@ -223,7 +219,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                   }}
                   className="w-full sm:w-auto"
                 >
-                  اكتشف الخدمات
+                  {t.hero.discoverServices}
                 </Button>
               </motion.div>
 
@@ -242,7 +238,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                   }}
                   className="w-full sm:w-auto backdrop-blur-md bg-white/10"
                 >
-                  تواصل معي
+                  {t.hero.contactMe}
                 </Button>
               </motion.div>
             </motion.div>
@@ -285,7 +281,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                       {nightsCount}
                     </div>
                     <div className="text-sm sm:text-lg text-accent font-semibold whitespace-nowrap">
-                      ليلة
+                      {t.hero.nights}
                     </div>
                   </div>
                 </div>
@@ -322,7 +318,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                       {clientsCount}
                     </div>
                     <div className="text-sm sm:text-lg text-accent font-semibold whitespace-nowrap">
-                      عميل راضي
+                      {t.hero.happyClients}
                     </div>
                   </div>
                 </div>
@@ -359,7 +355,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
                       {yearsCount}
                     </div>
                     <div className="text-sm sm:text-lg text-accent font-semibold whitespace-nowrap">
-                      سنين خبرة
+                      {t.hero.yearsExperience}
                     </div>
                   </div>
                 </div>
@@ -379,7 +375,7 @@ const HeroSectionComponent: React.FC<HeroSectionProps> = ({
           transformOrigin: 'center center'
         }}
         onClick={scrollToNext}
-        aria-label="انتقل إلى القسم التالي"
+        aria-label={t.hero.scrollNext}
         type="button"
         variants={scrollIndicator}
         initial="hidden"

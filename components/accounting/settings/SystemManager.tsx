@@ -16,6 +16,8 @@ import {
   ExternalLink,
   History,
 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type ActionState = 'idle' | 'loading' | 'success' | 'error';
 type ModalStep = 'none' | 'ask-backup' | 'name-backup' | 'confirm-reset' | 'open-backup' | 'delete-backup';
@@ -29,6 +31,9 @@ interface BackupEntry {
 }
 
 export default function SystemManager() {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
   const [resetState, setResetState] = useState<ActionState>('idle');
   const [backupState, setBackupState] = useState<ActionState>('idle');
   const [message, setMessage] = useState('');
@@ -88,7 +93,7 @@ export default function SystemManager() {
         body: JSON.stringify({ name: backupName.trim() }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'فشل في إنشاء النسخة الاحتياطية');
+      if (!res.ok) throw new Error(data.error || t.accounting.errors.backupCreateFailed);
 
       setBackupState('idle');
       setBackupName('');
@@ -117,10 +122,10 @@ export default function SystemManager() {
         body: JSON.stringify({ confirmText: 'تأكيد التصفية', keepUsers: true }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'فشل في التصفية');
+      if (!res.ok) throw new Error(data.error || t.accounting.errors.resetFailed);
 
       setResetState('success');
-      showMessage('تمت تصفية النظام بالكامل بنجاح', 'success');
+      showMessage(t.accounting.success.systemReset, 'success');
       setTimeout(() => setResetState('idle'), 5000);
     } catch (e: any) {
       setResetState('error');
@@ -160,9 +165,9 @@ export default function SystemManager() {
         method: 'DELETE',
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'فشل في الحذف');
+      if (!res.ok) throw new Error(data.error || t.accounting.errors.deleteError);
 
-      showMessage(`تم حذف "${selectedBackup.name}"`, 'success');
+      showMessage(t.accounting.success.deleted(selectedBackup.name), 'success');
       await fetchBackups();
     } catch (e: any) {
       showMessage(e.message, 'error');
@@ -180,10 +185,10 @@ export default function SystemManager() {
       {/* Header */}
       <div className="flex items-center gap-2 text-secondary">
         <Database className="w-5 h-5 text-primary" />
-        <h2 className="text-lg font-bold font-dubai">إدارة النظام</h2>
+        <h2 className="text-lg font-bold font-dubai">{t.accounting.settings.system.title}</h2>
       </div>
       <p className="text-sm text-secondary/60 font-dubai -mt-3">
-        إعادة تعيين النظام وإدارة النسخ الاحتياطية
+        {t.accounting.settings.system.subtitle}
       </p>
 
       {/* Message Banner */}
@@ -219,13 +224,12 @@ export default function SystemManager() {
             <RotateCcw className="w-5 h-5 text-rose-400" />
           </div>
           <div>
-            <h3 className="font-bold text-secondary font-dubai">إعادة تعيين النظام</h3>
-            <p className="text-xs text-secondary/50 font-dubai">حذف كل بيانات المحاسبة والبدء من جديد</p>
+            <h3 className="font-bold text-secondary font-dubai">{t.accounting.settings.system.resetSystem}</h3>
+            <p className="text-xs text-secondary/50 font-dubai">{t.accounting.settings.system.resetDescription}</p>
           </div>
         </div>
         <p className="text-xs text-secondary/60 font-dubai leading-relaxed">
-          سيتم حذف جميع المشاريع، الشقق، الحجوزات، المصروفات، المستثمرين، وسجل المراجعة.
-          سيُعرض عليك حفظ نسخة احتياطية قبل التصفية.
+          {t.accounting.settings.system.resetWarning}
         </p>
         <button
           onClick={handleResetClick}
@@ -234,9 +238,9 @@ export default function SystemManager() {
             bg-rose-100 text-rose-700 border-2 border-rose-200 hover:bg-rose-200/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {resetState === 'loading' ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> جاري التصفية...</>
+            <><Loader2 className="w-4 h-4 animate-spin" /> {t.accounting.settings.system.resetting}</>
           ) : (
-            <><RotateCcw className="w-4 h-4" /> إعادة تعيين النظام</>
+            <><RotateCcw className="w-4 h-4" /> {t.accounting.settings.system.resetButton}</>
           )}
         </button>
       </motion.div>
@@ -254,9 +258,9 @@ export default function SystemManager() {
               <History className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-bold text-secondary font-dubai">سجل النسخ الاحتياطية</h3>
+              <h3 className="font-bold text-secondary font-dubai">{t.accounting.settings.system.backupHistory}</h3>
               <p className="text-xs text-secondary/50 font-dubai">
-                {backups.length > 0 ? `${backups.length} نسخة محفوظة` : 'لا توجد نسخ احتياطية'}
+                {backups.length > 0 ? `${backups.length} ${t.accounting.settings.system.savedBackup}` : t.accounting.settings.system.noBackups}
               </p>
             </div>
           </div>
@@ -269,7 +273,7 @@ export default function SystemManager() {
         ) : backups.length === 0 ? (
           <div className="text-center py-8">
             <Archive className="w-10 h-10 text-secondary/20 mx-auto mb-2" />
-            <p className="text-sm text-secondary/40 font-dubai">لا توجد نسخ احتياطية محفوظة</p>
+            <p className="text-sm text-secondary/40 font-dubai">{t.accounting.settings.system.noBackupsSaved}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -293,7 +297,7 @@ export default function SystemManager() {
                     <div className="flex items-center gap-2 text-[11px] text-secondary/40 font-dubai">
                       <span className="flex items-center gap-1">
                         <Clock className="w-2.5 h-2.5" />
-                        {new Date(backup.createdAt).toLocaleDateString('ar-EG', {
+                        {new Date(backup.createdAt).toLocaleDateString(locale, {
                           year: 'numeric',
                           month: 'short',
                           day: 'numeric',
@@ -303,8 +307,8 @@ export default function SystemManager() {
                       </span>
                       {backup.stats && (
                         <span className="text-secondary/30">
-                          • {backup.stats.bookings || 0} حجز
-                          • {backup.stats.expenses || 0} مصروف
+                          • {backup.stats.bookings || 0} {t.accounting.common.booking}
+                          • {backup.stats.expenses || 0} {t.accounting.common.expense}
                         </span>
                       )}
                     </div>
@@ -314,14 +318,14 @@ export default function SystemManager() {
                   <button
                     onClick={(e) => { e.stopPropagation(); handleOpenBackup(backup); }}
                     className="p-1.5 hover:bg-white rounded-lg transition text-secondary/40 hover:text-primary"
-                    title="فتح"
+                    title={t.accounting.common.open}
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); handleDeleteBackup(backup); }}
                     className="p-1.5 hover:bg-rose-50 rounded-lg transition text-secondary/40 hover:text-rose-400"
-                    title="حذف"
+                    title={t.accounting.common.delete}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -337,15 +341,15 @@ export default function SystemManager() {
           ═══════════════════════════════════════ */}
       <AnimatePresence>
         {modalStep === 'ask-backup' && (
-          <ModalOverlay onClose={() => setModalStep('none')}>
+          <ModalOverlay onClose={() => setModalStep('none')} dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200">
                 <AlertTriangle className="w-5 h-5 text-amber-600" />
               </div>
-              <h3 className="font-bold text-lg text-secondary font-dubai">نسخة احتياطية</h3>
+              <h3 className="font-bold text-lg text-secondary font-dubai">{t.accounting.settings.system.backupPromptTitle}</h3>
             </div>
             <p className="text-sm text-secondary/70 font-dubai mb-5">
-              أنت على وشك تصفية النظام بالكامل. هل تريد إنشاء نسخة احتياطية قبل المتابعة؟
+              {t.accounting.settings.system.backupPromptMessage}
             </p>
             <div className="flex gap-2">
               <button
@@ -355,13 +359,13 @@ export default function SystemManager() {
                 }}
                 className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary text-white hover:bg-secondary/90 transition-colors"
               >
-                نعم، أنشئ نسخة
+                {t.accounting.settings.system.yesCreateBackup}
               </button>
               <button
                 onClick={() => setModalStep('confirm-reset')}
                 className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-rose-50 text-rose-600 border border-rose-200/60 hover:bg-rose-100 transition-colors"
               >
-                لا، تابع التصفية
+                {t.accounting.settings.system.noContinue}
               </button>
             </div>
           </ModalOverlay>
@@ -373,25 +377,25 @@ export default function SystemManager() {
           ═══════════════════════════════════════ */}
       <AnimatePresence>
         {modalStep === 'name-backup' && (
-          <ModalOverlay onClose={() => setModalStep('none')}>
+          <ModalOverlay onClose={() => setModalStep('none')} dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/30">
                 <Archive className="w-5 h-5 text-primary" />
               </div>
-              <h3 className="font-bold text-lg text-secondary font-dubai">تسمية النسخة الاحتياطية</h3>
+              <h3 className="font-bold text-lg text-secondary font-dubai">{t.accounting.settings.system.backupNameTitle}</h3>
             </div>
             <p className="text-sm text-secondary/60 font-dubai mb-3">
-              أدخل اسماً مميزاً للنسخة الاحتياطية حتى تتمكن من التعرف عليها لاحقاً.
+              {t.accounting.settings.system.backupNameDesc}
             </p>
             <input
               type="text"
               value={backupName}
               onChange={(e) => setBackupName(e.target.value)}
-              placeholder="مثال: نسخة قبل بداية 2026"
+              placeholder={t.accounting.settings.system.backupNameExample}
               autoFocus
               className="w-full px-4 py-2.5 rounded-xl border-2 border-primary/20 text-sm text-secondary font-dubai
                 focus:border-primary focus:outline-none transition-colors"
-              dir="rtl"
+              dir={language === 'ar' ? 'rtl' : 'ltr'}
               onKeyDown={(e) => e.key === 'Enter' && backupName.trim() && handleCreateBackup()}
             />
             <div className="flex gap-2 mt-4">
@@ -402,16 +406,16 @@ export default function SystemManager() {
                   hover:bg-secondary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
               >
                 {backupState === 'loading' ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> جاري الحفظ...</>
+                  <><Loader2 className="w-4 h-4 animate-spin" /> {t.accounting.settings.system.savingBackup}</>
                 ) : (
-                  'حفظ ومتابعة'
+                  t.accounting.settings.system.saveAndContinue
                 )}
               </button>
               <button
                 onClick={() => setModalStep('none')}
                 className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary/10 text-secondary hover:bg-secondary/20 transition-colors"
               >
-                إلغاء
+                {t.accounting.common.cancel}
               </button>
             </div>
           </ModalOverlay>
@@ -423,31 +427,31 @@ export default function SystemManager() {
           ═══════════════════════════════════════ */}
       <AnimatePresence>
         {modalStep === 'confirm-reset' && (
-          <ModalOverlay onClose={() => setModalStep('none')}>
+          <ModalOverlay onClose={() => setModalStep('none')} dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2.5 rounded-xl bg-rose-50/80 border border-rose-200/60">
                 <Shield className="w-5 h-5 text-rose-400" />
               </div>
-              <h3 className="font-bold text-lg text-secondary font-dubai">تأكيد التصفية</h3>
+              <h3 className="font-bold text-lg text-secondary font-dubai">{t.accounting.settings.system.confirmResetTitle}</h3>
             </div>
             <p className="text-sm text-secondary/70 font-dubai mb-2">
-              ⛔ سيتم حذف <span className="text-rose-600 font-bold">جميع</span> بيانات المحاسبة نهائياً.
+              ⛔ {t.accounting.settings.system.confirmResetMessage}
             </p>
             <p className="text-xs text-rose-600 font-dubai bg-rose-50/80 border border-rose-200/60 rounded-lg p-3 mb-4">
-              تشمل: المشاريع، الشقق، الحجوزات، المصروفات، المستثمرين، المسحوبات، وسجل المراجعة.
+              {t.accounting.settings.system.confirmResetIncludes}
             </p>
             <div className="flex gap-2">
               <button
                 onClick={handleReset}
                 className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-rose-100 text-rose-700 border-2 border-rose-200 hover:bg-rose-200/80 transition-colors"
               >
-                نعم، صفّ النظام
+                {t.accounting.settings.system.yesReset}
               </button>
               <button
                 onClick={() => setModalStep('none')}
                 className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary/10 text-secondary hover:bg-secondary/20 transition-colors"
               >
-                إلغاء
+                {t.accounting.common.cancel}
               </button>
             </div>
           </ModalOverlay>
@@ -459,18 +463,18 @@ export default function SystemManager() {
           ═══════════════════════════════════════ */}
       <AnimatePresence>
         {modalStep === 'open-backup' && selectedBackup && (
-          <ModalOverlay onClose={() => { setModalStep('none'); setSelectedBackup(null); }}>
+          <ModalOverlay onClose={() => { setModalStep('none'); setSelectedBackup(null); }} dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/30">
                 <Database className="w-5 h-5 text-primary" />
               </div>
-              <h3 className="font-bold text-lg text-secondary font-dubai">فتح النسخة الاحتياطية</h3>
+              <h3 className="font-bold text-lg text-secondary font-dubai">{t.accounting.settings.system.openBackupTitle}</h3>
             </div>
             <div className="bg-primary/5 rounded-xl p-4 mb-4 space-y-2">
               <p className="text-sm font-bold text-secondary font-dubai">{selectedBackup.name}</p>
               <p className="text-xs text-secondary/50 font-dubai flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                {new Date(selectedBackup.createdAt).toLocaleDateString('ar-EG', {
+                {new Date(selectedBackup.createdAt).toLocaleDateString(locale, {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
@@ -482,14 +486,14 @@ export default function SystemManager() {
                 <div className="flex flex-wrap gap-2 pt-1">
                   {Object.entries(selectedBackup.stats).filter(([, v]) => (v as number) > 0).map(([k, v]) => (
                     <span key={k} className="text-[10px] bg-white rounded-md px-2 py-0.5 text-secondary/60 font-dubai border border-primary/15">
-                      {translateKey(k)}: {v as number}
+                      {t.accounting.settings.system.statsLabel(k)}: {v as number}
                     </span>
                   ))}
                 </div>
               )}
             </div>
             <p className="text-xs text-secondary/50 font-dubai mb-4">
-              سيتم فتح النسخة في تبويب جديد للقراءة فقط — لن تتأثر البيانات الحالية.
+              {t.accounting.settings.system.openBackupReadOnly}
             </p>
             <div className="flex gap-2">
               <button
@@ -497,13 +501,13 @@ export default function SystemManager() {
                 className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary text-white hover:bg-secondary/90 transition-colors flex items-center justify-center gap-2"
               >
                 <ExternalLink className="w-4 h-4" />
-                فتح في تبويب جديد
+                {t.accounting.settings.system.openInNewTab}
               </button>
               <button
                 onClick={() => { setModalStep('none'); setSelectedBackup(null); }}
                 className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary/10 text-secondary hover:bg-secondary/20 transition-colors"
               >
-                إلغاء
+                {t.accounting.common.cancel}
               </button>
             </div>
           </ModalOverlay>
@@ -515,29 +519,29 @@ export default function SystemManager() {
           ═══════════════════════════════════════ */}
       <AnimatePresence>
         {modalStep === 'delete-backup' && selectedBackup && (
-          <ModalOverlay onClose={() => { setModalStep('none'); setSelectedBackup(null); }}>
+          <ModalOverlay onClose={() => { setModalStep('none'); setSelectedBackup(null); }} dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2.5 rounded-xl bg-rose-50/80 border border-rose-200/60">
                 <Trash2 className="w-5 h-5 text-rose-400" />
               </div>
-              <h3 className="font-bold text-lg text-secondary font-dubai">حذف النسخة الاحتياطية</h3>
+              <h3 className="font-bold text-lg text-secondary font-dubai">{t.accounting.settings.system.deleteBackupTitle}</h3>
             </div>
             <p className="text-sm text-secondary/70 font-dubai mb-4">
-              هل أنت متأكد من حذف النسخة الاحتياطية <span className="font-bold text-secondary">&quot;{selectedBackup.name}&quot;</span>؟
-              لا يمكن التراجع عن هذا الإجراء.
+              {t.accounting.settings.system.confirmDeleteBackup(selectedBackup.name)}
+              {' '}{t.accounting.settings.system.cannotUndo}
             </p>
             <div className="flex gap-2">
               <button
                 onClick={confirmDeleteBackup}
                 className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-rose-100 text-rose-700 border-2 border-rose-200 hover:bg-rose-200/80 transition-colors"
               >
-                نعم، احذف
+                {t.accounting.settings.system.yesDelete}
               </button>
               <button
                 onClick={() => { setModalStep('none'); setSelectedBackup(null); }}
                 className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-secondary/10 text-secondary hover:bg-secondary/20 transition-colors"
               >
-                إلغاء
+                {t.accounting.common.cancel}
               </button>
             </div>
           </ModalOverlay>
@@ -550,7 +554,7 @@ export default function SystemManager() {
 // ═══════════════════════════════════════
 // Modal Overlay Component
 // ═══════════════════════════════════════
-function ModalOverlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+function ModalOverlay({ children, onClose, dir }: { children: React.ReactNode; onClose: () => void; dir?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -565,7 +569,7 @@ function ModalOverlay({ children, onClose }: { children: React.ReactNode; onClos
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
         className="bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl p-6 w-full max-w-sm shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] border-2 border-[#e0cdb8] space-y-0"
-        dir="rtl"
+        dir={dir}
       >
         {children}
       </motion.div>
@@ -573,17 +577,3 @@ function ModalOverlay({ children, onClose }: { children: React.ReactNode; onClos
   );
 }
 
-function translateKey(key: string): string {
-  const map: Record<string, string> = {
-    users: 'المستخدمين',
-    projects: 'المشاريع',
-    apartments: 'الشقق',
-    bookings: 'الحجوزات',
-    expenses: 'المصروفات',
-    investors: 'المستثمرين',
-    withdrawals: 'المسحوبات',
-    snapshots: 'اللقطات',
-    auditLogs: 'سجل المراجعة',
-  };
-  return map[key] || key;
-}

@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Users, Loader2 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface InvestorRow {
   id: string;
@@ -24,18 +26,20 @@ interface InvestorsTableProps {
   isLoading?: boolean;
 }
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
-
-const formatPercentage = (pct: number) =>
-  `${(pct * 100).toFixed(1)}%`;
-
 const InvestorsTable: React.FC<InvestorsTableProps> = ({
   investors,
   profit,
   withdrawals = {},
   isLoading,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat(locale).format(amount) + ' ' + t.accounting.common.currency;
+
+  const formatPercentage = (pct: number) =>
+    `${(pct * 100).toFixed(1)}%`;
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -47,11 +51,11 @@ const InvestorsTable: React.FC<InvestorsTableProps> = ({
       <div className="flex items-center justify-between p-4 border-b border-primary/10 bg-accent/10">
         <div className="flex items-center gap-2">
           <Users size={18} className="text-secondary/60" />
-          <h3 className="text-base font-bold text-secondary font-dubai">جدول المستثمرين</h3>
+          <h3 className="text-base font-bold text-secondary font-dubai">{t.accounting.apartments.investorsTable}</h3>
         </div>
         {!isLoading && investors.length > 0 && (
           <span className="text-xs text-secondary/50 font-dubai">
-            إجمالي النسب: {formatPercentage(investors.reduce((s, inv) => s + inv.percentage, 0))}
+            {t.accounting.apartments.totalPercentages} {formatPercentage(investors.reduce((s, inv) => s + inv.percentage, 0))}
           </span>
         )}
       </div>
@@ -64,18 +68,18 @@ const InvestorsTable: React.FC<InvestorsTableProps> = ({
       ) : investors.length === 0 ? (
         <div className="text-center py-10">
           <Users size={36} className="text-secondary/35 mx-auto mb-2" />
-          <p className="text-secondary/55 font-dubai text-sm">لا يوجد مستثمرين لهذه الشقة</p>
+          <p className="text-secondary/55 font-dubai text-sm">{t.accounting.apartments.noInvestors}</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">الاسم</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">النسبة</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">الربح</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">المسحوبات</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">المتبقي</th>
+                <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.name}</th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.percentage}</th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.profitHeader}</th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">{t.accounting.apartments.withdrawals}</th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.remaining}</th>
               </tr>
             </thead>
             <tbody>

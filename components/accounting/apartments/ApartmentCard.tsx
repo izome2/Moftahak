@@ -4,6 +4,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Building2, CalendarCheck, TrendingUp, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ApartmentCardProps {
   apartment: {
@@ -26,9 +28,6 @@ interface ApartmentCardProps {
   hideRevenue?: boolean;
 }
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
-
 const ApartmentCard: React.FC<ApartmentCardProps> = ({
   apartment,
   summary,
@@ -36,6 +35,11 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
   isLoading = false,
   hideRevenue = false,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat(locale).format(amount) + ' ' + t.accounting.common.currency;
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -64,7 +68,7 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
                 )}
                 {apartment.floor && (
                   <span className="text-xs text-secondary/40 font-dubai">
-                    • الدور {apartment.floor}
+                    • {t.accounting.common.floor} {apartment.floor}
                   </span>
                 )}
                 {apartment.type && (
@@ -89,21 +93,21 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
           <div className={`grid gap-3 ${hideRevenue ? 'grid-cols-1' : 'grid-cols-3'}`}>
             {!hideRevenue && (
               <div className="bg-[#8a9a7a]/8 rounded-xl p-2.5 text-center">
-                <p className="text-[10px] text-[#8a9a7a]/70 font-dubai mb-0.5">الإيرادات</p>
+                <p className="text-[10px] text-[#8a9a7a]/70 font-dubai mb-0.5">{t.accounting.apartments.totalRevenue}</p>
                 <p className="text-sm font-bold text-[#8a9a7a] font-dubai">
                   {formatCurrency(summary.totalRevenue)}
                 </p>
               </div>
             )}
             <div className="bg-[#c09080]/8 rounded-xl p-2.5 text-center">
-              <p className="text-[10px] text-[#c09080]/70 font-dubai mb-0.5">المصروفات</p>
+              <p className="text-[10px] text-[#c09080]/70 font-dubai mb-0.5">{t.accounting.apartments.totalExpenses}</p>
               <p className="text-sm font-bold text-[#c09080] font-dubai">
                 {formatCurrency(summary.totalExpenses)}
               </p>
             </div>
             {!hideRevenue && (
               <div className={`${summary.profit >= 0 ? 'bg-primary/10' : 'bg-[#c09080]/8'} rounded-xl p-2.5 text-center`}>
-                <p className="text-[10px] text-secondary/50 font-dubai mb-0.5">الربح</p>
+                <p className="text-[10px] text-secondary/50 font-dubai mb-0.5">{t.accounting.apartments.netProfit}</p>
                 <p className={`text-sm font-bold font-dubai ${summary.profit >= 0 ? 'text-secondary' : 'text-[#c09080]'}`}>
                   {formatCurrency(summary.profit)}
                 </p>
@@ -117,13 +121,13 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
           <div className="flex items-center gap-1.5 text-secondary/50">
             <CalendarCheck size={13} />
             <span className="text-xs font-dubai">
-              {apartment._count?.bookings || 0} حجز
+              {apartment._count?.bookings || 0} {t.accounting.common.booking}
             </span>
           </div>
           <div className="flex items-center gap-1.5 text-secondary/50">
             <TrendingUp size={13} />
             <span className="text-xs font-dubai">
-              {apartment._count?.investors || 0} مستثمر
+              {apartment._count?.investors || 0} {t.accounting.common.investor}
             </span>
           </div>
         </div>

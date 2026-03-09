@@ -12,12 +12,14 @@ import Input from './ui/Input';
 import Button from './ui/Button';
 import { fadeInUp, staggerContainer } from '@/lib/animations/variants';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const CTASection: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useScrollAnimation(ref as React.RefObject<Element>, { threshold: 0.1, rootMargin: '0px 0px 200px 0px', once: true });
   const { data: session } = useSession();
+  const t = useTranslation();
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -67,18 +69,18 @@ const CTASection: React.FC = () => {
 
   const footerLinks = {
     quick: [
-      { label: 'الرئيسية', href: '#home' },
-      { label: 'من أنا', href: '#about' },
-      { label: 'الخدمات', href: '#services' },
-      { label: 'المحتوى', href: '#content' },
-      { label: 'تواصل معي', href: '#contact' },
+      { label: t.cta.quickLinkItems[0], href: '#home' },
+      { label: t.cta.quickLinkItems[1], href: '#about' },
+      { label: t.cta.quickLinkItems[2], href: '#services' },
+      { label: t.cta.quickLinkItems[3], href: '#content' },
+      { label: t.cta.quickLinkItems[4], href: '#contact' },
     ],
     services: [
-      { label: 'استشارات فردية', href: '#services' },
-      { label: 'برامج تدريبية', href: '#services' },
-      { label: 'إدارة كاملة', href: '#services' },
-      { label: 'محتوى تعليمي', href: '#content' },
-      { label: 'شراكات', href: '#contact' },
+      { label: t.cta.serviceItems[0], href: '#services' },
+      { label: t.cta.serviceItems[1], href: '#services' },
+      { label: t.cta.serviceItems[2], href: '#services' },
+      { label: t.cta.serviceItems[3], href: '#content' },
+      { label: t.cta.serviceItems[4], href: '#contact' },
     ],
   };
 
@@ -175,7 +177,7 @@ const CTASection: React.FC = () => {
               <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"></path>
             </svg>
             <h3 className="text-3xl md:text-3xl font-bold text-secondary">
-              تواصل معي
+              {t.cta.sectionTitle}
             </h3>
           </div>
           
@@ -195,7 +197,7 @@ const CTASection: React.FC = () => {
             >
               <motion.div variants={fadeInUp} className="mb-2">
                 <p className="text-secondary/60">
-                  املأ النموذج وسنتواصل معك قريباً
+                  {t.cta.formSubtitle}
                 </p>
               </motion.div>
 
@@ -208,7 +210,7 @@ const CTASection: React.FC = () => {
                   <Input
                     type="text"
                     name="firstName"
-                    placeholder="الاسم الأول"
+                    placeholder={t.cta.firstName}
                     value={formData.firstName}
                     onChange={handleInputChange}
                     leftIcon={<User size={20} />}
@@ -218,7 +220,7 @@ const CTASection: React.FC = () => {
                   <Input
                     type="text"
                     name="lastName"
-                    placeholder="الاسم الأخير"
+                    placeholder={t.cta.lastName}
                     value={formData.lastName}
                     onChange={handleInputChange}
                     leftIcon={<User size={20} />}
@@ -231,7 +233,7 @@ const CTASection: React.FC = () => {
                   <Input
                     type="tel"
                     name="phone"
-                    placeholder="رقم الهاتف"
+                    placeholder={t.cta.phone}
                     value={formData.phone}
                     onChange={handleInputChange}
                     rightIcon={<Phone size={20} />}
@@ -245,7 +247,7 @@ const CTASection: React.FC = () => {
                   <MessageSquare size={20} className="absolute right-3 top-3 text-secondary/40 z-10" />
                   <textarea
                     name="message"
-                    placeholder="رسالتك"
+                    placeholder={t.cta.message}
                     value={formData.message}
                     onChange={handleInputChange}
                     rows={4}
@@ -264,7 +266,7 @@ const CTASection: React.FC = () => {
                       className="flex items-center gap-2 p-3 bg-green-100 border border-green-300 rounded-xl text-green-700"
                     >
                       <CheckCircle2 className="w-5 h-5" />
-                      <span className="text-sm">تم إرسال طلبك بنجاح! سنتواصل معك قريباً.</span>
+                      <span className="text-sm">{t.cta.successMessage}</span>
                     </motion.div>
                   )}
                   {submitError && (
@@ -288,12 +290,12 @@ const CTASection: React.FC = () => {
                     className="bg-secondary hover:bg-secondary/90 text-primary hover:shadow-xl transition-all duration-300 h-11 rounded-xl font-bold px-8 disabled:opacity-50 disabled:cursor-not-allowed"
                     rightIcon={isSubmitting ? <Loader2 size={20} className="animate-spin" /> : <ArrowLeft size={20} />}
                   >
-                    {isSubmitting ? 'جاري الإرسال...' : 'إرسال الرسالة'}
+                    {isSubmitting ? t.cta.sending : t.cta.sendMessage}
                   </Button>
                 </motion.div>
 
                 <motion.p variants={fadeInUp} className="text-xs text-secondary/50 text-center mt-3">
-                  🔒 نحترم خصوصيتك. لن نشارك بياناتك مع أي جهة خارجية.
+                  {t.cta.privacy}
                 </motion.p>
               </motion.form>
             </div>
@@ -306,16 +308,16 @@ const CTASection: React.FC = () => {
               <motion.div variants={fadeInUp}>
                 {}
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-secondary mb-3 leading-tight">
-                  هل أنت مستعد لتطوير
+                  {t.cta.readyTitle}
                   <br />
                   <span className="text-transparent bg-clip-text bg-linear-to-l from-[#c98f4d] via-[#c59766] to-[#c98f4d]">
-                    مشروعك اليوم؟
+                    {t.cta.readyHighlight}
                   </span>
                 </h2>
 
                 {}
                 <p className="hidden lg:block text-base md:text-lg text-secondary/70 leading-relaxed">
-                  انضم إلى مالكي العقارات الذين حولوا وحداتهم إلى استثمارات مربحة
+                  {t.cta.readySubtitle}
                 </p>
               </motion.div>
 
@@ -326,15 +328,15 @@ const CTASection: React.FC = () => {
               >
                 <motion.div variants={fadeInUp} className="flex items-center gap-3 lg:gap-2 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
                   <CheckCircle2 className="text-primary shrink-0" size={24} />
-                  <span className="text-secondary font-medium text-base lg:text-xs">استشارة مجانية</span>
+                  <span className="text-secondary font-medium text-base lg:text-xs">{t.cta.freeConsultation}</span>
                 </motion.div>
                 <motion.div variants={fadeInUp} className="flex items-center gap-3 lg:gap-2 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
                   <TrendingUp className="text-primary shrink-0" size={24} />
-                  <span className="text-secondary font-medium text-base lg:text-xs">خطة عمل مخصصة</span>
+                  <span className="text-secondary font-medium text-base lg:text-xs">{t.cta.customPlan}</span>
                 </motion.div>
                 <motion.div variants={fadeInUp} className="flex items-center gap-3 lg:gap-2 bg-linear-to-br from-primary/10 to-primary/5 rounded-xl p-4 lg:p-2 border border-primary/20">
                   <Sparkles className="text-primary shrink-0" size={24} />
-                  <span className="text-secondary font-medium text-base lg:text-xs">متابعة مستمرة</span>
+                  <span className="text-secondary font-medium text-base lg:text-xs">{t.cta.continuousSupport}</span>
                 </motion.div>
               </motion.div>
 
@@ -347,19 +349,19 @@ const CTASection: React.FC = () => {
                   <div className="text-2xl md:text-3xl font-bold bg-linear-to-l from-primary via-[#d4a574] to-primary bg-clip-text text-transparent mb-1 font-bristone group-hover:scale-110 transition-transform duration-300">
                     50+
                   </div>
-                  <div className="text-secondary/70 text-sm font-medium">عميل راضٍ</div>
+                  <div className="text-secondary/70 text-sm font-medium">{t.cta.happyClients}</div>
                 </motion.div>
                 <motion.div variants={fadeInUp} className="text-center group">
                   <div className="text-2xl md:text-3xl font-bold bg-linear-to-l from-primary via-[#d4a574] to-primary bg-clip-text text-transparent mb-1 font-bristone group-hover:scale-110 transition-transform duration-300">
                     100+
                   </div>
-                  <div className="text-secondary/70 text-sm font-medium">وحدة مطورة</div>
+                  <div className="text-secondary/70 text-sm font-medium">{t.cta.developedUnits}</div>
                 </motion.div>
                 <motion.div variants={fadeInUp} className="text-center group">
                   <div className="text-2xl md:text-3xl font-bold bg-linear-to-l from-primary via-[#d4a574] to-primary bg-clip-text text-transparent mb-1 font-bristone group-hover:scale-110 transition-transform duration-300">
                     4.9/5
                   </div>
-                  <div className="text-secondary/70 text-sm font-medium">التقييم</div>
+                  <div className="text-secondary/70 text-sm font-medium">{t.cta.rating}</div>
                 </motion.div>
               </motion.div>
             </div>
@@ -392,12 +394,12 @@ const CTASection: React.FC = () => {
                         />
                       </div>
                       <span className="text-xl font-bold text-primary font-bristone">
-                        مفتاحك
+                        {t.cta.footerBrand}
                       </span>
                     </div>
                   </Link>
                   <p className="text-white/70 leading-relaxed text-sm">
-                    عبد الله الخضر - مستشارك في مجال الإيجارات قصيرة المدى والشقق الفندقية
+                    {t.cta.footerDescription}
                   </p>
                   {}
                   <div className="flex items-center gap-2">
@@ -418,7 +420,7 @@ const CTASection: React.FC = () => {
 
                 {}
                 <motion.div variants={fadeInUp} className="hidden lg:block">
-                  <h3 className="text-lg font-bold mb-4 text-primary">روابط سريعة</h3>
+                  <h3 className="text-lg font-bold mb-4 text-primary">{t.cta.quickLinks}</h3>
                   <ul className="space-y-2">
                     {footerLinks.quick.map((link) => (
                       <li key={link.label}>
@@ -435,7 +437,7 @@ const CTASection: React.FC = () => {
 
                 {}
                 <motion.div variants={fadeInUp} className="hidden lg:block">
-                  <h3 className="text-lg font-bold mb-4 text-primary">الخدمات</h3>
+                  <h3 className="text-lg font-bold mb-4 text-primary">{t.cta.servicesTitle}</h3>
                   <ul className="space-y-2">
                     {footerLinks.services.map((link) => (
                       <li key={link.label}>
@@ -452,7 +454,7 @@ const CTASection: React.FC = () => {
 
                 {}
                 <motion.div variants={fadeInUp}>
-                  <h3 className="text-lg font-bold mb-4 text-primary">تواصل معنا</h3>
+                  <h3 className="text-lg font-bold mb-4 text-primary">{t.cta.contactUs}</h3>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-2">
                       <Mail size={18} className="text-primary shrink-0 mt-1" />
@@ -475,7 +477,7 @@ const CTASection: React.FC = () => {
                     </li>
                     <li className="flex items-start gap-2">
                       <MapPin size={18} className="text-primary shrink-0 mt-1" />
-                      <span className="text-white/70 text-sm">القاهرة، مصر</span>
+                      <span className="text-white/70 text-sm">{t.cta.location}</span>
                     </li>
                   </ul>
                 </motion.div>
@@ -488,20 +490,20 @@ const CTASection: React.FC = () => {
               >
                 <div className="flex flex-col md:flex-row items-center justify-between gap-3">
                   <p className="text-white/60 text-xs">
-                    © {currentYear} عبد الله الخضر - مفتاحك. جميع الحقوق محفوظة
+                    {t.cta.copyright(currentYear)}
                   </p>
                   <div className="flex items-center gap-4">
                     <Link 
                       href="/privacy" 
                       className="text-white/60 hover:text-primary text-xs transition-colors duration-300"
                     >
-                      سياسة الخصوصية
+                      {t.cta.privacyPolicy}
                     </Link>
                     <Link 
                       href="/terms" 
                       className="text-white/60 hover:text-primary text-xs transition-colors duration-300"
                     >
-                      الشروط والأحكام
+                      {t.cta.terms}
                     </Link>
                   </div>
                 </div>

@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, use } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   ArrowRight,
   FolderKanban,
@@ -45,19 +47,22 @@ interface BackupData {
 
 type SectionKey = 'projects' | 'apartments' | 'bookings' | 'expenses' | 'investors' | 'withdrawals' | 'users' | 'auditLogs';
 
-const SECTIONS: { key: SectionKey; label: string; icon: React.ElementType; dataKey: string; color: string }[] = [
-  { key: 'projects', label: 'المشاريع', icon: FolderKanban, dataKey: 'projects', color: 'blue' },
-  { key: 'apartments', label: 'الشقق', icon: Building2, dataKey: 'apartments', color: 'emerald' },
-  { key: 'bookings', label: 'الحجوزات', icon: CalendarCheck, dataKey: 'bookings', color: 'purple' },
-  { key: 'expenses', label: 'المصروفات', icon: Receipt, dataKey: 'expenses', color: 'red' },
-  { key: 'investors', label: 'المستثمرين', icon: Users, dataKey: 'apartmentInvestors', color: 'amber' },
-  { key: 'withdrawals', label: 'المسحوبات', icon: Wallet, dataKey: 'withdrawals', color: 'orange' },
-  { key: 'users', label: 'المستخدمين', icon: Users, dataKey: 'users', color: 'teal' },
-  { key: 'auditLogs', label: 'سجل المراجعة', icon: FileText, dataKey: 'auditLogs', color: 'gray' },
+const SECTION_DEFS: { key: SectionKey; sectionKey: keyof typeof import('@/lib/translations').default.ar.accounting.backup.sections; icon: React.ElementType; dataKey: string; color: string }[] = [
+  { key: 'projects', sectionKey: 'projects', icon: FolderKanban, dataKey: 'projects', color: 'blue' },
+  { key: 'apartments', sectionKey: 'apartments', icon: Building2, dataKey: 'apartments', color: 'emerald' },
+  { key: 'bookings', sectionKey: 'bookings', icon: CalendarCheck, dataKey: 'bookings', color: 'purple' },
+  { key: 'expenses', sectionKey: 'expenses', icon: Receipt, dataKey: 'expenses', color: 'red' },
+  { key: 'investors', sectionKey: 'investors', icon: Users, dataKey: 'apartmentInvestors', color: 'amber' },
+  { key: 'withdrawals', sectionKey: 'withdrawals', icon: Wallet, dataKey: 'withdrawals', color: 'orange' },
+  { key: 'users', sectionKey: 'users', icon: Users, dataKey: 'users', color: 'teal' },
+  { key: 'auditLogs', sectionKey: 'auditLog', icon: FileText, dataKey: 'auditLogs', color: 'gray' },
 ];
 
 export default function BackupViewerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
   const [backup, setBackup] = useState<BackupData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -72,7 +77,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
       const res = await fetch(`/api/accounting/system/backups/${id}`);
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'فشل في جلب النسخة الاحتياطية');
+        throw new Error(err.error || t.accounting.errors.fetchBackup);
       }
       const data = await res.json();
       setBackup(data.backup);
@@ -101,7 +106,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
           className="text-center"
         >
           <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-3" />
-          <p className="text-secondary font-dubai font-bold">جاري تحميل النسخة الاحتياطية...</p>
+          <p className="text-secondary font-dubai font-bold">{t.accounting.backup.loading}</p>
         </motion.div>
       </div>
     );
@@ -114,19 +119,19 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="bg-white rounded-2xl p-8 shadow-xl border-2 border-rose-200/60 max-w-md text-center space-y-4"
-          dir="rtl"
+          dir={language === 'ar' ? 'rtl' : 'ltr'}
         >
           <div className="p-3 rounded-xl bg-rose-50/80 border border-rose-200/60 w-fit mx-auto">
             <AlertTriangle className="w-8 h-8 text-rose-400" />
           </div>
-          <h2 className="text-xl font-bold text-secondary font-dubai">خطأ</h2>
-          <p className="text-secondary/60 font-dubai text-sm">{error || 'النسخة الاحتياطية غير موجودة'}</p>
+          <h2 className="text-xl font-bold text-secondary font-dubai">{t.accounting.backup.error}</h2>
+          <p className="text-secondary/60 font-dubai text-sm">{error || t.accounting.backup.notFound}</p>
           <button
             onClick={() => window.close()}
             className="px-6 py-2.5 rounded-xl bg-secondary text-white font-dubai font-bold text-sm hover:bg-secondary/90 transition-colors"
           >
             <ArrowRight className="w-4 h-4 inline ml-2" />
-            إغلاق
+            {t.accounting.common.close}
           </button>
         </motion.div>
       </div>
@@ -136,7 +141,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
   const backupData = backup.data;
 
   return (
-    <div className="min-h-screen bg-gradient-to-l from-primary/20 via-accent/40 to-accent/60" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-l from-primary/20 via-accent/40 to-accent/60" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -153,7 +158,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
               <div className="flex items-center gap-3 text-xs text-secondary/50 font-dubai">
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  {new Date(backup.createdAt).toLocaleDateString('ar-EG', {
+                  {new Date(backup.createdAt).toLocaleDateString(locale, {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -161,19 +166,19 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
                     minute: '2-digit',
                   })}
                 </span>
-                <span>بواسطة {backup.createdByName}</span>
+                <span>{t.accounting.common.by} {backup.createdByName}</span>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-dubai font-bold">
-              للقراءة فقط
+              {t.accounting.common.readOnly}
             </span>
             <button
               onClick={() => window.close()}
               className="px-4 py-2 rounded-xl bg-secondary/10 text-secondary font-dubai font-bold text-sm hover:bg-secondary/20 transition-colors"
             >
-              إغلاق
+              {t.accounting.common.close}
             </button>
           </div>
         </div>
@@ -193,14 +198,14 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
               className="bg-white rounded-xl border-2 border-primary/15 p-3 text-center"
             >
               <p className="text-2xl font-bold text-secondary font-dubai">{value as number}</p>
-              <p className="text-xs text-secondary/50 font-dubai">{translateKey(key)}</p>
+              <p className="text-xs text-secondary/50 font-dubai">{(t.accounting.backup.sections as any)[key] || key}</p>
             </div>
           ))}
         </motion.div>
 
         {/* Data Sections */}
         <div className="space-y-3">
-          {SECTIONS.map((section, i) => {
+          {SECTION_DEFS.map((section, i) => {
             const items = (backupData as any)[section.dataKey] || [];
             if (items.length === 0) return null;
             const isExpanded = expandedSections.has(section.key);
@@ -222,9 +227,9 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
                     <div className={`p-2 rounded-xl bg-${section.color}-50 border border-${section.color}-200`}>
                       <section.icon className={`w-4 h-4 text-${section.color}-600`} />
                     </div>
-                    <div className="text-right">
-                      <h3 className="font-bold text-secondary font-dubai text-sm">{section.label}</h3>
-                      <p className="text-xs text-secondary/40 font-dubai">{items.length} عنصر</p>
+                    <div className={language === 'ar' ? 'text-right' : 'text-left'}>
+                      <h3 className="font-bold text-secondary font-dubai text-sm">{t.accounting.backup.sections[section.sectionKey]}</h3>
+                      <p className="text-xs text-secondary/40 font-dubai">{items.length} {t.accounting.common.item}</p>
                     </div>
                   </div>
                   {isExpanded
@@ -245,7 +250,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
                     >
                       <div className="border-t-2 border-primary/10 p-4">
                         <div className="overflow-x-auto">
-                          <DataTable items={items} section={section.key} />
+                          <DataTable items={items} section={section.key} t={t} locale={locale} language={language} />
                         </div>
                       </div>
                     </motion.div>
@@ -263,16 +268,16 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
 // ═══════════════════════════════════════
 // Data Table Component
 // ═══════════════════════════════════════
-function DataTable({ items, section }: { items: any[]; section: SectionKey }) {
-  const columns = getColumnsForSection(section);
+function DataTable({ items, section, t, locale, language }: { items: any[]; section: SectionKey; t: ReturnType<typeof useTranslation>; locale: string; language: string }) {
+  const columns = getColumnsForSection(section, t, locale, language);
 
   return (
     <table className="w-full text-sm font-dubai">
       <thead>
         <tr className="border-b-2 border-primary/10">
-          <th className="text-right py-2 px-3 text-xs font-bold text-secondary/50">#</th>
+          <th className={`${language === 'ar' ? 'text-right' : 'text-left'} py-2 px-3 text-xs font-bold text-secondary/50`}>#</th>
           {columns.map(col => (
-            <th key={col.key} className="text-right py-2 px-3 text-xs font-bold text-secondary/50 whitespace-nowrap">
+            <th key={col.key} className={`${language === 'ar' ? 'text-right' : 'text-left'} py-2 px-3 text-xs font-bold text-secondary/50 whitespace-nowrap`}>
               {col.label}
             </th>
           ))}
@@ -294,7 +299,7 @@ function DataTable({ items, section }: { items: any[]; section: SectionKey }) {
         <tfoot>
           <tr>
             <td colSpan={columns.length + 1} className="py-3 text-center text-xs text-secondary/40 font-dubai">
-              يُعرض أول 100 عنصر من {items.length}
+              {t.accounting.common.showing100of(items.length)}
             </td>
           </tr>
         </tfoot>
@@ -308,67 +313,71 @@ function DataTable({ items, section }: { items: any[]; section: SectionKey }) {
 // ═══════════════════════════════════════
 type Column = { key: string; label: string; render?: (val: any, item: any) => string };
 
-function getColumnsForSection(section: SectionKey): Column[] {
+function getColumnsForSection(section: SectionKey, t: ReturnType<typeof useTranslation>, locale: string, language: string): Column[] {
+  const h = t.accounting.backup.headers;
+  const c = t.accounting.common;
+  const fmtDate = (val: any) => formatDate(val, locale);
+  const fmtMoney = (val: any) => formatMoney(val, locale);
   switch (section) {
     case 'projects':
       return [
-        { key: 'name', label: 'الاسم' },
-        { key: 'description', label: 'الوصف' },
-        { key: 'createdAt', label: 'تاريخ الإنشاء', render: formatDate },
+        { key: 'name', label: h.name },
+        { key: 'description', label: h.description },
+        { key: 'createdAt', label: h.createdAt, render: fmtDate },
       ];
     case 'apartments':
       return [
-        { key: 'name', label: 'الاسم' },
-        { key: 'floor', label: 'الطابق' },
-        { key: 'type', label: 'النوع' },
-        { key: 'isActive', label: 'الحالة', render: (v: boolean) => v ? 'نشط' : 'غير نشط' },
+        { key: 'name', label: h.name },
+        { key: 'floor', label: h.floor },
+        { key: 'type', label: h.type },
+        { key: 'isActive', label: h.status, render: (v: boolean) => v ? c.active : c.inactive },
       ];
     case 'bookings':
       return [
-        { key: 'clientName', label: 'العميل' },
-        { key: 'checkIn', label: 'الوصول', render: formatDate },
-        { key: 'checkOut', label: 'المغادرة', render: formatDate },
-        { key: 'nights', label: 'الليالي' },
-        { key: 'amount', label: 'المبلغ', render: formatMoney },
-        { key: 'currency', label: 'العملة' },
-        { key: 'source', label: 'المصدر' },
-        { key: 'status', label: 'الحالة' },
+        { key: 'clientName', label: h.client },
+        { key: 'checkIn', label: h.arrival, render: fmtDate },
+        { key: 'checkOut', label: h.departure, render: fmtDate },
+        { key: 'nights', label: h.nights },
+        { key: 'amount', label: h.amount, render: fmtMoney },
+        { key: 'currency', label: h.currency },
+        { key: 'source', label: h.source },
+        { key: 'status', label: h.status },
       ];
     case 'expenses':
       return [
-        { key: 'description', label: 'الوصف' },
-        { key: 'category', label: 'الفئة' },
-        { key: 'amount', label: 'المبلغ', render: formatMoney },
-        { key: 'currency', label: 'العملة' },
-        { key: 'date', label: 'التاريخ', render: formatDate },
+        { key: 'description', label: h.description },
+        { key: 'category', label: h.category },
+        { key: 'amount', label: h.amount, render: fmtMoney },
+        { key: 'currency', label: h.currency },
+        { key: 'date', label: h.date, render: fmtDate },
       ];
     case 'investors':
       return [
-        { key: 'apartmentId', label: 'معرف الشقة' },
-        { key: 'userId', label: 'معرف المستثمر' },
-        { key: 'percentage', label: 'النسبة', render: (v: number) => `${v}%` },
+        { key: 'apartmentId', label: h.apartmentId },
+        { key: 'userId', label: h.investorId },
+        { key: 'percentage', label: h.percentage, render: (v: number) => `${v}%` },
       ];
     case 'withdrawals':
       return [
-        { key: 'amount', label: 'المبلغ', render: formatMoney },
-        { key: 'currency', label: 'العملة' },
-        { key: 'date', label: 'التاريخ', render: formatDate },
-        { key: 'comments', label: 'ملاحظات' },
+        { key: 'amount', label: h.amount, render: fmtMoney },
+        { key: 'currency', label: h.currency },
+        { key: 'date', label: h.date, render: fmtDate },
+        { key: 'comments', label: h.notes },
       ];
     case 'users':
       return [
-        { key: 'firstName', label: 'الاسم الأول' },
-        { key: 'lastName', label: 'اسم العائلة' },
-        { key: 'email', label: 'البريد' },
-        { key: 'phone', label: 'الهاتف' },
-        { key: 'role', label: 'الدور' },
+        { key: 'firstName', label: h.firstName },
+        { key: 'lastName', label: h.lastName },
+        { key: 'email', label: h.email },
+        { key: 'phone', label: h.phone },
+        { key: 'role', label: h.role },
       ];
     case 'auditLogs':
       return [
-        { key: 'userName', label: 'المستخدم' },
-        { key: 'action', label: 'الإجراء' },
-        { key: 'entity', label: 'الكيان' },
-        { key: 'createdAt', label: 'التاريخ', render: formatDate },
+        { key: 'userName', label: h.user },
+        { key: 'action', label: h.action },
+        { key: 'entity', label: h.entity },
+        { key: 'createdAt', label: h.date, render: fmtDate },
       ];
     default:
       return [];
@@ -377,14 +386,14 @@ function getColumnsForSection(section: SectionKey): Column[] {
 
 function formatValue(val: any): string {
   if (val === null || val === undefined) return '—';
-  if (typeof val === 'boolean') return val ? 'نعم' : 'لا';
+  if (typeof val === 'boolean') return val ? '✓' : '✗';
   return String(val);
 }
 
-function formatDate(val: any): string {
+function formatDate(val: any, locale: string = 'ar-EG'): string {
   if (!val) return '—';
   try {
-    return new Date(val).toLocaleDateString('ar-EG', {
+    return new Date(val).toLocaleDateString(locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -394,22 +403,7 @@ function formatDate(val: any): string {
   }
 }
 
-function formatMoney(val: any): string {
+function formatMoney(val: any, locale: string = 'ar-EG'): string {
   if (val === null || val === undefined) return '—';
-  return Number(val).toLocaleString('ar-EG');
-}
-
-function translateKey(key: string): string {
-  const map: Record<string, string> = {
-    users: 'المستخدمين',
-    projects: 'المشاريع',
-    apartments: 'الشقق',
-    bookings: 'الحجوزات',
-    expenses: 'المصروفات',
-    investors: 'المستثمرين',
-    withdrawals: 'المسحوبات',
-    snapshots: 'اللقطات',
-    auditLogs: 'سجل المراجعة',
-  };
-  return map[key] || key;
+  return Number(val).toLocaleString(locale);
 }

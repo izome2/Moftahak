@@ -4,6 +4,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Receipt, Loader2, Pencil, Trash2, FileText } from 'lucide-react';
 import CategoryBadge from './CategoryBadge';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ExpenseRow {
   id: string;
@@ -28,12 +30,6 @@ interface ExpensesListProps {
   onDelete?: (expense: ExpenseRow) => void;
 }
 
-const formatDate = (dateString: string) =>
-  new Date(dateString).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
-
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
-
 const ExpensesList: React.FC<ExpensesListProps> = ({
   expenses,
   totalAmount,
@@ -45,6 +41,17 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currency = t.accounting.common.currency;
+
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString(locale, { month: 'short', day: 'numeric' });
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat(locale).format(amount) + ' ' + currency;
+
   const hasActions = canEdit || canDelete;
 
   return (
@@ -61,9 +68,9 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
             <Receipt size={16} className="text-primary" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-secondary font-dubai">قائمة المصروفات</h3>
+            <h3 className="text-sm font-bold text-secondary font-dubai">{t.accounting.expenses.expensesList}</h3>
             {totalCount !== undefined && (
-              <p className="text-[11px] text-secondary/55 font-dubai">{totalCount} مصروف</p>
+              <p className="text-[11px] text-secondary/55 font-dubai">{totalCount} {t.accounting.common.expense}</p>
             )}
           </div>
         </div>
@@ -86,7 +93,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
           <div className="w-12 h-12 rounded-2xl bg-primary/5 mx-auto mb-3 flex items-center justify-center">
             <Receipt size={22} className="text-secondary/35" />
           </div>
-          <p className="text-secondary/55 font-dubai text-sm">لا توجد مصروفات بهذا الفلتر</p>
+          <p className="text-secondary/55 font-dubai text-sm">{t.accounting.expenses.noExpensesFilter}</p>
         </div>
       ) : (
         <>
@@ -141,14 +148,14 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
               <thead>
                 <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
                   {showApartment && (
-                    <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">الشقة</th>
+                    <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.expenses.apartment}</th>
                   )}
-                  <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">الوصف</th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">القسم</th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">التاريخ</th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">المبلغ</th>
+                  <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.expenses.description}</th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.expenses.category}</th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">{t.accounting.expenses.date}</th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.expenses.amount}</th>
                   {hasActions && (
-                    <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai w-20">إجراء</th>
+                    <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai w-20">{t.accounting.expenses.actions}</th>
                   )}
                 </tr>
               </thead>
@@ -192,7 +199,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                             <button
                               onClick={() => onEdit(expense)}
                               className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors"
-                              title="تعديل"
+                              title={t.accounting.common.edit}
                             >
                               <Pencil size={13} className="text-secondary/50" />
                             </button>
@@ -201,7 +208,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                             <button
                               onClick={() => onDelete(expense)}
                               className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors"
-                              title="حذف"
+                              title={t.accounting.common.delete}
                             >
                               <Trash2 size={13} className="text-secondary/45" />
                             </button>

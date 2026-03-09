@@ -7,6 +7,8 @@ import { Menu } from 'lucide-react';
 import AccountingSidebar from '@/components/accounting/Sidebar';
 import { isAccountingRole } from '@/lib/permissions';
 import { ToastProvider } from '@/components/accounting/shared/Toast';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function AccountingLayout({
   children,
@@ -16,6 +18,8 @@ export default function AccountingLayout({
   const { data: session, status } = useSession();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const t = useTranslation();
+  const { language } = useLanguage();
 
   // حماية الصفحة - يجب أن يكون المستخدم مسجلاً ولديه دور حسابات
   useEffect(() => {
@@ -36,7 +40,7 @@ export default function AccountingLayout({
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-l from-primary/20 via-accent/40 to-accent/60">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
-          <p className="text-secondary font-dubai">جاري التحميل...</p>
+          <p className="text-secondary font-dubai">{t.accounting.common.loading}</p>
         </div>
       </div>
     );
@@ -45,7 +49,7 @@ export default function AccountingLayout({
   return (
     <ToastProvider>
       <div className="fixed inset-0 bg-gradient-to-l from-primary/20 via-accent/40 to-accent/60 -z-10" />
-      <div className="min-h-screen font-dubai" dir="rtl">
+      <div className="min-h-screen font-dubai" dir={language === 'ar' ? 'rtl' : 'ltr'}>
         {/* Sidebar */}
         <AccountingSidebar
           isMobileOpen={isMobileMenuOpen}
@@ -57,10 +61,10 @@ export default function AccountingLayout({
         <button
           onClick={() => setIsMobileMenuOpen(true)}
           className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 px-6 py-3 rounded-full bg-white text-secondary hover:bg-primary/10 transition-all duration-300 hover:scale-105 lg:hidden flex items-center gap-2 shadow-[0_10px_40px_rgba(16,48,43,0.15),0_0_0_1px_rgba(237,191,140,0.3)]"
-          aria-label="فتح القائمة"
+          aria-label={t.accounting.common.openMenu}
         >
           <Menu className="w-5 h-5" />
-          <span className="font-dubai text-sm font-medium">القائمة</span>
+          <span className="font-dubai text-sm font-medium">{t.accounting.sidebar.dashboard}</span>
         </button>
 
         {/* المحتوى الرئيسي */}

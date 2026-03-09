@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Navigation, Loader2, AlertCircle, Link2, Plus, Layers } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 import dynamic from 'next/dynamic';
 import 'leaflet/dist/leaflet.css';
 
@@ -123,6 +124,7 @@ export default function LocationPicker({
   onChange,
   error 
 }: LocationPickerProps) {
+  const t = useTranslation();
   const [isMapReady, setIsMapReady] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -138,7 +140,7 @@ export default function LocationPicker({
   // Get current location using Geolocation API
   const getCurrentLocation = useCallback(() => {
     if (!navigator.geolocation) {
-      setLocationError('المتصفح لا يدعم تحديد الموقع');
+      setLocationError(t.feasibilityRequest.browserNoLocation);
       return;
     }
 
@@ -160,16 +162,16 @@ export default function LocationPicker({
         setIsLocating(false);
         switch (err.code) {
           case err.PERMISSION_DENIED:
-            setLocationError('تم رفض الوصول للموقع. يرجى السماح بالوصول من إعدادات المتصفح');
+            setLocationError(t.feasibilityRequest.locationDenied);
             break;
           case err.POSITION_UNAVAILABLE:
-            setLocationError('الموقع غير متاح حالياً');
+            setLocationError(t.feasibilityRequest.locationUnavailable);
             break;
           case err.TIMEOUT:
-            setLocationError('انتهت مهلة تحديد الموقع');
+            setLocationError(t.feasibilityRequest.locationTimeout);
             break;
           default:
-            setLocationError('حدث خطأ أثناء تحديد الموقع');
+            setLocationError(t.feasibilityRequest.locationError);
         }
       },
       {
@@ -296,10 +298,10 @@ export default function LocationPicker({
           mapRef.current.flyTo([coords.lat, coords.lng], 16, { duration: 1 });
         }
       } else {
-        setLocationError('لم يتم العثور على الموقع من خلال الرابط. استخدم الخريطة الموجودة أمامك');
+        setLocationError(t.feasibilityRequest.linkNotFound);
       }
     } catch {
-      setLocationError('حدث خطأ أثناء معالجة الرابط');
+      setLocationError(t.feasibilityRequest.linkProcessError);
     } finally {
       setIsAddingLink(false);
     }
@@ -326,8 +328,8 @@ export default function LocationPicker({
           <MapPin className="w-5 h-5 md:w-6 md:h-6 text-secondary" />
         </div>
         <div>
-          <h3 className="text-base md:text-lg font-bold text-secondary font-dubai">موقع الشقة</h3>
-          <p className="text-xs md:text-sm text-secondary/60 font-dubai">انقر على الخريطة أو أضف رابط الموقع</p>
+          <h3 className="text-base md:text-lg font-bold text-secondary font-dubai">{t.feasibilityRequest.apartmentLocation}</h3>
+          <p className="text-xs md:text-sm text-secondary/60 font-dubai">{t.feasibilityRequest.clickMapOrAddLink}</p>
         </div>
       </div>
 
@@ -362,7 +364,7 @@ export default function LocationPicker({
             ) : (
               <>
                 <Plus className="w-4 h-4" />
-                إضافة
+                {t.feasibilityRequest.addLink}
               </>
             )}
           </button>
@@ -379,7 +381,7 @@ export default function LocationPicker({
             ) : (
               <>
                 <Navigation className="w-4 h-4" />
-                موقعي
+                {t.feasibilityRequest.myLocation}
               </>
             )}
           </button>
@@ -441,8 +443,8 @@ export default function LocationPicker({
                   animate={{ opacity: 1, scale: 1 }}
                 >
                   <MapPin className="w-10 h-10 text-primary mx-auto mb-3" />
-                  <p className="text-secondary font-dubai font-bold text-lg mb-1">انقر لتفعيل الخريطة</p>
-                  <p className="text-secondary/60 font-dubai text-sm">اضغط على الخريطة للتفاعل معها</p>
+                  <p className="text-secondary font-dubai font-bold text-lg mb-1">{t.feasibilityRequest.clickToActivateMap}</p>
+                  <p className="text-secondary/60 font-dubai text-sm">{t.feasibilityRequest.pressMapToInteract}</p>
                 </motion.div>
               </div>
             )}
@@ -483,7 +485,7 @@ export default function LocationPicker({
                   ? 'bg-secondary text-white border-secondary' 
                   : 'bg-white/95 text-secondary hover:bg-white border-secondary/10'
               }`}
-              title={isSatellite ? 'عرض الخريطة' : 'عرض القمر الصناعي'}
+              title={isSatellite ? t.feasibilityRequest.showMap : t.feasibilityRequest.showSatellite}
             >
               <Layers className="w-4 h-4" />
             </button>
@@ -499,7 +501,7 @@ export default function LocationPicker({
               animate={{ opacity: 1, y: 0 }}
             >
               <Navigation className="w-8 h-8 text-primary mx-auto mb-2" />
-              <p className="text-secondary font-dubai font-medium">انقر على الخريطة لتحديد موقع شقتك</p>
+              <p className="text-secondary font-dubai font-medium">{t.feasibilityRequest.clickMapToLocate}</p>
             </motion.div>
           </div>
         )}
@@ -509,7 +511,7 @@ export default function LocationPicker({
           <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm">
             <div className="text-center">
               <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-2" />
-              <p className="text-secondary font-dubai">جاري تحديد موقعك...</p>
+              <p className="text-secondary font-dubai">{t.feasibilityRequest.locatingPosition}</p>
             </div>
           </div>
         )}

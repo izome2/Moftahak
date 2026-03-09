@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
 import {
   Settings,
@@ -22,21 +24,38 @@ import SystemManager from '@/components/accounting/settings/SystemManager';
 
 type SettingsTab = 'projects' | 'apartments' | 'currency' | 'supervisors' | 'team' | 'ops-assignments' | 'system';
 
-const TABS: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
-  { id: 'projects', label: 'المشاريع', icon: FolderKanban },
-  { id: 'apartments', label: 'الشقق', icon: Building2 },
-  { id: 'currency', label: 'سعر الصرف', icon: DollarSign },
-  { id: 'supervisors', label: 'المشرفين', icon: UserCheck },
-  { id: 'team', label: 'الفريق', icon: Users },
-  { id: 'ops-assignments', label: 'تعيين الشقق', icon: Building2 },
-  { id: 'system', label: 'النظام', icon: Database },
-];
+const TAB_ICONS: Record<SettingsTab, React.ElementType> = {
+  projects: FolderKanban,
+  apartments: Building2,
+  currency: DollarSign,
+  supervisors: UserCheck,
+  team: Users,
+  'ops-assignments': Building2,
+  system: Database,
+};
+
+const TAB_IDS: SettingsTab[] = ['projects', 'apartments', 'currency', 'supervisors', 'team', 'ops-assignments', 'system'];
 
 export default function AccountingSettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('projects');
+  const t = useTranslation();
+  const { language } = useLanguage();
+
+  const tabs = useMemo(() => {
+    const tabLabels: Record<SettingsTab, string> = {
+      projects: t.accounting.settings.tabs.projects,
+      apartments: t.accounting.settings.tabs.apartments,
+      currency: t.accounting.settings.tabs.exchangeRate,
+      supervisors: t.accounting.settings.tabs.supervisors,
+      team: t.accounting.settings.tabs.team,
+      'ops-assignments': t.accounting.settings.tabs.apartmentAssign,
+      system: t.accounting.settings.tabs.system,
+    };
+    return TAB_IDS.map(id => ({ id, label: tabLabels[id], icon: TAB_ICONS[id] }));
+  }, [t]);
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6" dir="rtl">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Page Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -47,9 +66,9 @@ export default function AccountingSettingsPage() {
           <Settings size={24} className="text-primary" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-secondary font-dubai">الإعدادات</h1>
+          <h1 className="text-2xl font-bold text-secondary font-dubai">{t.accounting.settings.title}</h1>
           <p className="text-sm text-secondary/60 font-dubai">
-            إدارة المشاريع، الشقق، سعر الصرف، المشرفين، والفريق
+            {t.accounting.settings.subtitle}
           </p>
         </div>
       </motion.div>
@@ -61,7 +80,7 @@ export default function AccountingSettingsPage() {
         transition={{ delay: 0.05 }}
         className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none"
       >
-        {TABS.map(tab => {
+        {tabs.map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (

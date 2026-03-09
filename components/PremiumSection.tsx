@@ -7,6 +7,7 @@ import Container from './ui/Container';
 import Badge from './ui/Badge';
 import AnimatedStroke from './ui/AnimatedStroke';
 import { useGyroscope } from '@/hooks/useGyroscope';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface Package {
   id: number;
@@ -349,6 +350,7 @@ interface Package {
 const PremiumSection: React.FC = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, amount: 0.3 });
+  const t = useTranslation();
   
   
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
@@ -368,17 +370,17 @@ const PremiumSection: React.FC = () => {
           </div>
         </div>
       ),
-      title: 'الاستشارات',
-      description: 'جلسات فردية 1:1 (أونلاين وأوفلاين) مع عبد الله لمساعدتك في اتخاذ قرارات عقارية صحيحة وحل التحديات الاستثمارية والتنفيذية بثقة.',
-      buttonText: 'للحجز والتفاصيل',
+      title: t.premium.packages[0].title,
+      description: t.premium.packages[0].description,
+      buttonText: t.premium.packages[0].buttonText,
       bgColor: 'bg-[#ead3b9]/20',
     },
     {
       id: 2,
       icon: <Building2 className="w-10 h-10" />,
-      title: 'لأصحاب الشركات',
-      description: 'رؤية عقارية واضحة تبني قرارات استراتيجية مدروسة وتساعدك على تنمية أعمالك العقارية وتحقيق أفضل عائد استثماري.',
-      buttonText: 'للحجز والتفاصيل',
+      title: t.premium.packages[1].title,
+      description: t.premium.packages[1].description,
+      buttonText: t.premium.packages[1].buttonText,
       bgColor: 'bg-[#ead3b9]/20',
     },
   ];
@@ -468,7 +470,7 @@ const PremiumSection: React.FC = () => {
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
                 <AnimatedStroke delay={0.5}>
-                  خدمات للمستثمرين ومالكي العقارات
+                  {t.premium.title}
                 </AnimatedStroke>
               </motion.span>
             </h2>
@@ -480,7 +482,7 @@ const PremiumSection: React.FC = () => {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.6, delay: 0.5 }}
           >
-            حلول شاملة لتحويل عقارك إلى استثمار مربح
+            {t.premium.subtitle}
           </motion.p>
 
           {}
@@ -569,7 +571,7 @@ const PremiumSection: React.FC = () => {
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
               transition={{ duration: 0.5, delay: 0.8 }}
             >
-              ورش العمل
+              {t.premium.workshops}
             </motion.h3>
 
             {}
@@ -593,7 +595,7 @@ const PremiumSection: React.FC = () => {
                   ease: "easeInOut",
                 }}
               >
-                قريباً
+                {t.premium.comingSoon}
               </motion.span>
             </motion.div>
 

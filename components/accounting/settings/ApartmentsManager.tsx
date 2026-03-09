@@ -13,6 +13,8 @@ import {
   XCircle,
 } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Apartment {
   id: string;
@@ -31,6 +33,9 @@ interface Project {
 }
 
 const ApartmentsManager: React.FC = () => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
   const [apartments, setApartments] = useState<Apartment[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -90,7 +95,7 @@ const ApartmentsManager: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !projectId) { setFormError('الاسم والمشروع مطلوبان'); return; }
+    if (!name.trim() || !projectId) { setFormError(t.accounting.settings.apartments.nameAndProjectRequired); return; }
 
     setIsSaving(true);
     setFormError(null);
@@ -111,11 +116,11 @@ const ApartmentsManager: React.FC = () => {
         }),
       });
       const json = await res.json();
-      if (!res.ok) { setFormError(json.error || 'حدث خطأ'); return; }
+      if (!res.ok) { setFormError(json.error || t.accounting.errors.generic); return; }
       setShowForm(false);
       fetchData();
     } catch {
-      setFormError('فشل الاتصال');
+      setFormError(t.accounting.errors.connectionFailed);
     } finally {
       setIsSaving(false);
     }
@@ -131,10 +136,10 @@ const ApartmentsManager: React.FC = () => {
         ...(!toggleTarget.isActive ? { body: JSON.stringify({ isActive: true }) } : {}),
       });
       const json = await res.json();
-      if (!res.ok) setError(json.error || 'حدث خطأ');
+      if (!res.ok) setError(json.error || t.accounting.errors.generic);
       else fetchData();
     } catch {
-      setError('فشل الاتصال');
+      setError(t.accounting.errors.connectionFailed);
     } finally {
       setIsToggling(false);
       setToggleTarget(null);
@@ -146,7 +151,7 @@ const ApartmentsManager: React.FC = () => {
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-secondary font-dubai flex items-center gap-2">
           <Building2 className="w-4 h-4" />
-          الشقق
+          {t.accounting.settings.apartments.title}
         </h3>
         <button
           onClick={openCreate}
@@ -154,7 +159,7 @@ const ApartmentsManager: React.FC = () => {
           className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold
             bg-secondary text-white rounded-lg hover:bg-secondary/90 transition font-dubai disabled:opacity-50"
         >
-          <Plus className="w-3 h-3" /> إضافة
+          <Plus className="w-3 h-3" /> {t.accounting.common.add}
         </button>
       </div>
 
@@ -170,7 +175,7 @@ const ApartmentsManager: React.FC = () => {
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
         </div>
       ) : apartments.length === 0 ? (
-        <p className="text-xs text-secondary/50 font-dubai text-center py-4">لا توجد شقق</p>
+        <p className="text-xs text-secondary/50 font-dubai text-center py-4">{t.accounting.settings.apartments.noApartments}</p>
       ) : (
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
           {apartments.map(a => (
@@ -185,12 +190,12 @@ const ApartmentsManager: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-bold text-secondary font-dubai truncate">{a.name}</p>
                   {!a.isActive && (
-                    <span className="text-[9px] bg-red-100 text-red-600 rounded px-1.5 py-0.5 font-dubai">معطلة</span>
+                    <span className="text-[9px] bg-red-100 text-red-600 rounded px-1.5 py-0.5 font-dubai">{t.accounting.common.disabled}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-2 text-[10px] text-secondary/50 font-dubai mt-0.5">
                   <span>{a.project.name}</span>
-                  {a.floor && <span>• طابق {a.floor}</span>}
+                  {a.floor && <span>• {t.accounting.settings.apartments.floorLabel} {a.floor}</span>}
                   {a.type && <span>• {a.type}</span>}
                 </div>
               </div>
@@ -201,7 +206,7 @@ const ApartmentsManager: React.FC = () => {
                 <button
                   onClick={() => setToggleTarget(a)}
                   className="p-1.5 hover:bg-white rounded-lg transition"
-                  title={a.isActive ? 'تعطيل' : 'تفعيل'}
+                  title={a.isActive ? t.accounting.settings.apartments.disable : t.accounting.settings.apartments.enable}
                 >
                   {a.isActive
                     ? <XCircle className="w-3.5 h-3.5 text-red-400" />
@@ -228,13 +233,13 @@ const ApartmentsManager: React.FC = () => {
             >
               <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
                 <h4 className="text-sm font-bold text-secondary font-dubai">
-                  {editId ? 'تعديل الشقة' : 'شقة جديدة'}
+                  {editId ? t.accounting.settings.apartments.editApartment : t.accounting.settings.apartments.newApartment}
                 </h4>
                 <button onClick={() => setShowForm(false)}><X className="w-4 h-4 text-secondary/40" /></button>
               </div>
-              <form onSubmit={handleSubmit} className="p-5 space-y-3" dir="rtl">
+              <form onSubmit={handleSubmit} className="p-5 space-y-3" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">اسم الشقة *</label>
+                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.settings.apartments.apartmentNameRequired}</label>
                   <input
                     value={name} onChange={e => setName(e.target.value)}
                     className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
@@ -242,27 +247,27 @@ const ApartmentsManager: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">المشروع *</label>
+                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.settings.apartments.projectRequired}</label>
                   <CustomSelect
                     value={projectId}
                     onChange={setProjectId}
                     className="w-full"
-                    placeholder="اختر المشروع"
+                    placeholder={t.accounting.settings.apartments.selectProject}
                     required
-                    emptyMessage="لا يوجد مشاريع حتى الآن"
+                    emptyMessage={t.accounting.settings.apartments.noProjects}
                     options={projects.map(p => ({ value: p.id, label: p.name }))}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">الطابق</label>
+                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.settings.apartments.floorNumber}</label>
                     <input
                       value={floor} onChange={e => setFloor(e.target.value)}
                       className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">النوع</label>
+                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.settings.apartments.type}</label>
                     <input
                       value={type} onChange={e => setType(e.target.value)}
                       className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
@@ -276,7 +281,7 @@ const ApartmentsManager: React.FC = () => {
                     hover:bg-secondary/90 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {isSaving ? 'جاري الحفظ...' : 'حفظ'}
+                  {isSaving ? t.accounting.common.saving : t.accounting.common.save}
                 </button>
               </form>
             </motion.div>
@@ -298,10 +303,10 @@ const ApartmentsManager: React.FC = () => {
               className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm p-5 z-10 border-2 border-[#e0cdb8]"
             >
               <h4 className="text-sm font-bold text-secondary font-dubai mb-2">
-                {toggleTarget.isActive ? 'تعطيل الشقة' : 'تفعيل الشقة'}
+                {toggleTarget.isActive ? t.accounting.settings.apartments.disableApartment : t.accounting.settings.apartments.enableApartment}
               </h4>
               <p className="text-xs text-secondary/70 font-dubai mb-4">
-                هل تريد {toggleTarget.isActive ? 'تعطيل' : 'تفعيل'} <strong>{toggleTarget.name}</strong>؟
+                {toggleTarget.isActive ? t.accounting.settings.apartments.disable : t.accounting.settings.apartments.enable} <strong>{toggleTarget.name}</strong>?
               </p>
               <div className="flex gap-2">
                 <button
@@ -313,13 +318,13 @@ const ApartmentsManager: React.FC = () => {
                       : 'bg-green-600 text-white hover:bg-green-700'}`}
                 >
                   {isToggling && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  {toggleTarget.isActive ? 'تعطيل' : 'تفعيل'}
+                  {toggleTarget.isActive ? t.accounting.settings.apartments.disable : t.accounting.settings.apartments.enable}
                 </button>
                 <button
                   onClick={() => setToggleTarget(null)}
                   className="flex-1 py-2 bg-primary/10 text-secondary rounded-xl text-xs font-medium font-dubai hover:bg-primary/20"
                 >
-                  إلغاء
+                  {t.accounting.common.cancel}
                 </button>
               </div>
             </motion.div>

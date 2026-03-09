@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Types
 interface RecentUser {
@@ -35,15 +37,17 @@ interface DashboardStats {
   totalReviews: number;
 }
 
-const statusConfig: Record<string, { label: string; icon: React.ElementType; color: string }> = {
-  PENDING: { label: 'جديد', icon: Clock, color: 'text-amber-600' },
-  READ: { label: 'تم القراءة', icon: Eye, color: 'text-blue-600' },
-  COMPLETED: { label: 'مكتمل', icon: CheckCircle2, color: 'text-primary' },
+const statusIcons: Record<string, { icon: React.ElementType; color: string }> = {
+  PENDING: { icon: Clock, color: 'text-amber-600' },
+  READ: { icon: Eye, color: 'text-blue-600' },
+  COMPLETED: { icon: CheckCircle2, color: 'text-primary' },
 };
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const t = useTranslation();
+  const { language } = useLanguage();
   
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
@@ -100,7 +104,7 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-secondary font-dubai">جاري التحميل...</p>
+          <p className="text-secondary font-dubai">{t.admin.loading}</p>
         </div>
       </div>
     );
@@ -108,7 +112,7 @@ export default function AdminDashboard() {
 
   // تنسيق التاريخ
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-EG', {
+    return new Date(dateString).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -139,7 +143,7 @@ export default function AdminDashboard() {
               MOFTAHAK
             </h1>
             <p className="text-sm sm:text-base text-secondary/60 font-dubai">
-              إليك نظرة عامة على أداء الموقع اليوم
+              {t.admin.dashboard.overview}
             </p>
           </div>
         </div>
@@ -151,7 +155,7 @@ export default function AdminDashboard() {
             window.dispatchEvent(event);
           }}
           className="lg:hidden p-2 hover:bg-primary/10 rounded-lg transition-colors"
-          aria-label="فتح القائمة"
+          aria-label={t.admin.openMenu}
         >
           <Menu size={28} className="text-secondary" />
         </button>
@@ -161,7 +165,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
         <StatsCard
           icon={Users}
-          label="إجمالي المستخدمين"
+          label={t.admin.dashboard.totalUsers}
           value={isLoading ? '...' : stats.totalUsers}
           iconBgColor="bg-primary/20"
           iconColor="text-primary"
@@ -169,7 +173,7 @@ export default function AdminDashboard() {
         />
         <StatsCard
           icon={MessageSquare}
-          label="طلبات الاستشارة الجديدة"
+          label={t.admin.dashboard.newConsultations}
           value={isLoading ? '...' : stats.pendingConsultations}
           iconBgColor="bg-primary/20"
           iconColor="text-primary"
@@ -177,7 +181,7 @@ export default function AdminDashboard() {
         />
         <StatsCard
           icon={FileText}
-          label="دراسات الجدوى"
+          label={t.admin.dashboard.feasibilityStudies}
           value={isLoading ? '...' : stats.totalFeasibilityStudies}
           iconBgColor="bg-primary/20"
           iconColor="text-primary"
@@ -185,7 +189,7 @@ export default function AdminDashboard() {
         />
         <StatsCard
           icon={Star}
-          label="المراجعات"
+          label={t.admin.dashboard.reviews}
           value={isLoading ? '...' : stats.totalReviews}
           iconBgColor="bg-primary/20"
           iconColor="text-primary"
@@ -210,9 +214,9 @@ export default function AdminDashboard() {
                 <Calculator className="w-7 h-7 text-primary" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white font-dubai">نظام الحسابات</h3>
+                <h3 className="text-xl font-bold text-white font-dubai">{t.admin.dashboard.accountingSystem}</h3>
                 <p className="text-sm text-white/60 font-dubai mt-1">
-                  إدارة الحجوزات والمصروفات والمستثمرين والتقارير المالية
+                  {t.admin.dashboard.accountingDesc}
                 </p>
               </div>
             </div>
@@ -235,13 +239,13 @@ export default function AdminDashboard() {
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-secondary font-dubai">
-              آخر المستخدمين المسجلين
+              {t.admin.dashboard.recentUsers}
             </h2>
             <Link 
               href="/admin/users" 
               className="text-sm text-primary hover:text-primary/80 font-dubai transition-colors"
             >
-              عرض الكل
+              {t.admin.viewAll}
             </Link>
           </div>
           <div className="space-y-3">
@@ -253,7 +257,7 @@ export default function AdminDashboard() {
               <p className="text-red-500 text-center py-8 font-dubai">{error}</p>
             ) : recentUsers.length === 0 ? (
               <p className="text-secondary/60 text-center py-8 font-dubai">
-                لا يوجد مستخدمين حتى الآن
+                {t.admin.dashboard.noUsersYet}
               </p>
             ) : (
               recentUsers.map((user) => (
@@ -302,13 +306,13 @@ export default function AdminDashboard() {
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-secondary font-dubai">
-              آخر طلبات الاستشارة
+              {t.admin.dashboard.recentConsultations}
             </h2>
             <Link 
               href="/admin/consultations" 
               className="text-sm text-primary hover:text-primary/80 font-dubai transition-colors"
             >
-              عرض الكل
+              {t.admin.viewAll}
             </Link>
           </div>
           <div className="space-y-3">
@@ -320,12 +324,17 @@ export default function AdminDashboard() {
               <p className="text-red-500 text-center py-8 font-dubai">{error}</p>
             ) : recentConsultations.length === 0 ? (
               <p className="text-secondary/60 text-center py-8 font-dubai">
-                لا توجد طلبات حتى الآن
+                {t.admin.dashboard.noRequestsYet}
               </p>
             ) : (
               recentConsultations.map((consultation) => {
-                const statusInfo = statusConfig[consultation.status] || statusConfig.PENDING;
-                const StatusIcon = statusInfo.icon;
+                const statusLabels: Record<string, string> = {
+                  PENDING: t.admin.consultationStatus.new,
+                  READ: t.admin.consultationStatus.read,
+                  COMPLETED: t.admin.consultationStatus.completed,
+                };
+                const iconInfo = statusIcons[consultation.status] || statusIcons.PENDING;
+                const StatusIcon = iconInfo.icon;
                 
                 return (
                   <Link 
@@ -345,9 +354,9 @@ export default function AdminDashboard() {
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                      <span className={`flex items-center gap-1 text-xs font-dubai ${statusInfo.color}`}>
+                      <span className={`flex items-center gap-1 text-xs font-dubai ${iconInfo.color}`}>
                         <StatusIcon className="w-3 h-3" />
-                        {statusInfo.label}
+                        {statusLabels[consultation.status] || statusLabels.PENDING}
                       </span>
                       <p className="text-xs text-secondary/50 font-dubai">
                         {formatDate(consultation.createdAt)}

@@ -18,6 +18,7 @@ import {
   staggerItem
 } from '@/lib/animations/variants';
 import AnimatedStroke from './ui/AnimatedStroke';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Highlight Text Component with beige background animation
 const HighlightText: React.FC<{ children: React.ReactNode; delay?: number }> = ({ children, delay = 0 }) => {
@@ -62,15 +63,12 @@ const AboutSection: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const imageRef = useRef<HTMLDivElement | null>(null);
+  const t = useTranslation();
   
   const isContentInView = useScrollAnimation(contentRef as React.RefObject<Element>, { threshold: 0.1, once: false });
   const isImageInView = useScrollAnimation(imageRef as React.RefObject<Element>, { threshold: 0.1, once: false });
 
-  const expertise = [
-    'خبرة عملية حقيقية في تشغيل وتطوير الشقق الفندقية والإيجارات قصيرة الأجل.',
-    'أنظمة واضحة وحلول قابلة للتنفيذ تحقق نتائج فعلية.',
-    'رؤية مبنية على البيانات والشفافية لتعظيم العائد وقابلية التوسع.',
-  ];
+  const expertise = t.about.expertise as unknown as string[];
 
   return (
     <section ref={sectionRef} className="py-20 bg-white" id="about">
@@ -106,7 +104,7 @@ const AboutSection: React.FC = () => {
               variants={fadeInUp}
             >
               <AnimatedStroke delay={0.1}>
-                عبد الله الخضر
+                {t.about.name}
               </AnimatedStroke>
             </motion.h2>
 
@@ -116,7 +114,7 @@ const AboutSection: React.FC = () => {
               variants={fadeInUp}
             >
               <p>
-                <HighlightText delay={0.8}>رائد أعمال ومتخصص في الإيجارات قصيرة الأجل والشقق الفندقية في القاهرة</HighlightText>، بدأ رحلته بوحدة واحدة ونجح في بناء نموذج تشغيل احترافي يعتمد على الأنظمة الواضحة والقرارات المبنية على البيانات وتقديم تجربة نزيل عالية الجودة، حيث <HighlightText delay={2.2}>يعمل على مساعدة ملاك العقارات في تحويل وحداتهم إلى وحدات فندقية مربحة وقابلة للتوسع</HighlightText>، إلى جانب مشاركته خبراته العملية من خلال <HighlightText delay={3.6}>محتوى تعليمي متخصص حول Airbnb والإيجارات قصيرة الأجل</HighlightText>.
+                <HighlightText delay={0.8}>{t.about.bio}</HighlightText>{t.about.bioFull}<HighlightText delay={2.2}>{t.about.bioHighlight2}</HighlightText>{t.about.bioAfterHighlight2}<HighlightText delay={3.6}>{t.about.bioHighlight3}</HighlightText>{t.about.bioEnd}
               </p>
             </motion.div>
 
@@ -131,7 +129,7 @@ const AboutSection: React.FC = () => {
                 className="text-2xl font-bold text-secondary mb-5"
                 variants={staggerItem}
               >
-                لماذا تختار عبد الله؟
+                {t.about.whyChoose}
               </motion.h3>
               <ul className="space-y-5">
                 {expertise.map((item, index) => (
@@ -176,7 +174,7 @@ const AboutSection: React.FC = () => {
                   section?.scrollIntoView({ behavior: 'smooth' });
                 }}
               >
-              المزيد عن عبد الله
+              {t.about.moreAbout}
             </Button>
           </motion.div>
           </motion.div>

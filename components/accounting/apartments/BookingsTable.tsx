@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CalendarCheck, Loader2 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BookingRow {
   id: string;
@@ -22,28 +24,38 @@ interface BookingsTableProps {
   isLoading?: boolean;
 }
 
-const SOURCE_BADGES: Record<string, { label: string; className: string }> = {
-  AIRBNB: { label: 'Airbnb', className: 'bg-primary/10 text-secondary' },
-  BOOKING_COM: { label: 'Booking.com', className: 'bg-primary/10 text-secondary' },
-  EXTERNAL: { label: 'خارجي', className: 'bg-secondary/10 text-secondary' },
-  DIRECT: { label: 'مباشر', className: 'bg-primary/20 text-secondary' },
-  OTHER: { label: 'أخرى', className: 'bg-secondary/10 text-secondary/70' },
+const SOURCE_CLASSES: Record<string, string> = {
+  AIRBNB: 'bg-primary/10 text-secondary',
+  BOOKING_COM: 'bg-primary/10 text-secondary',
+  EXTERNAL: 'bg-secondary/10 text-secondary',
+  DIRECT: 'bg-primary/20 text-secondary',
+  OTHER: 'bg-secondary/10 text-secondary/70',
 };
 
-const STATUS_BADGES: Record<string, { label: string; className: string }> = {
-  CONFIRMED: { label: 'مؤكد', className: 'bg-primary/15 text-secondary' },
-  CHECKED_IN: { label: 'دخل', className: 'bg-primary/25 text-secondary' },
-  CHECKED_OUT: { label: 'خرج', className: 'bg-secondary/10 text-secondary/70' },
-  CANCELLED: { label: 'ملغي', className: 'bg-secondary/10 text-secondary/50' },
+const STATUS_CLASSES: Record<string, string> = {
+  CONFIRMED: 'bg-primary/15 text-secondary',
+  CHECKED_IN: 'bg-primary/25 text-secondary',
+  CHECKED_OUT: 'bg-secondary/10 text-secondary/70',
+  CANCELLED: 'bg-secondary/10 text-secondary/50',
 };
-
-const formatDate = (dateString: string) =>
-  new Date(dateString).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
-
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
 
 const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, isLoading }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currency = t.accounting.common.currency;
+
+  const SOURCE_LABELS: Record<string, string> = {
+    AIRBNB: 'Airbnb',
+    BOOKING_COM: 'Booking.com',
+    ...t.accounting.bookingSources,
+  };
+
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString(locale, { month: 'short', day: 'numeric' });
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat(locale).format(amount) + ' ' + currency;
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -57,7 +69,7 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, is
           <div className="w-8 h-8 rounded-xl bg-primary/10 border-2 border-primary/30 flex items-center justify-center flex-shrink-0">
             <CalendarCheck size={16} className="text-primary" />
           </div>
-          <h3 className="text-sm font-bold text-secondary font-dubai">الحجوزات (الإيرادات)</h3>
+          <h3 className="text-sm font-bold text-secondary font-dubai">{t.accounting.apartments.bookingsRevenue}</h3>
         </div>
         {totalAmount !== undefined && !isLoading && (
           <div className="bg-primary/8 px-3 py-1.5 rounded-xl">
@@ -78,26 +90,28 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, is
           <div className="w-12 h-12 rounded-2xl bg-primary/5 mx-auto mb-3 flex items-center justify-center">
             <CalendarCheck size={22} className="text-secondary/35" />
           </div>
-          <p className="text-secondary/55 font-dubai text-sm">لا توجد حجوزات هذا الشهر</p>
+          <p className="text-secondary/55 font-dubai text-sm">{t.accounting.apartments.noBookingsThisMonth}</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">العميل</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">الدخول</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">الخروج</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">الليالي</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">المبلغ</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">المصدر</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden md:table-cell">الحالة</th>
+                <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.client}</th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">{t.accounting.apartments.checkInDate}</th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">{t.accounting.apartments.checkOutDate}</th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.nights}</th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.amountHeader}</th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.source}</th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden md:table-cell">{t.accounting.apartments.status}</th>
               </tr>
             </thead>
             <tbody>
               {bookings.map((booking, i) => {
-                const source = SOURCE_BADGES[booking.source] || SOURCE_BADGES.OTHER;
-                const status = STATUS_BADGES[booking.status] || STATUS_BADGES.CONFIRMED;
+                const sourceLabel = SOURCE_LABELS[booking.source] || booking.source;
+                const sourceClass = SOURCE_CLASSES[booking.source] || SOURCE_CLASSES.OTHER;
+                const statusLabel = t.accounting.bookingStatuses[booking.status as keyof typeof t.accounting.bookingStatuses] || booking.status;
+                const statusClass = STATUS_CLASSES[booking.status] || STATUS_CLASSES.CONFIRMED;
 
                 return (
                   <tr
@@ -125,13 +139,13 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, is
                       {formatCurrency(booking.amount)}
                     </td>
                     <td className="px-4 py-3.5 text-center">
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai ${source.className}`}>
-                        {source.label}
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai ${sourceClass}`}>
+                        {sourceLabel}
                       </span>
                     </td>
                     <td className="px-4 py-3.5 text-center hidden md:table-cell">
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai ${status.className}`}>
-                        {status.label}
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai ${statusClass}`}>
+                        {statusLabel}
                       </span>
                     </td>
                   </tr>

@@ -12,6 +12,8 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ApartmentData {
   name: string;
@@ -32,7 +34,7 @@ const formatCurrency = (val: number) => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, currencyLabel, locale }: any) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
@@ -42,7 +44,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
           <span className="text-secondary/70">{entry.name}:</span>
           <span className="font-bold text-secondary">
-            {new Intl.NumberFormat('ar-EG').format(entry.value)} ج.م
+            {new Intl.NumberFormat(locale).format(entry.value)} {currencyLabel}
           </span>
         </div>
       ))}
@@ -54,6 +56,10 @@ const ApartmentComparisonChart: React.FC<ApartmentComparisonChartProps> = ({
   data,
   isLoading,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+
   if (isLoading) {
     return (
       <div className="h-[320px] flex items-center justify-center">
@@ -65,7 +71,7 @@ const ApartmentComparisonChart: React.FC<ApartmentComparisonChartProps> = ({
   if (!data.length) {
     return (
       <div className="h-[320px] flex items-center justify-center text-secondary/50 font-dubai">
-        لا توجد بيانات للمقارنة
+        {t.accounting.reports.noComparisonData}
       </div>
     );
   }
@@ -96,7 +102,7 @@ const ApartmentComparisonChart: React.FC<ApartmentComparisonChartProps> = ({
             tickLine={false}
             width={50}
           />
-          <Tooltip content={<CustomTooltip />} cursor={false} />
+          <Tooltip content={<CustomTooltip currencyLabel={t.accounting.common.currency} locale={locale} />} cursor={false} />
           <Legend
             verticalAlign="top"
             align="center"
@@ -106,21 +112,21 @@ const ApartmentComparisonChart: React.FC<ApartmentComparisonChartProps> = ({
           />
           <Bar
             dataKey="revenue"
-            name="الإيرادات"
+            name={t.accounting.dashboard.revenue}
             fill="#5a9a7a"
             radius={[6, 6, 0, 0]}
             maxBarSize={40}
           />
           <Bar
             dataKey="expenses"
-            name="المصروفات"
+            name={t.accounting.dashboard.expensesLabel}
             fill="#c47a6c"
             radius={[6, 6, 0, 0]}
             maxBarSize={40}
           />
           <Bar
             dataKey="profit"
-            name="الربح"
+            name={t.accounting.dashboard.profit}
             fill="#edbf8c"
             radius={[6, 6, 0, 0]}
             maxBarSize={40}

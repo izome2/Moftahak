@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import MonthSelector from '@/components/accounting/apartments/MonthSelector';
 import { useToast } from '@/components/accounting/shared/Toast';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ============================================================================
 // Types
@@ -36,8 +38,8 @@ const getCurrentMonth = () => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 };
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('ar-EG', { style: 'decimal', maximumFractionDigits: 0 }).format(amount);
+const formatCurrency = (amount: number, loc: string) => {
+  return new Intl.NumberFormat(loc, { style: 'decimal', maximumFractionDigits: 0 }).format(amount);
 };
 
 // ============================================================================
@@ -46,6 +48,9 @@ const formatCurrency = (amount: number) => {
 
 export default function MonthLockPage() {
   const toast = useToast();
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
   const toastRef = React.useRef(toast);
   toastRef.current = toast;
 
@@ -67,10 +72,10 @@ export default function MonthLockPage() {
         setTotalLocked(json.totalLocked || 0);
         setTotalUnlocked(json.totalUnlocked || 0);
       } else {
-        toastRef.current.error(json.error || 'فشل في تحميل حالة الشهر');
+        toastRef.current.error(json.error || t.accounting.errors.fetchMonthStatus);
       }
     } catch {
-      toastRef.current.error('حدث خطأ في الاتصال');
+      toastRef.current.error(t.accounting.errors.connectionError);
     } finally {
       setLoading(false);
     }
@@ -97,13 +102,13 @@ export default function MonthLockPage() {
       const json = await res.json();
 
       if (res.ok) {
-        toastRef.current.success(json.message || (action === 'lock' ? 'تم القفل بنجاح' : 'تم فتح القفل'));
+        toastRef.current.success(json.message || (action === 'lock' ? t.accounting.success.locked : t.accounting.success.unlocked));
         await fetchStatus();
       } else {
-        toastRef.current.error(json.error || 'فشلت العملية');
+        toastRef.current.error(json.error || t.accounting.errors.resetFailed);
       }
     } catch {
-      toastRef.current.error('حدث خطأ في الاتصال');
+      toastRef.current.error(t.accounting.errors.connectionError);
     } finally {
       setActionLoading(null);
     }
@@ -111,7 +116,7 @@ export default function MonthLockPage() {
 
   const formatLockDate = (dateStr: string | null) => {
     if (!dateStr) return '—';
-    return new Intl.DateTimeFormat('ar-EG', {
+    return new Intl.DateTimeFormat(locale, {
       year: 'numeric', month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit',
     }).format(new Date(dateStr));
@@ -130,9 +135,9 @@ export default function MonthLockPage() {
             <ShieldCheck size={24} className="text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-secondary font-dubai">قفل الأشهر</h1>
+            <h1 className="text-2xl font-bold text-secondary font-dubai">{t.accounting.monthLock.title}</h1>
             <p className="text-sm text-secondary/60 font-dubai">
-              قفل الأشهر المالية لمنع التعديل وحفظ نسب المستثمرين
+              {t.accounting.monthLock.subtitle}
             </p>
           </div>
         </div>
@@ -143,7 +148,7 @@ export default function MonthLockPage() {
           className="flex items-center gap-2 px-4 py-2.5 bg-primary/10 hover:bg-primary/20 text-secondary font-dubai text-sm font-bold rounded-xl transition-colors disabled:opacity-50"
         >
           <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-          تحديث
+          {t.accounting.common.refresh}
         </button>
       </motion.div>
 
@@ -160,11 +165,11 @@ export default function MonthLockPage() {
           <div className="flex items-center gap-4 text-sm font-dubai">
             <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-xl border border-green-200">
               <Lock size={14} className="text-green-600" />
-              <span className="font-bold text-green-700">{totalLocked} مقفل</span>
+              <span className="font-bold text-green-700">{totalLocked} {t.accounting.monthLock.lockedCount}</span>
             </div>
             <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 rounded-xl border border-amber-200">
               <Unlock size={14} className="text-amber-600" />
-              <span className="font-bold text-amber-700">{totalUnlocked} مفتوح</span>
+              <span className="font-bold text-amber-700">{totalUnlocked} {t.accounting.monthLock.openCount}</span>
             </div>
           </div>
         </div>
@@ -186,10 +191,10 @@ export default function MonthLockPage() {
               ) : (
                 <Lock size={16} />
               )}
-              قفل جميع الشقق لشهر {month}
+              {t.accounting.monthLock.lockAllForMonth(month)}
             </button>
             <p className="text-xs text-secondary/40 font-dubai mt-2">
-              سيتم حفظ نسب المستثمرين الحالية كلقطة تاريخية لهذا الشهر
+              {t.accounting.monthLock.snapshotNote}
             </p>
           </motion.div>
         )}
@@ -209,19 +214,19 @@ export default function MonthLockPage() {
         ) : apartments.length === 0 ? (
           <div className="text-center py-20 text-secondary/40 font-dubai">
             <Building2 size={48} className="mx-auto mb-3 opacity-30" />
-            <p className="text-lg font-bold">لا توجد شقق</p>
-            <p className="text-sm mt-1">أضف شقق من الإعدادات لتظهر هنا</p>
+            <p className="text-lg font-bold">{t.accounting.monthLock.noApartments}</p>
+            <p className="text-sm mt-1">{t.accounting.monthLock.addApartmentsNote}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-primary/5 border-b-2 border-primary/10">
-                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70">الشقة</th>
-                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70">الحالة</th>
-                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70">الربح</th>
-                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70">تاريخ القفل</th>
-                  <th className="text-center px-4 py-3 font-dubai font-bold text-secondary/70">إجراء</th>
+                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70">{t.accounting.monthLock.apartment}</th>
+                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70">{t.accounting.monthLock.status}</th>
+                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70">{t.accounting.monthLock.profit}</th>
+                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70">{t.accounting.monthLock.lockDate}</th>
+                  <th className="text-center px-4 py-3 font-dubai font-bold text-secondary/70">{t.accounting.monthLock.action}</th>
                 </tr>
               </thead>
               <tbody>
@@ -245,18 +250,18 @@ export default function MonthLockPage() {
                         {apt.isLocked ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-bold font-dubai">
                             <CheckCircle2 size={13} />
-                            مقفل
+                            {t.accounting.monthLock.locked}
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold font-dubai">
                             <AlertTriangle size={13} />
-                            مفتوح
+                            {t.accounting.monthLock.open}
                           </span>
                         )}
                       </td>
                       <td className="px-4 py-3.5 font-dubai text-secondary/80 font-semibold">
                         <span className={apt.profit >= 0 ? 'text-green-600' : 'text-red-500'}>
-                          {formatCurrency(apt.profit)} $
+                          {formatCurrency(apt.profit, locale)} $
                         </span>
                       </td>
                       <td className="px-4 py-3.5 font-dubai text-secondary/50 text-xs">
@@ -274,7 +279,7 @@ export default function MonthLockPage() {
                             ) : (
                               <Unlock size={13} />
                             )}
-                            فتح
+                            {t.accounting.monthLock.unlock}
                           </button>
                         ) : (
                           <button
@@ -287,7 +292,7 @@ export default function MonthLockPage() {
                             ) : (
                               <Lock size={13} />
                             )}
-                            قفل
+                            {t.accounting.monthLock.lock}
                           </button>
                         )}
                       </td>
@@ -308,9 +313,9 @@ export default function MonthLockPage() {
         className="bg-primary/5 border border-primary/20 rounded-xl px-4 py-3 text-sm font-dubai text-secondary/70 max-w-xl"
       >
         <ul className="space-y-1 text-xs list-disc list-inside">
-          <li>قفل الشهر يمنع إضافة أو تعديل أو حذف الحجوزات والمصروفات لذلك الشهر</li>
-          <li>عند القفل، يتم حفظ نسب المستثمرين الحالية كلقطة تاريخية</li>
-          <li>فتح القفل يسمح بالتعديل لكن النسب التاريخية المحفوظة تبقى كسجل</li>
+          <li>{t.accounting.monthLock.lockPreventsEditing}</li>
+          <li>{t.accounting.monthLock.snapshotSaved}</li>
+          <li>{t.accounting.monthLock.unlockAllowsEditing}</li>
         </ul>
       </motion.div>
     </div>

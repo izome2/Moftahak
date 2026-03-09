@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Receipt, TrendingDown, Hash, Building2, Percent } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ExpenseSummaryProps {
   totalExpenses: number;
@@ -13,9 +15,6 @@ interface ExpenseSummaryProps {
   isLoading?: boolean;
 }
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
-
 const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
   totalExpenses,
   totalCount,
@@ -24,11 +23,19 @@ const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
   averagePerExpense,
   isLoading = false,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currency = t.accounting.common.currency;
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat(locale).format(amount) + ' ' + currency;
+
   const avg = averagePerExpense ?? (totalCount > 0 ? totalExpenses / totalCount : 0);
 
   const cards = [
     {
-      label: 'إجمالي المصروفات',
+      label: t.accounting.expenses.totalExpenses,
       value: formatCurrency(totalExpenses),
       icon: Receipt,
       bgColor: 'bg-[#c09080]/12',
@@ -36,7 +43,7 @@ const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
       valueColor: 'text-[#c09080]',
     },
     {
-      label: 'عدد المصروفات',
+      label: t.accounting.expenses.expenseCount,
       value: String(totalCount),
       icon: Hash,
       bgColor: 'bg-primary/15',
@@ -44,7 +51,7 @@ const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
       valueColor: 'text-secondary',
     },
     {
-      label: 'متوسط المصروف',
+      label: t.accounting.expenses.avgExpense,
       value: formatCurrency(Math.round(avg)),
       icon: TrendingDown,
       bgColor: 'bg-secondary/8',
@@ -52,7 +59,7 @@ const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
       valueColor: 'text-secondary',
     },
     ...(apartmentsCount !== undefined ? [{
-      label: 'شقق بمصروفات',
+      label: t.accounting.expenses.apartmentsWithExpenses,
       value: String(apartmentsCount),
       icon: Building2,
       bgColor: 'bg-primary/12',
@@ -60,7 +67,7 @@ const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
       valueColor: 'text-secondary',
     }] : []),
     ...(topCategory ? [{
-      label: 'أعلى قسم',
+      label: t.accounting.expenses.topCategory,
       value: topCategory.label,
       icon: Percent,
       bgColor: 'bg-primary/20',

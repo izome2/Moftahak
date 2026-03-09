@@ -18,6 +18,7 @@ import {
   staggerContainer
 } from '@/lib/animations/variants';
 import AnimatedStroke from './ui/AnimatedStroke';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface Service {
   id: number;
@@ -39,6 +40,7 @@ const ServicesSection: React.FC = () => {
   const gridRef = useRef<HTMLDivElement>(null!);
   const [showGyroButton, setShowGyroButton] = React.useState(false);
   const [gyroRequested, setGyroRequested] = React.useState(false);
+  const t = useTranslation();
   
   const isHeaderInView = useScrollAnimation(headerRef, { threshold: 0.3, once: true });
   const isGridInView = useScrollAnimation(gridRef, { threshold: 0.1, once: true });
@@ -154,7 +156,7 @@ const ServicesSection: React.FC = () => {
                 {}
                 <div className="flex-1">
                   <p className="text-secondary text-sm leading-relaxed mb-4">
-                    هذه الصفحة تمتلك أنيميشن وتأثيرات 3D عند تحريك الهاتف. هل تريد السماح بتفعيل الميزة؟
+                    {t.services.gyroMessage}
                   </p>
                   
                   {}
@@ -165,7 +167,7 @@ const ServicesSection: React.FC = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      نعم
+                      {t.services.gyroYes}
                     </motion.button>
                     <motion.button
                       onClick={() => setShowGyroButton(false)}
@@ -173,7 +175,7 @@ const ServicesSection: React.FC = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      لا
+                      {t.services.gyroNo}
                     </motion.button>
                   </div>
                 </div>
@@ -196,14 +198,14 @@ const ServicesSection: React.FC = () => {
             variants={fadeInUp}
           >
             <AnimatedStroke delay={0.3}>
-              الخدمات المتاحة
+              {t.services.title}
             </AnimatedStroke>
           </motion.h2>
           <motion.p 
             className="text-lg text-secondary/70 max-w-2xl mx-auto"
             variants={fadeInUp}
           >
-            برامج شاملة لتطوير مشروعك في الإيجار القصير
+            {t.services.subtitle}
           </motion.p>
         </motion.div>
 

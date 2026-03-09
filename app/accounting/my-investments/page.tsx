@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
+import { useTranslation } from '@/hooks/useTranslation';
 import ApartmentView from '@/components/accounting/investor/ApartmentView';
 import WithdrawalsTable from '@/components/accounting/investor/WithdrawalsTable';
 import BalanceCard from '@/components/accounting/investor/BalanceCard';
@@ -63,6 +64,7 @@ interface WithdrawalRow {
 
 export default function MyInvestmentsPage() {
   const { data: session } = useSession();
+  const t = useTranslation();
   const userId = session?.user?.id;
 
   // Data
@@ -92,7 +94,7 @@ export default function MyInvestmentsPage() {
       const withdrawalsJson = await withdrawalsRes.json();
 
       if (!summaryRes.ok) {
-        setError(summaryJson.error || 'حدث خطأ في تحميل البيانات');
+        setError(summaryJson.error || t.accounting.errors.loadInvestmentData);
         return;
       }
 
@@ -105,7 +107,7 @@ export default function MyInvestmentsPage() {
         setWithdrawalsTotal(withdrawalsJson.total || 0);
       }
     } catch {
-      setError('فشل الاتصال بالخادم');
+      setError(t.accounting.errors.connectionFailed);
     } finally {
       setIsLoading(false);
     }
@@ -133,7 +135,7 @@ export default function MyInvestmentsPage() {
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
-              حساباتي
+              {t.accounting.myInvestments.title}
               {investorName && (
                 <span className="text-sm font-normal text-secondary/40 mr-2">
                   — {investorName}
@@ -141,7 +143,7 @@ export default function MyInvestmentsPage() {
               )}
             </h1>
             <p className="text-sm text-secondary/60 font-dubai">
-              استثماراتك وأرباحك ومسحوباتك
+              {t.accounting.myInvestments.subtitle}
             </p>
           </div>
         </div>
@@ -159,7 +161,7 @@ export default function MyInvestmentsPage() {
       {isLoading && (
         <div className="py-16 flex flex-col items-center gap-3 text-secondary/40">
           <Loader2 className="w-8 h-8 animate-spin" />
-          <p className="text-sm font-dubai">جاري تحميل بيانات الاستثمار...</p>
+          <p className="text-sm font-dubai">{t.accounting.myInvestments.loadingData}</p>
         </div>
       )}
 
@@ -199,7 +201,7 @@ export default function MyInvestmentsPage() {
               className="flex items-center gap-2 text-xs text-secondary/60 font-dubai"
             >
               <Building2 className="w-3.5 h-3.5" />
-              <span>لديك استثمارات في {investments.length} شقة</span>
+              <span>{t.accounting.myInvestments.investmentsIn(investments.length)}</span>
             </motion.div>
           )}
 
@@ -212,10 +214,10 @@ export default function MyInvestmentsPage() {
             >
               <Wallet className="w-12 h-12 mx-auto mb-3 text-secondary/20" />
               <p className="text-secondary/40 font-dubai text-sm">
-                لا يوجد استثمارات مسجلة حالياً
+                {t.accounting.myInvestments.noInvestments}
               </p>
               <p className="text-secondary/30 font-dubai text-xs mt-1">
-                تواصل مع المدير العام لربط حسابك بشقة
+                {t.accounting.myInvestments.contactAdmin}
               </p>
             </motion.div>
           )}

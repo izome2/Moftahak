@@ -10,6 +10,8 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CategoryData {
   category: string;
@@ -21,23 +23,6 @@ interface ExpensePieChartProps {
   isLoading?: boolean;
 }
 
-// ترجمة أقسام المصروفات
-const CATEGORY_LABELS: Record<string, string> = {
-  CLEANING: 'نظافة',
-  MAINTENANCE: 'صيانة',
-  ELECTRICITY: 'كهرباء',
-  WATER: 'مياه',
-  GAS: 'غاز',
-  INTERNET: 'إنترنت',
-  FURNITURE: 'أثاث',
-  SUPPLIES: 'مستلزمات',
-  COMMISSION: 'عمولة',
-  TAXES: 'ضرائب',
-  INSURANCE: 'تأمين',
-  MANAGEMENT: 'إدارة',
-  OTHER: 'أخرى',
-};
-
 const COLORS = [
   '#10302b', '#edbf8c', '#5a9a7a', '#c47a6c', '#7a9ab5',
   '#9a7ab5', '#c4a86c', '#b57a8a', '#6ab5a5', '#a0b56a',
@@ -45,25 +30,8 @@ const COLORS = [
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTooltip = ({ active, payload }: any) => {
-  if (!active || !payload?.length) return null;
-  const entry = payload[0];
-  return (
-    <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
-      <div className="flex items-center gap-2">
-        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.payload.fill }} />
-        <span className="text-secondary/70">{entry.name}:</span>
-        <span className="font-bold text-secondary">
-          {new Intl.NumberFormat('ar-EG').format(entry.value)} ج.م
-        </span>
-      </div>
-    </div>
-  );
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
-  if (percent < 0.05) return null; // لا تعرض النسبة إذا أقل من 5%
+  if (percent < 0.05) return null;
   const RADIAN = Math.PI / 180;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -85,6 +53,28 @@ const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent
 };
 
 const ExpensePieChart: React.FC<ExpensePieChartProps> = ({ data, isLoading }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currency = t.accounting.common.currency;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (!active || !payload?.length) return null;
+    const entry = payload[0];
+    return (
+      <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.payload.fill }} />
+          <span className="text-secondary/70">{entry.name}:</span>
+          <span className="font-bold text-secondary">
+            {new Intl.NumberFormat(locale).format(entry.value)} {currency}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="h-[300px] flex items-center justify-center">
@@ -96,13 +86,13 @@ const ExpensePieChart: React.FC<ExpensePieChartProps> = ({ data, isLoading }) =>
   if (!data.length) {
     return (
       <div className="h-[300px] flex items-center justify-center text-secondary/50 font-dubai">
-        لا توجد مصروفات هذا الشهر
+        {t.accounting.dashboard.noExpensesThisMonth}
       </div>
     );
   }
 
   const chartData = data.map(d => ({
-    name: CATEGORY_LABELS[d.category] || d.category,
+    name: t.accounting.expenseCategoriesShort[d.category as keyof typeof t.accounting.expenseCategoriesShort] || d.category,
     value: d.amount,
   }));
 

@@ -42,6 +42,8 @@ import {
   ChevronUp
 } from 'lucide-react';
 import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ============================================
 // 🎨 DESIGN TOKENS
@@ -119,28 +121,24 @@ type UnifiedItem =
 // ============================================
 
 const studyStatusConfig: Record<string, { 
-  label: string; 
   bgColor: string;
   textColor: string;
   borderColor: string;
   icon: React.ComponentType<{ className?: string }>;
 }> = {
   DRAFT: { 
-    label: 'مسودة', 
     bgColor: 'bg-amber-500/10',
     textColor: 'text-amber-700',
     borderColor: 'border-amber-500/30',
     icon: Clock
   },
   SENT: { 
-    label: 'تم الإرسال', 
     bgColor: 'bg-blue-500/10',
     textColor: 'text-blue-700',
     borderColor: 'border-blue-500/30',
     icon: PlayCircle
   },
   VIEWED: { 
-    label: 'تمت المشاهدة', 
     bgColor: 'bg-emerald-400/15',
     textColor: 'text-emerald-800/70',
     borderColor: 'border-emerald-600/40',
@@ -149,35 +147,30 @@ const studyStatusConfig: Record<string, {
 };
 
 const requestStatusConfig: Record<string, { 
-  label: string; 
   bgColor: string;
   textColor: string;
   borderColor: string;
   icon: React.ComponentType<{ className?: string }>;
 }> = {
   PENDING: { 
-    label: 'طلب جديد', 
     bgColor: 'bg-orange-500/15',
     textColor: 'text-orange-700',
     borderColor: 'border-orange-500/40',
     icon: Clock
   },
   IN_PROGRESS: { 
-    label: 'قيد المعالجة', 
     bgColor: 'bg-blue-500/10',
     textColor: 'text-blue-700',
     borderColor: 'border-blue-500/30',
     icon: PlayCircle
   },
   COMPLETED: { 
-    label: 'مكتمل', 
     bgColor: 'bg-emerald-400/15',
     textColor: 'text-emerald-800/70',
     borderColor: 'border-emerald-600/40',
     icon: CheckCircle
   },
   REJECTED: { 
-    label: 'مرفوض', 
     bgColor: 'bg-red-500/10',
     textColor: 'text-red-700',
     borderColor: 'border-red-500/30',
@@ -185,20 +178,7 @@ const requestStatusConfig: Record<string, {
   },
 };
 
-const propertyTypeLabels: Record<string, string> = {
-  APARTMENT: 'شقة',
-  VILLA: 'فيلا',
-  STUDIO: 'استوديو',
-  DUPLEX: 'دوبلكس',
-  PENTHOUSE: 'بنتهاوس',
-  CHALET: 'شاليه',
-  OTHER: 'أخرى',
-};
-
-const studyTypeLabels: Record<string, string> = {
-  WITH_FIELD_VISIT: 'مع نزول ميداني',
-  WITHOUT_FIELD_VISIT: 'بدون نزول ميداني',
-};
+// propertyTypeLabels and studyTypeLabels are now provided via translations
 
 // ============================================
 // 🧩 UNIFIED CARD COMPONENT
@@ -231,6 +211,10 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
   isRejectedSection = false,
   currencySymbol = 'ج.م'
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const propertyTypeLabels = t.admin.propertyTypes;
+  const studyTypeLabelsMap = t.admin.studyTypes;
   const isRequest = item.type === 'request';
   const data = item.data;
   
@@ -314,11 +298,14 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
               </h3>
               <span className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-dubai font-medium border flex items-center gap-1 sm:gap-1.5 ${status.bgColor} ${status.textColor} ${status.borderColor}`}>
                 <StatusIcon className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
-                {status.label}
+                {isRequest 
+                  ? (t.admin.requestStatus[requestData!.status as keyof typeof t.admin.requestStatus] || requestData!.status)
+                  : (t.admin.studyStatus[studyData!.status as keyof typeof t.admin.studyStatus] || studyData!.status)
+                }
               </span>
               {studyType && (
                 <span className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-dubai font-medium bg-secondary/10 text-secondary border border-secondary/20">
-                  {studyTypeLabels[studyType] || studyType}
+                  {studyTypeLabelsMap[studyType as keyof typeof studyTypeLabelsMap] || studyType}
                 </span>
               )}
             </div>
@@ -328,7 +315,7 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
               {requestData?.propertyType && (
                 <span className="flex items-center gap-1 sm:gap-1.5">
                   <Home className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-                  {propertyTypeLabels[requestData.propertyType] || requestData.propertyType}
+                  {propertyTypeLabels[requestData.propertyType as keyof typeof propertyTypeLabels] || requestData.propertyType}
                 </span>
               )}
               {(requestData?.city || requestData?.district) && (
@@ -339,11 +326,11 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
               )}
               <span className="flex items-center gap-1 sm:gap-1.5">
                 <Calendar className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-                {new Date(createdAt).toLocaleDateString('ar-EG')}
+                {new Date(createdAt).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US')}
               </span>
               {studyData?.totalCost && studyData.totalCost > 0 && (
                 <span className="flex items-center gap-1 sm:gap-1.5 text-primary font-medium">
-                  {studyData.totalCost.toLocaleString('ar-EG')} {itemCurrencySymbol}
+                  {studyData.totalCost.toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US')} {itemCurrencySymbol}
                 </span>
               )}
             </div>
@@ -398,7 +385,7 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
             {/* رمز الدفع للطلبات */}
             {isRequest && requestData?.paymentCode && (
               <div className="flex items-center gap-1.5 px-3 py-2 bg-amber-50 border-2 border-amber-200 rounded-xl text-amber-800">
-                <span className="text-xs font-dubai">رمز الدفع:</span>
+                <span className="text-xs font-dubai">{t.admin.feasibilityPage.paymentCode}</span>
                 <span className="font-mono font-bold text-sm" dir="ltr">{requestData.paymentCode}</span>
               </div>
             )}
@@ -415,8 +402,8 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
                   style={{ boxShadow: SHADOWS.button }}
                 >
                   <Undo2 className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-                  <span className="hidden sm:inline">تراجع عن الرفض</span>
-                  <span className="sm:hidden">تراجع</span>
+                  <span className="hidden sm:inline">{t.admin.feasibilityPage.undoReject}</span>
+                  <span className="sm:hidden">{t.admin.feasibilityPage.undoShort}</span>
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -427,8 +414,8 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
                   style={{ boxShadow: SHADOWS.button }}
                 >
                   <CheckCircle className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-                  <span className="hidden sm:inline">قبول ومتابعة</span>
-                  <span className="sm:hidden">قبول</span>
+                  <span className="hidden sm:inline">{t.admin.feasibilityPage.acceptAndProceed}</span>
+                  <span className="sm:hidden">{t.admin.feasibilityPage.acceptShort}</span>
                 </motion.button>
               </>
             )}
@@ -445,7 +432,7 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
                   style={{ boxShadow: SHADOWS.card }}
                 >
                   <Ban className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-                  رفض
+                  {t.admin.feasibilityPage.reject}
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -456,7 +443,7 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
                   style={{ boxShadow: SHADOWS.button }}
                 >
                   <CheckCircle className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-                  قبول
+                  {t.admin.feasibilityPage.accept}
                 </motion.button>
               </>
             )}
@@ -472,8 +459,8 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
                 style={{ boxShadow: SHADOWS.button }}
               >
                 <Plus className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
-                <span className="hidden sm:inline">إنشاء دراسة</span>
-                <span className="sm:hidden">إنشاء</span>
+                <span className="hidden sm:inline">{t.admin.feasibilityPage.createStudy}</span>
+                <span className="sm:hidden">{t.admin.feasibilityPage.createShort}</span>
               </motion.button>
             )}
             
@@ -488,8 +475,8 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
                   style={{ boxShadow: 'rgba(237, 191, 140, 0.3) 0px 4px 12px' }}
                 >
                   <PenLine className="w-3.5 sm:w-4 h-3.5 sm:h-4" strokeWidth={1.5} />
-                  <span className="hidden sm:inline">تعديل الدراسة</span>
-                  <span className="sm:hidden">تعديل</span>
+                  <span className="hidden sm:inline">{t.admin.feasibilityPage.editStudy}</span>
+                  <span className="sm:hidden">{t.admin.feasibilityPage.editShort}</span>
                 </motion.button>
               </Link>
             )}
@@ -530,7 +517,7 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
                           className="w-[calc(100%-16px)] flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-sm text-secondary hover:bg-primary/10 transition-colors"
                         >
                           <Eye className="w-4 h-4" />
-                          معاينة
+                          {t.admin.preview}
                         </button>
                       )}
                       
@@ -544,7 +531,7 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
                           className="w-[calc(100%-16px)] flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-sm text-secondary hover:bg-primary/10 transition-colors"
                         >
                           <MapPin className="w-4 h-4" />
-                          فتح الموقع
+                          {t.admin.openLocation}
                         </button>
                       )}
                       
@@ -557,7 +544,7 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
                         className="w-[calc(100%-16px)] flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
-                        حذف
+                        {t.admin.delete}
                       </button>
                     </motion.div>
                   </>
@@ -577,6 +564,8 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
 
 export default function FeasibilityStudiesPage() {
   const { currencySymbol } = useCurrencyFormatter();
+  const t = useTranslation();
+  const { language } = useLanguage();
   const [studies, setStudies] = useState<Study[]>([]);
   const [requests, setRequests] = useState<FeasibilityRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -606,7 +595,7 @@ export default function FeasibilityStudiesPage() {
       setStudies(studiesData.studies || []);
       setRequests(requestsData.requests || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ أثناء جلب البيانات');
+      setError(err instanceof Error ? err.message : t.admin.errorFetchingData);
     } finally {
       setLoading(false);
     }
@@ -687,7 +676,7 @@ export default function FeasibilityStudiesPage() {
       
       fetchData();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'حدث خطأ');
+      alert(err instanceof Error ? err.message : t.admin.errorOccurred);
     }
     setMenuOpen(null);
   };
@@ -707,21 +696,21 @@ export default function FeasibilityStudiesPage() {
       // الانتقال لصفحة تعديل الدراسة
       window.location.href = `/admin/feasibility/${data.study.id}`;
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'حدث خطأ');
+      alert(err instanceof Error ? err.message : t.admin.errorOccurred);
       setActionLoading(null);
     }
   };
 
   // رفض طلب
   const handleRejectRequest = async (request: FeasibilityRequest) => {
-    if (!confirm('هل أنت متأكد من رفض هذا الطلب؟')) return;
+    if (!confirm(t.admin.feasibilityPage.confirmReject)) return;
     
     try {
       setActionLoading(request.id);
       const response = await fetch(`/api/admin/feasibility-requests/${request.id}/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: 'تم الرفض من قبل الإدارة' }),
+        body: JSON.stringify({ reason: t.admin.feasibilityPage.rejectedByAdmin }),
       });
       
       const data = await response.json();
@@ -730,7 +719,7 @@ export default function FeasibilityStudiesPage() {
       
       fetchData();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'حدث خطأ');
+      alert(err instanceof Error ? err.message : t.admin.errorOccurred);
     } finally {
       setActionLoading(null);
     }
@@ -750,7 +739,7 @@ export default function FeasibilityStudiesPage() {
       
       fetchData();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'حدث خطأ');
+      alert(err instanceof Error ? err.message : t.admin.errorOccurred);
     } finally {
       setActionLoading(null);
     }
@@ -794,7 +783,7 @@ export default function FeasibilityStudiesPage() {
       // الانتقال لصفحة تعديل الدراسة
       window.location.href = `/admin/feasibility/${data.study.id}`;
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'حدث خطأ');
+      alert(err instanceof Error ? err.message : t.admin.errorOccurred);
     }
   };
 
@@ -820,13 +809,13 @@ export default function FeasibilityStudiesPage() {
             </motion.div>
             <div className="flex-1">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-secondary font-dubai">
-                دراسات الجدوى
+                {t.admin.feasibilityPage.title}
               </h1>
               <p className="text-secondary/60 text-xs sm:text-sm mt-0.5 sm:mt-1 font-dubai">
-                إدارة وإنشاء دراسات الجدوى للعملاء
+                {t.admin.feasibilityPage.subtitle}
                 {newRequestsCount > 0 && (
                   <span className="mr-2 px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs">
-                    {newRequestsCount} طلب جديد
+                    {newRequestsCount} {t.admin.feasibilityPage.newRequest}
                   </span>
                 )}
               </p>
@@ -850,14 +839,14 @@ export default function FeasibilityStudiesPage() {
                 {showRejected ? (
                   <>
                     <FileText className="w-4 sm:w-5 h-4 sm:h-5" />
-                    <span className="hidden sm:inline">الطلبات الرئيسية</span>
-                    <span className="sm:hidden">الرئيسية</span>
+                    <span className="hidden sm:inline">{t.admin.feasibilityPage.mainRequests}</span>
+                    <span className="sm:hidden">{t.admin.feasibilityPage.mainShort}</span>
                   </>
                 ) : (
                   <>
                     <XCircle className="w-4 sm:w-5 h-4 sm:h-5" />
-                    <span className="hidden sm:inline">المرفوضة ({rejectedCount})</span>
-                    <span className="sm:hidden">مرفوض ({rejectedCount})</span>
+                    <span className="hidden sm:inline">{t.admin.rejected(rejectedCount)}</span>
+                    <span className="sm:hidden">{t.admin.rejectedShort(rejectedCount)}</span>
                   </>
                 )}
               </motion.button>
@@ -881,8 +870,8 @@ export default function FeasibilityStudiesPage() {
                 style={{ boxShadow: SHADOWS.button }}
               >
                 <Plus className="w-4 sm:w-5 h-4 sm:h-5" />
-                <span className="hidden sm:inline">دراسة جديدة</span>
-                <span className="sm:hidden">جديدة</span>
+                <span className="hidden sm:inline">{t.admin.feasibilityPage.newStudy}</span>
+                <span className="sm:hidden">{t.admin.feasibilityPage.newShort}</span>
               </motion.button>
             </Link>
           </div>
@@ -906,7 +895,7 @@ export default function FeasibilityStudiesPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ابحث بالاسم أو البريد أو المدينة..."
+                placeholder={t.admin.feasibilityPage.searchPlaceholder}
                 className="flex-1 px-4 py-4 bg-transparent text-secondary placeholder-secondary/40 focus:outline-none font-dubai"
               />
               {searchQuery && (
@@ -950,7 +939,7 @@ export default function FeasibilityStudiesPage() {
             >
               <Loader2 className="w-8 h-8 text-secondary animate-spin" />
             </div>
-            <p className="text-secondary/60 font-dubai">جاري تحميل البيانات...</p>
+            <p className="text-secondary/60 font-dubai">{t.admin.loadingData}</p>
           </motion.div>
         ) : filteredItems.length === 0 && !showRejected ? (
           <motion.div
@@ -971,12 +960,12 @@ export default function FeasibilityStudiesPage() {
               </motion.div>
               
               <h3 className="text-xl font-dubai font-bold text-secondary mb-2">
-                {searchQuery ? 'لا توجد نتائج' : 'لا توجد دراسات أو طلبات'}
+                {searchQuery ? t.admin.noResults : t.admin.feasibilityPage.noStudiesOrRequests}
               </h3>
               <p className="text-secondary/60 text-sm font-dubai mb-6">
                 {searchQuery 
-                  ? 'جرب البحث بكلمات مختلفة'
-                  : 'ابدأ بإنشاء دراسة جدوى جديدة'
+                  ? t.admin.feasibilityPage.tryDifferentSearch
+                  : t.admin.feasibilityPage.startCreating
                 }
               </p>
               
@@ -989,7 +978,7 @@ export default function FeasibilityStudiesPage() {
                     style={{ boxShadow: SHADOWS.button }}
                   >
                     <Plus className="w-5 h-5" />
-                    دراسة جديدة
+                    {t.admin.feasibilityPage.newStudy}
                   </motion.button>
                 </Link>
               )}
@@ -1015,10 +1004,10 @@ export default function FeasibilityStudiesPage() {
                   </motion.div>
                   
                   <h3 className="text-xl font-dubai font-bold text-secondary mb-2">
-                    لا توجد طلبات مرفوضة
+                    {t.admin.feasibilityPage.noRejectedRequests}
                   </h3>
                   <p className="text-secondary/60 text-sm font-dubai">
-                    جميع الطلبات تمت معالجتها
+                    {t.admin.feasibilityPage.allProcessed}
                   </p>
                 </div>
               </motion.div>
@@ -1074,12 +1063,12 @@ export default function FeasibilityStudiesPage() {
             className="text-center text-secondary/50 text-sm font-dubai py-4"
           >
             {showRejected ? (
-              <>إجمالي {rejectedCount} طلب مرفوض</>
+              <>{t.admin.feasibilityPage.totalRejected(rejectedCount)}</>
             ) : (
               <>
-                إجمالي {filteredItems.length} عنصر
-                {newRequestsCount > 0 && ` • ${newRequestsCount} طلب جديد في الانتظار`}
-                {rejectedCount > 0 && ` • ${rejectedCount} طلب مرفوض`}
+                {t.admin.feasibilityPage.totalItems(filteredItems.length)}
+                {newRequestsCount > 0 && ` • ${t.admin.feasibilityPage.newRequestsWaiting(newRequestsCount)}`}
+                {rejectedCount > 0 && ` • ${t.admin.feasibilityPage.rejectedRequests(rejectedCount)}`}
               </>
             )}
           </motion.div>

@@ -5,8 +5,8 @@ import { User, MapPin, Map } from 'lucide-react';
 import { 
   FeasibilityRequestFormData, 
   PropertyType,
-  propertyTypeLabels 
 } from '@/lib/validations/feasibility-request';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface Step1BasicInfoProps {
   formData: FeasibilityRequestFormData;
@@ -28,16 +28,18 @@ export default function Step1BasicInfo({
   errors, 
   onChange 
 }: Step1BasicInfoProps) {
+  const t = useTranslation();
+
   return (
     <div className="space-y-5">
       <h2 className="text-lg font-bold text-secondary mb-4 font-dubai">
-        المعلومات الأساسية
+                {t.feasibilityRequest.step1Title}
       </h2>
 
       {/* Full Name */}
       <div>
         <label className="block text-sm font-medium text-secondary mb-1.5 font-dubai">
-          الاسم بالكامل <span className="text-red-500">*</span>
+                    {t.feasibilityRequest.fullName} <span className="text-red-500">*</span>
         </label>
         <div className="relative">
           <div className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary/40">
@@ -47,7 +49,7 @@ export default function Step1BasicInfo({
             type="text"
             value={formData.fullName}
             onChange={(e) => onChange({ fullName: e.target.value })}
-            placeholder="أدخل اسمك الكامل"
+            placeholder={t.feasibilityRequest.fullNamePlaceholder}
             className={`
               w-full pr-12 pl-4 py-3 rounded-xl border-2 bg-white/50
               focus:outline-none focus:border-primary
@@ -64,7 +66,7 @@ export default function Step1BasicInfo({
       {/* Property Type - Selection Cards */}
       <div>
         <label className="block text-sm font-medium text-secondary mb-2 font-dubai">
-          نوع العقار <span className="text-red-500">*</span>
+                    {t.feasibilityRequest.propertyType} <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
           {propertyTypes.map((type) => (
@@ -82,7 +84,7 @@ export default function Step1BasicInfo({
                 ${errors.propertyType ? 'border-red-400' : ''}
               `}
             >
-              {propertyTypeLabels[type]}
+              {t.admin.propertyTypes[type]}
             </button>
           ))}
         </div>
@@ -96,7 +98,7 @@ export default function Step1BasicInfo({
         {/* City */}
         <div>
           <label className="block text-sm font-medium text-secondary mb-1.5 font-dubai">
-            المدينة <span className="text-red-500">*</span>
+                        {t.feasibilityRequest.city} <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <div className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary/40">
@@ -106,7 +108,7 @@ export default function Step1BasicInfo({
               type="text"
               value={formData.city}
               onChange={(e) => onChange({ city: e.target.value })}
-              placeholder="مثال: القاهرة"
+              placeholder={t.feasibilityRequest.cityPlaceholder}
               className={`
                 w-full pr-12 pl-4 py-3 rounded-xl border-2 bg-white/50
                 focus:outline-none focus:border-primary
@@ -123,7 +125,7 @@ export default function Step1BasicInfo({
         {/* District */}
         <div>
           <label className="block text-sm font-medium text-secondary mb-1.5 font-dubai">
-            الحي / المنطقة <span className="text-red-500">*</span>
+                        {t.feasibilityRequest.district} <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <div className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary/40">
@@ -133,7 +135,7 @@ export default function Step1BasicInfo({
               type="text"
               value={formData.district}
               onChange={(e) => onChange({ district: e.target.value })}
-              placeholder="مثال: مدينة نصر"
+              placeholder={t.feasibilityRequest.districtPlaceholder}
               className={`
                 w-full pr-12 pl-4 py-3 rounded-xl border-2 bg-white/50
                 focus:outline-none focus:border-primary

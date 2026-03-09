@@ -10,6 +10,8 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SourceData {
   source: string;
@@ -22,14 +24,6 @@ interface BookingSourceChartProps {
   isLoading?: boolean;
 }
 
-const SOURCE_LABELS: Record<string, string> = {
-  AIRBNB: 'Airbnb',
-  BOOKING_COM: 'Booking.com',
-  EXTERNAL: 'خارجي',
-  DIRECT: 'مباشر',
-  OTHER: 'أخرى',
-};
-
 const SOURCE_COLORS: Record<string, string> = {
   AIRBNB: '#c47a6c',
   BOOKING_COM: '#7a9ab5',
@@ -39,28 +33,6 @@ const SOURCE_COLORS: Record<string, string> = {
 };
 
 const FALLBACK_COLORS = ['#c47a6c', '#7a9ab5', '#10302b', '#edbf8c', '#8a857e'];
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTooltip = ({ active, payload }: any) => {
-  if (!active || !payload?.length) return null;
-  const entry = payload[0];
-  return (
-    <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.payload.fill }} />
-        <span className="font-bold text-secondary">{entry.name}</span>
-      </div>
-      <p className="text-secondary/70">
-        المبلغ: <span className="font-bold text-secondary">{new Intl.NumberFormat('ar-EG').format(entry.value)} ج.م</span>
-      </p>
-      {entry.payload.count !== undefined && (
-        <p className="text-secondary/70">
-          الحجوزات: <span className="font-bold text-secondary">{entry.payload.count}</span>
-        </p>
-      )}
-    </div>
-  );
-};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
@@ -86,6 +58,39 @@ const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent
 };
 
 const BookingSourceChart: React.FC<BookingSourceChartProps> = ({ data, isLoading }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currency = t.accounting.common.currency;
+
+  const SOURCE_LABELS: Record<string, string> = {
+    AIRBNB: 'Airbnb',
+    BOOKING_COM: 'Booking.com',
+    ...t.accounting.bookingSources,
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (!active || !payload?.length) return null;
+    const entry = payload[0];
+    return (
+      <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.payload.fill }} />
+          <span className="font-bold text-secondary">{entry.name}</span>
+        </div>
+        <p className="text-secondary/70">
+          {t.accounting.dashboard.amount} <span className="font-bold text-secondary">{new Intl.NumberFormat(locale).format(entry.value)} {currency}</span>
+        </p>
+        {entry.payload.count !== undefined && (
+          <p className="text-secondary/70">
+            {t.accounting.dashboard.bookingsLabel} <span className="font-bold text-secondary">{entry.payload.count}</span>
+          </p>
+        )}
+      </div>
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="h-[300px] flex items-center justify-center">
@@ -97,7 +102,7 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({ data, isLoading
   if (!data.length) {
     return (
       <div className="h-[300px] flex items-center justify-center text-secondary/50 font-dubai">
-        لا توجد حجوزات هذا الشهر
+        {t.accounting.dashboard.noBookingsThisMonth}
       </div>
     );
   }

@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Receipt, Loader2 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ExpenseItem {
   id: string;
@@ -18,30 +20,34 @@ interface RecentExpensesProps {
   isLoading?: boolean;
 }
 
-const CATEGORY_LABELS: Record<string, { label: string; className: string }> = {
-  CLEANING: { label: 'نظافة', className: 'bg-primary/10 text-secondary' },
-  MAINTENANCE: { label: 'صيانة', className: 'bg-primary/10 text-secondary' },
-  ELECTRICITY: { label: 'كهرباء', className: 'bg-primary/10 text-secondary' },
-  WATER: { label: 'مياه', className: 'bg-primary/10 text-secondary' },
-  GAS: { label: 'غاز', className: 'bg-primary/10 text-secondary' },
-  INTERNET: { label: 'إنترنت', className: 'bg-primary/10 text-secondary' },
-  FURNITURE: { label: 'أثاث', className: 'bg-primary/10 text-secondary' },
-  SUPPLIES: { label: 'مستلزمات', className: 'bg-primary/10 text-secondary' },
-  COMMISSION: { label: 'عمولة', className: 'bg-primary/10 text-secondary' },
-  TAXES: { label: 'ضرائب', className: 'bg-primary/10 text-secondary' },
-  INSURANCE: { label: 'تأمين', className: 'bg-primary/10 text-secondary' },
-  MANAGEMENT: { label: 'إدارة', className: 'bg-primary/10 text-secondary' },
-  OTHER: { label: 'أخرى', className: 'bg-secondary/10 text-secondary/70' },
-};
-
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('ar-EG', {
-    month: 'short',
-    day: 'numeric',
-  });
+const CATEGORY_CLASSES: Record<string, string> = {
+  CLEANING: 'bg-primary/10 text-secondary',
+  MAINTENANCE: 'bg-primary/10 text-secondary',
+  ELECTRICITY: 'bg-primary/10 text-secondary',
+  WATER: 'bg-primary/10 text-secondary',
+  GAS: 'bg-primary/10 text-secondary',
+  INTERNET: 'bg-primary/10 text-secondary',
+  FURNITURE: 'bg-primary/10 text-secondary',
+  SUPPLIES: 'bg-primary/10 text-secondary',
+  COMMISSION: 'bg-primary/10 text-secondary',
+  TAXES: 'bg-primary/10 text-secondary',
+  INSURANCE: 'bg-primary/10 text-secondary',
+  MANAGEMENT: 'bg-primary/10 text-secondary',
+  OTHER: 'bg-secondary/10 text-secondary/70',
 };
 
 const RecentExpenses: React.FC<RecentExpensesProps> = ({ expenses, isLoading }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currency = t.accounting.common.currency;
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString(locale, {
+      month: 'short',
+      day: 'numeric',
+    });
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -53,7 +59,7 @@ const RecentExpenses: React.FC<RecentExpensesProps> = ({ expenses, isLoading }) 
       <div className="flex items-center justify-between p-5 border-b border-primary/10">
         <div className="flex items-center gap-2">
           <Receipt size={20} className="text-primary" />
-          <h3 className="text-lg font-bold text-secondary font-dubai">آخر المصروفات</h3>
+          <h3 className="text-lg font-bold text-secondary font-dubai">{t.accounting.dashboard.recentExpenses}</h3>
         </div>
       </div>
 
@@ -66,12 +72,13 @@ const RecentExpenses: React.FC<RecentExpensesProps> = ({ expenses, isLoading }) 
         ) : expenses.length === 0 ? (
           <div className="text-center py-8">
             <Receipt size={40} className="text-secondary/20 mx-auto mb-2" />
-            <p className="text-secondary/50 font-dubai text-sm">لا توجد مصروفات بعد</p>
+            <p className="text-secondary/50 font-dubai text-sm">{t.accounting.dashboard.noExpensesYet}</p>
           </div>
         ) : (
           <div className="space-y-3">
             {expenses.map((expense) => {
-              const cat = CATEGORY_LABELS[expense.category] || CATEGORY_LABELS.OTHER;
+              const catClass = CATEGORY_CLASSES[expense.category] || CATEGORY_CLASSES.OTHER;
+              const catLabel = t.accounting.expenseCategoriesShort[expense.category as keyof typeof t.accounting.expenseCategoriesShort] || expense.category;
 
               return (
                 <div
@@ -98,13 +105,13 @@ const RecentExpenses: React.FC<RecentExpensesProps> = ({ expenses, isLoading }) 
                   {/* Amount */}
                   <div className="text-left flex-shrink-0">
                     <p className="font-bold text-secondary font-dubai text-sm">
-                      -{new Intl.NumberFormat('ar-EG').format(expense.amount)} ج.م
+                      -{new Intl.NumberFormat(locale).format(expense.amount)} {currency}
                     </p>
                   </div>
 
                   {/* Category Badge */}
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai flex-shrink-0 ${cat.className}`}>
-                    {cat.label}
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai flex-shrink-0 ${catClass}`}>
+                    {catLabel}
                   </span>
                 </div>
               );

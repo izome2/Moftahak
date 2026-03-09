@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
 import NumberInput from '@/components/accounting/shared/NumberInput';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Apartment {
   id: string;
@@ -42,6 +44,9 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
   apartments,
   preselectedApartmentId,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
   const [apartmentId, setApartmentId] = useState(preselectedApartmentId || '');
   const [investorUsers, setInvestorUsers] = useState<InvestorUser[]>([]);
   const [userId, setUserId] = useState('');
@@ -88,13 +93,13 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!apartmentId || !userId || !percentage) {
-      setError('يجب اختيار الشقة والمستثمر وتحديد النسبة');
+      setError(t.accounting.errors.selectApartmentAndInvestor);
       return;
     }
 
     const pct = parseFloat(percentage) / 100; // convert UI% → decimal
     if (isNaN(pct) || pct < 0.01 || pct > 1) {
-      setError('النسبة يجب أن تكون بين 1% و 100%');
+      setError(t.accounting.errors.percentRange);
       return;
     }
 
@@ -115,14 +120,14 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
       const json = await res.json();
 
       if (!res.ok) {
-        setError(json.error || 'حدث خطأ في الربط');
+        setError(json.error || t.accounting.errors.assignError);
         return;
       }
 
       onSuccess();
       onClose();
     } catch {
-      setError('فشل الاتصال بالخادم');
+      setError(t.accounting.errors.connectionFailed);
     } finally {
       setIsLoading(false);
     }
@@ -155,7 +160,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
               <div className="w-8 h-8 rounded-xl bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
                 <Users className="w-4 h-4 text-secondary" />
               </div>
-              <h2 className="text-base font-bold text-secondary font-dubai">ربط مستثمر بشقة</h2>
+              <h2 className="text-base font-bold text-secondary font-dubai">{t.accounting.assignInvestorModal.title}</h2>
             </div>
             <button
               onClick={onClose}
@@ -172,15 +177,15 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
             <div>
               <label className="flex items-center gap-1.5 text-xs font-medium text-secondary/70 mb-1.5 font-dubai">
                 <Building2 className="w-3 h-3" />
-                الشقة
+                {t.accounting.assignInvestorModal.apartment}
               </label>
               <CustomSelect
                 value={apartmentId}
                 onChange={setApartmentId}
                 className="w-full"
-                placeholder="اختر الشقة..."
+                placeholder={t.accounting.assignInvestorModal.selectApartment}
                 required
-                emptyMessage="لا يوجد شقق حتى الآن"
+                emptyMessage={t.accounting.assignInvestorModal.noApartments}
                 options={apartments.map(apt => ({
                   value: apt.id,
                   label: `${apt.name}${apt.project ? ` (${apt.project.name})` : ''}`,
@@ -192,21 +197,21 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
             <div>
               <label className="flex items-center gap-1.5 text-xs font-medium text-secondary/70 mb-1.5 font-dubai">
                 <Users className="w-3 h-3" />
-                المستثمر
+                {t.accounting.assignInvestorModal.investor}
               </label>
               {isLoadingUsers ? (
                 <div className="flex items-center gap-2 py-2.5 text-secondary/40 text-xs">
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span className="font-dubai">جاري تحميل المستثمرين...</span>
+                  <span className="font-dubai">{t.accounting.assignInvestorModal.loadingInvestors}</span>
                 </div>
               ) : (
                 <CustomSelect
                   value={userId}
                   onChange={setUserId}
                   className="w-full"
-                  placeholder="اختر المستثمر..."
+                  placeholder={t.accounting.assignInvestorModal.selectInvestor}
                   required
-                  emptyMessage="لا يوجد مستثمرين حتى الآن"
+                  emptyMessage={t.accounting.assignInvestorModal.noInvestors}
                   options={investorUsers.map(u => ({
                     value: u.id,
                     label: `${u.firstName} ${u.lastName}${u.email ? ` (${u.email})` : ''}`,
@@ -219,12 +224,12 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
             <div>
               <label className="flex items-center gap-1.5 text-xs font-medium text-secondary/70 mb-1.5 font-dubai">
                 <Percent className="w-3 h-3" />
-                النسبة (%)
+                {t.accounting.assignInvestorModal.percentage}
               </label>
               <NumberInput
                 value={percentage}
                 onChange={(e) => setPercentage(e.target.value)}
-                placeholder="مثال: 20"
+                placeholder={t.accounting.assignInvestorModal.percentagePlaceholder}
                 className="w-full px-3 py-2.5 text-sm border-2 border-primary/20 rounded-xl
                   focus:outline-none focus:border-primary
                   font-dubai placeholder:text-secondary/30"
@@ -236,12 +241,12 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
             <div>
               <label className="flex items-center gap-1.5 text-xs font-medium text-secondary/70 mb-1.5 font-dubai">
                 <Target className="w-3 h-3" />
-                الهدف السنوي (اختياري)
+                {t.accounting.assignInvestorModal.yearlyTarget}
               </label>
               <NumberInput
                 value={investmentTarget}
                 onChange={(e) => setInvestmentTarget(e.target.value)}
-                placeholder="مثال: 3000"
+                placeholder={t.accounting.assignInvestorModal.yearlyTargetPlaceholder}
                 className="w-full px-3 py-2.5 text-sm border-2 border-primary/20 rounded-xl
                   focus:outline-none focus:border-primary
                   font-dubai placeholder:text-secondary/30"
@@ -269,10 +274,10 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  جاري الحفظ...
+                  {t.accounting.common.saving}
                 </>
               ) : (
-                'ربط المستثمر'
+                t.accounting.assignInvestorModal.assign
               )}
             </button>
           </form>

@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ProgressBarProps {
   label: string;
@@ -12,11 +14,6 @@ interface ProgressBarProps {
   className?: string;
 }
 
-const formatCurrency = (amount: number, currency: string = 'USD') => {
-  if (currency === 'EGP') return new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
-  return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(amount);
-};
-
 const ProgressBar: React.FC<ProgressBarProps> = ({
   label,
   current,
@@ -24,6 +21,16 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   currency = 'USD',
   className = '',
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currencyLabel = ' ' + t.accounting.common.currency;
+
+  const formatCurrency = (amount: number, cur: string = currency) => {
+    if (cur === 'EGP') return new Intl.NumberFormat(locale).format(amount) + currencyLabel;
+    return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(amount);
+  };
+
   const percentage = target > 0 ? Math.min((current / target) * 100, 100) : 0;
   const isComplete = percentage >= 100;
 
@@ -55,8 +62,8 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 
       {/* Labels */}
       <div className="flex items-center justify-between text-xs text-secondary/40 font-dubai">
-        <span>المحقق: <span className="text-secondary/70 font-medium">{formatCurrency(current, currency)}</span></span>
-        <span>الهدف: <span className="text-secondary/70 font-medium">{formatCurrency(target, currency)}</span></span>
+        <span>{t.accounting.investorPortal.achieved} <span className="text-secondary/70 font-medium">{formatCurrency(current, currency)}</span></span>
+        <span>{t.accounting.investorPortal.target} <span className="text-secondary/70 font-medium">{formatCurrency(target, currency)}</span></span>
       </div>
     </div>
   );

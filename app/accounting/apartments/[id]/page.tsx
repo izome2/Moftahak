@@ -17,6 +17,7 @@ import FinancialSummary from '@/components/accounting/apartments/FinancialSummar
 import BookingsTable from '@/components/accounting/apartments/BookingsTable';
 import ExpensesTable from '@/components/accounting/apartments/ExpensesTable';
 import InvestorsTable from '@/components/accounting/apartments/InvestorsTable';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // --- Types ---
 interface ApartmentInfo {
@@ -75,6 +76,7 @@ export default function ApartmentDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { data: session } = useSession();
+  const t = useTranslation();
   const apartmentId = params?.id as string;
 
   const canViewInvestors =
@@ -103,10 +105,10 @@ export default function ApartmentDetailPage() {
       setError(null);
       const res = await fetch(`/api/accounting/apartments/${apartmentId}`);
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'خطأ في جلب بيانات الشقة');
+      if (!res.ok) throw new Error(json.error || t.accounting.errors.fetchApartmentData);
       setApartment(json.apartment);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ');
+      setError(err instanceof Error ? err.message : t.accounting.errors.generic);
     } finally {
       setLoadingApt(false);
     }
@@ -201,13 +203,13 @@ export default function ApartmentDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Building2 size={48} className="text-secondary/20" />
-        <p className="text-secondary/50 font-dubai">{error || 'الشقة غير موجودة'}</p>
+        <p className="text-secondary/50 font-dubai">{error || t.accounting.apartments.apartmentNotFound}</p>
         <button
           onClick={() => router.push('/accounting/apartments')}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary text-white font-dubai text-sm hover:bg-secondary/90 transition-colors"
         >
           <ArrowRight size={16} />
-          العودة للشقق
+          {t.accounting.apartments.backToApartments}
         </button>
       </div>
     );
@@ -230,7 +232,7 @@ export default function ApartmentDetailPage() {
           <button
             onClick={() => router.push('/accounting/apartments')}
             className="p-2.5 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors"
-            aria-label="العودة"
+            aria-label={t.accounting.apartments.backToApartments}
           >
             <ArrowRight size={20} className="text-secondary" />
           </button>
@@ -246,7 +248,7 @@ export default function ApartmentDetailPage() {
               )}
               {apartment.floor && (
                 <span className="text-xs text-secondary/40 font-dubai">
-                  • الدور {apartment.floor}
+                  • {t.accounting.common.floor} {apartment.floor}
                 </span>
               )}
               {apartment.type && (
@@ -262,14 +264,14 @@ export default function ApartmentDetailPage() {
           <button
             onClick={() => fetchMonthlyData(month)}
             className="p-2 hover:bg-primary/10 rounded-lg transition-colors"
-            aria-label="تحديث"
+            aria-label={t.accounting.common.refresh}
           >
             <RefreshCw size={20} className={`text-secondary/60 ${loadingData ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('openAccountingMenu'))}
             className="lg:hidden p-2 hover:bg-primary/10 rounded-lg transition-colors"
-            aria-label="فتح القائمة"
+            aria-label={t.accounting.common.openMenu}
           >
             <Menu size={28} className="text-secondary" />
           </button>

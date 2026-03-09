@@ -10,6 +10,8 @@ import {
   CalendarDays,
   Moon,
 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ApartmentSummary {
   apartmentId: string;
@@ -35,14 +37,18 @@ interface ProjectSummaryProps {
   isLoading?: boolean;
 }
 
-const formatCurrency = (val: number) =>
-  new Intl.NumberFormat('ar-EG').format(Math.round(val)) + ' ج.م';
-
 const ProjectSummary: React.FC<ProjectSummaryProps> = ({
   apartments,
   totals,
   isLoading,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+
+  const formatCurrency = (val: number) =>
+    new Intl.NumberFormat(locale).format(Math.round(val)) + ' ' + t.accounting.common.currency;
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -75,8 +81,8 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
             <DollarSign className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white font-dubai">الملخص التجميعي</h3>
-            <p className="text-[11px] text-white/35 font-dubai">إجمالي جميع الشقق</p>
+            <h3 className="text-base font-bold text-white font-dubai">{t.accounting.reports.aggregateSummary}</h3>
+            <p className="text-[11px] text-white/35 font-dubai">{t.accounting.reports.allApartmentsTotal}</p>
           </div>
         </div>
 
@@ -92,7 +98,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
             >
               <DollarSign className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#b5c4a5]" />
             </div>
-            <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">الإيرادات</p>
+            <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.dashboard.revenue}</p>
             <p className="text-sm sm:text-[15px] font-bold text-[#b5c4a5] font-dubai leading-tight">
               {formatCurrency(totals.totalRevenue)}
             </p>
@@ -108,7 +114,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
             >
               <TrendingDown className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#d4b0a0]" />
             </div>
-            <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">المصروفات</p>
+            <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.dashboard.expensesLabel}</p>
             <p className="text-sm sm:text-[15px] font-bold text-[#d4b0a0] font-dubai leading-tight">
               {formatCurrency(totals.totalExpenses)}
             </p>
@@ -129,7 +135,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
                 totals.profit >= 0 ? 'text-[#b5c4a5]' : 'text-[#d4b0a0]'
               }`} />
             </div>
-            <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">صافي الربح</p>
+            <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.dashboard.netProfit}</p>
             <p className={`text-[15px] sm:text-lg font-bold font-dubai leading-tight ${
               totals.profit >= 0 ? 'text-[#b5c4a5]' : 'text-[#d4b0a0]'
             }`}>
@@ -147,7 +153,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
             >
               <Building2 className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-primary" />
             </div>
-            <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">الشقق</p>
+            <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.reports.apartments}</p>
             <p className="text-[15px] sm:text-lg font-bold text-white font-dubai leading-tight">
               {totals.apartmentsCount}
             </p>
@@ -158,7 +164,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
       {/* Per-apartment cards */}
       {apartments.length === 0 ? (
         <div className="text-center py-10 text-secondary/40 font-dubai text-sm">
-          لا توجد بيانات لعرضها
+          {t.accounting.reports.noDataToShow}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -191,22 +197,22 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
                   <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full font-dubai
                     ${apt.profit >= 0 ? 'bg-primary/15 text-secondary' : 'bg-secondary/10 text-secondary/60'}`}
                   >
-                    {profitMargin}% هامش
+                    {profitMargin}% {t.accounting.reports.margin}
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs font-dubai">
-                    <span className="text-secondary/50">الإيرادات</span>
+                    <span className="text-secondary/50">{t.accounting.dashboard.revenue}</span>
                     <span className="font-bold text-secondary">{formatCurrency(apt.revenue)}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs font-dubai">
-                    <span className="text-secondary/50">المصروفات</span>
+                    <span className="text-secondary/50">{t.accounting.dashboard.expensesLabel}</span>
                     <span className="font-bold text-secondary/70">{formatCurrency(apt.expenses)}</span>
                   </div>
                   <div className="h-px bg-primary/10" />
                   <div className="flex items-center justify-between text-xs font-dubai">
-                    <span className="text-secondary/60 font-bold">صافي الربح</span>
+                    <span className="text-secondary/60 font-bold">{t.accounting.dashboard.netProfit}</span>
                     <span className={`font-bold ${apt.profit >= 0 ? 'text-secondary' : 'text-secondary/50'}`}>
                       {formatCurrency(apt.profit)}
                     </span>
@@ -216,11 +222,11 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
                 <div className="flex items-center gap-3 mt-3 pt-3 border-t border-primary/10">
                   <div className="flex items-center gap-1 text-[10px] text-secondary/50 font-dubai">
                     <CalendarDays className="w-3 h-3" />
-                    {apt.bookings} حجز
+                    {apt.bookings} {t.accounting.common.booking}
                   </div>
                   <div className="flex items-center gap-1 text-[10px] text-secondary/50 font-dubai">
                     <Moon className="w-3 h-3" />
-                    {apt.nights} ليلة
+                    {apt.nights} {t.accounting.common.night}
                   </div>
                 </div>
               </motion.div>

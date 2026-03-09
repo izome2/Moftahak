@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
 import NumberInput from '@/components/accounting/shared/NumberInput';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Investment {
   id: string;
@@ -38,6 +40,9 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   investorName,
   investments,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
   const [apartmentInvestorId, setApartmentInvestorId] = useState(
     investments.length === 1 ? investments[0].id : ''
   );
@@ -52,13 +57,13 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
     e.preventDefault();
 
     if (!apartmentInvestorId || !amount || !date) {
-      setError('يجب اختيار الشقة وتحديد المبلغ والتاريخ');
+      setError(t.accounting.errors.selectApartmentAmountDate);
       return;
     }
 
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
-      setError('المبلغ يجب أن يكون أكبر من صفر');
+      setError(t.accounting.errors.amountMustBePositive);
       return;
     }
 
@@ -81,14 +86,14 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
       const json = await res.json();
 
       if (!res.ok) {
-        setError(json.error || 'حدث خطأ في تسجيل المسحوبة');
+        setError(json.error || t.accounting.errors.withdrawalError);
         return;
       }
 
       onSuccess();
       onClose();
     } catch {
-      setError('فشل الاتصال بالخادم');
+      setError(t.accounting.errors.connectionFailed);
     } finally {
       setIsLoading(false);
     }
@@ -124,7 +129,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 <ArrowDownCircle className="w-4 h-4 text-[#c09080]" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-secondary font-dubai">تسجيل مسحوبة</h2>
+                <h2 className="text-base font-bold text-secondary font-dubai">{t.accounting.withdrawalForm.title}</h2>
                 <p className="text-xs text-secondary/60 font-dubai">{investorName}</p>
               </div>
             </div>
@@ -144,15 +149,15 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               <div>
                 <label className="flex items-center gap-1.5 text-xs font-medium text-secondary/70 mb-1.5 font-dubai">
                   <Building2 className="w-3 h-3" />
-                  الشقة (الاستثمار)
+                  {t.accounting.withdrawalForm.apartmentInvestment}
                 </label>
                 <CustomSelect
                   value={apartmentInvestorId}
                   onChange={setApartmentInvestorId}
                   className="w-full"
-                  placeholder="اختر الشقة..."
+                  placeholder={t.accounting.withdrawalForm.selectApartment}
                   required
-                  emptyMessage="لا يوجد استثمارات حتى الآن"
+                  emptyMessage={t.accounting.withdrawalForm.noInvestments}
                   options={investments.map(inv => ({
                     value: inv.id,
                     label: `${inv.apartment.name} (${(inv.percentage * 100).toFixed(1)}%)`,
@@ -166,7 +171,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 flex items-center gap-1.5"
               >
                 <Building2 className="w-3 h-3 text-secondary/40" />
-                {investments[0].apartment.name} — نسبة {(investments[0].percentage * 100).toFixed(1)}%
+                {investments[0].apartment.name} — {t.accounting.withdrawalForm.percentage} {(investments[0].percentage * 100).toFixed(1)}%
               </div>
             )}
 
@@ -175,7 +180,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               <div className="flex-1">
                 <label className="flex items-center gap-1.5 text-xs font-medium text-secondary/70 mb-1.5 font-dubai">
                   <DollarSign className="w-3 h-3" />
-                  المبلغ
+                  {t.accounting.withdrawalForm.amount}
                 </label>
                 <NumberInput
                   value={amount}
@@ -188,7 +193,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 />
               </div>
               <div className="w-24">
-                <label className="text-xs font-medium text-secondary/70 mb-1.5 font-dubai block">العملة</label>
+                <label className="text-xs font-medium text-secondary/70 mb-1.5 font-dubai block">{t.accounting.withdrawalForm.currency}</label>
                 <CustomSelect
                   value={currency}
                   onChange={setCurrency}
@@ -205,7 +210,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             <div>
               <label className="flex items-center gap-1.5 text-xs font-medium text-secondary/70 mb-1.5 font-dubai">
                 <Calendar className="w-3 h-3" />
-                تاريخ السحب
+                {t.accounting.withdrawalForm.withdrawalDate}
               </label>
               <input
                 type="date"
@@ -222,12 +227,12 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             <div>
               <label className="flex items-center gap-1.5 text-xs font-medium text-secondary/70 mb-1.5 font-dubai">
                 <MessageSquare className="w-3 h-3" />
-                ملاحظات (اختياري)
+                {t.accounting.withdrawalForm.notes}
               </label>
               <textarea
                 value={comments}
                 onChange={(e) => setComments(e.target.value)}
-                placeholder="وصف السحب..."
+                placeholder={t.accounting.withdrawalForm.notesPlaceholder}
                 maxLength={500}
                 rows={2}
                 className="w-full px-3 py-2.5 text-sm border-2 border-primary/20 rounded-xl
@@ -257,10 +262,10 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  جاري الحفظ...
+                  {t.accounting.common.saving}
                 </>
               ) : (
-                'تسجيل المسحوبة'
+                t.accounting.withdrawalForm.submit
               )}
             </button>
           </form>

@@ -8,6 +8,7 @@ import Card from './ui/Card';
 import AnimatedStroke from './ui/AnimatedStroke';
 import { fadeInUp, fadeInUpRotateRight, fadeInUpRotateLeft, staggerContainer } from '@/lib/animations/variants';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface Feature {
   icon: React.ReactNode;
@@ -18,22 +19,23 @@ interface Feature {
 const FeaturesSection: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useScrollAnimation(ref, { threshold: 0.2, once: true });
+  const t = useTranslation();
 
   const features: Feature[] = [
     {
       icon: <Star className="w-8 h-8" />,
-      title: 'خبرة حقيقية',
-      description: 'خبرة إدارة وتشغيل وحدات حقيقية حققت أرباحاً فعلية داخل السوق المصري والخليجي.',
+      title: t.features.items[0].title,
+      description: t.features.items[0].description,
     },
     {
       icon: <TrendingUp className="w-8 h-8" />,
-      title: 'أرقام موثوقة',
-      description: 'دراسات وأدوات مبنية على بيانات سوق حقيقية، من واقع خبرة حقيقية.',
+      title: t.features.items[1].title,
+      description: t.features.items[1].description,
     },
     {
       icon: <Award className="w-8 h-8" />,
-      title: 'نتائج أسرع',
-      description: 'منهج عملي مختصر يوصلك للربح بأقل وقت وتكلفة وأخطاء.',
+      title: t.features.items[2].title,
+      description: t.features.items[2].description,
     },
   ];
 
@@ -51,11 +53,11 @@ const FeaturesSection: React.FC = () => {
         <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom duration-700">
           <h2 className="text-4xl md:text-5xl font-bold text-secondary mb-4 font-bristone">
             <AnimatedStroke delay={0.2}>
-              لماذا تختار العمل معي؟
+              {t.features.title}
             </AnimatedStroke>
           </h2>
           <p className="text-lg text-secondary/70 max-w-2xl mx-auto">
-            خبرة مثبتة في تحويل الوحدات العقارية إلى مشاريع ناجحة ومربحة
+            {t.features.subtitle}
           </p>
         </div>
 

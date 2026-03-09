@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { DollarSign, Receipt, TrendingUp, CalendarCheck, Moon } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FinancialSummaryProps {
   totalRevenue: number;
@@ -13,9 +15,6 @@ interface FinancialSummaryProps {
   isLoading?: boolean;
 }
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
-
 const FinancialSummary: React.FC<FinancialSummaryProps> = ({
   totalRevenue,
   totalExpenses,
@@ -24,9 +23,15 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
   occupiedNights,
   isLoading = false,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat(locale).format(amount) + ' ' + t.accounting.common.currency;
+
   const cards = [
     {
-      label: 'إجمالي الإيرادات',
+      label: t.accounting.apartments.totalRevenue,
       value: formatCurrency(totalRevenue),
       icon: DollarSign,
       bgColor: 'bg-primary/15',
@@ -34,7 +39,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
       valueColor: 'text-secondary',
     },
     {
-      label: 'إجمالي المصروفات',
+      label: t.accounting.apartments.totalExpenses,
       value: formatCurrency(totalExpenses),
       icon: Receipt,
       bgColor: 'bg-secondary/10',
@@ -42,7 +47,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
       valueColor: 'text-secondary',
     },
     {
-      label: 'صافي الربح',
+      label: t.accounting.apartments.netProfit,
       value: formatCurrency(profit),
       icon: TrendingUp,
       bgColor: 'bg-primary/20',
@@ -50,7 +55,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
       valueColor: 'text-secondary',
     },
     ...(bookingsCount !== undefined ? [{
-      label: 'عدد الحجوزات',
+      label: t.accounting.apartments.bookingsCount,
       value: String(bookingsCount),
       icon: CalendarCheck,
       bgColor: 'bg-primary/10',
@@ -58,7 +63,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
       valueColor: 'text-secondary',
     }] : []),
     ...(occupiedNights !== undefined ? [{
-      label: 'الليالي المحجوزة',
+      label: t.accounting.apartments.nightsBooked,
       value: String(occupiedNights),
       icon: Moon,
       bgColor: 'bg-primary/10',

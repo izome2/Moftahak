@@ -12,6 +12,8 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MonthlyProfitData {
   month: string;
@@ -25,18 +27,6 @@ interface ProfitTrendChartProps {
   isLoading?: boolean;
 }
 
-const MONTH_NAMES: Record<string, string> = {
-  '01': 'يناير', '02': 'فبراير', '03': 'مارس',
-  '04': 'أبريل', '05': 'مايو', '06': 'يونيو',
-  '07': 'يوليو', '08': 'أغسطس', '09': 'سبتمبر',
-  '10': 'أكتوبر', '11': 'نوفمبر', '12': 'ديسمبر',
-};
-
-const formatMonthLabel = (month: string) => {
-  const m = month.split('-')[1];
-  return MONTH_NAMES[m] || month;
-};
-
 const formatCurrency = (val: number) => {
   if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
   if (val >= 1000) return `${(val / 1000).toFixed(0)}K`;
@@ -44,8 +34,12 @@ const formatCurrency = (val: number) => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, monthNames, currencyLabel, locale }: any) => {
   if (!active || !payload?.length) return null;
+  const formatMonthLabel = (month: string) => {
+    const m = parseInt(month.split('-')[1], 10) - 1;
+    return monthNames[m] || month;
+  };
   return (
     <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
       <p className="text-secondary font-bold mb-1.5">{formatMonthLabel(label)}</p>
@@ -54,7 +48,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
           <span className="text-secondary/70">{entry.name}:</span>
           <span className="font-bold text-secondary">
-            {new Intl.NumberFormat('ar-EG').format(entry.value)} ج.م
+            {new Intl.NumberFormat(locale).format(entry.value)} {currencyLabel}
           </span>
         </div>
       ))}
@@ -66,6 +60,16 @@ const ProfitTrendChart: React.FC<ProfitTrendChartProps> = ({
   data,
   isLoading,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const monthNames = t.accounting.months;
+
+  const formatMonthLabel = (month: string) => {
+    const m = parseInt(month.split('-')[1], 10) - 1;
+    return monthNames[m] || month;
+  };
+
   if (isLoading) {
     return (
       <div className="h-[300px] flex items-center justify-center">
@@ -77,7 +81,7 @@ const ProfitTrendChart: React.FC<ProfitTrendChartProps> = ({
   if (!data.length) {
     return (
       <div className="h-[300px] flex items-center justify-center text-secondary/50 font-dubai">
-        لا توجد بيانات كافية لعرض الاتجاه
+        {t.accounting.reports.noTrendData}
       </div>
     );
   }
@@ -105,7 +109,7 @@ const ProfitTrendChart: React.FC<ProfitTrendChartProps> = ({
             tickLine={false}
             width={50}
           />
-          <Tooltip content={<CustomTooltip />} cursor={false} />
+          <Tooltip content={<CustomTooltip monthNames={monthNames} currencyLabel={t.accounting.common.currency} locale={locale} />} cursor={false} />
           <Legend
             verticalAlign="top"
             align="center"
@@ -116,7 +120,7 @@ const ProfitTrendChart: React.FC<ProfitTrendChartProps> = ({
           <Line
             type="monotone"
             dataKey="revenue"
-            name="الإيرادات"
+            name={t.accounting.dashboard.revenue}
             stroke="#5a9a7a"
             strokeWidth={2.5}
             dot={{ fill: '#5a9a7a', r: 4, strokeWidth: 2, stroke: '#fff' }}
@@ -125,7 +129,7 @@ const ProfitTrendChart: React.FC<ProfitTrendChartProps> = ({
           <Line
             type="monotone"
             dataKey="expenses"
-            name="المصروفات"
+            name={t.accounting.dashboard.expensesLabel}
             stroke="#c47a6c"
             strokeWidth={2.5}
             dot={{ fill: '#c47a6c', r: 4, strokeWidth: 2, stroke: '#fff' }}
@@ -134,7 +138,7 @@ const ProfitTrendChart: React.FC<ProfitTrendChartProps> = ({
           <Line
             type="monotone"
             dataKey="profit"
-            name="الربح"
+            name={t.accounting.dashboard.profit}
             stroke="#edbf8c"
             strokeWidth={2}
             strokeDasharray="5 5"

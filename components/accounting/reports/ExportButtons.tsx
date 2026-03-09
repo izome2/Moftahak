@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { FileDown, Loader2 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ExportButtonsProps {
   month: string;
@@ -14,6 +15,7 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({
   month,
   reportType,
 }) => {
+  const t = useTranslation();
   const [isExporting, setIsExporting] = useState(false);
 
   const handlePdfExport = useCallback(async () => {
@@ -61,7 +63,7 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({
         ) : (
           <FileDown className="w-4 h-4" />
         )}
-        {isExporting ? 'جاري التحميل...' : 'تحميل PDF'}
+        {isExporting ? t.accounting.reports.downloadingPDF : t.accounting.reports.downloadPDF}
       </button>
     </motion.div>
   );

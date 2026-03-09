@@ -19,6 +19,8 @@ import { useSession } from 'next-auth/react';
 import { useDailySchedule } from '@/hooks/useDailySchedule';
 import CheckInTable from '@/components/accounting/daily/CheckInTable';
 import CheckOutTable from '@/components/accounting/daily/CheckOutTable';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // --- Types ---
 interface CheckInRow {
@@ -53,14 +55,6 @@ interface DailySummary {
 }
 
 // --- Helpers ---
-const formatArabicDate = (dateString: string) =>
-  new Date(dateString).toLocaleDateString('ar-EG', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-
 const isToday = (dateString: string) => {
   const d = new Date(dateString);
   const now = new Date();
@@ -80,6 +74,9 @@ const isTomorrow = (dateString: string) => {
 
 export default function DailyOpsPage() {
   const { data: session } = useSession();
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
   const userRole = session?.user?.role;
   const canAssignSupervisor = userRole === 'GENERAL_MANAGER' || userRole === 'OPS_MANAGER';
 
@@ -109,7 +106,7 @@ export default function DailyOpsPage() {
       const json = await res.json();
 
       if (!res.ok) {
-        setError(json.error || 'حدث خطأ');
+        setError(json.error || t.accounting.errors.generic);
         return;
       }
 
@@ -117,7 +114,7 @@ export default function DailyOpsPage() {
       setCheckOuts(json.checkOuts || []);
       setSummary(json.summary || { totalCheckIns: 0, totalCheckOuts: 0 });
     } catch {
-      setError('فشل الاتصال بالخادم');
+      setError(t.accounting.errors.connectionFailed);
     } finally {
       setIsLoading(false);
     }
@@ -142,8 +139,8 @@ export default function DailyOpsPage() {
 
   // Date label
   const getDateLabel = () => {
-    if (isToday(dateString)) return 'اليوم';
-    if (isTomorrow(dateString)) return 'غداً';
+    if (isToday(dateString)) return t.accounting.daily.today;
+    if (isTomorrow(dateString)) return t.accounting.daily.tomorrow;
     return '';
   };
   const dateLabel = getDateLabel();
@@ -162,10 +159,10 @@ export default function DailyOpsPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-secondary font-dubai">
-              جدول المتابعة اليومية
+              {t.accounting.daily.title}
             </h1>
             <p className="text-sm text-secondary/60 font-dubai">
-              متابعة حركة الدخول والخروج للشقق
+              {t.accounting.daily.subtitle}
             </p>
           </div>
         </div>
@@ -201,7 +198,12 @@ export default function DailyOpsPage() {
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-primary" />
               <span className="text-base font-bold text-secondary font-dubai">
-                {formatArabicDate(dateString)}
+                {new Date(dateString).toLocaleDateString(locale, {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
               </span>
               {dateLabel && (
                 <span className="text-xs bg-primary/10 text-secondary px-2 py-0.5
@@ -218,8 +220,8 @@ export default function DailyOpsPage() {
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   {isAfter7PM
-                    ? 'يعرض جدول الغد تلقائياً (بعد 7 مساءً)'
-                    : 'يتم التحديث الساعة 7:00 مساءً'
+                    ? t.accounting.daily.tomorrowAutoNote
+                    : t.accounting.daily.autoUpdateNote
                   }
                 </span>
               ) : (
@@ -229,7 +231,7 @@ export default function DailyOpsPage() {
                     transition-colors font-dubai"
                 >
                   <RotateCcw className="w-3 h-3" />
-                  العودة للتاريخ التلقائي
+                  {t.accounting.daily.backToAutoDate}
                 </button>
               )}
             </div>
@@ -259,7 +261,7 @@ export default function DailyOpsPage() {
             <LogIn className="w-5 h-5 text-[#8a9a7a]" />
           </div>
           <div>
-            <p className="text-sm text-secondary/60 font-dubai">حجوزات الدخول</p>
+            <p className="text-sm text-secondary/60 font-dubai">{t.accounting.daily.checkInsTitle}</p>
             <p className="text-2xl font-bold text-secondary font-dubai">
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin text-[#8a9a7a]" />
@@ -281,7 +283,7 @@ export default function DailyOpsPage() {
             <LogOut className="w-5 h-5 text-[#c09080]" />
           </div>
           <div>
-            <p className="text-sm text-secondary/60 font-dubai">حجوزات الخروج</p>
+            <p className="text-sm text-secondary/60 font-dubai">{t.accounting.daily.checkOutsTitle}</p>
             <p className="text-2xl font-bold text-secondary font-dubai">
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin text-[#c09080]" />
@@ -318,7 +320,7 @@ export default function DailyOpsPage() {
         >
           <ClipboardList className="w-12 h-12 mx-auto mb-3 text-secondary/20" />
           <p className="text-secondary/40 font-dubai text-sm">
-            لا يوجد حركة دخول أو خروج في هذا اليوم
+            {t.accounting.daily.noActivity}
           </p>
         </motion.div>
       )}

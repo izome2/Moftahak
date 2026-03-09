@@ -8,6 +8,7 @@ import {
   FeasibilityRequestFormData, 
   StudyRequestType 
 } from '@/lib/validations/feasibility-request';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface Step2PropertyDetailsProps {
   formData: FeasibilityRequestFormData;
@@ -24,10 +25,12 @@ export default function Step2PropertyDetails({
   onChange,
   userPhone
 }: Step2PropertyDetailsProps) {
+  const t = useTranslation();
+
   return (
     <div className="space-y-5 md:space-y-8">
       <h2 className="text-lg md:text-xl font-bold text-secondary mb-4 md:mb-6 font-dubai">
-        تفاصيل العقار
+                {t.feasibilityRequest.step2Title}
       </h2>
 
       {/* Room Counters - For BOTH types now */}
@@ -55,7 +58,7 @@ export default function Step2PropertyDetails({
         </div>
         <div className="relative flex justify-center">
           <span className="px-4 bg-white text-secondary/50 text-sm font-dubai">
-            بيانات التواصل
+            {t.feasibilityRequest.contactInfo}
           </span>
         </div>
       </div>

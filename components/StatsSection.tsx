@@ -5,10 +5,12 @@ import { Moon, Users, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCounter } from '@/hooks/useCounter';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const StatsSection: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const isVisible = useScrollAnimation(sectionRef, { threshold: 0.3, once: true });
+  const t = useTranslation();
 
   const nightsCount = useCounter({ start: 0, end: 3000, duration: 2500 }, isVisible);
   const clientsCount = useCounter({ start: 0, end: 1200, duration: 2500 }, isVisible);
@@ -18,22 +20,22 @@ const StatsSection: React.FC = () => {
     {
       icon: Moon,
       count: nightsCount,
-      label: 'ليلة',
-      description: 'ليالي إقامة تمت إدارتها بنجاح',
+      label: t.stats.nights,
+      description: t.stats.nightsDesc,
       delay: 0.1,
     },
     {
       icon: Users,
       count: clientsCount,
-      label: 'عميل راضي',
-      description: 'عملاء سعداء بخدماتنا المتميزة',
+      label: t.stats.happyClients,
+      description: t.stats.happyClientsDesc,
       delay: 0.2,
     },
     {
       icon: Award,
       count: yearsCount,
-      label: 'سنين خبرة',
-      description: 'خبرة متراكمة في السوق العقاري',
+      label: t.stats.yearsExperience,
+      description: t.stats.yearsExperienceDesc,
       delay: 0.3,
     },
   ];
@@ -42,7 +44,7 @@ const StatsSection: React.FC = () => {
     <section
       ref={sectionRef}
       className="relative pt-12 bg-white sm:hidden"
-      aria-label="إحصائياتنا"
+      aria-label={t.stats.sectionLabel}
     >
       <div className="max-w-6xl mx-auto px-4">
         <motion.div

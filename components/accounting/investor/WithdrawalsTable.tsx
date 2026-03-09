@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowDownCircle, Calendar, MessageSquare } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface WithdrawalRow {
   id: string;
@@ -22,30 +24,34 @@ interface WithdrawalsTableProps {
   isLoading?: boolean;
 }
 
-const formatCurrency = (amount: number, currency: string = 'USD') => {
-  if (currency === 'EGP') return new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
-  return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(amount);
-};
-
-const formatDate = (dateString: string) =>
-  new Date(dateString).toLocaleDateString('ar-EG', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-
 const WithdrawalsTable: React.FC<WithdrawalsTableProps> = ({
   withdrawals,
   total,
   currency = 'USD',
   isLoading,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currencyLabel = ' ' + t.accounting.common.currency;
+
+  const formatCurrency = (amount: number, cur: string = currency) => {
+    if (cur === 'EGP') return new Intl.NumberFormat(locale).format(amount) + currencyLabel;
+    return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(amount);
+  };
+
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString(locale, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
   if (isLoading) {
     return (
       <div className="bg-white rounded-2xl border-2 border-primary/20 p-8">
         <div className="flex items-center justify-center gap-2 text-secondary/55">
           <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <span className="text-sm font-dubai">جاري تحميل المسحوبات...</span>
+          <span className="text-sm font-dubai">{t.accounting.investorPortal.loadingWithdrawals}</span>
         </div>
       </div>
     );
@@ -65,28 +71,28 @@ const WithdrawalsTable: React.FC<WithdrawalsTableProps> = ({
         <div className="w-8 h-8 rounded-xl bg-[#c09080]/10 border-2 border-[#c09080]/25 flex items-center justify-center">
           <ArrowDownCircle className="w-4 h-4 text-[#c09080]" />
         </div>
-        <h3 className="text-base font-bold text-secondary font-dubai">المسحوبات</h3>
+        <h3 className="text-base font-bold text-secondary font-dubai">{t.accounting.investorPortal.withdrawalsTitle}</h3>
         <span className="mr-auto bg-primary/10 text-secondary/70 text-xs font-bold px-2.5 py-1
           rounded-full font-dubai"
         >
-          {withdrawals.length} عملية
+          {withdrawals.length} {t.accounting.investorPortal.operationUnit}
         </span>
       </div>
 
       {withdrawals.length === 0 ? (
         <div className="py-10 text-center text-secondary/55">
           <ArrowDownCircle className="w-8 h-8 mx-auto mb-2 opacity-40" />
-          <p className="text-sm font-dubai">لا يوجد مسحوبات</p>
+          <p className="text-sm font-dubai">{t.accounting.investorPortal.noWithdrawals}</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">المبلغ</th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">التاريخ</th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">الشقة</th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">ملاحظات</th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.withdrawalAmount}</th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.withdrawalDate}</th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.withdrawalApartment}</th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.withdrawalNotes}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-primary/10">
@@ -135,7 +141,7 @@ const WithdrawalsTable: React.FC<WithdrawalsTableProps> = ({
                   </span>
                 </td>
                 <td colSpan={3} className="px-4 py-3 text-xs text-secondary/60 font-dubai">
-                  إجمالي المسحوبات
+                  {t.accounting.investorPortal.totalWithdrawalsLabel}
                 </td>
               </tr>
             </tfoot>

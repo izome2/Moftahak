@@ -24,6 +24,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { type AccountingRole, getEffectiveAccountingRole } from '@/lib/permissions';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ============================================================================
 // تعريف عناصر القائمة
@@ -31,98 +33,27 @@ import { type AccountingRole, getEffectiveAccountingRole } from '@/lib/permissio
 
 interface MenuItem {
   icon: React.FC<{ size?: number; className?: string }>;
-  label: string;
+  key: string;
   href: string;
-  /** الأدوار المسموح لها برؤية هذا العنصر */
   roles: AccountingRole[];
 }
 
 const ALL_MENU_ITEMS: MenuItem[] = [
-  {
-    icon: LayoutDashboard,
-    label: 'لوحة التحكم',
-    href: '/accounting',
-    roles: ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER'],
-  },
-  {
-    icon: Building2,
-    label: 'الشقق',
-    href: '/accounting/apartments',
-    roles: ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER'],
-  },
-  {
-    icon: CalendarCheck,
-    label: 'الحجوزات',
-    href: '/accounting/bookings',
-    roles: ['GENERAL_MANAGER', 'BOOKING_MANAGER'],
-  },
-  {
-    icon: Receipt,
-    label: 'المصروفات',
-    href: '/accounting/expenses',
-    roles: ['GENERAL_MANAGER', 'OPS_MANAGER'],
-  },
-  {
-    icon: Wallet,
-    label: 'العهدة',
-    href: '/accounting/custody',
-    roles: ['GENERAL_MANAGER', 'OPS_MANAGER'],
-  },
-  {
-    icon: ClipboardList,
-    label: 'المتابعة اليومية',
-    href: '/accounting/daily',
-    roles: ['GENERAL_MANAGER', 'OPS_MANAGER'],
-  },
-  {
-    icon: Users,
-    label: 'المستثمرين',
-    href: '/accounting/investors',
-    roles: ['GENERAL_MANAGER'],
-  },
-  {
-    icon: Wallet,
-    label: 'حساباتي',
-    href: '/accounting/my-investments',
-    roles: ['INVESTOR'],
-  },
-  {
-    icon: BarChart3,
-    label: 'التقارير',
-    href: '/accounting/reports',
-    roles: ['GENERAL_MANAGER'],
-  },
-  {
-    icon: ShieldCheck,
-    label: 'قفل الأشهر',
-    href: '/accounting/month-lock',
-    roles: ['GENERAL_MANAGER'],
-  },
-  {
-    icon: ScrollText,
-    label: 'سجل المراجعة',
-    href: '/accounting/audit',
-    roles: ['GENERAL_MANAGER'],
-  },
-  {
-    icon: Settings,
-    label: 'الإعدادات',
-    href: '/accounting/settings',
-    roles: ['GENERAL_MANAGER'],
-  },
+  { icon: LayoutDashboard, key: 'dashboard', href: '/accounting', roles: ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER'] },
+  { icon: Building2, key: 'apartments', href: '/accounting/apartments', roles: ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER'] },
+  { icon: CalendarCheck, key: 'bookings', href: '/accounting/bookings', roles: ['GENERAL_MANAGER', 'BOOKING_MANAGER'] },
+  { icon: Receipt, key: 'expenses', href: '/accounting/expenses', roles: ['GENERAL_MANAGER', 'OPS_MANAGER'] },
+  { icon: Wallet, key: 'custody', href: '/accounting/custody', roles: ['GENERAL_MANAGER', 'OPS_MANAGER'] },
+  { icon: ClipboardList, key: 'daily', href: '/accounting/daily', roles: ['GENERAL_MANAGER', 'OPS_MANAGER'] },
+  { icon: Users, key: 'investors', href: '/accounting/investors', roles: ['GENERAL_MANAGER'] },
+  { icon: Wallet, key: 'myInvestments', href: '/accounting/my-investments', roles: ['INVESTOR'] },
+  { icon: BarChart3, key: 'reports', href: '/accounting/reports', roles: ['GENERAL_MANAGER'] },
+  { icon: ShieldCheck, key: 'monthLock', href: '/accounting/month-lock', roles: ['GENERAL_MANAGER'] },
+  { icon: ScrollText, key: 'audit', href: '/accounting/audit', roles: ['GENERAL_MANAGER'] },
+  { icon: Settings, key: 'settings', href: '/accounting/settings', roles: ['GENERAL_MANAGER'] },
 ];
 
-// ============================================================================
-// ترجمة الأدوار
-// ============================================================================
 
-const ROLE_LABELS: Record<string, string> = {
-  ADMIN: 'مسؤول الموقع و مدير عام',
-  GENERAL_MANAGER: 'المدير العام',
-  OPS_MANAGER: 'مدير التشغيل',
-  BOOKING_MANAGER: 'مدير الحجوزات',
-  INVESTOR: 'مستثمر',
-};
 
 // ============================================================================
 // Sidebar Component
@@ -142,6 +73,8 @@ const AccountingSidebar: React.FC<AccountingSidebarProps> = ({
   const pathname = usePathname();
   const { data: session } = useSession();
   const [isMobile, setIsMobile] = useState(false);
+  const t = useTranslation();
+  const { language } = useLanguage();
 
   const userRole = (session?.user?.role || '') as string;
 
@@ -228,7 +161,7 @@ const AccountingSidebar: React.FC<AccountingSidebarProps> = ({
               <button
                 onClick={onClose}
                 className="absolute top-4 left-4 p-1.5 rounded-lg hover:bg-primary/10 transition-colors lg:hidden"
-                aria-label="إغلاق القائمة"
+                aria-label={t.accounting.common.closeMenu}
               >
                 <X size={20} className="text-secondary/60" />
               </button>
@@ -255,13 +188,13 @@ const AccountingSidebar: React.FC<AccountingSidebarProps> = ({
                   {session.user.firstName} {session.user.lastName}
                 </p>
                 <p className="text-xs text-secondary/60 font-dubai">
-                  {ROLE_LABELS[userRole] || ROLE_LABELS[effectiveRole] || userRole}
+                  {t.accounting.roles[userRole as keyof typeof t.accounting.roles] || t.accounting.roles[effectiveRole as keyof typeof t.accounting.roles] || userRole}
                 </p>
               </div>
               <Link
                 href="/"
                 className="p-2.5 hover:bg-primary/10 rounded-xl transition-colors shrink-0"
-                title="العودة للصفحة الرئيسية"
+                title={t.accounting.sidebar.backToMain}
               >
                 <Home size={24} className="text-secondary" />
               </Link>
@@ -298,7 +231,7 @@ const AccountingSidebar: React.FC<AccountingSidebarProps> = ({
                     >
                       <Icon size={20} />
                       <span className="font-semibold font-dubai text-sm flex-1 text-right">
-                        {item.label}
+                        {t.accounting.sidebar[item.key as keyof typeof t.accounting.sidebar]}
                       </span>
                       {active && (
                         <ChevronLeft size={16} className="text-white" />
@@ -321,7 +254,7 @@ const AccountingSidebar: React.FC<AccountingSidebarProps> = ({
           >
             <LogOut size={20} />
             <span className="font-semibold font-dubai text-sm flex-1 text-right">
-              تسجيل الخروج
+              {t.accounting.sidebar.logout}
             </span>
           </motion.button>
         </div>

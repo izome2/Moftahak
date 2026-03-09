@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SidebarProps {
   isMobileOpen: boolean;
@@ -29,6 +31,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onClose, onOpen }) => {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [isMobile, setIsMobile] = useState(false);
+  const t = useTranslation();
+  const { isRTL } = useLanguage();
 
   useEffect(() => {
     const handleResize = () => {
@@ -60,11 +64,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onClose, onOpen }) => {
   }, [isMobile, isMobileOpen]);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'لوحة التحكم', href: '/admin' },
-    { icon: FileText, label: 'دراسات الجدوى', href: '/admin/feasibility' },
-    { icon: MessageSquare, label: 'طلبات الاستشارة', href: '/admin/consultations' },
-    { icon: Users, label: 'المستخدمين', href: '/admin/users' },
-    { icon: Settings, label: 'الإعدادات', href: '/admin/settings' },
+    { icon: LayoutDashboard, label: t.admin.sidebar.dashboard, href: '/admin' },
+    { icon: FileText, label: t.admin.sidebar.feasibilityStudies, href: '/admin/feasibility' },
+    { icon: MessageSquare, label: t.admin.sidebar.consultationRequests, href: '/admin/consultations' },
+    { icon: Users, label: t.admin.sidebar.users, href: '/admin/users' },
+    { icon: Settings, label: t.admin.sidebar.settings, href: '/admin/settings' },
   ];
 
   const handleLogout = async () => {
@@ -97,10 +101,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onClose, onOpen }) => {
       <motion.aside
         initial={false}
         animate={{
-          x: isMobile ? (isMobileOpen ? 0 : '100%') : 0
+          x: isMobile ? (isMobileOpen ? 0 : (isRTL ? '100%' : '-100%')) : 0
         }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-[0_8px_30px_rgba(237,191,140,0.5)] border-l-2 border-primary/20 flex flex-col overflow-hidden z-50 lg:right-8 lg:top-8 lg:h-[calc(100vh-4rem)] lg:w-72 lg:rounded-2xl lg:border-2"
+        className={`fixed top-0 h-full w-80 max-w-[85vw] bg-white shadow-[0_8px_30px_rgba(237,191,140,0.5)] flex flex-col overflow-hidden z-50 lg:top-8 lg:h-[calc(100vh-4rem)] lg:w-72 lg:rounded-2xl lg:border-2 ${
+          isRTL 
+            ? 'right-0 border-l-2 border-primary/20 lg:right-8' 
+            : 'left-0 border-r-2 border-primary/20 lg:left-8'
+        }`}
       >
         {/* هيدر - معلومات المستخدم */}
         {session?.user && (
@@ -125,13 +133,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onClose, onOpen }) => {
                   {session.user.firstName} {session.user.lastName}
                 </p>
                 <p className="text-xs text-secondary/60 font-dubai">
-                  {session.user.role === 'ADMIN' ? 'مسؤول النظام' : 'مستخدم'}
+                  {session.user.role === 'ADMIN' ? t.admin.sidebar.systemAdmin : t.admin.sidebar.user}
                 </p>
               </div>
               <Link 
                 href="/"
                 className="p-2.5 hover:bg-primary/10 rounded-xl transition-colors"
-                title="العودة للصفحة الرئيسية"
+                title={t.admin.sidebar.backToHome}
               >
                 <Home size={24} className="text-secondary" />
               </Link>
@@ -159,7 +167,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onClose, onOpen }) => {
                       onClick={(e) => e.preventDefault()}
                     >
                       <Icon size={20} />
-                      <span className="font-semibold font-dubai text-sm flex-1 text-right">
+                      <span className={`font-semibold font-dubai text-sm flex-1 ${isRTL ? 'text-right' : 'text-left'}`}>
                         {item.label}
                       </span>
                     </div>
@@ -184,7 +192,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onClose, onOpen }) => {
                       `}
                     >
                       <Icon size={20} />
-                      <span className="font-semibold font-dubai text-sm flex-1 text-right">
+                      <span className={`font-semibold font-dubai text-sm flex-1 ${isRTL ? 'text-right' : 'text-left'}`}>
                         {item.label}
                       </span>
                       {isActive && (
@@ -210,8 +218,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onClose, onOpen }) => {
             "
           >
             <LogOut size={20} />
-            <span className="font-semibold font-dubai text-sm flex-1 text-right">
-              تسجيل الخروج
+            <span className={`font-semibold font-dubai text-sm flex-1 ${isRTL ? 'text-right' : 'text-left'}`}>
+              {t.admin.sidebar.logout}
             </span>
           </motion.button>
         </div>

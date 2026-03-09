@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CalendarCheck, Loader2, Pencil, Trash2, Phone, Clock, FileText } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BookingRow {
   id: string;
@@ -34,26 +36,20 @@ interface BookingsListProps {
   hideFinancials?: boolean;
 }
 
-const SOURCE_BADGES: Record<string, { label: string; className: string }> = {
-  AIRBNB: { label: 'Airbnb', className: 'bg-primary/10 text-secondary' },
-  BOOKING_COM: { label: 'Booking.com', className: 'bg-primary/10 text-secondary' },
-  EXTERNAL: { label: 'خارجي', className: 'bg-secondary/10 text-secondary' },
-  DIRECT: { label: 'مباشر', className: 'bg-primary/20 text-secondary' },
-  OTHER: { label: 'أخرى', className: 'bg-secondary/10 text-secondary/70' },
+const SOURCE_BADGE_CLASSES: Record<string, string> = {
+  AIRBNB: 'bg-primary/10 text-secondary',
+  BOOKING_COM: 'bg-primary/10 text-secondary',
+  EXTERNAL: 'bg-secondary/10 text-secondary',
+  DIRECT: 'bg-primary/20 text-secondary',
+  OTHER: 'bg-secondary/10 text-secondary/70',
 };
 
-const STATUS_BADGES: Record<string, { label: string; className: string }> = {
-  CONFIRMED: { label: 'مؤكد', className: 'bg-primary/15 text-secondary' },
-  CHECKED_IN: { label: 'دخل', className: 'bg-primary/25 text-secondary' },
-  CHECKED_OUT: { label: 'خرج', className: 'bg-secondary/10 text-secondary/70' },
-  CANCELLED: { label: 'ملغي', className: 'bg-secondary/10 text-secondary/50' },
+const STATUS_BADGE_CLASSES: Record<string, string> = {
+  CONFIRMED: 'bg-primary/15 text-secondary',
+  CHECKED_IN: 'bg-primary/25 text-secondary',
+  CHECKED_OUT: 'bg-secondary/10 text-secondary/70',
+  CANCELLED: 'bg-secondary/10 text-secondary/50',
 };
-
-const formatDate = (dateString: string) =>
-  new Date(dateString).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
-
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
 
 const BookingsList: React.FC<BookingsListProps> = ({
   bookings,
@@ -68,6 +64,27 @@ const BookingsList: React.FC<BookingsListProps> = ({
   onDelete,
   hideFinancials = false,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currency = t.accounting.common.currency;
+
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString(locale, { month: 'short', day: 'numeric' });
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat(locale).format(amount) + ' ' + currency;
+
+  const getSourceLabel = (source: string) => {
+    if (source === 'AIRBNB') return 'Airbnb';
+    if (source === 'BOOKING_COM') return 'Booking.com';
+    return (t.accounting.bookingSources as Record<string, string>)[source] || source;
+  };
+
+  const getStatusLabel = (status: string) => {
+    return (t.accounting.bookingStatuses as Record<string, string>)[status] || status;
+  };
+
   const hasActions = canEdit || canDelete;
 
   return (
@@ -84,16 +101,16 @@ const BookingsList: React.FC<BookingsListProps> = ({
             <CalendarCheck size={16} className="text-primary" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-secondary font-dubai">قائمة الحجوزات</h3>
+            <h3 className="text-sm font-bold text-secondary font-dubai">{t.accounting.bookings.bookingsList}</h3>
             {totalCount !== undefined && (
-              <p className="text-[11px] text-secondary/55 font-dubai">{totalCount} حجز</p>
+              <p className="text-[11px] text-secondary/55 font-dubai">{totalCount} {t.accounting.common.booking}</p>
             )}
           </div>
         </div>
         <div className="flex items-center gap-2">
           {totalNights !== undefined && totalNights > 0 && !isLoading && (
             <span className="text-[11px] font-bold text-secondary/60 font-dubai bg-primary/8 px-2.5 py-1 rounded-lg">
-              {totalNights} ليلة
+              {totalNights} {t.accounting.common.night}
             </span>
           )}
           {totalAmount !== undefined && !isLoading && !hideFinancials && (
@@ -116,15 +133,15 @@ const BookingsList: React.FC<BookingsListProps> = ({
           <div className="w-12 h-12 rounded-2xl bg-primary/5 mx-auto mb-3 flex items-center justify-center">
             <CalendarCheck size={22} className="text-secondary/35" />
           </div>
-          <p className="text-secondary/55 font-dubai text-sm">لا توجد حجوزات بهذا الفلتر</p>
+          <p className="text-secondary/55 font-dubai text-sm">{t.accounting.bookings.noBookingsFilter}</p>
         </div>
       ) : (
         <>
           {/* Mobile Card View */}
           <div className="block md:hidden">
             {bookings.map((booking, i) => {
-              const source = SOURCE_BADGES[booking.source] || SOURCE_BADGES.OTHER;
-              const status = STATUS_BADGES[booking.status] || STATUS_BADGES.CONFIRMED;
+              const sourceClass = SOURCE_BADGE_CLASSES[booking.source] || SOURCE_BADGE_CLASSES.OTHER;
+              const statusClass = STATUS_BADGE_CLASSES[booking.status] || STATUS_BADGE_CLASSES.CONFIRMED;
               return (
                 <div
                   key={booking.id}
@@ -148,16 +165,16 @@ const BookingsList: React.FC<BookingsListProps> = ({
 
                   <div className="flex flex-wrap items-center gap-2 text-[11px] text-secondary/65 font-dubai">
                     <span>{formatDate(booking.checkIn)} → {formatDate(booking.checkOut)}</span>
-                    <span className="font-bold text-secondary/70">{booking.nights} ليلة</span>
+                    <span className="font-bold text-secondary/70">{booking.nights} {t.accounting.common.night}</span>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${source.className}`}>
-                        {source.label}
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${sourceClass}`}>
+                        {getSourceLabel(booking.source)}
                       </span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${status.className}`}>
-                        {status.label}
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${statusClass}`}>
+                        {getStatusLabel(booking.status)}
                       </span>
                     </div>
                     {hasActions && (
@@ -185,21 +202,21 @@ const BookingsList: React.FC<BookingsListProps> = ({
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                  {showApartment && <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">الشقة</th>}
-                  <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">العميل</th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">الدخول</th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">الخروج</th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">الليالي</th>
-                  {!hideFinancials && <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">المبلغ</th>}
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">المصدر</th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden md:table-cell">الحالة</th>
-                  {hasActions && <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai w-20">إجراء</th>}
+                  {showApartment && <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.bookings.apartment}</th>}
+                  <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.bookings.client}</th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">{t.accounting.bookings.checkIn}</th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">{t.accounting.bookings.checkOut}</th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.bookings.nights}</th>
+                  {!hideFinancials && <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.bookings.amount}</th>}
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.bookings.source}</th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden md:table-cell">{t.accounting.bookings.status}</th>
+                  {hasActions && <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai w-20">{t.accounting.bookings.actions}</th>}
                 </tr>
               </thead>
               <tbody>
                 {bookings.map((booking, i) => {
-                  const source = SOURCE_BADGES[booking.source] || SOURCE_BADGES.OTHER;
-                  const status = STATUS_BADGES[booking.status] || STATUS_BADGES.CONFIRMED;
+                  const sourceClass = SOURCE_BADGE_CLASSES[booking.source] || SOURCE_BADGE_CLASSES.OTHER;
+                  const statusClass = STATUS_BADGE_CLASSES[booking.status] || STATUS_BADGE_CLASSES.CONFIRMED;
 
                   return (
                     <tr
@@ -256,13 +273,13 @@ const BookingsList: React.FC<BookingsListProps> = ({
                         </td>
                       )}
                       <td className="px-4 py-3.5 text-center">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai font-bold ${source.className}`}>
-                          {source.label}
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai font-bold ${sourceClass}`}>
+                          {getSourceLabel(booking.source)}
                         </span>
                       </td>
                       <td className="px-4 py-3.5 text-center hidden md:table-cell">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai font-bold ${status.className}`}>
-                          {status.label}
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai font-bold ${statusClass}`}>
+                          {getStatusLabel(booking.status)}
                         </span>
                       </td>
                       {hasActions && (
@@ -272,7 +289,7 @@ const BookingsList: React.FC<BookingsListProps> = ({
                               <button
                                 onClick={() => onEdit(booking)}
                                 className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors"
-                                title="تعديل"
+                                title={t.accounting.common.edit}
                               >
                                 <Pencil size={13} className="text-secondary/50" />
                               </button>
@@ -281,7 +298,7 @@ const BookingsList: React.FC<BookingsListProps> = ({
                               <button
                                 onClick={() => onDelete(booking)}
                                 className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors"
-                                title="حذف"
+                                title={t.accounting.common.delete}
                               >
                                 <Trash2 size={13} className="text-secondary/45" />
                               </button>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bed, Bath, Sofa, ChefHat, Minus, Plus, Home } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface RoomCountersProps {
   bedrooms: number;
@@ -240,10 +241,12 @@ export default function RoomCounters({
   errors = {},
   compact = false
 }: RoomCountersProps) {
+  const t = useTranslation();
+
   const roomItems = [
     {
       key: 'bedrooms',
-      label: 'غرف النوم',
+      label: t.feasibilityRequest.bedrooms,
       value: bedrooms,
       icon: <Bed className={compact ? "w-5 h-5" : "w-10 h-10"} />,
       min: 0,
@@ -251,7 +254,7 @@ export default function RoomCounters({
     },
     {
       key: 'bathrooms',
-      label: 'الحمامات',
+      label: t.feasibilityRequest.bathrooms,
       value: bathrooms,
       icon: <Bath className={compact ? "w-5 h-5" : "w-10 h-10"} />,
       min: 0,
@@ -259,7 +262,7 @@ export default function RoomCounters({
     },
     {
       key: 'livingRooms',
-      label: 'غرف المعيشة',
+      label: t.feasibilityRequest.livingRooms,
       value: livingRooms,
       icon: <Sofa className={compact ? "w-5 h-5" : "w-10 h-10"} />,
       min: 0,
@@ -267,7 +270,7 @@ export default function RoomCounters({
     },
     {
       key: 'kitchens',
-      label: 'المطابخ',
+      label: t.feasibilityRequest.kitchens,
       value: kitchens,
       icon: <ChefHat className={compact ? "w-5 h-5" : "w-10 h-10"} />,
       min: 0,
@@ -308,8 +311,8 @@ export default function RoomCounters({
           <Home className="w-5 h-5 md:w-6 md:h-6 text-secondary" />
         </div>
         <div>
-          <h3 className="text-base md:text-lg font-bold text-secondary font-dubai">تكوين الشقة</h3>
-          <p className="text-xs md:text-sm text-secondary/60 font-dubai">حدد عدد الغرف في شقتك</p>
+          <h3 className="text-base md:text-lg font-bold text-secondary font-dubai">{t.feasibilityRequest.apartmentSetup}</h3>
+          <p className="text-xs md:text-sm text-secondary/60 font-dubai">{t.feasibilityRequest.selectRoomCount}</p>
         </div>
       </div>
       

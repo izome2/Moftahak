@@ -17,6 +17,7 @@ import {
   MoreHorizontal,
   type LucideIcon,
 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface CategoryConfig {
   label: string;
@@ -24,21 +25,31 @@ export interface CategoryConfig {
   icon: LucideIcon;
 }
 
-export const CATEGORY_MAP: Record<string, CategoryConfig> = {
-  CLEANING:          { label: 'تنظيف الشقة',     className: 'bg-primary/10 text-secondary',   icon: Sparkles },
-  INTERNET:          { label: 'انترنت',           className: 'bg-primary/10 text-secondary',   icon: Wifi },
-  WATER:             { label: 'مياه',             className: 'bg-primary/10 text-secondary',   icon: Droplets },
-  GAS:               { label: 'غاز',              className: 'bg-primary/10 text-secondary',   icon: Flame },
-  ELECTRICITY:       { label: 'كهرباء',           className: 'bg-primary/10 text-secondary',   icon: Zap },
-  MAINTENANCE:       { label: 'صيانة',            className: 'bg-primary/10 text-secondary',   icon: Wrench },
-  SUPPLIES:          { label: 'مستلزمات',         className: 'bg-primary/10 text-secondary',   icon: ShoppingBag },
-  FURNITURE:         { label: 'أثاث',             className: 'bg-primary/10 text-secondary',   icon: Armchair },
-  LAUNDRY:           { label: 'غسيل ملاءات',      className: 'bg-primary/10 text-secondary',   icon: Shirt },
-  TOWELS:            { label: 'مناشف حمام',       className: 'bg-primary/10 text-secondary',   icon: Bath },
-  KITCHEN_SUPPLIES:  { label: 'مستلزمات المطبخ',  className: 'bg-primary/10 text-secondary',   icon: ChefHat },
-  AIR_CONDITIONING:  { label: 'تكييف',            className: 'bg-primary/10 text-secondary',   icon: Snowflake },
-  OTHER:             { label: 'أخرى',             className: 'bg-primary/10 text-secondary',   icon: MoreHorizontal },
+export interface CategoryStyleConfig {
+  className: string;
+  icon: LucideIcon;
+}
+
+export const CATEGORY_STYLE_MAP: Record<string, CategoryStyleConfig> = {
+  CLEANING:          { className: 'bg-primary/10 text-secondary',   icon: Sparkles },
+  INTERNET:          { className: 'bg-primary/10 text-secondary',   icon: Wifi },
+  WATER:             { className: 'bg-primary/10 text-secondary',   icon: Droplets },
+  GAS:               { className: 'bg-primary/10 text-secondary',   icon: Flame },
+  ELECTRICITY:       { className: 'bg-primary/10 text-secondary',   icon: Zap },
+  MAINTENANCE:       { className: 'bg-primary/10 text-secondary',   icon: Wrench },
+  SUPPLIES:          { className: 'bg-primary/10 text-secondary',   icon: ShoppingBag },
+  FURNITURE:         { className: 'bg-primary/10 text-secondary',   icon: Armchair },
+  LAUNDRY:           { className: 'bg-primary/10 text-secondary',   icon: Shirt },
+  TOWELS:            { className: 'bg-primary/10 text-secondary',   icon: Bath },
+  KITCHEN_SUPPLIES:  { className: 'bg-primary/10 text-secondary',   icon: ChefHat },
+  AIR_CONDITIONING:  { className: 'bg-primary/10 text-secondary',   icon: Snowflake },
+  OTHER:             { className: 'bg-primary/10 text-secondary',   icon: MoreHorizontal },
 };
+
+/** @deprecated Use CATEGORY_STYLE_MAP + translation lookups instead */
+export const CATEGORY_MAP: Record<string, CategoryConfig> = Object.fromEntries(
+  Object.entries(CATEGORY_STYLE_MAP).map(([key, style]) => [key, { ...style, label: key }])
+);
 
 export const CATEGORY_COLORS: Record<string, string> = {
   CLEANING:         '#7a9ab5',
@@ -67,8 +78,10 @@ const CategoryBadge: React.FC<CategoryBadgeProps> = ({
   size = 'sm',
   showIcon = true,
 }) => {
-  const config = CATEGORY_MAP[category] || CATEGORY_MAP.OTHER;
-  const Icon = config.icon;
+  const t = useTranslation();
+  const style = CATEGORY_STYLE_MAP[category] || CATEGORY_STYLE_MAP.OTHER;
+  const Icon = style.icon;
+  const label = (t.accounting.expenseCategoriesShort as Record<string, string>)[category] || category;
 
   const sizeClasses = {
     sm: 'text-[10px] px-2 py-0.5',
@@ -80,10 +93,10 @@ const CategoryBadge: React.FC<CategoryBadgeProps> = ({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full font-dubai font-bold ${config.className} ${sizeClasses[size]}`}
+      className={`inline-flex items-center gap-1 rounded-full font-dubai font-bold ${style.className} ${sizeClasses[size]}`}
     >
       {showIcon && <Icon size={iconSizes[size]} />}
-      {config.label}
+      {label}
     </span>
   );
 };

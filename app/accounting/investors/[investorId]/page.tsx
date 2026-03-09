@@ -14,6 +14,8 @@ import {
 import ApartmentView from '@/components/accounting/investor/ApartmentView';
 import BalanceCard from '@/components/accounting/investor/BalanceCard';
 import WithdrawalsTable from '@/components/accounting/investor/WithdrawalsTable';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // --- Types ---
 interface MonthlyBreakdown {
@@ -66,14 +68,12 @@ interface InvestorDetailData {
   };
 }
 
-const formatCurrency = (amount: number, currency: string = 'USD') => {
-  if (currency === 'EGP') return new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
-  return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(amount);
-};
-
 export default function InvestorDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
   const investorId = params.investorId as string;
 
   const [data, setData] = useState<InvestorDetailData | null>(null);
@@ -89,10 +89,10 @@ export default function InvestorDetailPage() {
     try {
       const res = await fetch(`/api/accounting/investors/${investorId}`);
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'فشل في جلب البيانات');
+      if (!res.ok) throw new Error(json.error || t.accounting.errors.fetchInvestorData);
       setData(json);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      setError(err instanceof Error ? err.message : t.accounting.errors.unexpected);
     } finally {
       setIsLoading(false);
     }
@@ -133,7 +133,7 @@ export default function InvestorDetailPage() {
 
         <div className="flex-1">
           <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai">
-            التفاصيل المالية
+            {t.accounting.investorDetail.financialDetails}
           </h1>
           {data && (
             <p className="text-sm text-secondary/50 font-dubai mt-0.5">
@@ -158,7 +158,7 @@ export default function InvestorDetailPage() {
         <div className="flex items-center justify-center py-20">
           <div className="text-center space-y-3">
             <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
-            <p className="text-sm text-secondary/50 font-dubai">جاري تحميل بيانات المستثمر...</p>
+            <p className="text-sm text-secondary/50 font-dubai">{t.accounting.investorDetail.loadingData}</p>
           </div>
         </div>
       )}
@@ -179,7 +179,7 @@ export default function InvestorDetailPage() {
               className="px-4 py-2 bg-secondary text-white rounded-xl text-sm font-dubai
                 hover:bg-secondary/90 transition-colors"
             >
-              إعادة المحاولة
+              {t.accounting.common.retry}
             </button>
           </motion.div>
         )}
@@ -219,7 +219,7 @@ export default function InvestorDetailPage() {
                 )}
               </div>
               <div className="text-left">
-                <p className="text-xs text-secondary/40 font-dubai">عدد الاستثمارات</p>
+                <p className="text-xs text-secondary/40 font-dubai">{t.accounting.investorDetail.investmentsCount}</p>
                 <p className="text-2xl font-bold text-secondary font-dubai">
                   {data.investments.length}
                 </p>
@@ -242,7 +242,7 @@ export default function InvestorDetailPage() {
               className="bg-white rounded-2xl border-2 border-primary/20 p-10 text-center"
             >
               <Building2 className="w-10 h-10 text-secondary/20 mx-auto mb-3" />
-              <p className="text-sm text-secondary/40 font-dubai">لا يوجد استثمارات مرتبطة</p>
+              <p className="text-sm text-secondary/40 font-dubai">{t.accounting.investorDetail.noInvestments}</p>
             </motion.div>
           ) : (
             <div className="space-y-4">
@@ -252,7 +252,7 @@ export default function InvestorDetailPage() {
                 >
                   <Building2 className="w-4 h-4 text-primary" />
                 </div>
-                الاستثمارات ({data.investments.length})
+                {t.accounting.investorDetail.investments(data.investments.length)}
               </h3>
               {data.investments.map((inv) => (
                 <ApartmentView key={inv.investmentId} investment={inv} />

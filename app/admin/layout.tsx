@@ -6,6 +6,8 @@ import { useSession } from 'next-auth/react';
 import { Menu } from 'lucide-react';
 import Sidebar from '@/components/admin/Sidebar';
 import { FeasibilityEditorProvider } from '@/contexts/FeasibilityEditorContext';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function AdminLayout({
   children,
@@ -16,6 +18,8 @@ export default function AdminLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const t = useTranslation();
+  const { isRTL } = useLanguage();
   
   // كشف صفحة المحرر لتوسيع مساحة العمل
   const isEditorPage = pathname === '/admin/feasibility/new' || 
@@ -36,7 +40,7 @@ export default function AdminLayout({
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-l from-primary/20 via-accent/40 to-accent/60">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-secondary font-dubai">جاري التحميل...</p>
+          <p className="text-secondary font-dubai">{t.admin.loading}</p>
         </div>
       </div>
     );
@@ -45,7 +49,7 @@ export default function AdminLayout({
   return (
     <FeasibilityEditorProvider>
       <div className="fixed inset-0 bg-gradient-to-l from-primary/20 via-accent/40 to-accent/60 -z-10" />
-      <div className="min-h-screen font-dubai" dir="rtl">
+      <div className="min-h-screen font-dubai" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* الـ Sidebar يُخفى تلقائياً في صفحات المحرر - EditorSidePanel سيتولى المهمة */}
         {!isEditorPage && (
           <>
@@ -59,17 +63,17 @@ export default function AdminLayout({
             <button
               onClick={() => setIsMobileMenuOpen(true)}
               className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 px-6 py-3 rounded-full bg-white text-secondary hover:bg-primary/10 transition-all duration-300 hover:scale-105 lg:hidden flex items-center gap-2 shadow-[0_10px_40px_rgba(16,48,43,0.15),0_0_0_1px_rgba(237,191,140,0.3)]"
-              aria-label="فتح القائمة"
+              aria-label={t.admin.openMenu}
             >
               <Menu className="w-5 h-5" />
-              <span className="font-dubai text-sm font-medium">القائمة</span>
+              <span className="font-dubai text-sm font-medium">{t.admin.menu}</span>
             </button>
           </>
         )}
         
         {/* المحرر يأخذ كامل الشاشة بدون margin */}
-        <main className={`relative h-screen ${isEditorPage ? '' : 'lg:mr-[21rem]'}`}>
-          <div className={`h-full flex items-stretch ${isEditorPage ? 'p-0' : 'p-4 sm:p-6 lg:p-8 lg:pr-4'}`}>
+        <main className={`relative h-screen ${isEditorPage ? '' : isRTL ? 'lg:mr-[21rem]' : 'lg:ml-[21rem]'}`}>
+          <div className={`h-full flex items-stretch ${isEditorPage ? 'p-0' : `p-4 sm:p-6 lg:p-8 ${isRTL ? 'lg:pr-4' : 'lg:pl-4'}`}`}>
             <div className={`flex-1 overflow-hidden flex flex-col ${
               isEditorPage 
                 ? 'bg-accent' 

@@ -14,24 +14,25 @@ import {
   step2Schema,
   FeasibilityRequestFormData,
   defaultFormData,
-  studyTypeLabels 
 } from '@/lib/validations/feasibility-request';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface FeasibilityRequestFormProps {
   studyType: StudyRequestType;
   onBack?: () => void;
 }
 
-const steps = [
-  { number: 1, title: 'المعلومات الأساسية' },
-  { number: 2, title: 'تفاصيل العقار' },
-];
-
 export default function FeasibilityRequestForm({ 
   studyType, 
   onBack 
 }: FeasibilityRequestFormProps) {
+  const t = useTranslation();
   const { data: session } = useSession();
+
+  const steps = [
+    { number: 1, title: t.feasibilityRequest.step1Title },
+    { number: 2, title: t.feasibilityRequest.step2Title },
+  ];
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
   const [formData, setFormData] = useState<FeasibilityRequestFormData>({
     ...defaultFormData,
@@ -117,13 +118,13 @@ export default function FeasibilityRequestForm({
     // التحقق من أن المجموع الكلي للغرف لا يقل عن 3
     const totalRooms = formData.bedrooms + formData.bathrooms + formData.livingRooms + formData.kitchens;
     if (totalRooms < 3) {
-      fieldErrors.bedrooms = 'يجب إضافة 3 غرف على الأقل (اي مزيج من الغرف)';
+      fieldErrors.bedrooms = t.feasibilityRequest.minRoomsError;
     }
 
     // التحقق من تحديد الموقع
     if (!formData.latitude || !formData.longitude) {
-      fieldErrors.latitude = 'يرجى تحديد موقع الشقة على الخريطة';
-      fieldErrors.longitude = 'يرجى تحديد موقع الشقة على الخريطة';
+      fieldErrors.latitude = t.feasibilityRequest.locationRequired;
+      fieldErrors.longitude = t.feasibilityRequest.locationRequired;
     }
 
     // إذا كان هناك أخطاء في الغرف أو الخريطة
@@ -190,7 +191,7 @@ export default function FeasibilityRequestForm({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'حدث خطأ أثناء إرسال الطلب');
+        throw new Error(data.error || t.feasibilityRequest.submitError);
       }
 
       // حفظ رمز الدفع
@@ -200,7 +201,7 @@ export default function FeasibilityRequestForm({
       
       setSubmitSuccess(true);
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'حدث خطأ غير متوقع');
+      setSubmitError(error instanceof Error ? error.message : t.feasibilityRequest.unexpectedError);
     } finally {
       setIsSubmitting(false);
     }
@@ -218,12 +219,13 @@ export default function FeasibilityRequestForm({
   // إنشاء رابط واتساب مع الرسالة الجاهزة
   const getWhatsAppLink = () => {
     const phone = '201091507717';
+    const arStudyType = studyType === 'WITH_FIELD_VISIT' ? 'مع نزول ميداني' : 'بدون نزول ميداني';
     const message = `السلام عليكم،
 
 أود تأكيد طلب دراسة الجدوى الخاص بي.
 
 رمز الدفع: ${paymentCode}
-نوع الدراسة: ${studyTypeLabels[studyType]}
+نوع الدراسة: ${arStudyType}
 
 ⚠️ تنبيه: يرجى عدم تعديل هذه الرسالة لضمان معالجة طلبك بشكل صحيح.`;
     
@@ -270,24 +272,24 @@ export default function FeasibilityRequestForm({
           </div>
           
           <h2 className="text-2xl md:text-2xl font-bold text-secondary mb-3 font-dubai relative z-10">
-            تم إرسال طلبك بنجاح!
+                        {t.feasibilityRequest.requestSentSuccess}
           </h2>
           
           <p className="text-secondary/70 mb-5 font-dubai text-base md:text-base relative z-10 leading-relaxed">
-            عزيزي العميل.. يرجى إتمام عملية الدفع للبدء في دراسة الجدوى. انتقل للواتساب لاستلام تفاصيل الدفع.
+            {t.feasibilityRequest.pleaseCompletePayment}
           </p>
 
           {/* عداد التوجيه التلقائي */}
           {redirectCountdown > 0 && !hideCountdown && (
             <div className="mb-4 p-3 bg-primary/10 border border-primary/30 rounded-xl text-secondary text-sm font-dubai relative z-10">
-              سيتم توجيهك تلقائياً إلى واتساب خلال {redirectCountdown} {redirectCountdown === 1 ? 'ثانية' : 'ثواني'}...
+              {t.feasibilityRequest.autoRedirect(redirectCountdown)}
             </div>
           )}
           
           {/* رمز الدفع */}
           {paymentCode && (
             <div className="p-5 md:p-6 bg-primary/10 rounded-2xl mb-5 border-2 border-primary/30 relative z-10">
-              <p className="text-secondary/60 text-sm md:text-sm mb-2 font-dubai">رمز الدفع الخاص بك</p>
+              <p className="text-secondary/60 text-sm md:text-sm mb-2 font-dubai">{t.feasibilityRequest.yourPaymentCode}</p>
               <div className="flex items-center justify-center gap-3">
                 <span className="text-3xl md:text-3xl font-bold text-secondary font-mono tracking-widest" dir="ltr">
                   {paymentCode}
@@ -295,7 +297,7 @@ export default function FeasibilityRequestForm({
                 <button
                   onClick={copyPaymentCode}
                   className="p-1.5 rounded-lg bg-secondary/10 hover:bg-secondary/20 transition-colors"
-                  title="نسخ الرمز"
+                  title={t.feasibilityRequest.copyCode}
                 >
                   {codeCopied ? (
                     <Check className="w-4 h-4 text-green-600" />
@@ -310,7 +312,7 @@ export default function FeasibilityRequestForm({
           {/* طرق الدفع */}
           <div className="mb-6 relative z-10">
             <p className="text-secondary/70 mb-3 font-dubai text-sm md:text-sm">
-              طرق الدفع المتاحة:
+                            {t.feasibilityRequest.availablePaymentMethods}
             </p>
             <div className="flex justify-center items-center gap-4">
               <Image 
@@ -356,7 +358,7 @@ export default function FeasibilityRequestForm({
             height={35}
             className="object-contain"
           />
-          <span>الانتقال إلى واتساب للدفع</span>
+          <span>{t.feasibilityRequest.goToWhatsapp}</span>
         </a>
         
         {/* زر العودة - منفصل تماماً */}
@@ -364,7 +366,7 @@ export default function FeasibilityRequestForm({
           onClick={() => window.location.href = '/'}
           className="mt-4 w-full bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-secondary/10 p-4 md:p-5 hover:bg-white/80 transition-all inline-flex items-center justify-center gap-2 text-secondary font-bold font-dubai text-base md:text-base"
         >
-          <span>العودة للصفحة الرئيسية</span>
+          <span>{t.feasibilityRequest.backToHome}</span>
           <ArrowRight className="w-5 h-5 flex-shrink-0" />
         </button>
       </motion.div>
@@ -380,7 +382,7 @@ export default function FeasibilityRequestForm({
         currentStep === 1 ? 'mb-4 max-h-20 opacity-100' : 'mb-0 max-h-0 opacity-0'
       }`}>
         <h1 className="text-2xl md:text-3xl font-bold text-secondary font-dubai">
-          طلب دراسة جدوى
+                    {t.feasibilityRequest.requestTitle}
         </h1>
       </div>
 
@@ -459,7 +461,7 @@ export default function FeasibilityRequestForm({
             `}
           >
             <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
-            <span>السابق</span>
+            <span>{t.feasibilityRequest.previous}</span>
           </button>
 
           {currentStep === 1 ? (
@@ -468,7 +470,7 @@ export default function FeasibilityRequestForm({
               onClick={handleNext}
               className="flex items-center gap-1.5 md:gap-2 px-5 md:px-8 py-2.5 md:py-3 bg-primary text-secondary rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl font-dubai text-sm md:text-base"
             >
-              <span>التالي</span>
+              <span>{t.feasibilityRequest.next}</span>
               <ArrowRight className="w-4 h-4 md:w-5 md:h-5 rotate-180" />
             </button>
           ) : (
@@ -481,11 +483,11 @@ export default function FeasibilityRequestForm({
               {isSubmitting ? (
                 <>
                   <span className="w-4 h-4 md:w-5 md:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>جاري الإرسال...</span>
+                  <span>{t.feasibilityRequest.submitting}</span>
                 </>
               ) : (
                 <>
-                  <span>إرسال الطلب</span>
+                  <span>{t.feasibilityRequest.submitRequest}</span>
                   <Send className="w-4 h-4 md:w-5 md:h-5" />
                 </>
               )}

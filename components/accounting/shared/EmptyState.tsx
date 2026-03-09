@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Inbox, Search, AlertCircle, FileX } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // ============================================================================
 // EmptyState - حالة عدم وجود بيانات
@@ -28,27 +29,11 @@ interface EmptyStateProps {
   className?: string;
 }
 
-const PRESETS: Record<EmptyPreset, { icon: React.ElementType; title: string; description: string }> = {
-  'no-data': {
-    icon: Inbox,
-    title: 'لا توجد بيانات',
-    description: 'لم يتم إضافة أي سجلات بعد.',
-  },
-  'no-results': {
-    icon: Search,
-    title: 'لا توجد نتائج',
-    description: 'جرّب تغيير عوامل التصفية أو البحث بكلمات مختلفة.',
-  },
-  error: {
-    icon: AlertCircle,
-    title: 'حدث خطأ',
-    description: 'لم نتمكن من تحميل البيانات. حاول مرة أخرى.',
-  },
-  'no-file': {
-    icon: FileX,
-    title: 'لا توجد ملفات',
-    description: 'لم يتم رفع أي ملفات بعد.',
-  },
+const PRESET_ICONS: Record<EmptyPreset, React.ElementType> = {
+  'no-data': Inbox,
+  'no-results': Search,
+  error: AlertCircle,
+  'no-file': FileX,
 };
 
 export default function EmptyState({
@@ -59,10 +44,12 @@ export default function EmptyState({
   action,
   className,
 }: EmptyStateProps) {
-  const presetConfig = PRESETS[preset];
-  const Icon = icon || presetConfig.icon;
-  const displayTitle = title || presetConfig.title;
-  const displayDesc = description || presetConfig.description;
+  const t = useTranslation();
+  const presetKey = preset === 'no-file' ? 'noFiles' : preset === 'no-data' ? 'noData' : preset === 'no-results' ? 'noResults' : 'error';
+  const presetDescKey = preset === 'no-file' ? 'noFilesDesc' : preset === 'no-data' ? 'noDataDesc' : preset === 'no-results' ? 'noResultsDesc' : 'errorDesc';
+  const Icon = icon || PRESET_ICONS[preset];
+  const displayTitle = title || t.accounting.shared.emptyState[presetKey];
+  const displayDesc = description || t.accounting.shared.emptyState[presetDescKey];
 
   return (
     <motion.div

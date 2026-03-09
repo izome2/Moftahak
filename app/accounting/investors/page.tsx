@@ -15,6 +15,8 @@ import InvestorsList from '@/components/accounting/investors/InvestorsList';
 import AssignInvestorModal from '@/components/accounting/investors/AssignInvestorModal';
 import WithdrawalForm from '@/components/accounting/investors/WithdrawalForm';
 import NumberInput from '@/components/accounting/shared/NumberInput';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // --- Types ---
 interface InvestmentInfo {
@@ -42,6 +44,10 @@ interface Apartment {
 }
 
 export default function InvestorsPage() {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+
   // Data
   const [investors, setInvestors] = useState<InvestorRow[]>([]);
   const [apartments, setApartments] = useState<Apartment[]>([]);
@@ -81,12 +87,12 @@ export default function InvestorsPage() {
       const res = await fetch('/api/accounting/investors');
       const json = await res.json();
       if (!res.ok) {
-        setError(json.error || 'حدث خطأ');
+        setError(json.error || t.accounting.errors.generic);
         return;
       }
       setInvestors(json.investors || []);
     } catch {
-      setError('فشل الاتصال بالخادم');
+      setError(t.accounting.errors.connectionFailed);
     } finally {
       setIsLoading(false);
     }
@@ -134,7 +140,7 @@ export default function InvestorsPage() {
 
     const pct = parseFloat(editPercentage) / 100;
     if (isNaN(pct) || pct < 0.01 || pct > 1) {
-      setEditError('النسبة يجب أن تكون بين 1% و 100%');
+      setEditError(t.accounting.errors.percentRange);
       return;
     }
 
@@ -155,13 +161,13 @@ export default function InvestorsPage() {
       );
       const json = await res.json();
       if (!res.ok) {
-        setEditError(json.error || 'حدث خطأ');
+        setEditError(json.error || t.accounting.errors.generic);
         return;
       }
       setEditInvestment(null);
       fetchInvestors();
     } catch {
-      setEditError('فشل الاتصال بالخادم');
+      setEditError(t.accounting.errors.connectionFailed);
     } finally {
       setEditLoading(false);
     }
@@ -188,12 +194,12 @@ export default function InvestorsPage() {
       );
       const json = await res.json();
       if (!res.ok) {
-        setError(json.error || 'حدث خطأ في الحذف');
+        setError(json.error || t.accounting.errors.deleteError);
       } else {
         fetchInvestors();
       }
     } catch {
-      setError('فشل الاتصال بالخادم');
+      setError(t.accounting.errors.connectionFailed);
     } finally {
       setIsDeleting(false);
       setDeleteConfirm(null);
@@ -223,9 +229,9 @@ export default function InvestorsPage() {
             <Users size={24} className="text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">إدارة المستثمرين</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">{t.accounting.investors.title}</h1>
             <p className="text-sm text-secondary/60 font-dubai">
-              المستثمرين ونسبهم ومسحوباتهم
+              {t.accounting.investors.subtitle}
             </p>
           </div>
         </div>
@@ -245,7 +251,7 @@ export default function InvestorsPage() {
               transition-all duration-200 font-dubai"
           >
             <Plus className="w-4 h-4" />
-            ربط مستثمر بشقة
+            {t.accounting.investors.assignInvestor}
           </button>
         </div>
       </motion.div>
@@ -262,7 +268,7 @@ export default function InvestorsPage() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="بحث بالاسم أو البريد..."
+          placeholder={t.accounting.investors.searchPlaceholder}
           className="w-full pr-10 pl-4 py-2.5 text-sm border-2 border-primary/20 rounded-xl
             bg-white text-secondary font-dubai
             focus:outline-none focus:border-primary transition-colors
@@ -277,9 +283,9 @@ export default function InvestorsPage() {
           animate={{ opacity: 1 }}
           className="flex items-center gap-4 text-sm text-secondary/60 font-dubai"
         >
-          <span>{investors.length} مستثمر</span>
+          <span>{investors.length} {t.accounting.investors.investorUnit}</span>
           <span>
-            {investors.reduce((s, inv) => s + inv.investments.length, 0)} استثمار
+            {investors.reduce((s, inv) => s + inv.investments.length, 0)} {t.accounting.investors.investmentUnit}
           </span>
         </motion.div>
       )}
@@ -353,12 +359,12 @@ export default function InvestorsPage() {
               className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm overflow-hidden z-10 border-2 border-[#e0cdb8]"
             >
                 <div className="flex items-center justify-between px-5 py-4 border-b-2 border-primary/10">
-                <h2 className="text-base font-bold text-secondary font-dubai">تعديل النسبة</h2>
+                <h2 className="text-base font-bold text-secondary font-dubai">{t.accounting.investors.editPercentage}</h2>
                 <button onClick={() => setEditInvestment(null)} className="text-secondary/40 hover:text-secondary/70">✕</button>
               </div>
               <form onSubmit={handleEditSubmit} className="p-5 space-y-4" dir="rtl">
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1.5 block font-dubai">النسبة (%)</label>
+                  <label className="text-xs font-medium text-secondary/70 mb-1.5 block font-dubai">{t.accounting.investors.percentageLabel}</label>
                   <NumberInput
                     value={editPercentage}
                     onChange={(e) => setEditPercentage(e.target.value)}
@@ -368,7 +374,7 @@ export default function InvestorsPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1.5 block font-dubai">الهدف السنوي</label>
+                  <label className="text-xs font-medium text-secondary/70 mb-1.5 block font-dubai">{t.accounting.investors.yearlyTarget}</label>
                   <NumberInput
                     value={editTarget}
                     onChange={(e) => setEditTarget(e.target.value)}
@@ -386,7 +392,7 @@ export default function InvestorsPage() {
                     hover:bg-secondary/90 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {editLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  {editLoading ? 'جاري الحفظ...' : 'حفظ التعديلات'}
+                  {editLoading ? t.accounting.common.saving : t.accounting.investors.saveEdit}
                 </button>
               </form>
             </motion.div>
@@ -412,11 +418,10 @@ export default function InvestorsPage() {
               className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm p-5 z-10 border-2 border-[#e0cdb8]"
             >
               <h3 className="text-base font-bold text-secondary font-dubai mb-2">
-                تأكيد الإزالة
+                {t.accounting.investors.confirmRemove}
               </h3>
               <p className="text-sm text-secondary/70 font-dubai mb-4">
-                هل تريد إزالة <strong>{deleteConfirm.investor.firstName} {deleteConfirm.investor.lastName}</strong> من الشقة؟
-                هذا الإجراء لا يمكن التراجع عنه.
+                {t.accounting.investors.confirmRemoveMessage(`${deleteConfirm.investor.firstName} ${deleteConfirm.investor.lastName}`, '')}
               </p>
               <div className="flex items-center gap-2">
                 <button
@@ -426,14 +431,14 @@ export default function InvestorsPage() {
                     hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  {isDeleting ? 'جاري الحذف...' : 'نعم، إزالة'}
+                  {isDeleting ? t.accounting.common.deleting : t.accounting.investors.yesRemove}
                 </button>
                 <button
                   onClick={() => setDeleteConfirm(null)}
                   className="flex-1 py-2 bg-primary/10 text-secondary rounded-xl text-sm font-medium font-dubai
                     hover:bg-primary/20"
                 >
-                  إلغاء
+                  {t.accounting.common.cancel}
                 </button>
               </div>
             </motion.div>

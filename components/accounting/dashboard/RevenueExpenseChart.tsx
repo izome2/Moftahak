@@ -12,6 +12,8 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MonthlyData {
   month: string;
@@ -25,44 +27,43 @@ interface RevenueExpenseChartProps {
   isLoading?: boolean;
 }
 
-// تحويل الشهر من YYYY-MM إلى اسم عربي مختصر
-const formatMonthLabel = (month: string) => {
-  const months: Record<string, string> = {
-    '01': 'يناير', '02': 'فبراير', '03': 'مارس',
-    '04': 'أبريل', '05': 'مايو', '06': 'يونيو',
-    '07': 'يوليو', '08': 'أغسطس', '09': 'سبتمبر',
-    '10': 'أكتوبر', '11': 'نوفمبر', '12': 'ديسمبر',
-  };
-  const [, m] = month.split('-');
-  return months[m] || month;
-};
-
-const formatCurrency = (val: number) => {
-  if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
-  if (val >= 1000) return `${(val / 1000).toFixed(0)}K`;
-  return val.toString();
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
-      <p className="text-secondary font-bold mb-1.5">{formatMonthLabel(label)}</p>
-      {payload.map((entry: { name: string; value: number; color: string }, i: number) => (
-        <div key={i} className="flex items-center gap-2 py-0.5">
-          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
-          <span className="text-secondary/70">{entry.name}:</span>
-          <span className="font-bold text-secondary">
-            {new Intl.NumberFormat('ar-EG').format(entry.value)} ج.م
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({ data, isLoading }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+
+  const formatMonthLabel = (month: string) => {
+    const [, m] = month.split('-');
+    const idx = parseInt(m, 10) - 1;
+    return t.accounting.months[idx] || month;
+  };
+
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currency = t.accounting.common.currency;
+
+  const formatCurrency = (val: number) => {
+    if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
+    if (val >= 1000) return `${(val / 1000).toFixed(0)}K`;
+    return val.toString();
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload?.length) return null;
+    return (
+      <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <p className="text-secondary font-bold mb-1.5">{formatMonthLabel(label)}</p>
+        {payload.map((entry: { name: string; value: number; color: string }, i: number) => (
+          <div key={i} className="flex items-center gap-2 py-0.5">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+            <span className="text-secondary/70">{entry.name}:</span>
+            <span className="font-bold text-secondary">
+              {new Intl.NumberFormat(locale).format(entry.value)} {currency}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
   if (isLoading) {
     return (
       <div className="h-[300px] flex items-center justify-center">
@@ -74,7 +75,7 @@ const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({ data, isLoadi
   if (!data.length) {
     return (
       <div className="h-[300px] flex items-center justify-center text-secondary/50 font-dubai">
-        لا توجد بيانات للعرض
+        {t.accounting.dashboard.noDataToShow}
       </div>
     );
   }
@@ -113,7 +114,7 @@ const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({ data, isLoadi
           <Line
             type="monotone"
             dataKey="revenue"
-            name="الإيرادات"
+            name={t.accounting.dashboard.revenue}
             stroke="#5a9a7a"
             strokeWidth={2.5}
             dot={{ fill: '#5a9a7a', r: 4, strokeWidth: 2, stroke: '#fff' }}
@@ -122,7 +123,7 @@ const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({ data, isLoadi
           <Line
             type="monotone"
             dataKey="expenses"
-            name="المصروفات"
+            name={t.accounting.dashboard.expensesLabel}
             stroke="#c47a6c"
             strokeWidth={2.5}
             dot={{ fill: '#c47a6c', r: 4, strokeWidth: 2, stroke: '#fff' }}
@@ -131,7 +132,7 @@ const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({ data, isLoadi
           <Line
             type="monotone"
             dataKey="profit"
-            name="الربح"
+            name={t.accounting.dashboard.profit}
             stroke="#edbf8c"
             strokeWidth={2}
             strokeDasharray="5 5"

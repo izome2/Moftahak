@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CalendarCheck, Loader2 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BookingItem {
   id: string;
@@ -20,29 +22,39 @@ interface RecentBookingsProps {
   isLoading?: boolean;
 }
 
-const SOURCE_BADGES: Record<string, { label: string; className: string }> = {
-  AIRBNB: { label: 'Airbnb', className: 'bg-primary/10 text-secondary' },
-  BOOKING_COM: { label: 'Booking.com', className: 'bg-primary/10 text-secondary' },
-  EXTERNAL: { label: 'خارجي', className: 'bg-secondary/10 text-secondary' },
-  DIRECT: { label: 'مباشر', className: 'bg-primary/20 text-secondary' },
-  OTHER: { label: 'أخرى', className: 'bg-secondary/10 text-secondary/70' },
+const SOURCE_CLASSES: Record<string, string> = {
+  AIRBNB: 'bg-primary/10 text-secondary',
+  BOOKING_COM: 'bg-primary/10 text-secondary',
+  EXTERNAL: 'bg-secondary/10 text-secondary',
+  DIRECT: 'bg-primary/20 text-secondary',
+  OTHER: 'bg-secondary/10 text-secondary/70',
 };
 
-const STATUS_BADGES: Record<string, { label: string; className: string }> = {
-  CONFIRMED: { label: 'مؤكد', className: 'bg-primary/15 text-secondary' },
-  PENDING: { label: 'معلّق', className: 'bg-primary/10 text-secondary/70' },
-  CANCELLED: { label: 'ملغي', className: 'bg-secondary/10 text-secondary/50' },
-  COMPLETED: { label: 'مكتمل', className: 'bg-primary/25 text-secondary' },
-};
-
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('ar-EG', {
-    month: 'short',
-    day: 'numeric',
-  });
+const STATUS_CLASSES: Record<string, string> = {
+  CONFIRMED: 'bg-primary/15 text-secondary',
+  PENDING: 'bg-primary/10 text-secondary/70',
+  CANCELLED: 'bg-secondary/10 text-secondary/50',
+  COMPLETED: 'bg-primary/25 text-secondary',
 };
 
 const RecentBookings: React.FC<RecentBookingsProps> = ({ bookings, isLoading }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currency = t.accounting.common.currency;
+
+  const SOURCE_LABELS: Record<string, string> = {
+    AIRBNB: 'Airbnb',
+    BOOKING_COM: 'Booking.com',
+    ...t.accounting.bookingSources,
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString(locale, {
+      month: 'short',
+      day: 'numeric',
+    });
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -54,7 +66,7 @@ const RecentBookings: React.FC<RecentBookingsProps> = ({ bookings, isLoading }) 
       <div className="flex items-center justify-between p-5 border-b border-primary/10">
         <div className="flex items-center gap-2">
           <CalendarCheck size={20} className="text-primary" />
-          <h3 className="text-lg font-bold text-secondary font-dubai">آخر الحجوزات</h3>
+          <h3 className="text-lg font-bold text-secondary font-dubai">{t.accounting.dashboard.recentBookings}</h3>
         </div>
       </div>
 
@@ -67,13 +79,15 @@ const RecentBookings: React.FC<RecentBookingsProps> = ({ bookings, isLoading }) 
         ) : bookings.length === 0 ? (
           <div className="text-center py-8">
             <CalendarCheck size={40} className="text-secondary/20 mx-auto mb-2" />
-            <p className="text-secondary/50 font-dubai text-sm">لا توجد حجوزات بعد</p>
+            <p className="text-secondary/50 font-dubai text-sm">{t.accounting.dashboard.noBookingsYet}</p>
           </div>
         ) : (
           <div className="space-y-3">
             {bookings.map((booking) => {
-              const source = SOURCE_BADGES[booking.source] || SOURCE_BADGES.OTHER;
-              const status = STATUS_BADGES[booking.status] || STATUS_BADGES.PENDING;
+              const sourceLabel = SOURCE_LABELS[booking.source] || booking.source;
+              const sourceClass = SOURCE_CLASSES[booking.source] || SOURCE_CLASSES.OTHER;
+              const statusLabel = t.accounting.bookingStatuses[booking.status as keyof typeof t.accounting.bookingStatuses] || booking.status;
+              const statusClass = STATUS_CLASSES[booking.status] || STATUS_CLASSES.PENDING;
 
               return (
                 <div
@@ -100,17 +114,17 @@ const RecentBookings: React.FC<RecentBookingsProps> = ({ bookings, isLoading }) 
                   {/* Amount */}
                   <div className="text-left flex-shrink-0">
                     <p className="font-bold text-secondary font-dubai text-sm">
-                      {new Intl.NumberFormat('ar-EG').format(booking.amount)} ج.م
+                      {new Intl.NumberFormat(locale).format(booking.amount)} {currency}
                     </p>
                   </div>
 
                   {/* Badges */}
                   <div className="flex flex-col gap-1 flex-shrink-0">
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai ${source.className}`}>
-                      {source.label}
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai ${sourceClass}`}>
+                      {sourceLabel}
                     </span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai ${status.className}`}>
-                      {status.label}
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai ${statusClass}`}>
+                      {statusLabel}
                     </span>
                   </div>
                 </div>

@@ -16,6 +16,7 @@ import {
   isValidEgyptianPhone,
   RecaptchaVerifier
 } from '@/lib/firebase';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface FirebasePhoneVerificationProps {
   phoneNumber: string;
@@ -56,6 +57,7 @@ export default function FirebasePhoneVerification({
   onVerified,
   userPhone
 }: FirebasePhoneVerificationProps) {
+  const t = useTranslation();
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isSending, setIsSending] = useState(false);
@@ -236,9 +238,9 @@ export default function FirebasePhoneVerification({
     
     if (!phoneValid) {
       if (countryCode === '+20') {
-        setOtpError('رقم الهاتف غير صالح. يجب أن يبدأ بـ 010, 011, 012, أو 015');
+        setOtpError(t.feasibilityRequest.invalidEgyptianPhone);
       } else {
-        setOtpError('رقم الهاتف غير صالح. يجب أن يبدأ بـ 5');
+        setOtpError(t.feasibilityRequest.invalidSaudiPhone);
       }
       return;
     }
@@ -250,7 +252,7 @@ export default function FirebasePhoneVerification({
       const { count, resetAt } = JSON.parse(rateLimit);
       if (new Date(resetAt) > new Date() && count >= 3) {
         const remainingMinutes = Math.ceil((new Date(resetAt).getTime() - Date.now()) / 60000);
-        setOtpError(`تم إرسال عدد كبير من الطلبات. يرجى الانتظار ${remainingMinutes} دقيقة.`);
+        setOtpError(t.feasibilityRequest.tooManyRequests(remainingMinutes));
         return;
       }
       if (new Date(resetAt) <= new Date()) {
@@ -301,19 +303,19 @@ export default function FirebasePhoneVerification({
       // Handle specific Firebase errors
       const firebaseError = err as { code?: string; message?: string };
       if (firebaseError.code === 'auth/invalid-phone-number') {
-        setOtpError('رقم الهاتف غير صالح');
+        setOtpError(t.feasibilityRequest.invalidPhoneNumber);
       } else if (firebaseError.code === 'auth/too-many-requests') {
-        setOtpError('تم إرسال عدد كبير من الطلبات. يرجى المحاولة لاحقاً.');
+        setOtpError(t.feasibilityRequest.tooManyOtpRequests);
       } else if (firebaseError.code === 'auth/captcha-check-failed') {
-        setOtpError('فشل التحقق من reCAPTCHA. يرجى إعادة المحاولة.');
+        setOtpError(t.feasibilityRequest.captchaFailed);
       } else if (firebaseError.code === 'auth/quota-exceeded') {
-        setOtpError('تم تجاوز الحد المسموح. يرجى المحاولة غداً.');
+        setOtpError(t.feasibilityRequest.quotaExceeded);
       } else if (firebaseError.code === 'auth/billing-not-enabled') {
-        setOtpError('خدمة SMS غير مفعلة. يرجى التواصل مع الدعم الفني.');
+        setOtpError(t.feasibilityRequest.smsNotEnabled);
       } else if (firebaseError.code === 'auth/internal-error') {
-        setOtpError('خطأ داخلي. يرجى التأكد من تفعيل Phone Authentication في Firebase.');
+        setOtpError(t.feasibilityRequest.internalError);
       } else {
-        setOtpError('حدث خطأ في إرسال رمز التحقق. يرجى المحاولة مرة أخرى.');
+        setOtpError(t.feasibilityRequest.otpSendError);
       }
       
       // Clear recaptcha on error (safely)
@@ -370,7 +372,7 @@ export default function FirebasePhoneVerification({
 
   const verifyOtp = async (code: string) => {
     if (!confirmationResult) {
-      setOtpError('انتهت صلاحية الجلسة. يرجى طلب رمز جديد.');
+      setOtpError(t.feasibilityRequest.sessionExpired);
       return;
     }
 
@@ -401,7 +403,7 @@ export default function FirebasePhoneVerification({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'فشل حفظ التحقق');
+        throw new Error(data.error || t.feasibilityRequest.saveVerificationFailed);
       }
 
       // Save to localStorage for 24 hours
@@ -420,11 +422,11 @@ export default function FirebasePhoneVerification({
       
       const firebaseError = err as { code?: string; message?: string };
       if (firebaseError.code === 'auth/invalid-verification-code') {
-        setOtpError('رمز التحقق غير صحيح. يرجى المحاولة مرة أخرى.');
+        setOtpError(t.feasibilityRequest.invalidOtp);
       } else if (firebaseError.code === 'auth/code-expired') {
-        setOtpError('انتهت صلاحية رمز التحقق. يرجى طلب رمز جديد.');
+        setOtpError(t.feasibilityRequest.otpExpired);
       } else {
-        setOtpError(firebaseError.message || 'حدث خطأ في التحقق. يرجى المحاولة مرة أخرى.');
+        setOtpError(firebaseError.message || t.feasibilityRequest.otpVerifyError);
       }
       
       setOtp(['', '', '', '', '', '']);
@@ -451,7 +453,7 @@ export default function FirebasePhoneVerification({
           </div>
           <div className="flex-1">
             <p className="font-medium text-secondary font-dubai text-sm md:text-base">
-              {isVerifiedViaLogin ? 'محقق عبر حسابك' : 'تم التحقق من رقم الهاتف'}
+              {isVerifiedViaLogin ? t.feasibilityRequest.verifiedViaAccount : t.feasibilityRequest.phoneVerified}
             </p>
             <p className="text-secondary/60 text-xs font-bristone" dir="ltr">
               {countryCode} {localPhone || extractLocalPhone(phoneNumber, countryCode)}
@@ -467,7 +469,7 @@ export default function FirebasePhoneVerification({
       {/* Phone Input */}
       <div>
         <label className="block text-xs md:text-sm font-medium text-secondary mb-1.5 md:mb-2 font-dubai">
-          رقم الهاتف للتحقق <span className="text-red-500">*</span>
+                    {t.feasibilityRequest.phoneVerification} <span className="text-red-500">*</span>
         </label>
         <div className="relative">
           <div className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 text-secondary/40">
@@ -542,7 +544,7 @@ export default function FirebasePhoneVerification({
           />
         </div>
         <p className="mt-1 md:mt-1.5 text-[10px] md:text-xs text-secondary/50 font-dubai">
-          سيتم إرسال رمز تحقق SMS إلى هذا الرقم
+                    {t.feasibilityRequest.smsWillBeSent}
         </p>
       </div>
 
@@ -563,10 +565,10 @@ export default function FirebasePhoneVerification({
               </div>
               <div>
                 <p className="font-medium text-secondary font-dubai text-xs md:text-sm">
-                  التحقق من رقم الهاتف مطلوب
+                                    {t.feasibilityRequest.verificationRequired}
                 </p>
                 <p className="text-secondary/60 text-[10px] md:text-xs font-dubai mt-0.5 md:mt-1">
-                  سنرسل رسالة SMS تحتوي على رمز مكون من 6 أرقام
+                  {t.feasibilityRequest.sms6Digits}
                 </p>
               </div>
             </div>
@@ -588,12 +590,12 @@ export default function FirebasePhoneVerification({
               {isSending ? (
                 <>
                   <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
-                  جاري الإرسال...
+                  {t.feasibilityRequest.sendingOtp}
                 </>
               ) : (
                 <>
                   <Phone className="w-4 h-4 md:w-5 md:h-5" />
-                  إرسال رمز التحقق
+                  {t.feasibilityRequest.sendVerificationCode}
                 </>
               )}
             </button>
@@ -616,7 +618,7 @@ export default function FirebasePhoneVerification({
           >
             <div className="p-3 md:p-5 rounded-xl bg-secondary/5 border border-secondary/10">
               <p className="text-xs md:text-sm text-secondary/70 mb-3 md:mb-4 text-center font-dubai">
-                أدخل رمز التحقق المكون من 6 أرقام المرسل إلى
+                {t.feasibilityRequest.enterOtp}
                 <span className="font-bold text-secondary block mt-1 font-bristone text-xs md:text-sm" dir="ltr">
                   {countryCode} {phoneNumber}
                 </span>
@@ -659,7 +661,7 @@ export default function FirebasePhoneVerification({
               {isVerifying && (
                 <div className="flex items-center justify-center gap-2 text-secondary/70">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span className="text-sm font-dubai">جاري التحقق...</span>
+                  <span className="text-sm font-dubai">{t.feasibilityRequest.verifying}</span>
                 </div>
               )}
 
@@ -668,7 +670,7 @@ export default function FirebasePhoneVerification({
                 <div className="text-center">
                   {countdown > 0 ? (
                     <p className="text-sm text-secondary/50 font-dubai">
-                      إعادة إرسال الرمز بعد {countdown} ثانية
+                      {t.feasibilityRequest.resendAfter(countdown)}
                     </p>
                   ) : (
                     <button
@@ -678,7 +680,7 @@ export default function FirebasePhoneVerification({
                       className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 font-medium font-dubai"
                     >
                       <RefreshCw className="w-4 h-4" />
-                      إعادة إرسال الرمز
+                      {t.feasibilityRequest.resendCode}
                     </button>
                   )}
                 </div>

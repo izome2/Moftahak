@@ -17,6 +17,7 @@ import CustomSelect from '@/components/accounting/shared/CustomSelect';
 import ApartmentCard from '@/components/accounting/apartments/ApartmentCard';
 import ApartmentForm from '@/components/accounting/apartments/ApartmentForm';
 import MonthSelector from '@/components/accounting/apartments/MonthSelector';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // --- Types ---
 interface Project {
@@ -51,6 +52,7 @@ const getCurrentMonth = () => {
 
 export default function ApartmentsPage() {
   const { data: session } = useSession();
+  const t = useTranslation();
   const canManage = session?.user?.role === 'GENERAL_MANAGER' || session?.user?.role === 'ADMIN';
   const effectiveRole = getEffectiveAccountingRole(session?.user?.role || '');
   const isOpsManager = effectiveRole === 'OPS_MANAGER';
@@ -83,13 +85,13 @@ export default function ApartmentsPage() {
         projRes.json(),
       ]);
 
-      if (!aptsRes.ok) throw new Error(aptsJson.error || 'خطأ في جلب الشقق');
-      if (!projRes.ok) throw new Error(projJson.error || 'خطأ في جلب المشاريع');
+      if (!aptsRes.ok) throw new Error(aptsJson.error || t.accounting.errors.fetchApartments);
+      if (!projRes.ok) throw new Error(projJson.error || t.accounting.errors.fetchProjects);
 
       setApartments(aptsJson.apartments);
       setProjects(projJson.projects);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      setError(err instanceof Error ? err.message : t.accounting.errors.unexpected);
     } finally {
       setIsLoading(false);
     }
@@ -137,7 +139,7 @@ export default function ApartmentsPage() {
       body: JSON.stringify(data),
     });
     const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'خطأ في إنشاء الشقة');
+    if (!res.ok) throw new Error(json.error || t.accounting.errors.createApartment);
     await fetchData();
   };
 
@@ -149,7 +151,7 @@ export default function ApartmentsPage() {
       body: JSON.stringify({ name: data.name, floor: data.floor, type: data.type, projectId: data.projectId }),
     });
     const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'خطأ في تعديل الشقة');
+    if (!res.ok) throw new Error(json.error || t.accounting.errors.editApartment);
     await fetchData();
   };
 
@@ -187,8 +189,8 @@ export default function ApartmentsPage() {
             <Building2 size={24} className="text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">الشقق</h1>
-            <p className="text-sm text-secondary/60 font-dubai">إدارة الشقق والمشاريع</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">{t.accounting.apartments.title}</h1>
+            <p className="text-sm text-secondary/60 font-dubai">{t.accounting.apartments.subtitle}</p>
           </div>
         </div>
 
@@ -199,20 +201,20 @@ export default function ApartmentsPage() {
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 transition-colors"
             >
               <Plus size={16} />
-              <span className="hidden sm:inline">إضافة شقة</span>
+              <span className="hidden sm:inline">{t.accounting.apartments.addApartment}</span>
             </button>
           )}
           <button
             onClick={() => fetchData()}
             className="p-2 hover:bg-primary/10 rounded-lg transition-colors"
-            aria-label="تحديث"
+            aria-label={t.accounting.common.refresh}
           >
             <RefreshCw size={20} className={`text-secondary/60 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('openAccountingMenu'))}
             className="lg:hidden p-2 hover:bg-primary/10 rounded-lg transition-colors"
-            aria-label="فتح القائمة"
+            aria-label={t.accounting.common.openMenu}
           >
             <Menu size={28} className="text-secondary" />
           </button>
@@ -236,7 +238,7 @@ export default function ApartmentsPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="بحث بالاسم..."
+            placeholder={t.accounting.apartments.searchPlaceholder}
             className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
           />
         </div>
@@ -249,7 +251,7 @@ export default function ApartmentsPage() {
           className="min-w-[160px]"
           icon={<Filter size={16} className="text-secondary/40" />}
           options={[
-            { value: 'all', label: 'كل المشاريع' },
+            { value: 'all', label: t.accounting.apartments.allProjects },
             ...projects.map(p => ({ value: p.id, label: p.name })),
           ]}
         />
@@ -260,7 +262,7 @@ export default function ApartmentsPage() {
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-center">
           <p className="text-red-600 font-dubai text-sm">{error}</p>
           <button onClick={fetchData} className="mt-2 text-sm text-red-500 underline font-dubai">
-            إعادة المحاولة
+            {t.accounting.common.retry}
           </button>
         </div>
       )}
@@ -274,14 +276,14 @@ export default function ApartmentsPage() {
         <div className="text-center py-16">
           <Building2 size={48} className="text-secondary/20 mx-auto mb-3" />
           <p className="text-secondary/50 font-dubai">
-            {search || selectedProject !== 'all' ? 'لا توجد شقق مطابقة للفلتر' : 'لا توجد شقق بعد'}
+            {search || selectedProject !== 'all' ? t.accounting.apartments.noApartmentsFilter : t.accounting.apartments.noApartments}
           </p>
           {canManage && !search && selectedProject === 'all' && (
             <button
               onClick={() => { setEditApartment(null); setShowForm(true); }}
               className="mt-4 px-6 py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 transition-colors"
             >
-              إضافة أول شقة
+              {t.accounting.apartments.addFirstApartment}
             </button>
           )}
         </div>
@@ -299,10 +301,10 @@ export default function ApartmentsPage() {
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-1 h-6 bg-primary rounded-full" />
                 <h2 className="text-lg font-bold text-secondary font-dubai">
-                  {project?.name || 'بدون مشروع'}
+                  {project?.name || t.accounting.common.noProject}
                 </h2>
                 <span className="text-xs bg-primary/10 text-secondary/60 px-2 py-0.5 rounded-full font-dubai">
-                  {apts.length} شقة
+                  {apts.length} {t.accounting.apartments.apartmentUnit}
                 </span>
               </div>
 

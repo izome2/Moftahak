@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { DollarSign, CalendarCheck, Moon, TrendingUp, Building2 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BookingSummaryProps {
   totalRevenue?: number;
@@ -14,9 +16,6 @@ interface BookingSummaryProps {
   hideFinancials?: boolean;
 }
 
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
-
 const BookingSummary: React.FC<BookingSummaryProps> = ({
   totalRevenue,
   totalBookings,
@@ -26,12 +25,20 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
   isLoading = false,
   hideFinancials = false,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currency = t.accounting.common.currency;
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat(locale).format(amount) + ' ' + currency;
+
   const revenue = totalRevenue ?? 0;
   const avg = averagePerNight ?? (totalNights > 0 ? revenue / totalNights : 0);
 
   const cards = [
     ...(!hideFinancials ? [{
-      label: 'إجمالي الإيرادات',
+      label: t.accounting.bookings.totalRevenue,
       value: formatCurrency(revenue),
       icon: DollarSign,
       bgColor: 'bg-[#8a9a7a]/12',
@@ -39,7 +46,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
       valueColor: 'text-[#8a9a7a]',
     }] : []),
     {
-      label: 'عدد الحجوزات',
+      label: t.accounting.bookings.bookingsCount,
       value: String(totalBookings),
       icon: CalendarCheck,
       bgColor: 'bg-primary/15',
@@ -47,7 +54,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
       valueColor: 'text-secondary',
     },
     {
-      label: 'الليالي المحجوزة',
+      label: t.accounting.bookings.nightsBooked,
       value: String(totalNights),
       icon: Moon,
       bgColor: 'bg-secondary/8',
@@ -55,7 +62,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
       valueColor: 'text-secondary',
     },
     ...(!hideFinancials ? [{
-      label: 'متوسط الليلة',
+      label: t.accounting.bookings.avgNightRate,
       value: formatCurrency(Math.round(avg)),
       icon: TrendingUp,
       bgColor: 'bg-primary/20',
@@ -63,7 +70,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
       valueColor: 'text-secondary',
     }] : []),
     ...(apartmentsCount !== undefined ? [{
-      label: 'شقق نشطة',
+      label: t.accounting.bookings.activeApartments,
       value: String(apartmentsCount),
       icon: Building2,
       bgColor: 'bg-primary/12',

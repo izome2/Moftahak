@@ -16,6 +16,8 @@ import {
   Trash2,
   Loader2,
 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // --- Types ---
 interface InvestmentInfo {
@@ -53,6 +55,9 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
   onDeleteInvestment,
   onAddWithdrawal,
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (isLoading) {
@@ -60,7 +65,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
       <div className="bg-white rounded-2xl border-2 border-primary/20 p-8">
         <div className="flex items-center justify-center gap-2 text-secondary/60">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm font-dubai">جاري تحميل المستثمرين...</span>
+          <span className="text-sm font-dubai">{t.accounting.investors.loadingInvestors}</span>
         </div>
       </div>
     );
@@ -70,9 +75,9 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
     return (
       <div className="bg-white rounded-2xl border-2 border-primary/10 py-14 text-center">
         <Users className="w-10 h-10 mx-auto mb-3 text-primary/30" />
-        <p className="text-secondary/50 font-dubai text-sm">لا يوجد مستثمرين مسجلين</p>
+        <p className="text-secondary/50 font-dubai text-sm">{t.accounting.investors.noInvestors}</p>
         <p className="text-secondary/50 font-dubai text-xs mt-1">
-          أضف مستثمراً جديداً من زر &quot;ربط مستثمر بشقة&quot;
+          {t.accounting.investors.addInvestorHint}
         </p>
       </div>
     );
@@ -131,7 +136,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                   px-2 py-1 rounded-full font-dubai font-medium"
                 >
                   <Building2 className="w-3 h-3" />
-                  {totalApartments} شقة
+                  {totalApartments} {t.accounting.investors.apartmentUnit}
                 </span>
                 {isExpanded ? (
                   <ChevronUp className="w-4 h-4 text-secondary/55" />
@@ -157,7 +162,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                       bg-rose-50 text-rose-700 border border-rose-200/60 rounded-lg hover:bg-rose-100 transition-colors font-dubai"
                   >
                     <ArrowDownCircle className="w-3 h-3" />
-                    تسجيل مسحوبة
+                    {t.accounting.investors.registerWithdrawal}
                   </button>
                   <button
                     onClick={() => onViewDetails?.(investor)}
@@ -165,25 +170,25 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                       bg-secondary/5 text-secondary rounded-lg hover:bg-secondary/10 transition-colors font-dubai"
                   >
                     <DollarSign className="w-3 h-3" />
-                    عرض التفاصيل المالية
+                    {t.accounting.investors.viewFinancialDetails}
                   </button>
                 </div>
 
                 {/* Investments table */}
                 {investor.investments.length === 0 ? (
                   <div className="py-6 text-center text-secondary/55 text-xs font-dubai">
-                    لا يوجد استثمارات مرتبطة
+                    {t.accounting.investors.noLinkedInvestments}
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">الشقة</th>
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">النسبة</th>
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">الهدف السنوي</th>
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">المسحوبات</th>
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">إجراءات</th>
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.common.apartment}</th>
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investors.percentageLabel}</th>
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investors.yearlyTargetHeader}</th>
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investors.withdrawalsHeader}</th>
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investors.actionsHeader}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-primary/10">
@@ -212,7 +217,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                             </td>
                             <td className="px-4 py-2.5">
                               <span className="text-secondary/65 text-xs font-dubai">
-                                {inv._count.withdrawals} عملية
+                                {inv._count.withdrawals} {t.accounting.common.operation}
                               </span>
                             </td>
                             <td className="px-4 py-2.5">
@@ -221,7 +226,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                                   onClick={() => onEditInvestment?.(inv.id, investor)}
                                   className="p-1.5 rounded-lg hover:bg-primary/10 text-secondary/50
                                     hover:text-secondary transition-colors"
-                                  title="تعديل النسبة"
+                                  title={t.accounting.investors.editPercentageAction}
                                 >
                                   <Pencil className="w-3 h-3" />
                                 </button>
@@ -229,7 +234,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                                   onClick={() => onDeleteInvestment?.(inv.id, investor)}
                                   className="p-1.5 rounded-lg hover:bg-red-50 text-secondary/50
                                     hover:text-red-500 transition-colors"
-                                  title="إزالة من الشقة"
+                                  title={t.accounting.investors.removeFromApartment}
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </button>

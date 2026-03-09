@@ -18,9 +18,11 @@ import ExpenseForm, { type ExpenseFormData } from '@/components/accounting/expen
 import ExpensesList from '@/components/accounting/expenses/ExpensesList';
 import ExpenseSummary from '@/components/accounting/expenses/ExpenseSummary';
 import CategoryPieChart from '@/components/accounting/expenses/CategoryPieChart';
-import { CATEGORY_MAP } from '@/components/accounting/expenses/CategoryBadge';
+import { CATEGORY_STYLE_MAP } from '@/components/accounting/expenses/CategoryBadge';
 import ConfirmDialog from '@/components/accounting/shared/ConfirmDialog';
 import { useToast } from '@/components/accounting/shared/Toast';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // --- Types ---
 interface Apartment {
@@ -52,14 +54,11 @@ const getCurrentMonth = () => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 };
 
-const CATEGORY_FILTER_OPTIONS = [
-  { value: '', label: 'كل الأقسام' },
-  ...Object.entries(CATEGORY_MAP).map(([value, config]) => ({ value, label: config.label })),
-];
-
 export default function ExpensesPage() {
   const { data: session } = useSession();
   const toast = useToast();
+  const t = useTranslation();
+  const { language } = useLanguage();
   const userRole = session?.user?.role;
   const canAdd = userRole === 'GENERAL_MANAGER' || userRole === 'ADMIN' || userRole === 'OPS_MANAGER';
   const canEdit = userRole === 'GENERAL_MANAGER' || userRole === 'ADMIN' || userRole === 'OPS_MANAGER';
@@ -110,13 +109,13 @@ export default function ExpensesPage() {
       const res = await fetch(`/api/accounting/expenses?${params}`);
       const json = await res.json();
 
-      if (!res.ok) throw new Error(json.error || 'خطأ في جلب المصروفات');
+      if (!res.ok) throw new Error(json.error || t.accounting.errors.fetchExpenses);
 
       setExpenses(json.expenses || []);
       setTotals(json.totals || { count: 0, amount: 0 });
       setByCategory(json.byCategory || {});
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      setError(err instanceof Error ? err.message : t.accounting.errors.unexpected);
     } finally {
       setIsLoading(false);
     }
@@ -158,8 +157,9 @@ export default function ExpensesPage() {
   const topCategory = useMemo(() => {
     if (categoryBreakdown.length === 0) return null;
     const top = categoryBreakdown[0];
-    return { label: CATEGORY_MAP[top.category]?.label || top.category, amount: top.amount };
-  }, [categoryBreakdown]);
+    const expenseCatsShort = t.accounting.expenseCategoriesShort as Record<string, string>;
+    return { label: expenseCatsShort[top.category] || top.category, amount: top.amount };
+  }, [categoryBreakdown, t]);
 
   // --- Search filter (client-side) ---
   const filteredExpenses = useMemo(() => {
@@ -196,9 +196,9 @@ export default function ExpensesPage() {
     });
 
     const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'حدث خطأ أثناء الحفظ');
+    if (!res.ok) throw new Error(json.error || t.accounting.errors.saveFailed);
 
-    toast.success(isEditOp ? 'تم تحديث المصروف بنجاح' : 'تم إضافة المصروف بنجاح');
+    toast.success(isEditOp ? t.accounting.success.expenseUpdated : t.accounting.success.expenseAdded);
     await fetchExpenses();
   };
 
@@ -209,12 +209,12 @@ export default function ExpensesPage() {
       setIsDeleting(true);
       const res = await fetch(`/api/accounting/expenses/${deleteConfirm.id}`, { method: 'DELETE' });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'حدث خطأ أثناء الحذف');
-      toast.success('تم حذف المصروف بنجاح');
+      if (!res.ok) throw new Error(json.error || t.accounting.errors.deleteFailed);
+      toast.success(t.accounting.success.expenseDeleted);
       setDeleteConfirm(null);
       await fetchExpenses();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'حدث خطأ أثناء الحذف');
+      toast.error(err instanceof Error ? err.message : t.accounting.errors.deleteFailed);
     } finally {
       setIsDeleting(false);
     }
@@ -254,8 +254,8 @@ export default function ExpensesPage() {
             <Receipt size={24} className="text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-secondary font-dubai">المصروفات</h1>
-            <p className="text-sm text-secondary/60 font-dubai">شيت المصروفات حسب الشقة</p>
+            <h1 className="text-2xl font-bold text-secondary font-dubai">{t.accounting.expenses.title}</h1>
+            <p className="text-sm text-secondary/60 font-dubai">{t.accounting.expenses.subtitle}</p>
           </div>
         </div>
 
@@ -264,14 +264,16 @@ export default function ExpensesPage() {
             onClick={fetchExpenses}
             disabled={isLoading}
             className="p-2.5 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors"
-            title="تحديث"
+            title=""
+            aria-label={t.accounting.common.refresh}
           >
             <RefreshCw size={18} className={`text-secondary ${isLoading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => setShowCharts(prev => !prev)}
             className={`p-2.5 rounded-xl transition-colors ${showCharts ? 'bg-secondary text-white' : 'bg-primary/10 text-secondary hover:bg-primary/20'}`}
-            title={showCharts ? 'إخفاء الرسوم البيانية' : 'إظهار الرسوم البيانية'}
+            title=""
+            aria-label={showCharts ? t.accounting.common.hideCharts : t.accounting.common.showCharts}
           >
             <BarChart3 size={18} />
           </button>
@@ -281,7 +283,7 @@ export default function ExpensesPage() {
               className="flex items-center gap-2 px-4 py-2.5 bg-secondary text-white rounded-xl font-dubai text-sm font-bold hover:bg-secondary/90 transition-colors shadow-sm"
             >
               <Plus size={16} />
-              إضافة مصروف
+              {t.accounting.expenses.addExpense}
             </button>
           )}
         </div>
@@ -299,7 +301,7 @@ export default function ExpensesPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="بحث بالوصف أو الملاحظات..."
+            placeholder={t.accounting.expenses.searchPlaceholder}
             className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
           />
         </div>
@@ -311,7 +313,7 @@ export default function ExpensesPage() {
           variant="filter"
           icon={<Filter size={14} className="text-secondary/30" />}
           options={[
-            { value: '', label: 'كل الشقق' },
+            { value: '', label: t.accounting.expenses.allApartments },
             ...apartments.map(apt => ({
               value: apt.id,
               label: `${apt.name}${apt.project ? ` (${apt.project.name})` : ''}`,
@@ -324,7 +326,13 @@ export default function ExpensesPage() {
           value={selectedCategory}
           onChange={setSelectedCategory}
           variant="filter"
-          options={CATEGORY_FILTER_OPTIONS}
+          options={[
+            { value: '', label: t.accounting.expenses.allCategories },
+            ...Object.keys(CATEGORY_STYLE_MAP).map(key => ({
+              value: key,
+              label: (t.accounting.expenseCategoriesShort as Record<string, string>)[key] || key,
+            })),
+          ]}
         />
       </div>
 
@@ -384,10 +392,10 @@ export default function ExpensesPage() {
         isOpen={!!deleteConfirm}
         onClose={() => !isDeleting && setDeleteConfirm(null)}
         onConfirm={handleDeleteExpense}
-        title="حذف المصروف؟"
-        message={`سيتم حذف "${deleteConfirm?.description || ''}" بشكل نهائي. لا يمكن التراجع عن هذا الإجراء.`}
-        confirmLabel="تأكيد الحذف"
-        cancelLabel="إلغاء"
+        title={t.accounting.expenses.deleteExpense}
+        message={t.accounting.expenses.deleteConfirm(deleteConfirm?.description || '')}
+        confirmLabel={t.accounting.common.confirmDelete}
+        cancelLabel={t.accounting.common.cancel}
         variant="danger"
         isLoading={isDeleting}
       />

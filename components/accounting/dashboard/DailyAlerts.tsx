@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { LogIn, LogOut, AlertTriangle, Loader2, Clock } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface CheckInItem {
   id: string;
@@ -32,6 +33,7 @@ const formatTime = (time?: string | null) => {
 };
 
 const DailyAlerts: React.FC<DailyAlertsProps> = ({ checkIns, checkOuts, isLoading }) => {
+  const t = useTranslation();
   const total = checkIns.length + checkOuts.length;
 
   return (
@@ -47,11 +49,11 @@ const DailyAlerts: React.FC<DailyAlertsProps> = ({ checkIns, checkOuts, isLoadin
           <div className="w-8 h-8 rounded-xl bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
             <AlertTriangle size={18} className="text-primary" />
           </div>
-          <h3 className="text-lg font-bold text-secondary font-dubai">تنبيهات اليوم</h3>
+          <h3 className="text-lg font-bold text-secondary font-dubai">{t.accounting.dashboard.todayAlerts}</h3>
         </div>
         {!isLoading && total > 0 && (
           <span className="text-xs bg-primary/10 text-secondary/70 px-2.5 py-1 rounded-full font-dubai font-bold">
-            {total} حدث
+            {total} {t.accounting.dashboard.event}
           </span>
         )}
       </div>
@@ -65,7 +67,7 @@ const DailyAlerts: React.FC<DailyAlertsProps> = ({ checkIns, checkOuts, isLoadin
         ) : total === 0 ? (
           <div className="text-center py-8">
             <AlertTriangle size={40} className="text-secondary/20 mx-auto mb-2" />
-            <p className="text-secondary/50 font-dubai text-sm">لا توجد أحداث اليوم</p>
+            <p className="text-secondary/50 font-dubai text-sm">{t.accounting.dashboard.noEventsToday}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -75,7 +77,7 @@ const DailyAlerts: React.FC<DailyAlertsProps> = ({ checkIns, checkOuts, isLoadin
                 <div className="flex items-center gap-1.5 mb-2">
                   <LogIn size={14} className="text-primary" />
                   <span className="text-xs font-bold text-secondary font-dubai">
-                    دخول ({checkIns.length})
+                    {t.accounting.dashboard.checkIn} ({checkIns.length})
                   </span>
                 </div>
                 <div className="space-y-2">
@@ -115,7 +117,7 @@ const DailyAlerts: React.FC<DailyAlertsProps> = ({ checkIns, checkOuts, isLoadin
                 <div className="flex items-center gap-1.5 mb-2">
                   <LogOut size={14} className="text-secondary/60" />
                   <span className="text-xs font-bold text-secondary/60 font-dubai">
-                    خروج ({checkOuts.length})
+                    {t.accounting.dashboard.checkOut} ({checkOuts.length})
                   </span>
                 </div>
                 <div className="space-y-2">

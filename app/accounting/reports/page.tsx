@@ -17,6 +17,7 @@ import ProfitTrendChart from '@/components/accounting/reports/ProfitTrendChart';
 import ExportButtons from '@/components/accounting/reports/ExportButtons';
 import ExpensePieChart from '@/components/accounting/dashboard/ExpensePieChart';
 import BookingSourceChart from '@/components/accounting/dashboard/BookingSourceChart';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // --- Types ---
 interface ApartmentReport {
@@ -87,6 +88,7 @@ const getDaysInMonth = (month: string) => {
 };
 
 export default function ReportsPage() {
+  const t = useTranslation();
   const [mode, setMode] = useState<ReportMode>('monthly');
   const [month, setMonth] = useState(getCurrentMonth());
   const [year, setYear] = useState(new Date().getFullYear().toString());
@@ -108,10 +110,10 @@ export default function ReportsPage() {
       setError(null);
       const res = await fetch(`/api/accounting/reports/monthly?month=${m}`);
       const json = await res.json();
-      if (!res.ok) { setError(json.error || 'حدث خطأ'); return; }
+      if (!res.ok) { setError(json.error || t.accounting.errors.generic); return; }
       setMonthlyData(json);
     } catch {
-      setError('فشل الاتصال بالخادم');
+      setError(t.accounting.errors.connectionFailed);
     } finally {
       setIsLoadingMonthly(false);
     }
@@ -124,10 +126,10 @@ export default function ReportsPage() {
       setError(null);
       const res = await fetch(`/api/accounting/reports/annual?year=${y}`);
       const json = await res.json();
-      if (!res.ok) { setError(json.error || 'حدث خطأ'); return; }
+      if (!res.ok) { setError(json.error || t.accounting.errors.generic); return; }
       setAnnualData(json);
     } catch {
-      setError('فشل الاتصال بالخادم');
+      setError(t.accounting.errors.connectionFailed);
     } finally {
       setIsLoadingAnnual(false);
     }
@@ -231,9 +233,9 @@ export default function ReportsPage() {
             <BarChart3 size={24} className="text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-secondary font-dubai">التقارير والملخصات</h1>
+            <h1 className="text-2xl font-bold text-secondary font-dubai">{t.accounting.reports.title}</h1>
             <p className="text-sm text-secondary/60 font-dubai">
-              {mode === 'monthly' ? 'ملخص شهري تفصيلي' : 'ملخص سنوي شامل'}
+              {mode === 'monthly' ? t.accounting.reports.monthlySubtitle : t.accounting.reports.yearlySubtitle}
             </p>
           </div>
         </div>
@@ -272,7 +274,7 @@ export default function ReportsPage() {
               }`}
           >
             <Calendar className="w-3.5 h-3.5 inline-block ml-1" />
-            شهري
+            {t.accounting.reports.monthly}
           </button>
           <button
             onClick={() => setMode('annual')}
@@ -283,7 +285,7 @@ export default function ReportsPage() {
               }`}
           >
             <BarChart3 className="w-3.5 h-3.5 inline-block ml-1" />
-            سنوي
+            {t.accounting.reports.yearly}
           </button>
         </div>
 
@@ -336,7 +338,7 @@ export default function ReportsPage() {
               className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
             >
               <h3 className="text-sm font-bold text-secondary font-dubai mb-3">
-                📊 مقارنة الشقق
+                📊 {t.accounting.reports.apartmentComparison}
               </h3>
               <ApartmentComparisonChart
                 data={comparisonData}
@@ -351,7 +353,7 @@ export default function ReportsPage() {
               className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
             >
               <h3 className="text-sm font-bold text-secondary font-dubai mb-3">
-                📊 نسبة الإشغال لكل شقة
+                📊 {t.accounting.reports.occupancyPerApartment}
               </h3>
               <OccupancyChart
                 data={occupancyData}
@@ -370,7 +372,7 @@ export default function ReportsPage() {
               className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
             >
               <h3 className="text-sm font-bold text-secondary font-dubai mb-3">
-                🥧 توزيع المصروفات حسب القسم
+                🥧 {t.accounting.reports.expensesByCategory}
               </h3>
               <ExpensePieChart
                 data={expensesPieData}
@@ -385,7 +387,7 @@ export default function ReportsPage() {
               className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
             >
               <h3 className="text-sm font-bold text-secondary font-dubai mb-3">
-                🥧 مصادر الحجوزات
+                🥧 {t.accounting.reports.bookingSources}
               </h3>
               <BookingSourceChart
                 data={sourcesPieData}
@@ -414,7 +416,7 @@ export default function ReportsPage() {
             className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
           >
             <h3 className="text-sm font-bold text-secondary font-dubai mb-3">
-              📈 اتجاه الأرباح - {year}
+              📈 {t.accounting.reports.profitTrend(Number(year))}
             </h3>
             <ProfitTrendChart
               data={annualData?.monthlyBreakdown || []}
@@ -431,7 +433,7 @@ export default function ReportsPage() {
               className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
             >
               <h3 className="text-sm font-bold text-secondary font-dubai mb-3">
-                📊 مقارنة الشقق (سنوي)
+                📊 {t.accounting.reports.yearlyApartmentComparison}
               </h3>
               <ApartmentComparisonChart
                 data={annualComparisonData}
@@ -446,7 +448,7 @@ export default function ReportsPage() {
               className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
             >
               <h3 className="text-sm font-bold text-secondary font-dubai mb-3">
-                📊 إجمالي الإشغال لكل شقة
+                📊 {t.accounting.reports.totalOccupancy}
               </h3>
               <OccupancyChart
                 data={annualOccupancyData}

@@ -11,6 +11,8 @@ import {
   UserCheck,
 } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface OpsManager {
   id: string;
@@ -32,6 +34,8 @@ interface Assignment {
 }
 
 const OpsApartmentAssignments: React.FC = () => {
+  const t = useTranslation();
+  const { language } = useLanguage();
   const [managers, setManagers] = useState<OpsManager[]>([]);
   const [apartments, setApartments] = useState<Apartment[]>([]);
   const [selectedManager, setSelectedManager] = useState<string>('');
@@ -61,7 +65,7 @@ const OpsApartmentAssignments: React.FC = () => {
         setApartments(aptsJson.apartments);
       }
     } catch {
-      setError('فشل في جلب البيانات');
+      setError(t.accounting.errors.fetchFailed);
     } finally {
       setIsLoading(false);
     }
@@ -113,7 +117,7 @@ const OpsApartmentAssignments: React.FC = () => {
         setShowAdd(false);
       }
     } catch {
-      setError('فشل في الحفظ');
+      setError(t.accounting.errors.saveFetchFailed);
     } finally {
       setIsSaving(false);
     }
@@ -131,7 +135,7 @@ const OpsApartmentAssignments: React.FC = () => {
         setAssignments(prev => prev.filter(a => a.id !== assignmentId));
       }
     } catch {
-      setError('فشل في الحذف');
+      setError(t.accounting.errors.deleteFetchFailed);
     } finally {
       setIsSaving(false);
     }
@@ -150,12 +154,12 @@ const OpsApartmentAssignments: React.FC = () => {
       <div className="flex items-center gap-2">
         <UserCheck className="w-4 h-4 text-primary" />
         <h3 className="text-sm font-bold text-secondary font-dubai">
-          تعيين الشقق لمديري التشغيل
+          {t.accounting.settings.opsAssignments.title}
         </h3>
       </div>
 
       <p className="text-xs text-secondary/50 font-dubai">
-        اختر مدير التشغيل ثم حدد الشقق المسؤول عنها. مدير التشغيل لن يرى إلا الشقق المعينة له.
+        {t.accounting.settings.opsAssignments.subtitle}
       </p>
 
       {error && (
@@ -167,7 +171,7 @@ const OpsApartmentAssignments: React.FC = () => {
 
       {managers.length === 0 ? (
         <p className="text-xs text-secondary/40 font-dubai text-center py-4">
-          لا يوجد مديرو تشغيل في الفريق
+          {t.accounting.settings.opsAssignments.noOpsManagers}
         </p>
       ) : (
         <>
@@ -175,9 +179,9 @@ const OpsApartmentAssignments: React.FC = () => {
           <CustomSelect
             value={selectedManager}
             onChange={setSelectedManager}
-            placeholder="اختر مدير التشغيل..."
+            placeholder={t.accounting.settings.opsAssignments.selectOpsManager}
             className="w-full"
-            emptyMessage="لا يوجد مديرين حتى الآن"
+            emptyMessage={t.accounting.settings.opsAssignments.noManagers}
             options={managers.map((m) => ({
               value: m.id,
               label: `${m.firstName} ${m.lastName}`,
@@ -193,7 +197,7 @@ const OpsApartmentAssignments: React.FC = () => {
                 </div>
               ) : assignments.length === 0 ? (
                 <p className="text-xs text-secondary/40 font-dubai text-center py-4">
-                  لم يتم تعيين أي شقق بعد
+                  {t.accounting.settings.opsAssignments.noAssignments}
                 </p>
               ) : (
                 <div className="space-y-1.5 max-h-[250px] overflow-y-auto">
@@ -235,7 +239,7 @@ const OpsApartmentAssignments: React.FC = () => {
                   bg-secondary text-white rounded-lg hover:bg-secondary/90 transition font-dubai
                   disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                <Plus className="w-3 h-3" /> إضافة شقة
+                <Plus className="w-3 h-3" /> {t.accounting.settings.opsAssignments.addApartment}
               </button>
             </>
           )}
@@ -260,14 +264,14 @@ const OpsApartmentAssignments: React.FC = () => {
               className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm z-10 overflow-hidden border-2 border-[#e0cdb8]"
             >
               <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
-                <h4 className="text-sm font-bold text-secondary font-dubai">إضافة شقة</h4>
+                <h4 className="text-sm font-bold text-secondary font-dubai">{t.accounting.settings.opsAssignments.addApartment}</h4>
                 <button onClick={() => setShowAdd(false)}>
                   <X className="w-4 h-4 text-secondary/40" />
                 </button>
               </div>
-              <div className="p-5 space-y-2 max-h-[300px] overflow-y-auto" dir="rtl">
+              <div className="p-5 space-y-2 max-h-[300px] overflow-y-auto" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                 {unassignedApartments.length === 0 ? (
-                  <p className="text-xs text-secondary/40 font-dubai text-center py-4">كل الشقق معينة بالفعل</p>
+                  <p className="text-xs text-secondary/40 font-dubai text-center py-4">{t.accounting.settings.opsAssignments.allAssigned}</p>
                 ) : (
                   unassignedApartments.map((apt) => (
                     <button

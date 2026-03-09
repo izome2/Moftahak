@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ClipboardCheck, MapPin, Users, CheckCircle } from 'lucide-react';
-import { StudyRequestType, studyTypeLabels } from '@/lib/validations/feasibility-request';
+import { StudyRequestType } from '@/lib/validations/feasibility-request';
+import { useTranslation } from '@/hooks/useTranslation';
 import { fadeInUp, staggerContainer } from '@/lib/animations/variants';
 
 interface StudyTypeOption {
@@ -16,38 +17,7 @@ interface StudyTypeOption {
   recommended?: boolean;
 }
 
-const studyOptions: StudyTypeOption[] = [
-  {
-    type: 'WITHOUT_FIELD_VISIT',
-    title: studyTypeLabels.WITHOUT_FIELD_VISIT,
-    subtitle: 'تحليل شامل بناءً على البيانات المقدمة',
-    price: '٢,٥٠٠ ج.م',
-    features: [
-      'تحليل موقع العقار',
-      'دراسة المنافسين في المنطقة',
-      'تقدير العوائد المتوقعة',
-      'توصيات التسعير',
-      'تقرير PDF شامل',
-    ],
-    icon: <ClipboardCheck className="w-8 h-8" />,
-  },
-  {
-    type: 'WITH_FIELD_VISIT',
-    title: studyTypeLabels.WITH_FIELD_VISIT,
-    subtitle: 'زيارة ميدانية وتحليل تفصيلي للعقار',
-    price: '٥,٠٠٠ ج.م',
-    features: [
-      'كل مميزات الدراسة الأساسية',
-      'زيارة ميدانية للعقار',
-      'تقييم حالة الأثاث والتجهيزات',
-      'توصيات التحسين والتطوير',
-      'خطة تأثيث مفصلة',
-      'تصوير احترافي للعقار',
-    ],
-    icon: <MapPin className="w-8 h-8" />,
-    recommended: true,
-  },
-];
+
 
 interface StudyTypeSelectorProps {
   onSelect: (type: StudyRequestType) => void;
@@ -55,6 +25,28 @@ interface StudyTypeSelectorProps {
 }
 
 export default function StudyTypeSelector({ onSelect, preselectedType }: StudyTypeSelectorProps) {
+  const t = useTranslation();
+
+  const studyOptions: StudyTypeOption[] = useMemo(() => [
+    {
+      type: 'WITHOUT_FIELD_VISIT',
+      title: t.admin.studyTypes.WITHOUT_FIELD_VISIT,
+      subtitle: t.feasibilityRequest.withoutFieldVisit.subtitle,
+      price: t.feasibilityRequest.withoutFieldVisit.price,
+      features: [...t.feasibilityRequest.withoutFieldVisit.features],
+      icon: <ClipboardCheck className="w-8 h-8" />,
+    },
+    {
+      type: 'WITH_FIELD_VISIT',
+      title: t.admin.studyTypes.WITH_FIELD_VISIT,
+      subtitle: t.feasibilityRequest.withFieldVisit.subtitle,
+      price: t.feasibilityRequest.withFieldVisit.price,
+      features: [...t.feasibilityRequest.withFieldVisit.features],
+      icon: <MapPin className="w-8 h-8" />,
+      recommended: true,
+    },
+  ], [t]);
+
   // Filter options if preselected
   const displayOptions = preselectedType 
     ? studyOptions.filter(opt => opt.type === preselectedType)
@@ -72,12 +64,12 @@ export default function StudyTypeSelector({ onSelect, preselectedType }: StudyTy
         transition={{ duration: 0.5 }}
       >
         <h1 className="text-2xl md:text-3xl font-bold text-secondary mb-3 font-dubai">
-          {isSingleOption ? displayOptions[0].title : 'اختر نوع دراسة الجدوى'}
+          {isSingleOption ? displayOptions[0].title : t.feasibilityRequest.chooseStudyType}
         </h1>
         <p className="text-base text-secondary/70 max-w-2xl mx-auto font-dubai">
           {isSingleOption 
             ? displayOptions[0].subtitle
-            : 'نقدم لك خيارين مختلفين لدراسة جدوى مشروعك العقاري. اختر النوع المناسب لاحتياجاتك.'
+            : t.feasibilityRequest.chooseStudyTypeDesc
           }
         </p>
       </motion.div>
@@ -100,7 +92,7 @@ export default function StudyTypeSelector({ onSelect, preselectedType }: StudyTy
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
                 <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-primary text-secondary text-sm font-bold rounded-full shadow-lg font-dubai">
                   <Users className="w-4 h-4" />
-                  الأكثر طلباً
+                  {t.feasibilityRequest.mostRequested}
                 </span>
               </div>
             )}
@@ -168,7 +160,7 @@ export default function StudyTypeSelector({ onSelect, preselectedType }: StudyTy
                 }
               `}>
                 <span className="font-dubai">
-                  {isSingleOption ? 'ابدأ الآن' : 'اختر هذا النوع'}
+                  {isSingleOption ? t.feasibilityRequest.startNow : t.feasibilityRequest.chooseThisType}
                 </span>
               </div>
             </button>
@@ -184,7 +176,7 @@ export default function StudyTypeSelector({ onSelect, preselectedType }: StudyTy
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          * الأسعار قابلة للتغيير. سيتم تأكيد السعر النهائي قبل البدء في الدراسة.
+          {t.feasibilityRequest.pricesNote}
         </motion.p>
       )}
     </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Link2,
@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Invitation {
   id: string;
@@ -29,13 +31,6 @@ interface Invitation {
   createdAt: string;
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  GENERAL_MANAGER: 'المدير العام',
-  OPS_MANAGER: 'مدير التشغيل',
-  BOOKING_MANAGER: 'مدير الحجوزات',
-  INVESTOR: 'مستثمر',
-};
-
 const ROLE_COLORS: Record<string, string> = {
   GENERAL_MANAGER: 'bg-purple-50 text-purple-600',
   OPS_MANAGER: 'bg-blue-50 text-blue-600',
@@ -46,6 +41,16 @@ const ROLE_COLORS: Record<string, string> = {
 const ACCOUNTING_ROLES = ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER', 'INVESTOR'] as const;
 
 const InvitationManager: React.FC = () => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+
+  const ROLE_LABELS: Record<string, string> = useMemo(() => ({
+    GENERAL_MANAGER: t.accounting.roles.GENERAL_MANAGER,
+    OPS_MANAGER: t.accounting.roles.OPS_MANAGER,
+    BOOKING_MANAGER: t.accounting.roles.BOOKING_MANAGER,
+    INVESTOR: t.accounting.roles.INVESTOR,
+  }), [t]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -111,7 +116,7 @@ const InvitationManager: React.FC = () => {
       });
       const json = await res.json();
       if (!res.ok) {
-        setError(json.error || 'حدث خطأ');
+        setError(json.error || t.accounting.errors.generic);
         return;
       }
       const invite = json.invitation as Invitation;
@@ -122,7 +127,7 @@ const InvitationManager: React.FC = () => {
       setShowCreate(false);
       fetchInvitations();
     } catch {
-      setError('فشل الاتصال');
+      setError(t.accounting.errors.connectionFailed);
     } finally {
       setIsCreating(false);
     }
@@ -151,9 +156,9 @@ const InvitationManager: React.FC = () => {
     try {
       const res = await fetch(`/api/accounting/settings/invitations/${deleteTarget.id}`, { method: 'DELETE' });
       if (res.ok) fetchInvitations();
-      else setError('حدث خطأ');
+      else setError(t.accounting.errors.generic);
     } catch {
-      setError('فشل الاتصال');
+      setError(t.accounting.errors.connectionFailed);
     } finally {
       setIsDeleting(false);
       setDeleteTarget(null);
@@ -161,18 +166,18 @@ const InvitationManager: React.FC = () => {
   };
 
   const getStatus = (invite: Invitation) => {
-    if (invite.used) return { label: 'مستخدمة', color: 'bg-red-50 text-red-600' };
-    if (new Date() > new Date(invite.expiresAt)) return { label: 'منتهية', color: 'bg-gray-100 text-gray-500' };
-    return { label: 'نشطة', color: 'bg-emerald-50 text-emerald-600' };
+    if (invite.used) return { label: t.accounting.settings.invitations.used, color: 'bg-red-50 text-red-600' };
+    if (new Date() > new Date(invite.expiresAt)) return { label: t.accounting.settings.invitations.expired, color: 'bg-gray-100 text-gray-500' };
+    return { label: t.accounting.settings.invitations.activeStatus, color: 'bg-emerald-50 text-emerald-600' };
   };
 
   const getRemainingTime = (expiresAt: string) => {
     const diff = new Date(expiresAt).getTime() - Date.now();
-    if (diff <= 0) return 'منتهية';
+    if (diff <= 0) return t.accounting.settings.invitations.expired;
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(hours / 24);
-    if (days > 0) return `${days} يوم ${hours % 24} ساعة`;
-    return `${hours} ساعة`;
+    if (days > 0) return `${days} ${t.accounting.settings.invitations.day} ${hours % 24} ${t.accounting.settings.invitations.hour}`;
+    return `${hours} ${t.accounting.settings.invitations.hour}`;
   };
 
   return (
@@ -180,14 +185,14 @@ const InvitationManager: React.FC = () => {
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-secondary font-dubai flex items-center gap-2">
           <Link2 className="w-4 h-4" />
-          دعوات الفريق
+          {t.accounting.settings.invitations.title}
         </h3>
         <button
           onClick={() => setShowCreate(true)}
           className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold
             bg-secondary text-white rounded-lg hover:bg-secondary/90 transition font-dubai"
         >
-          <Plus className="w-3 h-3" /> دعوة جديدة
+          <Plus className="w-3 h-3" /> {t.accounting.settings.invitations.newInvitation}
         </button>
       </div>
 
@@ -205,8 +210,8 @@ const InvitationManager: React.FC = () => {
       ) : invitations.length === 0 ? (
         <div className="text-center py-8">
           <Link2 className="w-8 h-8 text-secondary/20 mx-auto mb-2" />
-          <p className="text-xs text-secondary/50 font-dubai">لا توجد دعوات</p>
-          <p className="text-[10px] text-secondary/30 font-dubai mt-1">أنشئ دعوة جديدة لإضافة عضو للفريق</p>
+          <p className="text-xs text-secondary/50 font-dubai">{t.accounting.settings.invitations.noInvitations}</p>
+          <p className="text-[10px] text-secondary/30 font-dubai mt-1">{t.accounting.settings.invitations.createHint}</p>
         </div>
       ) : (
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
@@ -233,7 +238,7 @@ const InvitationManager: React.FC = () => {
                     <div className="flex items-center gap-3 text-[10px] text-secondary/50 font-dubai mt-1">
                       <span className="flex items-center gap-0.5">
                         <Clock className="w-2.5 h-2.5" />
-                        {isActive ? `متبقي: ${getRemainingTime(invite.expiresAt)}` : getRemainingTime(invite.expiresAt)}
+                        {isActive ? `${t.accounting.settings.invitations.remaining}: ${getRemainingTime(invite.expiresAt)}` : getRemainingTime(invite.expiresAt)}
                       </span>
                     </div>
                   </div>
@@ -243,14 +248,14 @@ const InvitationManager: React.FC = () => {
                         <button
                           onClick={() => handleCopyLink(invite.code)}
                           className="p-1.5 hover:bg-white rounded-lg transition"
-                          title="نسخ الرابط"
+                          title={t.accounting.settings.invitations.copyLink}
                         >
                           {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3 text-secondary/40" />}
                         </button>
                         <button
                           onClick={() => handleShowQR(invite)}
                           className="p-1.5 hover:bg-white rounded-lg transition"
-                          title="عرض QR"
+                          title={t.accounting.settings.invitations.showQR}
                         >
                           <QrCode className="w-3 h-3 text-secondary/40" />
                         </button>
@@ -259,7 +264,7 @@ const InvitationManager: React.FC = () => {
                     <button
                       onClick={() => setDeleteTarget(invite)}
                       className="p-1.5 hover:bg-red-50 rounded-lg transition"
-                      title="حذف"
+                      title={t.accounting.common.delete}
                     >
                       <Trash2 className="w-3 h-3 text-red-400" />
                     </button>
@@ -285,13 +290,13 @@ const InvitationManager: React.FC = () => {
               className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm z-10 overflow-hidden border-2 border-[#e0cdb8]"
             >
               <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
-                <h4 className="text-sm font-bold text-secondary font-dubai">دعوة جديدة</h4>
+                <h4 className="text-sm font-bold text-secondary font-dubai">{t.accounting.settings.invitations.newInvitation}</h4>
                 <button onClick={() => setShowCreate(false)}><X className="w-4 h-4 text-secondary/40" /></button>
               </div>
-              <div className="p-5 space-y-4" dir="rtl">
+              <div className="p-5 space-y-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                 <div>
                   <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai flex items-center gap-1">
-                    <Shield className="w-3 h-3" /> اختر الدور *
+                    <Shield className="w-3 h-3" /> {t.accounting.settings.invitations.selectRole}
                   </label>
                   <CustomSelect
                     value={selectedRole}
@@ -304,9 +309,9 @@ const InvitationManager: React.FC = () => {
                   <div className="flex items-start gap-2">
                     <AlertCircle className="w-3.5 h-3.5 text-amber-600 mt-0.5 shrink-0" />
                     <div className="text-[10px] text-amber-700 font-dubai space-y-1">
-                      <p>• صلاحية الدعوة <strong>٣ أيام</strong> فقط</p>
-                      <p>• الدعوة <strong>لاستخدام واحد</strong> فقط</p>
-                      <p>• تنتهي فوراً بعد التسجيل</p>
+                      <p>• {t.accounting.settings.invitations.validityNote}</p>
+                      <p>• {t.accounting.settings.invitations.singleUseNote}</p>
+                      <p>• {t.accounting.settings.invitations.expiresAfterRegister}</p>
                     </div>
                   </div>
                 </div>
@@ -317,7 +322,7 @@ const InvitationManager: React.FC = () => {
                     hover:bg-secondary/90 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {isCreating ? 'جاري الإنشاء...' : 'إنشاء الدعوة'}
+                  {isCreating ? t.accounting.settings.invitations.creating : t.accounting.settings.invitations.createInvitation}
                 </button>
               </div>
             </motion.div>
@@ -339,7 +344,7 @@ const InvitationManager: React.FC = () => {
               className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm z-10 overflow-hidden border-2 border-[#e0cdb8]"
             >
               <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
-                <h4 className="text-sm font-bold text-secondary font-dubai">تم إنشاء الدعوة</h4>
+                <h4 className="text-sm font-bold text-secondary font-dubai">{t.accounting.settings.invitations.invitationCreated}</h4>
                 <button onClick={() => setCreatedInvite(null)}><X className="w-4 h-4 text-secondary/40" /></button>
               </div>
               <div className="p-5 space-y-4 flex flex-col items-center" dir="rtl">
@@ -348,7 +353,7 @@ const InvitationManager: React.FC = () => {
                     {ROLE_LABELS[createdInvite.role]}
                   </span>
                   <span className="text-[10px] text-secondary/50 font-dubai flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> ٣ أيام
+                    <Clock className="w-3 h-3" /> {t.accounting.settings.invitations.validFor}
                   </span>
                 </div>
 
@@ -366,18 +371,18 @@ const InvitationManager: React.FC = () => {
                   {copied ? (
                     <>
                       <Check className="w-4 h-4" />
-                      تم النسخ!
+                      {t.accounting.settings.invitations.copied}
                     </>
                   ) : (
                     <>
                       <Copy className="w-4 h-4" />
-                      نسخ رابط الدعوة
+                      {t.accounting.settings.invitations.copyInviteLink}
                     </>
                   )}
                 </button>
 
                 <p className="text-[10px] text-secondary/40 font-dubai text-center">
-                  شارك الرابط أو كود QR مع العضو الجديد
+                  {t.accounting.settings.invitations.shareNote}
                 </p>
               </div>
             </motion.div>
@@ -399,7 +404,7 @@ const InvitationManager: React.FC = () => {
               className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm z-10 overflow-hidden border-2 border-[#e0cdb8]"
             >
               <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
-                <h4 className="text-sm font-bold text-secondary font-dubai">كود QR</h4>
+                <h4 className="text-sm font-bold text-secondary font-dubai">{t.accounting.settings.invitations.qrCode}</h4>
                 <button onClick={() => setQrInvite(null)}><X className="w-4 h-4 text-secondary/40" /></button>
               </div>
               <div className="p-5 flex flex-col items-center space-y-4">
@@ -416,7 +421,7 @@ const InvitationManager: React.FC = () => {
                   className="w-full py-2.5 bg-secondary text-white rounded-xl text-sm font-bold font-dubai
                     hover:bg-secondary/90 flex items-center justify-center gap-2 transition"
                 >
-                  {copied ? <><Check className="w-4 h-4" /> تم النسخ!</> : <><Copy className="w-4 h-4" /> نسخ الرابط</>}
+                  {copied ? <><Check className="w-4 h-4" /> {t.accounting.settings.invitations.copied}</> : <><Copy className="w-4 h-4" /> {t.accounting.settings.invitations.copyLink}</>}
                 </button>
               </div>
             </motion.div>
@@ -437,9 +442,9 @@ const InvitationManager: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
               className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm p-5 z-10 border-2 border-[#e0cdb8]"
             >
-              <h4 className="text-sm font-bold text-secondary font-dubai mb-2">حذف الدعوة</h4>
+              <h4 className="text-sm font-bold text-secondary font-dubai mb-2">{t.accounting.settings.invitations.deleteInvitation}</h4>
               <p className="text-xs text-secondary/70 font-dubai mb-4">
-                هل تريد حذف دعوة <strong>{ROLE_LABELS[deleteTarget.role]}</strong>؟
+                {t.accounting.settings.invitations.confirmDeleteInvitation(ROLE_LABELS[deleteTarget.role] || deleteTarget.role)}
               </p>
               <div className="flex gap-2">
                 <button
@@ -448,13 +453,13 @@ const InvitationManager: React.FC = () => {
                     hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-1"
                 >
                   {isDeleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  حذف
+                  {t.accounting.common.delete}
                 </button>
                 <button
                   onClick={() => setDeleteTarget(null)}
                   className="flex-1 py-2 bg-primary/10 text-secondary rounded-xl text-xs font-medium font-dubai hover:bg-primary/20"
                 >
-                  إلغاء
+                  {t.accounting.common.cancel}
                 </button>
               </div>
             </motion.div>

@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Wallet, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BalanceCardProps {
   totalProfit: number;
@@ -11,17 +13,22 @@ interface BalanceCardProps {
   currency?: string;
 }
 
-const formatCurrency = (amount: number, currency: string = 'USD') => {
-  if (currency === 'EGP') return new Intl.NumberFormat('ar-EG').format(amount) + ' ج.م';
-  return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(amount);
-};
-
 const BalanceCard: React.FC<BalanceCardProps> = ({
   totalProfit,
   totalWithdrawals,
   balance,
   currency = 'USD',
 }) => {
+  const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const currencyLabel = ' ' + t.accounting.common.currency;
+
+  const formatCurrency = (amount: number, cur: string = currency) => {
+    if (cur === 'EGP') return new Intl.NumberFormat(locale).format(amount) + currencyLabel;
+    return '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(amount);
+  };
+
   const isPositive = balance > 0;
   const isZero = balance === 0;
 
@@ -41,8 +48,8 @@ const BalanceCard: React.FC<BalanceCardProps> = ({
           <Wallet className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <h3 className="text-base font-bold text-white font-dubai">الرصيد النهائي</h3>
-          <p className="text-[11px] text-white/35 font-dubai">ملخص الحساب الإجمالي</p>
+          <h3 className="text-base font-bold text-white font-dubai">{t.accounting.investorPortal.finalBalance}</h3>
+          <p className="text-[11px] text-white/35 font-dubai">{t.accounting.investorPortal.accountSummary}</p>
         </div>
       </div>
 
@@ -58,7 +65,7 @@ const BalanceCard: React.FC<BalanceCardProps> = ({
           >
             <TrendingUp className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#b5c4a5]" />
           </div>
-          <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">إجمالي الأرباح</p>
+          <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.investorPortal.totalProfits}</p>
           <p className="text-sm sm:text-[15px] font-bold text-[#b5c4a5] font-dubai leading-tight">
             {formatCurrency(totalProfit, currency)}
           </p>
@@ -74,7 +81,7 @@ const BalanceCard: React.FC<BalanceCardProps> = ({
           >
             <TrendingDown className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#d4b0a0]" />
           </div>
-          <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">إجمالي المسحوبات</p>
+          <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.investorPortal.totalWithdrawals}</p>
           <p className="text-sm sm:text-[15px] font-bold text-[#d4b0a0] font-dubai leading-tight">
             {formatCurrency(totalWithdrawals, currency)}
           </p>
@@ -101,7 +108,7 @@ const BalanceCard: React.FC<BalanceCardProps> = ({
               <Wallet className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#d4b0a0]" />
             )}
           </div>
-          <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">الرصيد المتبقي</p>
+          <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.investorPortal.remainingBalance}</p>
           <p className={`text-[15px] sm:text-lg font-bold font-dubai leading-tight ${
             isPositive ? 'text-[#b5c4a5]' : isZero ? 'text-white/40' : 'text-[#d4b0a0]'
           }`}>
