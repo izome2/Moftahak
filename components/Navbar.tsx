@@ -196,6 +196,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile & Tablet Navbar */}
       <header
+        dir="ltr"
         className={`xl:hidden fixed z-50 w-full transition-all duration-300 ${
           isScrolled
             ? 'top-3 px-3'

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useCallback, useSyncExternalStore } from 'react';
 
 type Language = 'ar' | 'en';
 
@@ -18,25 +18,43 @@ const LanguageContext = createContext<LanguageContextType>({
 
 export const useLanguage = () => useContext(LanguageContext);
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('ar');
+// Module-level listener set so toggleLanguage can notify useSyncExternalStore
+const listeners = new Set<() => void>();
 
-  useEffect(() => {
-    const saved = localStorage.getItem('moftahak-lang') as Language | null;
-    if (saved === 'en' || saved === 'ar') {
-      setLanguage(saved);
-    }
-  }, []);
+function subscribe(onStoreChange: () => void) {
+  listeners.add(onStoreChange);
+  window.addEventListener('storage', onStoreChange);
+  return () => {
+    listeners.delete(onStoreChange);
+    window.removeEventListener('storage', onStoreChange);
+  };
+}
+
+// Client snapshot: reads from localStorage
+function getClientSnapshot(): Language {
+  return (localStorage.getItem('moftahak-lang') as Language) || 'ar';
+}
+
+// Server snapshot: always 'ar' — must match the initial client render to avoid hydration mismatch
+function getServerSnapshot(): Language {
+  return 'ar';
+}
+
+export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // useSyncExternalStore guarantees server ('ar') === initial client render, then
+  // transitions to the actual localStorage value post-hydration without a mismatch.
+  const language = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
 
   useEffect(() => {
     document.documentElement.lang = language;
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
-    localStorage.setItem('moftahak-lang', language);
   }, [language]);
 
   const toggleLanguage = useCallback(() => {
-    setLanguage(prev => prev === 'ar' ? 'en' : 'ar');
-  }, []);
+    const next: Language = language === 'ar' ? 'en' : 'ar';
+    localStorage.setItem('moftahak-lang', next);
+    listeners.forEach(l => l()); // notify useSyncExternalStore to re-read snapshot
+  }, [language]);
 
   const isRTL = language === 'ar';
 

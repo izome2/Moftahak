@@ -31,13 +31,28 @@ const UserDropdown: React.FC = () => {
     }
   }, [session?.user?.role, router]);
 
-  // حساب موقع القائمة
+  // حساب موقع القائمة مع منع الخروج عن حدود الشاشة
   useEffect(() => {
     if (isOpen && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
+      const dropdownWidth = 280;
+      const margin = 8; // هامش من حافة الشاشة
+
+      let left = rect.left + (rect.width / 2) - (dropdownWidth / 2);
+
+      // منع الخروج من اليمين
+      if (left + dropdownWidth + margin > window.innerWidth) {
+        left = window.innerWidth - dropdownWidth - margin;
+      }
+
+      // منع الخروج من اليسار
+      if (left < margin) {
+        left = margin;
+      }
+
       setDropdownPosition({
         top: rect.bottom + 12,
-        left: rect.left + (rect.width / 2) - 140, // 140 هو نصف عرض القائمة (280/2)
+        left,
       });
     }
   }, [isOpen]);
