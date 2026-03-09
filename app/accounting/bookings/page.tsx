@@ -80,6 +80,7 @@ export default function BookingsPage() {
   const canAdd = userRole === 'GENERAL_MANAGER' || userRole === 'ADMIN' || userRole === 'BOOKING_MANAGER';
   const canEdit = userRole === 'GENERAL_MANAGER' || userRole === 'ADMIN' || userRole === 'BOOKING_MANAGER';
   const canDelete = userRole === 'GENERAL_MANAGER' || userRole === 'ADMIN';
+  const hideFinancials = userRole === 'BOOKING_MANAGER';
 
   // State
   const [bookings, setBookings] = useState<BookingRow[]>([]);
@@ -285,7 +286,9 @@ export default function BookingsPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-secondary font-dubai">الحجوزات</h1>
-            <p className="text-sm text-secondary/60 font-dubai">شيت الإيرادات والحجوزات</p>
+            <p className="text-sm text-secondary/60 font-dubai">
+              {hideFinancials ? 'إدارة الحجوزات والإشغال' : 'شيت الإيرادات والحجوزات'}
+            </p>
           </div>
         </div>
 
@@ -298,13 +301,15 @@ export default function BookingsPage() {
           >
             <RefreshCw size={18} className={`text-secondary ${isLoading ? 'animate-spin' : ''}`} />
           </button>
-          <button
-            onClick={() => setShowCharts(prev => !prev)}
-            className={`p-2.5 rounded-xl transition-colors ${showCharts ? 'bg-secondary text-white' : 'bg-primary/10 text-secondary hover:bg-primary/20'}`}
-            title={showCharts ? 'إخفاء الرسوم البيانية' : 'إظهار الرسوم البيانية'}
-          >
-            <BarChart3 size={18} />
-          </button>
+          {!hideFinancials && (
+            <button
+              onClick={() => setShowCharts(prev => !prev)}
+              className={`p-2.5 rounded-xl transition-colors ${showCharts ? 'bg-secondary text-white' : 'bg-primary/10 text-secondary hover:bg-primary/20'}`}
+              title={showCharts ? 'إخفاء الرسوم البيانية' : 'إظهار الرسوم البيانية'}
+            >
+              <BarChart3 size={18} />
+            </button>
+          )}
           {canAdd && (
             <button
               onClick={() => { setEditBooking(null); setShowForm(true); }}
@@ -379,15 +384,16 @@ export default function BookingsPage() {
 
       {/* Summary Cards */}
       <BookingSummary
-        totalRevenue={totals.amount}
+        totalRevenue={hideFinancials ? undefined : totals.amount}
         totalBookings={totals.count}
         totalNights={totals.nights}
         apartmentsCount={activeApartmentsCount}
         isLoading={isLoading}
+        hideFinancials={hideFinancials}
       />
 
       {/* Charts */}
-      {showCharts && (
+      {showCharts && !hideFinancials && (
         <BookingSourceChart
           sourceData={sourceBreakdown}
           apartmentData={apartmentRevenue}
@@ -398,7 +404,7 @@ export default function BookingsPage() {
       {/* Bookings Table */}
       <BookingsList
         bookings={filteredBookings}
-        totalAmount={totals.amount}
+        totalAmount={hideFinancials ? undefined : totals.amount}
         totalNights={totals.nights}
         totalCount={totals.count}
         isLoading={isLoading}
@@ -407,6 +413,7 @@ export default function BookingsPage() {
         canDelete={canDelete}
         onEdit={handleEdit}
         onDelete={(b) => setDeleteConfirm(b as BookingRow)}
+        hideFinancials={hideFinancials}
       />
 
       {/* Booking Form Modal */}
@@ -416,6 +423,8 @@ export default function BookingsPage() {
         onSubmit={handleSubmitBooking}
         initialData={editBooking}
         apartments={formApartments}
+        hideFinancials={hideFinancials}
+        blockPastDates={hideFinancials}
       />
 
       {/* Delete Confirmation Dialog */}

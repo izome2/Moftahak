@@ -73,7 +73,7 @@ export default function ConfirmDialog({
             transition={{ type: 'spring', stiffness: 400, damping: 28 }}
             className="fixed inset-0 z-[81] flex items-center justify-center p-4"
           >
-            <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 relative">
+            <div className="bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] max-w-sm w-full p-6 relative border-2 border-[#e0cdb8]">
               {/* Close */}
               <button
                 onClick={onClose}

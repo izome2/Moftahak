@@ -57,6 +57,7 @@ export interface Permission {
   canEditExpenses: boolean;        // تعديل مصروفات
   canDeleteExpenses: boolean;      // حذف مصروفات (soft delete)
   canViewExpenses: boolean;        // عرض المصروفات (للقراءة فقط)
+  canApproveExpenses: boolean;     // اعتماد/رفض المصروفات (المدير العام فقط)
 
   // المتابعة اليومية
   canViewDailyOps: boolean;        // عرض جدول الدخول والخروج اليومي
@@ -64,6 +65,10 @@ export interface Permission {
 
   // المستثمر
   canViewOwnInvestments: boolean;  // عرض استثماراته وحساباته فقط
+
+  // العهدة
+  canViewCustody: boolean;         // عرض حساب العهدة
+  canManageCustody: boolean;       // إنشاء/تعديل/تقفيل العهدة
 
   // Enterprise Features
   canLockMonths: boolean;          // قفل/فتح الأشهر المالية
@@ -96,11 +101,15 @@ const PERMISSIONS: Record<AccountingRole, Permission> = {
     canEditExpenses: true,
     canDeleteExpenses: true,
     canViewExpenses: true,
+    canApproveExpenses: true,
 
     canViewDailyOps: true,
     canAssignSupervisor: true,
 
     canViewOwnInvestments: false, // ليس مستثمراً
+
+    canViewCustody: true,
+    canManageCustody: true,
 
     canLockMonths: true,
     canViewAuditLog: true,
@@ -121,19 +130,25 @@ const PERMISSIONS: Record<AccountingRole, Permission> = {
     canAddBookings: false,
     canEditBookings: false,
     canDeleteBookings: false,
-    canViewBookings: true,         // يرى الحجوزات للقراءة فقط
+    canViewBookings: false,         // لا يرى الحجوزات ولا الإيرادات
 
     canAddExpenses: true,          // يضيف مصروفات
-    canEditExpenses: true,         // يعدل مصروفاته
+    canEditExpenses: true,         // يعدل مصروفاته فقط
     canDeleteExpenses: false,      // لا يحذف (المدير العام فقط)
-    canViewExpenses: true,
+    canViewExpenses: true,         // يرى مصروفاته فقط
+    canApproveExpenses: false,
 
     canViewDailyOps: true,         // يرى جدول الدخول والخروج
     canAssignSupervisor: true,     // يعيّن مشرف الاستقبال/الاستلام
 
     canViewOwnInvestments: false,
+
+    canViewCustody: true,          // يرى حساب العهدة الخاص به
+    canManageCustody: false,       // لا ينشئ عهدة (المدير العام فقط)
+
     canLockMonths: false,
-    canViewAuditLog: false,  },
+    canViewAuditLog: false,
+  },
 
   /**
    * مدير الحجوزات - إدارة الحجوزات فقط
@@ -156,11 +171,15 @@ const PERMISSIONS: Record<AccountingRole, Permission> = {
     canEditExpenses: false,
     canDeleteExpenses: false,
     canViewExpenses: false,        // لا يرى المصروفات
+    canApproveExpenses: false,
 
     canViewDailyOps: false,        // لا يرى المتابعة اليومية
     canAssignSupervisor: false,
 
     canViewOwnInvestments: false,
+
+    canViewCustody: false,
+    canManageCustody: false,
 
     canLockMonths: false,
     canViewAuditLog: false,
@@ -187,11 +206,15 @@ const PERMISSIONS: Record<AccountingRole, Permission> = {
     canEditExpenses: false,
     canDeleteExpenses: false,
     canViewExpenses: false,        // لا يرى تفاصيل المصروفات
+    canApproveExpenses: false,
 
     canViewDailyOps: false,
     canAssignSupervisor: false,
 
     canViewOwnInvestments: true,   // يرى حساباته فقط
+
+    canViewCustody: false,
+    canManageCustody: false,
 
     canLockMonths: false,
     canViewAuditLog: false,
@@ -230,9 +253,12 @@ export function getPermissions(role: string | AccountingRole): Permission {
     canEditExpenses: false,
     canDeleteExpenses: false,
     canViewExpenses: false,
+    canApproveExpenses: false,
     canViewDailyOps: false,
     canAssignSupervisor: false,
     canViewOwnInvestments: false,
+    canViewCustody: false,
+    canManageCustody: false,
     canLockMonths: false,
     canViewAuditLog: false,
   };
@@ -283,6 +309,7 @@ export const PAGE_ROLE_ACCESS: Record<string, AccountingRole[]> = {
   '/accounting/bookings':      ['GENERAL_MANAGER', 'BOOKING_MANAGER'],
   '/accounting/expenses':      ['GENERAL_MANAGER', 'OPS_MANAGER'],
   '/accounting/daily':         ['GENERAL_MANAGER', 'OPS_MANAGER'],
+  '/accounting/custody':       ['GENERAL_MANAGER', 'OPS_MANAGER'],
   '/accounting/investors':     ['GENERAL_MANAGER'],
   '/accounting/my-investments': ['INVESTOR'],
   '/accounting/reports':       ['GENERAL_MANAGER'],

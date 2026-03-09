@@ -16,9 +16,11 @@ import ApartmentsManager from '@/components/accounting/settings/ApartmentsManage
 import CurrencyRateManager from '@/components/accounting/settings/CurrencyRateManager';
 import SupervisorsManager from '@/components/accounting/settings/SupervisorsManager';
 import TeamManager from '@/components/accounting/settings/TeamManager';
+import InvitationManager from '@/components/accounting/settings/InvitationManager';
+import OpsApartmentAssignments from '@/components/accounting/settings/OpsApartmentAssignments';
 import SystemManager from '@/components/accounting/settings/SystemManager';
 
-type SettingsTab = 'projects' | 'apartments' | 'currency' | 'supervisors' | 'team' | 'system';
+type SettingsTab = 'projects' | 'apartments' | 'currency' | 'supervisors' | 'team' | 'ops-assignments' | 'system';
 
 const TABS: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
   { id: 'projects', label: 'المشاريع', icon: FolderKanban },
@@ -26,6 +28,7 @@ const TABS: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
   { id: 'currency', label: 'سعر الصرف', icon: DollarSign },
   { id: 'supervisors', label: 'المشرفين', icon: UserCheck },
   { id: 'team', label: 'الفريق', icon: Users },
+  { id: 'ops-assignments', label: 'تعيين الشقق', icon: Building2 },
   { id: 'system', label: 'النظام', icon: Database },
 ];
 
@@ -91,7 +94,15 @@ export default function AccountingSettingsPage() {
         {activeTab === 'apartments' && <ApartmentsManager />}
         {activeTab === 'currency' && <CurrencyRateManager />}
         {activeTab === 'supervisors' && <SupervisorsManager />}
-        {activeTab === 'team' && <TeamManager />}
+        {activeTab === 'team' && (
+          <div className="space-y-6">
+            <InvitationManager />
+            <div className="border-t-2 border-primary/10 pt-6">
+              <TeamManager />
+            </div>
+          </div>
+        )}
+        {activeTab === 'ops-assignments' && <OpsApartmentAssignments />}
         {activeTab === 'system' && <SystemManager />}
       </motion.div>
     </div>

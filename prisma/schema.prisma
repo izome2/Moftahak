@@ -32,6 +32,9 @@ model User {
   investments       ApartmentInvestor[]
   createdBookings   Booking[]    @relation("BookingCreator")
   createdExpenses   Expense[]    @relation("ExpenseCreator")
+  assignedApartments OpsManagerApartment[]
+  custodyRecords    Custody[]    @relation("CustodyManager")
+  approvedExpenses  Expense[]    @relation("ExpenseApprover")
 
   @@map("users")
 }
@@ -309,6 +312,8 @@ model Apartment {
   expenses         Expense[]
   investors        ApartmentInvestor[]
   monthlySnapshots MonthlySnapshot[]
+  assignedManagers OpsManagerApartment[]
+  custodyRecords   Custody[]
 
   isActive        Boolean             @default(true) @map("is_active")
   createdAt       DateTime            @default(now()) @map("created_at")
@@ -397,6 +402,13 @@ model Expense {
   date            DateTime                              // تاريخ المصروف
   notes           String?
 
+  // ✅ حالة الاعتماد - المصروفات تحتاج موافقة المدير العام
+  approvalStatus  ExpenseApproval @default(PENDING) @map("approval_status")
+  approvedBy      User?           @relation("ExpenseApprover", fields: [approvedById], references: [id])
+  approvedById    String?         @map("approved_by_id")
+  approvedAt      DateTime?       @map("approved_at")
+  rejectionReason String?         @map("rejection_reason")
+
   // 🔒 Soft Delete
   deletedAt       DateTime?       @map("deleted_at")
 
@@ -411,7 +423,15 @@ model Expense {
   @@index([deletedAt])
   @@index([createdById])
   @@index([category])
+  @@index([approvalStatus])
   @@map("expenses")
+}
+
+// حالة اعتماد المصروف
+enum ExpenseApproval {
+  PENDING           // في انتظار الموافقة
+  APPROVED          // معتمد من المدير العام
+  REJECTED          // مرفوض
 }
 
 // أقسام المصروفات
@@ -583,6 +603,71 @@ model MonthlyInvestorSnapshot {
   @@unique([apartmentInvestorId, month])
   @@index([month])
   @@map("monthly_investor_snapshots")
+}
+
+// OpsManagerApartment Model - تعيين الشقق لمدير التشغيل
+// يحدد الشقق التي يكون مدير التشغيل مسؤولاً عنها
+model OpsManagerApartment {
+  id            String    @id @default(cuid())
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String    @map("user_id")
+  apartment     Apartment @relation(fields: [apartmentId], references: [id], onDelete: Cascade)
+  apartmentId   String    @map("apartment_id")
+
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@unique([userId, apartmentId])
+  @@index([userId])
+  @@index([apartmentId])
+  @@map("ops_manager_apartments")
+}
+
+// Custody Model - نموذج العهدة
+// العهدة هي المبلغ الذي يستلمه مدير التشغيل للصرف منها خلال الشهر
+model Custody {
+  id            String    @id @default(cuid())
+  manager       User      @relation("CustodyManager", fields: [managerId], references: [id])
+  managerId     String    @map("manager_id")
+  apartment     Apartment @relation(fields: [apartmentId], references: [id])
+  apartmentId   String    @map("apartment_id")
+  month         String                               // "YYYY-MM" format
+
+  amount        Float                                 // مبلغ العهدة
+  currency      String    @default("USD")
+  spent         Float     @default(0)                 // المصروف الفعلي (من المصروفات المعتمدة)
+  remaining     Float     @default(0)                 // المتبقي (محسوب)
+  notes         String?
+
+  isSettled     Boolean   @default(false) @map("is_settled")   // تم تقفيل العهدة؟
+  settledAt     DateTime? @map("settled_at")
+
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@unique([managerId, apartmentId, month])
+  @@index([managerId])
+  @@index([apartmentId, month])
+  @@index([month])
+  @@map("custody_records")
+}
+
+// Invitation Model - دعوات الفريق
+// رابط دعوة يُنشئه المدير العام لتسجيل عضو جديد بدور محدد
+model Invitation {
+  id          String    @id @default(cuid())
+  code        String    @unique                    // كود فريد للرابط
+  role        Role                                 // الدور المطلوب للعضو الجديد
+  createdBy   String    @map("created_by")         // معرف المدير الذي أنشأ الدعوة
+  createdByName String  @map("created_by_name")    // اسم المدير
+  expiresAt   DateTime  @map("expires_at")         // تاريخ انتهاء الصلاحية (3 أيام)
+  used        Boolean   @default(false)            // هل تم استخدام الدعوة؟
+  usedAt      DateTime? @map("used_at")            // تاريخ الاستخدام
+  usedById    String?   @map("used_by_id")         // معرف المستخدم الذي استخدم الدعوة
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([code])
+  @@index([expiresAt])
+  @@map("invitations")
 }
 
 // SystemBackup Model - النسخ الاحتياطية للنظام

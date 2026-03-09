@@ -29,6 +29,7 @@ export type AuditEntity =
   | 'MONTH'
   | 'PROJECT'
   | 'APARTMENT'
+  | 'CUSTODY'
   | 'SETTING'
   | 'SYSTEM';
 

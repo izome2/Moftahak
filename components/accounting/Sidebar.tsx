@@ -63,6 +63,12 @@ const ALL_MENU_ITEMS: MenuItem[] = [
     roles: ['GENERAL_MANAGER', 'OPS_MANAGER'],
   },
   {
+    icon: Wallet,
+    label: 'العهدة',
+    href: '/accounting/custody',
+    roles: ['GENERAL_MANAGER', 'OPS_MANAGER'],
+  },
+  {
     icon: ClipboardList,
     label: 'المتابعة اليومية',
     href: '/accounting/daily',

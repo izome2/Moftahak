@@ -31,6 +31,7 @@ interface BookingsListProps {
   canDelete?: boolean;
   onEdit?: (booking: BookingRow) => void;
   onDelete?: (booking: BookingRow) => void;
+  hideFinancials?: boolean;
 }
 
 const SOURCE_BADGES: Record<string, { label: string; className: string }> = {
@@ -65,6 +66,7 @@ const BookingsList: React.FC<BookingsListProps> = ({
   canDelete = false,
   onEdit,
   onDelete,
+  hideFinancials = false,
 }) => {
   const hasActions = canEdit || canDelete;
 
@@ -94,7 +96,7 @@ const BookingsList: React.FC<BookingsListProps> = ({
               {totalNights} ليلة
             </span>
           )}
-          {totalAmount !== undefined && !isLoading && (
+          {totalAmount !== undefined && !isLoading && !hideFinancials && (
             <div className="bg-primary/8 px-3 py-1.5 rounded-xl">
               <span className="text-sm font-bold text-secondary font-dubai">
                 {formatCurrency(totalAmount)}
@@ -137,9 +139,11 @@ const BookingsList: React.FC<BookingsListProps> = ({
                         </span>
                       )}
                     </div>
-                    <span className="text-[13px] font-bold text-secondary font-dubai whitespace-nowrap">
-                      {formatCurrency(booking.amount)}
-                    </span>
+                    {!hideFinancials && (
+                      <span className="text-[13px] font-bold text-secondary font-dubai whitespace-nowrap">
+                        {formatCurrency(booking.amount)}
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 text-[11px] text-secondary/65 font-dubai">
@@ -186,7 +190,7 @@ const BookingsList: React.FC<BookingsListProps> = ({
                   <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">الدخول</th>
                   <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">الخروج</th>
                   <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">الليالي</th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">المبلغ</th>
+                  {!hideFinancials && <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">المبلغ</th>}
                   <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">المصدر</th>
                   <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden md:table-cell">الحالة</th>
                   {hasActions && <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai w-20">إجراء</th>}
@@ -246,9 +250,11 @@ const BookingsList: React.FC<BookingsListProps> = ({
                       <td className="px-4 py-3.5 text-center font-bold text-secondary font-dubai text-[13px]">
                         {booking.nights}
                       </td>
-                      <td className="px-4 py-3.5 text-center font-bold text-secondary font-dubai text-[13px]">
-                        {formatCurrency(booking.amount)}
-                      </td>
+                      {!hideFinancials && (
+                        <td className="px-4 py-3.5 text-center font-bold text-secondary font-dubai text-[13px]">
+                          {formatCurrency(booking.amount)}
+                        </td>
+                      )}
                       <td className="px-4 py-3.5 text-center">
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai font-bold ${source.className}`}>
                           {source.label}

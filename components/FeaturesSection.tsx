@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, Users, Star } from 'lucide-react';
+import { TrendingUp, Users, Star, Award } from 'lucide-react';
 import Container from './ui/Container';
 import Card from './ui/Card';
 import AnimatedStroke from './ui/AnimatedStroke';
@@ -21,19 +21,19 @@ const FeaturesSection: React.FC = () => {
 
   const features: Feature[] = [
     {
-      icon: <TrendingUp className="w-8 h-8" />,
-      title: 'نظام عمل متكامل',
-      description: 'أنظمة وسير عمل مصممة خصيصاً لضمان كفاءة العمليات اليومية وتحقيق الربحية',
-    },
-    {
-      icon: <Users className="w-8 h-8" />,
-      title: 'فريق مدرب ومحترف',
-      description: 'تنظيم وتدريب الفرق الميدانية لتقديم خدمة فندقية بمعايير عالمية',
-    },
-    {
       icon: <Star className="w-8 h-8" />,
-      title: 'تجربة ضيوف مميزة',
-      description: 'تحسين التواصل مع الضيوف وإدارة التوقعات لضمان تقييمات عالية',
+      title: 'خبرة حقيقية',
+      description: 'خبرة إدارة وتشغيل وحدات حقيقية حققت أرباحاً فعلية داخل السوق المصري والخليجي.',
+    },
+    {
+      icon: <TrendingUp className="w-8 h-8" />,
+      title: 'أرقام موثوقة',
+      description: 'دراسات وأدوات مبنية على بيانات سوق حقيقية، من واقع خبرة حقيقية.',
+    },
+    {
+      icon: <Award className="w-8 h-8" />,
+      title: 'نتائج أسرع',
+      description: 'منهج عملي مختصر يوصلك للربح بأقل وقت وتكلفة وأخطاء.',
     },
   ];
 

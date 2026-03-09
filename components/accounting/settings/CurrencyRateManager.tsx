@@ -8,6 +8,7 @@ import {
   Check,
   RefreshCw,
 } from 'lucide-react';
+import NumberInput from '@/components/accounting/shared/NumberInput';
 
 const CurrencyRateManager: React.FC = () => {
   const [rate, setRate] = useState<number | null>(null);
@@ -98,10 +99,7 @@ const CurrencyRateManager: React.FC = () => {
                 <span className="text-secondary/30">=</span>
               </div>
               <div className="flex-1">
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
+                <NumberInput
                   value={inputRate}
                   onChange={e => setInputRate(e.target.value)}
                   className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl

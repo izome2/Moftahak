@@ -564,7 +564,7 @@ function ModalOverlay({ children, onClose }: { children: React.ReactNode; onClos
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl border-2 border-primary/20 space-y-0"
+        className="bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl p-6 w-full max-w-sm shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] border-2 border-[#e0cdb8] space-y-0"
         dir="rtl"
       >
         {children}

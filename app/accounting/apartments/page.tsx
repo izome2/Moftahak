@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
+import { getEffectiveAccountingRole } from '@/lib/permissions';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
 import ApartmentCard from '@/components/accounting/apartments/ApartmentCard';
 import ApartmentForm from '@/components/accounting/apartments/ApartmentForm';
@@ -51,6 +52,8 @@ const getCurrentMonth = () => {
 export default function ApartmentsPage() {
   const { data: session } = useSession();
   const canManage = session?.user?.role === 'GENERAL_MANAGER' || session?.user?.role === 'ADMIN';
+  const effectiveRole = getEffectiveAccountingRole(session?.user?.role || '');
+  const isOpsManager = effectiveRole === 'OPS_MANAGER';
 
   const [apartments, setApartments] = useState<Apartment[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -312,6 +315,7 @@ export default function ApartmentsPage() {
                     summary={summaries[apt.id] || null}
                     index={i}
                     isLoading={summariesLoading}
+                    hideRevenue={isOpsManager}
                   />
                 ))}
               </div>

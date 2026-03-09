@@ -13,6 +13,7 @@ import {
   errorResponse,
   notFoundResponse,
 } from '@/lib/accounting-auth';
+import { getEffectiveAccountingRole } from '@/lib/permissions';
 import { updateBookingSchema } from '@/lib/validations/accounting';
 import { refreshMonthlySnapshot, getMonthKey } from '@/lib/accounting/snapshot';
 import { checkMonthLock } from '@/lib/accounting/month-lock';
@@ -64,6 +65,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     where: { id, deletedAt: null },
   });
   if (!existing) return notFoundResponse('الحجز');
+
+  // 🔒 مدير الحجوزات: لا يمكنه تعديل تاريخ الدخول لتاريخ في الماضي
+  const putEffectiveRole = getEffectiveAccountingRole(authResult.role);
+  if (putEffectiveRole === 'BOOKING_MANAGER' && parsed.data.checkIn) {
+    const checkInDate = new Date(parsed.data.checkIn);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (checkInDate < today) {
+      return errorResponse('لا يمكنك تعديل تاريخ الدخول لتاريخ في الماضي', 400);
+    }
+  }
 
   // 🔒 التحقق من قفل الشهر (الشهر الأصلي)
   const lockCheck = await checkMonthLock(existing.apartmentId, existing.checkIn);

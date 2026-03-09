@@ -5,12 +5,13 @@ import { motion } from 'framer-motion';
 import { DollarSign, CalendarCheck, Moon, TrendingUp, Building2 } from 'lucide-react';
 
 interface BookingSummaryProps {
-  totalRevenue: number;
+  totalRevenue?: number;
   totalBookings: number;
   totalNights: number;
   averagePerNight?: number;
   apartmentsCount?: number;
   isLoading?: boolean;
+  hideFinancials?: boolean;
 }
 
 const formatCurrency = (amount: number) =>
@@ -23,18 +24,20 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
   averagePerNight,
   apartmentsCount,
   isLoading = false,
+  hideFinancials = false,
 }) => {
-  const avg = averagePerNight ?? (totalNights > 0 ? totalRevenue / totalNights : 0);
+  const revenue = totalRevenue ?? 0;
+  const avg = averagePerNight ?? (totalNights > 0 ? revenue / totalNights : 0);
 
   const cards = [
-    {
+    ...(!hideFinancials ? [{
       label: 'إجمالي الإيرادات',
-      value: formatCurrency(totalRevenue),
+      value: formatCurrency(revenue),
       icon: DollarSign,
       bgColor: 'bg-[#8a9a7a]/12',
       iconColor: 'text-[#8a9a7a]',
       valueColor: 'text-[#8a9a7a]',
-    },
+    }] : []),
     {
       label: 'عدد الحجوزات',
       value: String(totalBookings),
@@ -51,14 +54,14 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
       iconColor: 'text-secondary/60',
       valueColor: 'text-secondary',
     },
-    {
+    ...(!hideFinancials ? [{
       label: 'متوسط الليلة',
       value: formatCurrency(Math.round(avg)),
       icon: TrendingUp,
       bgColor: 'bg-primary/20',
       iconColor: 'text-primary',
       valueColor: 'text-secondary',
-    },
+    }] : []),
     ...(apartmentsCount !== undefined ? [{
       label: 'شقق نشطة',
       value: String(apartmentsCount),
@@ -70,7 +73,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+    <div className={`grid grid-cols-2 gap-3 ${hideFinancials ? 'sm:grid-cols-3' : 'sm:grid-cols-3 lg:grid-cols-5'}`}>
       {cards.map((card, i) => (
         <motion.div
           key={card.label}

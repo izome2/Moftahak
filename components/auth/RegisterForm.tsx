@@ -19,11 +19,12 @@ import {
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
   onSuccess?: () => void;
+  inviteCode?: string;
 }
 
 type RegistrationMethod = 'email' | 'phone' | null;
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin, onSuccess }) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin, onSuccess, inviteCode }) => {
   // Registration method (null = selection screen, 'email' or 'phone' = form)
   const [registrationMethod, setRegistrationMethod] = useState<RegistrationMethod>(null);
   
@@ -447,6 +448,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin, onSuccess 
           password: formData.password,
           confirmPassword: formData.confirmPassword,
           phoneVerified: registrationMethod === 'phone' ? isPhoneVerified : undefined,
+          inviteCode: inviteCode || undefined,
         }),
       });
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { ZodError, z } from 'zod';
+import type { Role } from '@/generated/prisma';
 
 // Custom register validation for phone/email support
 const registerValidation = z.object({
@@ -16,6 +17,7 @@ const registerValidation = z.object({
     .regex(/[0-9]/, 'كلمة المرور يجب أن تحتوي على رقم'),
   confirmPassword: z.string(),
   phoneVerified: z.boolean().optional(),
+  inviteCode: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'كلمة المرور غير متطابقة',
   path: ['confirmPassword'],
@@ -102,6 +104,40 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await hash(validatedData.password, 10);
 
+    // Determine role - check invite code
+    let assignedRole: Role = 'USER';
+    let invitationId: string | null = null;
+
+    if (validatedData.inviteCode) {
+      const invitation = await prisma.invitation.findUnique({
+        where: { code: validatedData.inviteCode },
+      });
+
+      if (!invitation) {
+        return NextResponse.json(
+          { success: false, message: 'رابط الدعوة غير صالح', error: 'INVALID_INVITE' },
+          { status: 400 }
+        );
+      }
+
+      if (invitation.used) {
+        return NextResponse.json(
+          { success: false, message: 'تم استخدام رابط الدعوة بالفعل', error: 'INVITE_USED' },
+          { status: 410 }
+        );
+      }
+
+      if (new Date() > invitation.expiresAt) {
+        return NextResponse.json(
+          { success: false, message: 'انتهت صلاحية رابط الدعوة', error: 'INVITE_EXPIRED' },
+          { status: 410 }
+        );
+      }
+
+      assignedRole = invitation.role;
+      invitationId = invitation.id;
+    }
+
     // Prepare user data
     const userData: {
       firstName: string;
@@ -109,13 +145,13 @@ export async function POST(request: NextRequest) {
       email?: string;
       phone?: string;
       password: string;
-      role: 'USER';
+      role: Role;
       phoneVerified?: Date;
     } = {
       firstName: validatedData.firstName,
       lastName: validatedData.lastName,
       password: hashedPassword,
-      role: 'USER',
+      role: assignedRole,
     };
 
     if (isUsingEmail && validatedData.email) {
@@ -141,6 +177,18 @@ export async function POST(request: NextRequest) {
         createdAt: true,
       },
     });
+
+    // Mark invitation as used (single-use)
+    if (invitationId) {
+      await prisma.invitation.update({
+        where: { id: invitationId },
+        data: {
+          used: true,
+          usedAt: new Date(),
+          usedById: user.id,
+        },
+      });
+    }
 
     return NextResponse.json(
       {

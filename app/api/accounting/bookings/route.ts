@@ -13,6 +13,7 @@ import {
   successResponse,
   errorResponse,
 } from '@/lib/accounting-auth';
+import { getEffectiveAccountingRole } from '@/lib/permissions';
 import { createBookingSchema } from '@/lib/validations/accounting';
 import { refreshMonthlySnapshot, getMonthKey } from '@/lib/accounting/snapshot';
 import { checkMonthLock } from '@/lib/accounting/month-lock';
@@ -27,6 +28,9 @@ export async function GET(request: NextRequest) {
     'canViewBookings', 'canAddBookings', 'canViewAllData',
   ]);
   if (authResult.error) return authResult.error;
+
+  const effectiveRole = getEffectiveAccountingRole(authResult.role);
+  const isBookingManager = effectiveRole === 'BOOKING_MANAGER';
 
   const { searchParams } = new URL(request.url);
   const apartmentId = searchParams.get('apartmentId');
@@ -65,11 +69,16 @@ export async function GET(request: NextRequest) {
     where,
   });
 
+  // 🔒 مدير الحجوزات: إخفاء المبالغ المالية
+  const responseBookings = isBookingManager
+    ? bookings.map(b => ({ ...b, amount: undefined, currency: undefined }))
+    : bookings;
+
   return successResponse({
-    bookings,
+    bookings: responseBookings,
     totals: {
       count: totals._count,
-      amount: totals._sum.amount || 0,
+      amount: isBookingManager ? undefined : (totals._sum.amount || 0),
       nights: totals._sum.nights || 0,
     },
   });
@@ -87,6 +96,17 @@ export async function POST(request: NextRequest) {
   const parsed = createBookingSchema.safeParse(body);
   if (!parsed.success) {
     return errorResponse(parsed.error.issues[0]?.message || 'بيانات غير صالحة');
+  }
+
+  // 🔒 مدير الحجوزات: لا يمكنه إضافة حجز بتاريخ دخول في الماضي
+  const postEffectiveRole = getEffectiveAccountingRole(authResult.role);
+  if (postEffectiveRole === 'BOOKING_MANAGER') {
+    const checkInDate = new Date(parsed.data.checkIn);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (checkInDate < today) {
+      return errorResponse('لا يمكنك إضافة حجز بتاريخ دخول في الماضي', 400);
+    }
   }
 
   // التحقق من وجود الشقة

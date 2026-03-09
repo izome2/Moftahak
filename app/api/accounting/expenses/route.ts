@@ -17,6 +17,8 @@ import { createExpenseSchema } from '@/lib/validations/accounting';
 import { refreshMonthlySnapshot, getMonthKey } from '@/lib/accounting/snapshot';
 import { checkMonthLock } from '@/lib/accounting/month-lock';
 import { logAuditEvent, getClientIP, sanitizeForAudit } from '@/lib/accounting/audit';
+import { getEffectiveAccountingRole } from '@/lib/permissions';
+import { getAssignedApartmentIds } from '@/lib/accounting/ops-manager';
 
 // GET /api/accounting/expenses?apartmentId=...&month=YYYY-MM&category=...
 export async function GET(request: NextRequest) {
@@ -44,6 +46,17 @@ export async function GET(request: NextRequest) {
       gte: new Date(year, m - 1, 1),
       lt: new Date(year, m, 1),
     };
+  }
+
+  // 🔒 مدير التشغيل يرى مصروفاته فقط + الشقق المعينة له فقط
+  const effectiveRole = getEffectiveAccountingRole(authResult.role);
+  if (effectiveRole === 'OPS_MANAGER') {
+    where.createdById = authResult.userId;
+    // تقييد بالشقق المعينة
+    const assignedIds = await getAssignedApartmentIds(authResult.userId);
+    if (assignedIds.length > 0 && !apartmentId) {
+      where.apartmentId = { in: assignedIds };
+    }
   }
 
   const expenses = await prisma.expense.findMany({
@@ -102,9 +115,21 @@ export async function POST(request: NextRequest) {
   });
   if (!apartment) return errorResponse('الشقة غير موجودة', 404);
 
+  // 🔒 مدير التشغيل يضيف مصروفات فقط للشقق المعينة له
+  const effectiveRole = getEffectiveAccountingRole(authResult.role);
+  if (effectiveRole === 'OPS_MANAGER') {
+    const assignedIds = await getAssignedApartmentIds(authResult.userId);
+    if (assignedIds.length > 0 && !assignedIds.includes(parsed.data.apartmentId)) {
+      return errorResponse('لا يمكنك إضافة مصروفات لشقة غير معينة لك', 403);
+    }
+  }
+
   // 🔒 التحقق من قفل الشهر
   const lockCheck = await checkMonthLock(parsed.data.apartmentId, new Date(parsed.data.date));
   if (lockCheck.locked) return errorResponse(lockCheck.message!, 403);
+
+  // تحديد حالة الاعتماد: المدير العام → معتمد تلقائياً، غيره → في الانتظار
+  const isAutoApproved = effectiveRole === 'GENERAL_MANAGER';
 
   const expense = await prisma.expense.create({
     data: {
@@ -116,15 +141,20 @@ export async function POST(request: NextRequest) {
       date: new Date(parsed.data.date),
       notes: parsed.data.notes,
       createdById: authResult.userId,
+      approvalStatus: isAutoApproved ? 'APPROVED' : 'PENDING',
+      approvedById: isAutoApproved ? authResult.userId : undefined,
+      approvedAt: isAutoApproved ? new Date() : undefined,
     },
     include: {
       apartment: { select: { id: true, name: true } },
     },
   });
 
-  // ⚡ تحديث MonthlySnapshot
-  const month = getMonthKey(expense.date);
-  await refreshMonthlySnapshot(expense.apartmentId, month);
+  // ⚡ تحديث MonthlySnapshot فقط للمصروفات المعتمدة
+  const expenseMonth = getMonthKey(expense.date);
+  if (isAutoApproved) {
+    await refreshMonthlySnapshot(expense.apartmentId, expenseMonth);
+  }
 
   // 📝 Audit Trail
   const user = await prisma.user.findUnique({
@@ -138,7 +168,7 @@ export async function POST(request: NextRequest) {
     entity: 'EXPENSE',
     entityId: expense.id,
     after: sanitizeForAudit(expense as unknown as Record<string, unknown>),
-    metadata: { apartmentId: expense.apartmentId, apartmentName: expense.apartment.name, month },
+    metadata: { apartmentId: expense.apartmentId, apartmentName: expense.apartment.name, month: expenseMonth },
     ipAddress: getClientIP(request),
   });
 

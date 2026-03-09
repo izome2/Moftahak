@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CalendarCheck, Loader2, Calendar, Phone, User, CreditCard, Clock, FileText, Building2 } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
+import NumberInput from '@/components/accounting/shared/NumberInput';
 
 interface Apartment {
   id: string;
@@ -33,6 +34,8 @@ interface BookingFormProps {
   onSubmit: (data: BookingFormData) => Promise<void>;
   initialData?: BookingFormData | null;
   apartments: Apartment[];
+  hideFinancials?: boolean;
+  blockPastDates?: boolean;
 }
 
 const SOURCE_OPTIONS = [
@@ -62,6 +65,8 @@ const BookingForm: React.FC<BookingFormProps> = ({
   onSubmit,
   initialData,
   apartments,
+  hideFinancials = false,
+  blockPastDates = false,
 }) => {
   const isEdit = !!initialData?.id;
 
@@ -141,7 +146,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
     if (!formData.checkIn) { setError('تاريخ الدخول مطلوب'); return; }
     if (!formData.checkOut) { setError('تاريخ الخروج مطلوب'); return; }
     if (computedNights < 1) { setError('تاريخ الخروج يجب أن يكون بعد تاريخ الدخول'); return; }
-    if (formData.amount <= 0) { setError('القيمة المالية يجب أن تكون أكبر من 0'); return; }
+    if (!hideFinancials && formData.amount <= 0) { setError('القيمة المالية يجب أن تكون أكبر من 0'); return; }
 
     try {
       setIsSubmitting(true);
@@ -194,7 +199,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg border-2 border-primary/20 overflow-hidden max-h-[90vh] flex flex-col"
+            className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-lg border-2 border-[#e0cdb8] overflow-hidden max-h-[90vh] flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-primary/10 shrink-0">
@@ -228,6 +233,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                   className="w-full"
                   placeholder="اختر الشقة"
                   required
+                  emptyMessage="لا يوجد شقق حتى الآن"
                   options={Array.from(grouped.entries()).map(([project, apts]) => ({
                     label: project,
                     options: apts.map(a => ({ value: a.id, label: a.name })),
@@ -307,6 +313,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                     type="date"
                     value={formData.checkIn}
                     onChange={(e) => update('checkIn', e.target.value)}
+                    min={blockPastDates ? getToday() : undefined}
                     className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors"
                     required
                   />
@@ -328,7 +335,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
               </div>
 
               {/* Nights (auto) + Amount */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className={`grid gap-3 ${hideFinancials ? 'grid-cols-1' : 'grid-cols-2'}`}>
                 <div>
                   <label className="text-sm font-bold text-secondary font-dubai mb-1.5 block">
                     عدد الليالي
@@ -341,23 +348,22 @@ const BookingForm: React.FC<BookingFormProps> = ({
                     )}
                   </div>
                 </div>
+                {!hideFinancials && (
                 <div>
                   <label className="flex items-center gap-1.5 text-sm font-bold text-secondary font-dubai mb-1.5">
                     <CreditCard size={14} className="text-[#8a9a7a]" />
                     القيمة المالية <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="number"
+                  <NumberInput
                     value={formData.amount || ''}
                     onChange={(e) => update('amount', parseFloat(e.target.value) || 0)}
                     placeholder="0"
-                    min="0"
-                    step="0.01"
                     className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30 ltr text-left"
                     dir="ltr"
                     required
                   />
                 </div>
+                )}
               </div>
 
               {/* Arrival Time + Status (edit only) */}

@@ -13,6 +13,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
+import NumberInput from '@/components/accounting/shared/NumberInput';
 
 interface Investment {
   id: string;
@@ -112,7 +113,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
           initial={{ opacity: 0, scale: 0.95, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 12 }}
-          className="relative bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden z-10 border-2 border-primary/20"
+          className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-md overflow-hidden z-10 border-2 border-[#e0cdb8]"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b-2 border-primary/10
@@ -151,6 +152,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                   className="w-full"
                   placeholder="اختر الشقة..."
                   required
+                  emptyMessage="لا يوجد استثمارات حتى الآن"
                   options={investments.map(inv => ({
                     value: inv.id,
                     label: `${inv.apartment.name} (${(inv.percentage * 100).toFixed(1)}%)`,
@@ -175,10 +177,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                   <DollarSign className="w-3 h-3" />
                   المبلغ
                 </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
+                <NumberInput
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"

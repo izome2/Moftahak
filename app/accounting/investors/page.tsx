@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import InvestorsList from '@/components/accounting/investors/InvestorsList';
 import AssignInvestorModal from '@/components/accounting/investors/AssignInvestorModal';
 import WithdrawalForm from '@/components/accounting/investors/WithdrawalForm';
+import NumberInput from '@/components/accounting/shared/NumberInput';
 
 // --- Types ---
 interface InvestmentInfo {
@@ -349,7 +350,7 @@ export default function InvestorsPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden z-10 border-2 border-primary/20"
+              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm overflow-hidden z-10 border-2 border-[#e0cdb8]"
             >
                 <div className="flex items-center justify-between px-5 py-4 border-b-2 border-primary/10">
                 <h2 className="text-base font-bold text-secondary font-dubai">تعديل النسبة</h2>
@@ -358,11 +359,7 @@ export default function InvestorsPage() {
               <form onSubmit={handleEditSubmit} className="p-5 space-y-4" dir="rtl">
                 <div>
                   <label className="text-xs font-medium text-secondary/70 mb-1.5 block font-dubai">النسبة (%)</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="1"
-                    max="100"
+                  <NumberInput
                     value={editPercentage}
                     onChange={(e) => setEditPercentage(e.target.value)}
                     className="w-full px-3 py-2.5 text-sm border-2 border-primary/20 rounded-xl
@@ -372,10 +369,7 @@ export default function InvestorsPage() {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-secondary/70 mb-1.5 block font-dubai">الهدف السنوي</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
+                  <NumberInput
                     value={editTarget}
                     onChange={(e) => setEditTarget(e.target.value)}
                     className="w-full px-3 py-2.5 text-sm border-2 border-primary/20 rounded-xl
@@ -415,7 +409,7 @@ export default function InvestorsPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-5 z-10 border-2 border-primary/20"
+              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm p-5 z-10 border-2 border-[#e0cdb8]"
             >
               <h3 className="text-base font-bold text-secondary font-dubai mb-2">
                 تأكيد الإزالة

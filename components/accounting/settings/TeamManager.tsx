@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users,
-  Plus,
   Pencil,
   Trash2,
   Loader2,
@@ -49,17 +48,6 @@ const TeamManager: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Create form
-  const [showCreate, setShowCreate] = useState(false);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<string>('BOOKING_MANAGER');
-  const [isSaving, setIsSaving] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-
   // Edit
   const [editMember, setEditMember] = useState<TeamMember | null>(null);
   const [editRole, setEditRole] = useState('');
@@ -84,55 +72,6 @@ const TeamManager: React.FC = () => {
   }, []);
 
   useEffect(() => { fetchTeam(); }, [fetchTeam]);
-
-  const resetCreateForm = () => {
-    setFirstName('');
-    setLastName('');
-    setEmail('');
-    setPhone('');
-    setPassword('');
-    setRole('BOOKING_MANAGER');
-    setFormError(null);
-  };
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!firstName.trim() || !lastName.trim()) {
-      setFormError('الاسم الأول واسم العائلة مطلوبان');
-      return;
-    }
-    if (!password || password.length < 6) {
-      setFormError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
-      return;
-    }
-
-    setIsSaving(true);
-    setFormError(null);
-
-    try {
-      const res = await fetch('/api/accounting/settings/team', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-          email: email.trim() || null,
-          phone: phone.trim() || null,
-          password,
-          role,
-        }),
-      });
-      const json = await res.json();
-      if (!res.ok) { setFormError(json.error || 'حدث خطأ'); return; }
-      setShowCreate(false);
-      resetCreateForm();
-      fetchTeam();
-    } catch {
-      setFormError('فشل الاتصال');
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   const openEdit = (m: TeamMember) => {
     setEditMember(m);
@@ -189,15 +128,8 @@ const TeamManager: React.FC = () => {
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-secondary font-dubai flex items-center gap-2">
           <Users className="w-4 h-4" />
-          إدارة الفريق
+          أعضاء الفريق الحاليين
         </h3>
-        <button
-          onClick={() => { resetCreateForm(); setShowCreate(true); }}
-          className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold
-            bg-secondary text-white rounded-lg hover:bg-secondary/90 transition font-dubai"
-        >
-          <Plus className="w-3 h-3" /> عضو جديد
-        </button>
       </div>
 
       {error && (
@@ -257,93 +189,6 @@ const TeamManager: React.FC = () => {
         </div>
       )}
 
-      {/* Create Modal */}
-      <AnimatePresence>
-        {showCreate && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setShowCreate(false)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-white rounded-2xl shadow-xl w-full max-w-md z-10 overflow-hidden"
-            >
-              <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
-                <h4 className="text-sm font-bold text-secondary font-dubai">عضو جديد</h4>
-                <button onClick={() => setShowCreate(false)}><X className="w-4 h-4 text-secondary/40" /></button>
-              </div>
-              <form onSubmit={handleCreate} className="p-5 space-y-3" dir="rtl">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">الاسم الأول *</label>
-                    <input
-                      value={firstName} onChange={e => setFirstName(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">اسم العائلة *</label>
-                    <input
-                      value={lastName} onChange={e => setLastName(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
-                      required
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">البريد الإلكتروني</label>
-                  <input
-                    type="email" value={email} onChange={e => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
-                    dir="ltr"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">الهاتف</label>
-                  <input
-                    value={phone} onChange={e => setPhone(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
-                    dir="ltr"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">كلمة المرور *</label>
-                  <input
-                    type="password" value={password} onChange={e => setPassword(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
-                    dir="ltr" minLength={6} required
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai flex items-center gap-1">
-                    <Shield className="w-3 h-3" /> الدور *
-                  </label>
-                  <CustomSelect
-                    value={role}
-                    onChange={setRole}
-                    className="w-full"
-                    required
-                    options={ACCOUNTING_ROLES.map(r => ({ value: r, label: ROLE_LABELS[r] }))}
-                  />
-                </div>
-                {formError && <p className="text-xs text-red-600 font-dubai">{formError}</p>}
-                <button
-                  type="submit" disabled={isSaving}
-                  className="w-full py-2.5 bg-secondary text-white rounded-xl text-sm font-bold font-dubai
-                    hover:bg-secondary/90 disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {isSaving ? 'جاري الإنشاء...' : 'إنشاء العضو'}
-                </button>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
       {/* Edit Modal */}
       <AnimatePresence>
         {editMember && (
@@ -355,7 +200,7 @@ const TeamManager: React.FC = () => {
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm z-10 overflow-hidden"
+              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm z-10 overflow-hidden border-2 border-[#e0cdb8]"
             >
               <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
                 <h4 className="text-sm font-bold text-secondary font-dubai">تعديل العضو</h4>
@@ -416,7 +261,7 @@ const TeamManager: React.FC = () => {
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-5 z-10"
+              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm p-5 z-10 border-2 border-[#e0cdb8]"
             >
               <h4 className="text-sm font-bold text-secondary font-dubai mb-2">حذف العضو</h4>
               <p className="text-xs text-secondary/70 font-dubai mb-4">

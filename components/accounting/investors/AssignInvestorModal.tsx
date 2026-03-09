@@ -12,6 +12,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
+import NumberInput from '@/components/accounting/shared/NumberInput';
 
 interface Apartment {
   id: string;
@@ -146,7 +147,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
           initial={{ opacity: 0, scale: 0.95, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 12 }}
-          className="relative bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden z-10 border-2 border-primary/20"
+          className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-md overflow-hidden z-10 border-2 border-[#e0cdb8]"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b-2 border-primary/10">
@@ -179,6 +180,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
                 className="w-full"
                 placeholder="اختر الشقة..."
                 required
+                emptyMessage="لا يوجد شقق حتى الآن"
                 options={apartments.map(apt => ({
                   value: apt.id,
                   label: `${apt.name}${apt.project ? ` (${apt.project.name})` : ''}`,
@@ -204,6 +206,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
                   className="w-full"
                   placeholder="اختر المستثمر..."
                   required
+                  emptyMessage="لا يوجد مستثمرين حتى الآن"
                   options={investorUsers.map(u => ({
                     value: u.id,
                     label: `${u.firstName} ${u.lastName}${u.email ? ` (${u.email})` : ''}`,
@@ -218,11 +221,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
                 <Percent className="w-3 h-3" />
                 النسبة (%)
               </label>
-              <input
-                type="number"
-                step="0.1"
-                min="1"
-                max="100"
+              <NumberInput
                 value={percentage}
                 onChange={(e) => setPercentage(e.target.value)}
                 placeholder="مثال: 20"
@@ -239,10 +238,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
                 <Target className="w-3 h-3" />
                 الهدف السنوي (اختياري)
               </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
+              <NumberInput
                 value={investmentTarget}
                 onChange={(e) => setInvestmentTarget(e.target.value)}
                 placeholder="مثال: 3000"

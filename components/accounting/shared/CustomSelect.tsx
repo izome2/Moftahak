@@ -38,6 +38,7 @@ interface CustomSelectProps {
   className?: string;
   disabled?: boolean;
   required?: boolean;
+  emptyMessage?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -54,6 +55,7 @@ export default function CustomSelect({
   className = '',
   disabled = false,
   required = false,
+  emptyMessage,
 }: CustomSelectProps) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<React.CSSProperties>({});
@@ -202,7 +204,11 @@ export default function CustomSelect({
               shadow-[0_8px_32px_rgba(237,191,140,0.20)]"
           >
             <div className="overflow-y-auto p-1.5" style={{ maxHeight: 'inherit' }}>
-              {options.map((item, i) =>
+              {options.length === 0 && emptyMessage ? (
+                <div className="px-3 py-4 text-center text-sm text-secondary/40 font-dubai">
+                  {emptyMessage}
+                </div>
+              ) : options.map((item, i) =>
                 isGroup(item) ? (
                   <div key={`grp-${i}`}>
                     {i > 0 && <div className="mx-2 my-1.5 border-t border-primary/8" />}

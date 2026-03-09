@@ -108,7 +108,7 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            className="relative bg-white rounded-2xl shadow-xl w-full max-w-md border-2 border-primary/20 overflow-hidden"
+            className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-md border-2 border-[#e0cdb8] overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-primary/10">
@@ -139,6 +139,7 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
                   className="w-full"
                   placeholder="اختر المشروع"
                   required
+                  emptyMessage="لا يوجد مشاريع حتى الآن"
                   options={projects.map(p => ({ value: p.id, label: p.name }))}
                 />
               </div>

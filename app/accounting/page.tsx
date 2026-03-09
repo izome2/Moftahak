@@ -13,8 +13,10 @@ import {
   ChevronRight,
   ChevronLeft,
   RefreshCw,
+  ClipboardCheck,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { formatNumber } from '@/lib/utils';
 import AccountingStatsCard from '@/components/accounting/dashboard/StatsCards';
 import RevenueExpenseChart from '@/components/accounting/dashboard/RevenueExpenseChart';
 import ExpensePieChart from '@/components/accounting/dashboard/ExpensePieChart';
@@ -25,12 +27,13 @@ import DailyAlerts from '@/components/accounting/dashboard/DailyAlerts';
 
 // --- Types ---
 interface DashboardStats {
-  totalRevenue: number;
+  totalRevenue?: number;
   totalExpenses: number;
-  profit: number;
-  bookingsCount: number;
+  profit?: number;
+  bookingsCount?: number;
   apartmentsCount: number;
-  occupancyRate: number;
+  occupancyRate?: number;
+  pendingExpensesCount?: number;
 }
 
 interface MonthlyTrend {
@@ -87,8 +90,11 @@ interface CheckOutItem {
   checkOut: string;
 }
 
+type AccountingRole = 'GENERAL_MANAGER' | 'OPS_MANAGER' | 'BOOKING_MANAGER' | 'INVESTOR';
+
 interface DashboardData {
   month: string;
+  role: AccountingRole;
   stats: DashboardStats;
   charts: {
     monthlyTrend: MonthlyTrend[];
@@ -164,6 +170,9 @@ export default function AccountingDashboardPage() {
   const goToPrevMonth = () => setMonth(prev => changeMonth(prev, -1));
   const goToNextMonth = () => setMonth(prev => changeMonth(prev, 1));
   const isCurrentMonth = month === getCurrentMonth();
+
+  // الدور الفعلي من استجابة API
+  const role = data?.role || 'GENERAL_MANAGER';
 
   return (
     <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
@@ -258,138 +267,186 @@ export default function AccountingDashboardPage() {
         </motion.div>
       )}
 
-      {/* Stats Cards - 6 cards in responsive grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
-        <AccountingStatsCard
-          icon={DollarSign}
-          label="إجمالي الإيرادات"
-          value={data ? formatCurrency(data.stats.totalRevenue) : '...'}
-          iconBgColor="bg-green-100"
-          iconColor="text-green-600"
-          index={0}
-          isLoading={isLoading}
-        />
-        <AccountingStatsCard
-          icon={Receipt}
-          label="إجمالي المصروفات"
-          value={data ? formatCurrency(data.stats.totalExpenses) : '...'}
-          iconBgColor="bg-red-100"
-          iconColor="text-red-500"
-          index={1}
-          isLoading={isLoading}
-        />
-        <AccountingStatsCard
-          icon={TrendingUp}
-          label="صافي الربح"
-          value={data ? formatCurrency(data.stats.profit) : '...'}
-          iconBgColor="bg-primary/20"
-          iconColor="text-primary"
-          index={2}
-          isLoading={isLoading}
-        />
-        <AccountingStatsCard
-          icon={CalendarCheck}
-          label="عدد الحجوزات"
-          value={data ? String(data.stats.bookingsCount) : '...'}
-          iconBgColor="bg-blue-100"
-          iconColor="text-blue-600"
-          index={3}
-          isLoading={isLoading}
-        />
+      {/* Stats Cards - filtered by role */}
+      <div className={`grid grid-cols-2 gap-3 sm:gap-4 ${
+        role === 'OPS_MANAGER' ? 'md:grid-cols-2' :
+        role === 'BOOKING_MANAGER' ? 'md:grid-cols-3' :
+        'md:grid-cols-3 xl:grid-cols-6'
+      }`}>
+        {/* الإيرادات - ليست لمدير التشغيل أو مدير الحجوزات */}
+        {role !== 'OPS_MANAGER' && role !== 'BOOKING_MANAGER' && (
+          <AccountingStatsCard
+            icon={DollarSign}
+            label="إجمالي الإيرادات"
+            value={data ? formatCurrency(data.stats.totalRevenue ?? 0) : '...'}
+            iconBgColor="bg-green-100"
+            iconColor="text-green-600"
+            index={0}
+            isLoading={isLoading}
+          />
+        )}
+        {/* المصروفات - ليست لمدير الحجوزات */}
+        {role !== 'BOOKING_MANAGER' && (
+          <AccountingStatsCard
+            icon={Receipt}
+            label="إجمالي المصروفات"
+            value={data ? formatCurrency(data.stats.totalExpenses) : '...'}
+            iconBgColor="bg-red-100"
+            iconColor="text-red-500"
+            index={1}
+            isLoading={isLoading}
+          />
+        )}
+        {/* الربح - فقط للمدير العام */}
+        {role === 'GENERAL_MANAGER' && (
+          <AccountingStatsCard
+            icon={TrendingUp}
+            label="صافي الربح"
+            value={data ? formatCurrency(data.stats.profit ?? 0) : '...'}
+            iconBgColor="bg-primary/20"
+            iconColor="text-primary"
+            index={2}
+            isLoading={isLoading}
+          />
+        )}
+        {/* الحجوزات - ليست لمدير التشغيل */}
+        {role !== 'OPS_MANAGER' && (
+          <AccountingStatsCard
+            icon={CalendarCheck}
+            label="عدد الحجوزات"
+            value={data ? formatNumber(data.stats.bookingsCount ?? 0) : '...'}
+            iconBgColor="bg-blue-100"
+            iconColor="text-blue-600"
+            index={3}
+            isLoading={isLoading}
+          />
+        )}
+        {/* عدد الشقق - للجميع */}
         <AccountingStatsCard
           icon={Building2}
           label="عدد الشقق"
-          value={data ? String(data.stats.apartmentsCount) : '...'}
+          value={data ? formatNumber(data.stats.apartmentsCount) : '...'}
           iconBgColor="bg-purple-100"
           iconColor="text-purple-600"
           index={4}
           isLoading={isLoading}
         />
-        <AccountingStatsCard
-          icon={Percent}
-          label="نسبة الإشغال"
-          value={data ? `${data.stats.occupancyRate}%` : '...'}
-          subtitle={data ? `من ${data.stats.apartmentsCount} شقة` : undefined}
-          iconBgColor="bg-orange-100"
-          iconColor="text-orange-600"
-          index={5}
-          isLoading={isLoading}
-        />
+        {/* الإشغال - ليست لمدير التشغيل */}
+        {role !== 'OPS_MANAGER' && (
+          <AccountingStatsCard
+            icon={Percent}
+            label="نسبة الإشغال"
+            value={data ? `${formatNumber(data.stats.occupancyRate ?? 0)}%` : '...'}
+            subtitle={data ? `من ${formatNumber(data.stats.apartmentsCount)} شقة` : undefined}
+            iconBgColor="bg-orange-100"
+            iconColor="text-orange-600"
+            index={5}
+            isLoading={isLoading}
+          />
+        )}
+        {/* مصروفات في انتظار الموافقة - فقط للمدير العام */}
+        {role === 'GENERAL_MANAGER' && (data?.stats.pendingExpensesCount ?? 0) > 0 && (
+          <AccountingStatsCard
+            icon={ClipboardCheck}
+            label="بانتظار الموافقة"
+            value={data ? formatNumber(data.stats.pendingExpensesCount ?? 0) : '...'}
+            iconBgColor="bg-amber-100"
+            iconColor="text-amber-600"
+            index={6}
+            isLoading={isLoading}
+          />
+        )}
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* Revenue vs Expenses Line Chart */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-          className="bg-white border-2 border-primary/20 p-5 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
-        >
-          <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
-            <TrendingUp size={18} className="text-primary" />
-            الإيرادات والمصروفات (آخر 12 شهر)
-          </h3>
-          <RevenueExpenseChart
-            data={data?.charts.monthlyTrend || []}
-            isLoading={isLoading}
-          />
-        </motion.div>
+      <div className={`grid grid-cols-1 gap-4 sm:gap-6 ${
+        role === 'OPS_MANAGER' || role === 'BOOKING_MANAGER' ? '' : 'lg:grid-cols-2'
+      }`}>
+        {/* Revenue vs Expenses Line Chart - فقط للمدير العام */}
+        {role !== 'OPS_MANAGER' && role !== 'BOOKING_MANAGER' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className="bg-white border-2 border-primary/20 p-5 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+          >
+            <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
+              <TrendingUp size={18} className="text-primary" />
+              الإيرادات والمصروفات (آخر 12 شهر)
+            </h3>
+            <RevenueExpenseChart
+              data={data?.charts.monthlyTrend || []}
+              isLoading={isLoading}
+            />
+          </motion.div>
+        )}
 
-        {/* Expenses Pie Chart */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-white border-2 border-primary/20 p-5 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
-        >
-          <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
-            <Receipt size={18} className="text-red-400" />
-            توزيع المصروفات حسب القسم
-          </h3>
-          <ExpensePieChart
-            data={data?.charts.expensesByCategory || []}
-            isLoading={isLoading}
-          />
-        </motion.div>
+        {/* Expenses Pie Chart - ليس لمدير الحجوزات */}
+        {role !== 'BOOKING_MANAGER' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-white border-2 border-primary/20 p-5 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+          >
+            <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
+              <Receipt size={18} className="text-red-400" />
+              توزيع المصروفات حسب القسم
+            </h3>
+            <ExpensePieChart
+              data={data?.charts.expensesByCategory || []}
+              isLoading={isLoading}
+            />
+          </motion.div>
+        )}
       </div>
 
-      {/* Booking Sources Chart (full width) */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.25 }}
-        className="bg-white border-2 border-primary/20 p-5 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
-      >
-        <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
-          <CalendarCheck size={18} className="text-blue-500" />
-          مصادر الحجوزات
-        </h3>
-        <div className="max-w-xl mx-auto">
-          <BookingSourceChart
-            data={data?.charts.bookingsBySource || []}
-            isLoading={isLoading}
-          />
-        </div>
-      </motion.div>
+      {/* Booking Sources Chart - ليس لمدير التشغيل أو مدير الحجوزات */}
+      {role !== 'OPS_MANAGER' && role !== 'BOOKING_MANAGER' && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
+          className="bg-white border-2 border-primary/20 p-5 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+        >
+          <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
+            <CalendarCheck size={18} className="text-blue-500" />
+            مصادر الحجوزات
+          </h3>
+          <div className="max-w-xl mx-auto">
+            <BookingSourceChart
+              data={data?.charts.bookingsBySource || []}
+              isLoading={isLoading}
+            />
+          </div>
+        </motion.div>
+      )}
 
       {/* Bottom Section: Recent + Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        {/* Recent Bookings */}
-        <div className="lg:col-span-1">
-          <RecentBookings
-            bookings={data?.recentBookings || []}
-            isLoading={isLoading}
-          />
-        </div>
+      <div className={`grid grid-cols-1 gap-4 sm:gap-6 ${
+        role === 'OPS_MANAGER' ? 'lg:grid-cols-2' :
+        role === 'BOOKING_MANAGER' ? 'lg:grid-cols-2' :
+        'lg:grid-cols-3'
+      }`}>
+        {/* Recent Bookings - ليس لمدير التشغيل */}
+        {role !== 'OPS_MANAGER' && (
+          <div className="lg:col-span-1">
+            <RecentBookings
+              bookings={data?.recentBookings || []}
+              isLoading={isLoading}
+            />
+          </div>
+        )}
 
-        {/* Recent Expenses */}
-        <div className="lg:col-span-1">
-          <RecentExpenses
-            expenses={data?.recentExpenses || []}
-            isLoading={isLoading}
-          />
-        </div>
+        {/* Recent Expenses - ليس لمدير الحجوزات */}
+        {role !== 'BOOKING_MANAGER' && (
+          <div className="lg:col-span-1">
+            <RecentExpenses
+              expenses={data?.recentExpenses || []}
+              isLoading={isLoading}
+            />
+          </div>
+        )}
 
         {/* Daily Alerts */}
         <div className="lg:col-span-1">

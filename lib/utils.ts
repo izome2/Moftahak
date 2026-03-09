@@ -34,3 +34,10 @@ export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength) + '...';
 }
+
+/**
+ * Convert Arabic/Hindi numerals (٠-٩) to Western (0-9)
+ */
+export function toWesternNumerals(str: string): string {
+  return str.replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+}

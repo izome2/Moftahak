@@ -146,12 +146,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const totalWithdrawn = existingWithdrawals._sum.amount || 0;
   const currentBalance = totalInvestorProfit - totalWithdrawn;
 
-  if (parsed.data.amount > currentBalance + 0.01) { // tolerance for floating point
-    return errorResponse(
-      `رصيد المستثمر غير كافٍ. الرصيد المتاح: ${currentBalance.toFixed(2)}. المبلغ المطلوب: ${parsed.data.amount.toFixed(2)}`,
-      400,
-    );
-  }
+  // ✅ يُسمح بالاستلاف (السحب أكثر من الرصيد المتاح) - الرصيد قد يصبح سالباً
 
   const withdrawal = await prisma.withdrawal.create({
     data: {

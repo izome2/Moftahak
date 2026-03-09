@@ -22,6 +22,8 @@ interface ApartmentCardProps {
   } | null;
   index?: number;
   isLoading?: boolean;
+  /** إخفاء الإيرادات والأرباح (مثلاً لمدير التشغيل) */
+  hideRevenue?: boolean;
 }
 
 const formatCurrency = (amount: number) =>
@@ -32,6 +34,7 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
   summary,
   index = 0,
   isLoading = false,
+  hideRevenue = false,
 }) => {
   return (
     <motion.div
@@ -83,25 +86,29 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
             ))}
           </div>
         ) : summary ? (
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-[#8a9a7a]/8 rounded-xl p-2.5 text-center">
-              <p className="text-[10px] text-[#8a9a7a]/70 font-dubai mb-0.5">الإيرادات</p>
-              <p className="text-sm font-bold text-[#8a9a7a] font-dubai">
-                {formatCurrency(summary.totalRevenue)}
-              </p>
-            </div>
+          <div className={`grid gap-3 ${hideRevenue ? 'grid-cols-1' : 'grid-cols-3'}`}>
+            {!hideRevenue && (
+              <div className="bg-[#8a9a7a]/8 rounded-xl p-2.5 text-center">
+                <p className="text-[10px] text-[#8a9a7a]/70 font-dubai mb-0.5">الإيرادات</p>
+                <p className="text-sm font-bold text-[#8a9a7a] font-dubai">
+                  {formatCurrency(summary.totalRevenue)}
+                </p>
+              </div>
+            )}
             <div className="bg-[#c09080]/8 rounded-xl p-2.5 text-center">
               <p className="text-[10px] text-[#c09080]/70 font-dubai mb-0.5">المصروفات</p>
               <p className="text-sm font-bold text-[#c09080] font-dubai">
                 {formatCurrency(summary.totalExpenses)}
               </p>
             </div>
-            <div className={`${summary.profit >= 0 ? 'bg-primary/10' : 'bg-[#c09080]/8'} rounded-xl p-2.5 text-center`}>
-              <p className="text-[10px] text-secondary/50 font-dubai mb-0.5">الربح</p>
-              <p className={`text-sm font-bold font-dubai ${summary.profit >= 0 ? 'text-secondary' : 'text-[#c09080]'}`}>
-                {formatCurrency(summary.profit)}
-              </p>
-            </div>
+            {!hideRevenue && (
+              <div className={`${summary.profit >= 0 ? 'bg-primary/10' : 'bg-[#c09080]/8'} rounded-xl p-2.5 text-center`}>
+                <p className="text-[10px] text-secondary/50 font-dubai mb-0.5">الربح</p>
+                <p className={`text-sm font-bold font-dubai ${summary.profit >= 0 ? 'text-secondary' : 'text-[#c09080]'}`}>
+                  {formatCurrency(summary.profit)}
+                </p>
+              </div>
+            )}
           </div>
         ) : null}
 

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Receipt, Loader2, Building2, FileText, Calendar, CreditCard } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
+import NumberInput from '@/components/accounting/shared/NumberInput';
 import { CATEGORY_MAP } from './CategoryBadge';
 
 interface Apartment {
@@ -141,7 +142,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg border-2 border-primary/20 overflow-hidden max-h-[90vh] flex flex-col"
+            className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-lg border-2 border-[#e0cdb8] overflow-hidden max-h-[90vh] flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-primary/10 shrink-0">
@@ -175,6 +176,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   className="w-full"
                   placeholder="اختر الشقة"
                   required
+                  emptyMessage="لا يوجد شقق حتى الآن"
                   options={Array.from(grouped.entries()).map(([project, apts]) => ({
                     label: project,
                     options: apts.map(a => ({ value: a.id, label: a.name })),
@@ -263,13 +265,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                     <CreditCard size={14} className="text-[#c09080]" />
                     المبلغ <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="number"
+                  <NumberInput
                     value={formData.amount || ''}
                     onChange={(e) => update('amount', parseFloat(e.target.value) || 0)}
                     placeholder="0"
-                    min="0"
-                    step="0.01"
                     className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30 ltr text-left"
                     dir="ltr"
                     required

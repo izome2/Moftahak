@@ -41,13 +41,14 @@ export async function refreshMonthlySnapshot(
         },
       }),
 
-      // 2. إجمالي المصروفات
+      // 2. إجمالي المصروفات (المعتمدة فقط)
       prisma.expense.aggregate({
         _sum: { amount: true },
         where: {
           apartmentId,
           date: { gte: startOfMonth, lt: endOfMonth },
           deletedAt: null,
+          approvalStatus: 'APPROVED',
         },
       }),
 
@@ -62,7 +63,7 @@ export async function refreshMonthlySnapshot(
         },
       }),
 
-      // 4. تقسيم المصروفات حسب القسم
+      // 4. تقسيم المصروفات حسب القسم (المعتمدة فقط)
       prisma.expense.groupBy({
         by: ['category'],
         _sum: { amount: true },
@@ -70,6 +71,7 @@ export async function refreshMonthlySnapshot(
           apartmentId,
           date: { gte: startOfMonth, lt: endOfMonth },
           deletedAt: null,
+          approvalStatus: 'APPROVED',
         },
       }),
 

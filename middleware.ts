@@ -29,6 +29,7 @@ const accountingPageAccess: Record<string, AccountingRole[]> = {
   '/accounting/bookings':      ['GENERAL_MANAGER', 'BOOKING_MANAGER'],
   '/accounting/expenses':      ['GENERAL_MANAGER', 'OPS_MANAGER'],
   '/accounting/daily':         ['GENERAL_MANAGER', 'OPS_MANAGER'],
+  '/accounting/custody':       ['GENERAL_MANAGER', 'OPS_MANAGER'],
   '/accounting/investors':     ['GENERAL_MANAGER'],
   '/accounting/my-investments': ['INVESTOR'],
   '/accounting/reports':       ['GENERAL_MANAGER'],

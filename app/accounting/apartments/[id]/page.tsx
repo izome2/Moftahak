@@ -11,6 +11,7 @@ import {
 import { motion } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { getEffectiveAccountingRole } from '@/lib/permissions';
 import MonthSelector from '@/components/accounting/apartments/MonthSelector';
 import FinancialSummary from '@/components/accounting/apartments/FinancialSummary';
 import BookingsTable from '@/components/accounting/apartments/BookingsTable';
@@ -78,6 +79,11 @@ export default function ApartmentDetailPage() {
 
   const canViewInvestors =
     session?.user?.role === 'GENERAL_MANAGER' || session?.user?.role === 'ADMIN';
+
+  const effectiveRole = getEffectiveAccountingRole(session?.user?.role || '');
+  const isOpsManager = effectiveRole === 'OPS_MANAGER';
+  const canViewBookings = !isOpsManager;
+  const canViewRevenue = !isOpsManager;
 
   const [month, setMonth] = useState(getCurrentMonth);
   const [apartment, setApartment] = useState<ApartmentInfo | null>(null);
@@ -273,22 +279,33 @@ export default function ApartmentDetailPage() {
       {/* Month Selector */}
       <MonthSelector month={month} onChange={setMonth} />
 
-      {/* Financial Summary Cards */}
-      <FinancialSummary
-        totalRevenue={summary?.totalRevenue || 0}
-        totalExpenses={summary?.totalExpenses || 0}
-        profit={summary?.profit || 0}
-        bookingsCount={summary?.bookingsCount}
-        occupiedNights={summary?.occupiedNights}
-        isLoading={loadingData}
-      />
+      {/* Financial Summary Cards - hide revenue/profit for OPS_MANAGER */}
+      {canViewRevenue ? (
+        <FinancialSummary
+          totalRevenue={summary?.totalRevenue || 0}
+          totalExpenses={summary?.totalExpenses || 0}
+          profit={summary?.profit || 0}
+          bookingsCount={summary?.bookingsCount}
+          occupiedNights={summary?.occupiedNights}
+          isLoading={loadingData}
+        />
+      ) : (
+        <FinancialSummary
+          totalRevenue={0}
+          totalExpenses={summary?.totalExpenses || 0}
+          profit={0}
+          isLoading={loadingData}
+        />
+      )}
 
-      {/* Bookings Table */}
-      <BookingsTable
-        bookings={bookings}
-        totalAmount={bookingsTotal}
-        isLoading={loadingData}
-      />
+      {/* Bookings Table - hidden for OPS_MANAGER */}
+      {canViewBookings && (
+        <BookingsTable
+          bookings={bookings}
+          totalAmount={bookingsTotal}
+          isLoading={loadingData}
+        />
+      )}
 
       {/* Expenses Table */}
       <ExpensesTable

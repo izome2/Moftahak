@@ -224,7 +224,7 @@ const ApartmentsManager: React.FC = () => {
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm z-10 overflow-hidden"
+              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm z-10 overflow-hidden border-2 border-[#e0cdb8]"
             >
               <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
                 <h4 className="text-sm font-bold text-secondary font-dubai">
@@ -249,6 +249,7 @@ const ApartmentsManager: React.FC = () => {
                     className="w-full"
                     placeholder="اختر المشروع"
                     required
+                    emptyMessage="لا يوجد مشاريع حتى الآن"
                     options={projects.map(p => ({ value: p.id, label: p.name }))}
                   />
                 </div>
@@ -294,7 +295,7 @@ const ApartmentsManager: React.FC = () => {
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-5 z-10"
+              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm p-5 z-10 border-2 border-[#e0cdb8]"
             >
               <h4 className="text-sm font-bold text-secondary font-dubai mb-2">
                 {toggleTarget.isActive ? 'تعطيل الشقة' : 'تفعيل الشقة'}
