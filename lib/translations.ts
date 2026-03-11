@@ -517,11 +517,11 @@ const translations = {
       titlePart1: 'Moftahak',
       titlePart2: ' for Real Estate Investment',
       sentences: [
-        'Grow your project and skills in real estate with Abdullah Al-Khudairi',
-        'Turn your unit into a successful hotel investment with Abdullah Al-Khudairi',
-        'Elevate short-term rentals with Abdullah Al-Khudairi\'s expertise',
-        'Invest smartly in hotel apartments with Abdullah Al-Khudairi',
-        'Build a profitable real estate model with Abdullah Al-Khudairi',
+        'Grow your project and skills in real estate with Abdullah El-Khedr',
+        'Turn your unit into a successful hotel investment with Abdullah El-Khedr',
+        'Elevate short-term rentals with Abdullah El-Khedr\'s expertise',
+        'Invest smartly in hotel apartments with Abdullah El-Khedr',
+        'Build a profitable real estate model with Abdullah El-Khedr',
       ],
       discoverServices: 'Discover Services',
       contactMe: 'Contact Me',
@@ -544,7 +544,7 @@ const translations = {
 
     // About Section
     about: {
-      name: 'Abdullah Al-Khudairi',
+      name: 'Abdullah El-Khedr',
       bio: 'Entrepreneur and specialist in short-term rentals and hotel apartments in Cairo',
       bioFull: ', started his journey with a single unit and successfully built a professional operation model based on clear systems, data-driven decisions, and delivering a high-quality guest experience, where ',
       bioHighlight2: 'he helps property owners transform their units into profitable and scalable hotel units',
@@ -674,7 +674,7 @@ const translations = {
       developedUnits: 'Developed Units',
       rating: 'Rating',
       // Footer
-      footerDescription: 'Abdullah Al-Khudairi - Your consultant in short-term rentals and hotel apartments',
+      footerDescription: 'Abdullah El-Khedr - Your consultant in short-term rentals and hotel apartments',
       footerBrand: 'Moftahak',
       quickLinks: 'Quick Links',
       servicesTitle: 'Services',
@@ -682,7 +682,7 @@ const translations = {
       quickLinkItems: ['Home', 'About', 'Services', 'Content', 'Contact'],
       serviceItems: ['Private Consultations', 'Training Programs', 'Full Management', 'Educational Content', 'Partnerships'],
       location: 'Cairo, Egypt',
-      copyright: (year: number) => `© ${year} Abdullah Al-Khudairi - Moftahak. All rights reserved`,
+      copyright: (year: number) => `© ${year} Abdullah El-Khedr - Moftahak. All rights reserved`,
       privacyPolicy: 'Privacy Policy',
       terms: 'Terms & Conditions',
     },
