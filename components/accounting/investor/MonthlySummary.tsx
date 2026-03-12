@@ -31,7 +31,7 @@ const MonthlySummary: React.FC<MonthlySummaryProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currencyLabel = ' ' + t.accounting.common.currency;
 
   const formatCurrency = (amount: number, cur: string = currency) => {

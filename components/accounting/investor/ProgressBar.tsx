@@ -23,7 +23,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currencyLabel = ' ' + t.accounting.common.currency;
 
   const formatCurrency = (amount: number, cur: string = currency) => {
@@ -40,7 +40,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
         <span className="text-secondary/70 font-medium">{label}</span>
         <div className="flex items-center gap-1.5">
           <span className={`font-bold ${isComplete ? 'text-[#8a9a7a]' : 'text-secondary'}`}>
-            {percentage.toFixed(1)}%
+            {new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(percentage)}%
           </span>
           {isComplete && <TrendingUp className="w-3.5 h-3.5 text-[#8a9a7a]" />}
         </div>

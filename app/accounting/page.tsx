@@ -131,13 +131,14 @@ export default function AccountingDashboardPage() {
   const t = useTranslation();
   const { language } = useLanguage();
 
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
+
   const formatMonthDisplay = (month: string) => {
     const [year, m] = month.split('-');
     const monthIndex = parseInt(m, 10) - 1;
-    return `${t.accounting.months[monthIndex] || m} ${year}`;
+    const yearFormatted = new Intl.NumberFormat(locale, { useGrouping: false }).format(parseInt(year, 10));
+    return `${t.accounting.months[monthIndex] || m} ${yearFormatted}`;
   };
-
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(locale).format(amount) + ' ' + t.accounting.common.currency;

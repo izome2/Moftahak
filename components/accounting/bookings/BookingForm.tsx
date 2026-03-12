@@ -65,7 +65,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const isEdit = !!initialData?.id;
 
   const SOURCE_OPTIONS = useMemo(() => [

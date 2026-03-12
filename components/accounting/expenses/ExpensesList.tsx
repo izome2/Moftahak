@@ -43,7 +43,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currency = t.accounting.common.currency;
 
   const formatDate = (dateString: string) =>
@@ -70,7 +70,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
           <div>
             <h3 className="text-sm font-bold text-secondary font-dubai">{t.accounting.expenses.expensesList}</h3>
             {totalCount !== undefined && (
-              <p className="text-[11px] text-secondary/55 font-dubai">{totalCount} {t.accounting.common.expense}</p>
+              <p className="text-[11px] text-secondary/55 font-dubai">{new Intl.NumberFormat(locale).format(totalCount!)} {t.accounting.common.expense}</p>
             )}
           </div>
         </div>

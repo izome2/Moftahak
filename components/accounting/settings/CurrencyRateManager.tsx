@@ -15,7 +15,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 const CurrencyRateManager: React.FC = () => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const [rate, setRate] = useState<number | null>(null);
   const [inputRate, setInputRate] = useState('');
   const [isLoading, setIsLoading] = useState(true);

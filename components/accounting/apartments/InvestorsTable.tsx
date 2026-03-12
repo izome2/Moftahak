@@ -34,12 +34,12 @@ const InvestorsTable: React.FC<InvestorsTableProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat(locale).format(amount) + ' ' + t.accounting.common.currency;
 
   const formatPercentage = (pct: number) =>
-    `${(pct * 100).toFixed(1)}%`;
+    new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(pct * 100) + '%';
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}

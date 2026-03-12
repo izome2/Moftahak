@@ -46,7 +46,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const [apartmentId, setApartmentId] = useState(preselectedApartmentId || '');
   const [investorUsers, setInvestorUsers] = useState<InvestorUser[]>([]);
   const [userId, setUserId] = useState('');

@@ -43,7 +43,7 @@ const FALLBACK_COLORS = ['#c47a6c', '#7a9ab5', '#10302b', '#edbf8c', '#8a857e'];
 const BAR_COLORS = ['#10302b', '#edbf8c', '#c47a6c', '#7a9ab5', '#9a7ab5', '#5a9a7a', '#c4a86c'];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+const createCustomLabel = (locale: string) => ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
   if (percent < 0.05) return null;
   const RADIAN = Math.PI / 180;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -60,7 +60,7 @@ const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent
       fontWeight="bold"
       fontFamily="var(--font-dubai)"
     >
-      {`${(percent * 100).toFixed(0)}%`}
+      {new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(percent * 100) + '%'}
     </text>
   );
 };
@@ -72,11 +72,13 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currency = t.accounting.common.currency;
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat(locale).format(amount) + ' ' + currency;
+
+  const renderCustomLabel = createCustomLabel(locale);
 
   const SOURCE_LABELS: Record<string, string> = {
     AIRBNB: 'Airbnb',

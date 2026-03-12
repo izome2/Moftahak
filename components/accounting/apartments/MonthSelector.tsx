@@ -3,6 +3,7 @@
 import React from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MonthSelectorProps {
   month: string; // YYYY-MM
@@ -23,12 +24,15 @@ const changeMonth = (month: string, delta: number) => {
 
 const MonthSelector: React.FC<MonthSelectorProps> = ({ month, onChange, className = '' }) => {
   const t = useTranslation();
+  const { language } = useLanguage();
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const isCurrentMonth = month === getCurrentMonth();
 
   const formatMonthDisplay = (m: string) => {
     const [year, mm] = m.split('-');
     const idx = parseInt(mm, 10) - 1;
-    return `${t.accounting.months[idx] || mm} ${year}`;
+    const yearFormatted = new Intl.NumberFormat(locale, { useGrouping: false }).format(parseInt(year, 10));
+    return `${t.accounting.months[idx] || mm} ${yearFormatted}`;
   };
 
   return (

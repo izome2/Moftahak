@@ -57,7 +57,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (isLoading) {
@@ -159,7 +159,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                   <button
                     onClick={() => onAddWithdrawal?.(investor)}
                     className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium
-                      bg-rose-50 text-rose-700 border border-rose-200/60 rounded-lg hover:bg-rose-100 transition-colors font-dubai"
+                      bg-primary/10 text-secondary border border-primary/30 rounded-lg hover:bg-primary/20 transition-colors font-dubai"
                   >
                     <ArrowDownCircle className="w-3 h-3" />
                     {t.accounting.investors.registerWithdrawal}
@@ -204,7 +204,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                               <span className="bg-primary/10 text-secondary text-xs font-bold
                                 px-2 py-0.5 rounded-full font-dubai"
                               >
-                                {(inv.percentage * 100).toFixed(1)}%
+                                {new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(inv.percentage * 100)}%
                               </span>
                             </td>
                             <td className="px-4 py-2.5">

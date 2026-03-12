@@ -66,7 +66,7 @@ const BookingsList: React.FC<BookingsListProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currency = t.accounting.common.currency;
 
   const formatDate = (dateString: string) =>
@@ -103,14 +103,14 @@ const BookingsList: React.FC<BookingsListProps> = ({
           <div>
             <h3 className="text-sm font-bold text-secondary font-dubai">{t.accounting.bookings.bookingsList}</h3>
             {totalCount !== undefined && (
-              <p className="text-[11px] text-secondary/55 font-dubai">{totalCount} {t.accounting.common.booking}</p>
+              <p className="text-[11px] text-secondary/55 font-dubai">{new Intl.NumberFormat(locale).format(totalCount!)} {t.accounting.common.booking}</p>
             )}
           </div>
         </div>
         <div className="flex items-center gap-2">
           {totalNights !== undefined && totalNights > 0 && !isLoading && (
             <span className="text-[11px] font-bold text-secondary/60 font-dubai bg-primary/8 px-2.5 py-1 rounded-lg">
-              {totalNights} {t.accounting.common.night}
+              {new Intl.NumberFormat(locale).format(totalNights!)} {t.accounting.common.night}
             </span>
           )}
           {totalAmount !== undefined && !isLoading && !hideFinancials && (
@@ -165,7 +165,7 @@ const BookingsList: React.FC<BookingsListProps> = ({
 
                   <div className="flex flex-wrap items-center gap-2 text-[11px] text-secondary/65 font-dubai">
                     <span>{formatDate(booking.checkIn)} → {formatDate(booking.checkOut)}</span>
-                    <span className="font-bold text-secondary/70">{booking.nights} {t.accounting.common.night}</span>
+                    <span className="font-bold text-secondary/70">{new Intl.NumberFormat(locale).format(booking.nights)} {t.accounting.common.night}</span>
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -265,7 +265,7 @@ const BookingsList: React.FC<BookingsListProps> = ({
                         {formatDate(booking.checkOut)}
                       </td>
                       <td className="px-4 py-3.5 text-center font-bold text-secondary font-dubai text-[13px]">
-                        {booking.nights}
+                        {new Intl.NumberFormat(locale).format(booking.nights)}
                       </td>
                       {!hideFinancials && (
                         <td className="px-4 py-3.5 text-center font-bold text-secondary font-dubai text-[13px]">

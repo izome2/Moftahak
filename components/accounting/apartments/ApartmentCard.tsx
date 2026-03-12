@@ -37,7 +37,7 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat(locale).format(amount) + ' ' + t.accounting.common.currency;
   return (

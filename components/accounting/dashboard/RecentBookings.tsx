@@ -40,7 +40,7 @@ const STATUS_CLASSES: Record<string, string> = {
 const RecentBookings: React.FC<RecentBookingsProps> = ({ bookings, isLoading }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currency = t.accounting.common.currency;
 
   const SOURCE_LABELS: Record<string, string> = {

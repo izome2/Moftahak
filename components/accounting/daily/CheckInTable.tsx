@@ -37,7 +37,7 @@ const CheckInTable: React.FC<CheckInTableProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
 
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString(locale, { month: 'short', day: 'numeric' });
@@ -169,7 +169,7 @@ const CheckInTable: React.FC<CheckInTableProps> = ({
                       <span className="text-xs bg-secondary/5 text-secondary/70 px-2 py-0.5
                         rounded-full font-dubai font-medium"
                       >
-                        {row.nights} {t.accounting.common.night}
+                        {new Intl.NumberFormat(locale).format(row.nights)} {t.accounting.common.night}
                       </span>
                     </td>
 

@@ -42,7 +42,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   // السحب من إجمالي الأرباح في كل الشقق - نستخدم أول استثمار كمرجع للربط
   const [apartmentInvestorId] = useState(
     investments.length > 0 ? investments[0].id : ''
@@ -150,7 +150,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               {investments.map(inv => (
                 <div key={inv.id} className="flex items-center gap-1.5">
                   <Building2 className="w-3 h-3 text-secondary/40 shrink-0" />
-                  <span>{inv.apartment.name} — {t.accounting.withdrawalForm.percentage} {(inv.percentage * 100).toFixed(1)}%</span>
+                  <span>{inv.apartment.name} — {t.accounting.withdrawalForm.percentage} {new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(inv.percentage * 100)}%</span>
                 </div>
               ))}
             </div>

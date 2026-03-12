@@ -33,7 +33,7 @@ const CheckOutTable: React.FC<CheckOutTableProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
 
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString(locale, { month: 'short', day: 'numeric' });

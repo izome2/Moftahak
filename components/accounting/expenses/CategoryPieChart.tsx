@@ -36,7 +36,7 @@ const FALLBACK_COLORS = ['#3b82f6', '#8b5cf6', '#06b6d4', '#f97316', '#eab308', 
 const BAR_COLORS = ['#ef4444', '#f97316', '#eab308', '#10302b', '#8b5cf6', '#06b6d4', '#22c55e'];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+const createCustomLabel = (locale: string) => ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
   if (percent < 0.05) return null;
   const RADIAN = Math.PI / 180;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -53,7 +53,7 @@ const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent
       fontWeight="bold"
       fontFamily="var(--font-dubai)"
     >
-      {`${(percent * 100).toFixed(0)}%`}
+      {new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(percent * 100) + '%'}
     </text>
   );
 };
@@ -65,11 +65,13 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currency = t.accounting.common.currency;
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat(locale).format(amount) + ' ' + currency;
+
+  const renderCustomLabel = createCustomLabel(locale);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomPieTooltip = ({ active, payload }: any) => {
@@ -86,7 +88,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
         </p>
         {entry.payload.count !== undefined && (
           <p className="text-secondary/70">
-            {t.accounting.expenses.countLabel} <span className="font-bold text-secondary">{entry.payload.count}</span>
+            {t.accounting.expenses.countLabel} <span className="font-bold text-secondary">{new Intl.NumberFormat(locale).format(entry.payload.count)}</span>
           </p>
         )}
       </div>

@@ -76,7 +76,7 @@ export default function DailyOpsPage() {
   const { data: session } = useSession();
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const userRole = session?.user?.role;
   const canAssignSupervisor = userRole === 'GENERAL_MANAGER' || userRole === 'OPS_MANAGER';
 

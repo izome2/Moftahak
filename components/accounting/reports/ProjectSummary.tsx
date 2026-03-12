@@ -44,7 +44,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
 
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat(locale).format(Math.round(val)) + ' ' + t.accounting.common.currency;
@@ -170,8 +170,8 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {apartments.map((apt, index) => {
             const profitMargin = apt.revenue > 0
-              ? ((apt.profit / apt.revenue) * 100).toFixed(0)
-              : '0';
+              ? new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format((apt.profit / apt.revenue) * 100)
+              : new Intl.NumberFormat(locale).format(0);
 
             return (
               <motion.div
@@ -222,11 +222,11 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
                 <div className="flex items-center gap-3 mt-3 pt-3 border-t border-primary/10">
                   <div className="flex items-center gap-1 text-[10px] text-secondary/50 font-dubai">
                     <CalendarDays className="w-3 h-3" />
-                    {apt.bookings} {t.accounting.common.booking}
+                    {new Intl.NumberFormat(locale).format(apt.bookings)} {t.accounting.common.booking}
                   </div>
                   <div className="flex items-center gap-1 text-[10px] text-secondary/50 font-dubai">
                     <Moon className="w-3 h-3" />
-                    {apt.nights} {t.accounting.common.night}
+                    {new Intl.NumberFormat(locale).format(apt.nights)} {t.accounting.common.night}
                   </div>
                 </div>
               </motion.div>

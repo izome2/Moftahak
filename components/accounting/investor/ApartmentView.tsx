@@ -51,7 +51,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currencyLabel = ' ' + t.accounting.common.currency;
 
   const formatCurrency = (amount: number, cur: string = currency) => {
@@ -97,7 +97,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
           <div className="flex items-center gap-3 mt-0.5">
             <span className="flex items-center gap-1 text-xs text-secondary/55 font-dubai">
               <Percent className="w-3 h-3" />
-              {t.accounting.investorPortal.myPercentage} {(investment.percentage * 100).toFixed(1)}%
+              {t.accounting.investorPortal.myPercentage} {new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(investment.percentage * 100)}%
             </span>
             <span className={`flex items-center gap-1 text-xs font-bold font-dubai ${
               investment.investorProfit >= 0 ? 'text-[#8a9a7a]' : 'text-[#c09080]'
@@ -213,7 +213,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                       <span className="bg-secondary/10 text-secondary text-xs font-bold
                         px-2 py-0.5 rounded-full font-dubai"
                       >
-                        {(investment.percentage * 100).toFixed(1)}%
+                        {new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(investment.percentage * 100)}%
                       </span>
                     </td>
                     <td className="px-4 py-3">

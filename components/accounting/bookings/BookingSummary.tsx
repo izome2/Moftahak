@@ -27,7 +27,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currency = t.accounting.common.currency;
 
   const formatCurrency = (amount: number) =>
@@ -47,7 +47,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
     }] : []),
     {
       label: t.accounting.bookings.bookingsCount,
-      value: String(totalBookings),
+      value: new Intl.NumberFormat(locale).format(totalBookings),
       icon: CalendarCheck,
       bgColor: 'bg-primary/15',
       iconColor: 'text-primary',
@@ -55,7 +55,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
     },
     {
       label: t.accounting.bookings.nightsBooked,
-      value: String(totalNights),
+      value: new Intl.NumberFormat(locale).format(totalNights),
       icon: Moon,
       bgColor: 'bg-secondary/8',
       iconColor: 'text-secondary/60',
@@ -71,7 +71,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
     }] : []),
     ...(apartmentsCount !== undefined ? [{
       label: t.accounting.bookings.activeApartments,
-      value: String(apartmentsCount),
+      value: new Intl.NumberFormat(locale).format(apartmentsCount!),
       icon: Building2,
       bgColor: 'bg-primary/12',
       iconColor: 'text-primary',

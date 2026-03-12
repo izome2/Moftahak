@@ -62,7 +62,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
   const { id } = use(params);
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const [backup, setBackup] = useState<BackupData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -390,7 +390,7 @@ function formatValue(val: any): string {
   return String(val);
 }
 
-function formatDate(val: any, locale: string = 'ar-EG'): string {
+function formatDate(val: any, locale: string = 'ar-EG-u-nu-arab'): string {
   if (!val) return '—';
   try {
     return new Date(val).toLocaleDateString(locale, {
@@ -403,7 +403,7 @@ function formatDate(val: any, locale: string = 'ar-EG'): string {
   }
 }
 
-function formatMoney(val: any, locale: string = 'ar-EG'): string {
+function formatMoney(val: any, locale: string = 'ar-EG-u-nu-arab'): string {
   if (val === null || val === undefined) return '—';
   return Number(val).toLocaleString(locale);
 }

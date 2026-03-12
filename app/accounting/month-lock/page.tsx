@@ -50,7 +50,7 @@ export default function MonthLockPage() {
   const toast = useToast();
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const toastRef = React.useRef(toast);
   toastRef.current = toast;
 
@@ -163,13 +163,13 @@ export default function MonthLockPage() {
           <MonthSelector month={month} onChange={setMonth} />
 
           <div className="flex items-center gap-4 text-sm font-dubai">
-            <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-xl border border-green-200">
-              <Lock size={14} className="text-green-600" />
-              <span className="font-bold text-green-700">{totalLocked} {t.accounting.monthLock.lockedCount}</span>
+            <div className="flex items-center gap-2 px-3 py-2 bg-secondary/8 rounded-xl border border-secondary/15">
+              <Lock size={14} className="text-secondary/70" />
+              <span className="font-bold text-secondary/80">{new Intl.NumberFormat(locale).format(totalLocked)} {t.accounting.monthLock.lockedCount}</span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 rounded-xl border border-amber-200">
-              <Unlock size={14} className="text-amber-600" />
-              <span className="font-bold text-amber-700">{totalUnlocked} {t.accounting.monthLock.openCount}</span>
+            <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-xl border border-primary/25">
+              <Unlock size={14} className="text-primary" />
+              <span className="font-bold text-secondary/70">{new Intl.NumberFormat(locale).format(totalUnlocked)} {t.accounting.monthLock.openCount}</span>
             </div>
           </div>
         </div>
@@ -248,12 +248,12 @@ export default function MonthLockPage() {
                       </td>
                       <td className="px-4 py-3.5">
                         {apt.isLocked ? (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-bold font-dubai">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary/10 text-secondary/80 rounded-lg text-xs font-bold font-dubai">
                             <CheckCircle2 size={13} />
                             {t.accounting.monthLock.locked}
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-bold font-dubai">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/15 text-secondary/70 rounded-lg text-xs font-bold font-dubai">
                             <AlertTriangle size={13} />
                             {t.accounting.monthLock.open}
                           </span>
@@ -272,7 +272,7 @@ export default function MonthLockPage() {
                           <button
                             onClick={() => handleLockAction('unlock', apt.id)}
                             disabled={actionLoading !== null}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 text-amber-700 hover:bg-amber-200 rounded-lg text-xs font-bold font-dubai transition-colors disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/15 text-secondary/70 hover:bg-primary/25 rounded-lg text-xs font-bold font-dubai transition-colors disabled:opacity-50"
                           >
                             {actionLoading === apt.id ? (
                               <RefreshCw size={13} className="animate-spin" />

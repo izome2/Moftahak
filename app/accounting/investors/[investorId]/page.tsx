@@ -73,7 +73,7 @@ export default function InvestorDetailPage() {
   const router = useRouter();
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const investorId = params.investorId as string;
 
   const [data, setData] = useState<InvestorDetailData | null>(null);

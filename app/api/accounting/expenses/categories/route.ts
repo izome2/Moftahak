@@ -21,7 +21,7 @@ const EXPENSE_CATEGORY_LABELS: Record<string, string> = {
   SUPPLIES: 'مستلزمات',
   FURNITURE: 'أثاث',
   LAUNDRY: 'غسيل ملاءات',
-  TOWELS: 'مناشيل حمام',
+  TOWELS: 'مناشف حمام',
   KITCHEN_SUPPLIES: 'مستلزمات المطبخ',
   AIR_CONDITIONING: 'تكييف',
   OTHER: 'أخرى',

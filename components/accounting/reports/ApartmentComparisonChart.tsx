@@ -27,10 +27,10 @@ interface ApartmentComparisonChartProps {
   isLoading?: boolean;
 }
 
-const formatCurrency = (val: number) => {
-  if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
-  if (val >= 1000) return `${(val / 1000).toFixed(0)}K`;
-  return val.toString();
+const formatCompact = (val: number, locale: string) => {
+  if (val >= 1000000) return new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(val / 1000000) + 'M';
+  if (val >= 1000) return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(val / 1000) + 'K';
+  return new Intl.NumberFormat(locale).format(val);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -58,7 +58,7 @@ const ApartmentComparisonChart: React.FC<ApartmentComparisonChartProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
 
   if (isLoading) {
     return (
@@ -96,7 +96,7 @@ const ApartmentComparisonChart: React.FC<ApartmentComparisonChartProps> = ({
             height={60}
           />
           <YAxis
-            tickFormatter={formatCurrency}
+            tickFormatter={(v) => formatCompact(v, locale)}
             tick={{ fontSize: 11, fill: '#10302b', fontFamily: 'var(--font-dubai)' }}
             axisLine={false}
             tickLine={false}

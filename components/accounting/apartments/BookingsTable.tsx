@@ -42,7 +42,7 @@ const STATUS_CLASSES: Record<string, string> = {
 const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, isLoading }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currency = t.accounting.common.currency;
 
   const SOURCE_LABELS: Record<string, string> = {
@@ -133,7 +133,7 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, is
                       {formatDate(booking.checkOut)}
                     </td>
                     <td className="px-4 py-3.5 text-center font-bold text-secondary font-dubai text-[13px]">
-                      {booking.nights}
+                      {new Intl.NumberFormat(locale).format(booking.nights)}
                     </td>
                     <td className="px-4 py-3.5 text-center font-bold text-secondary font-dubai text-[13px]">
                       {formatCurrency(booking.amount)}

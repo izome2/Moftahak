@@ -45,14 +45,15 @@ export default function CustodyPage() {
   const { data: session } = useSession();
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const effectiveRole = getEffectiveAccountingRole(session?.user?.role || '');
   const isGeneralManager = effectiveRole === 'GENERAL_MANAGER';
 
   const formatMonthDisplay = (month: string) => {
     const [year, m] = month.split('-');
     const monthIndex = parseInt(m, 10) - 1;
-    return `${t.accounting.months[monthIndex] || m} ${year}`;
+    const yearFormatted = new Intl.NumberFormat(locale, { useGrouping: false }).format(parseInt(year, 10));
+    return `${t.accounting.months[monthIndex] || m} ${yearFormatted}`;
   };
 
   const formatCurrency = (amount: number) =>
@@ -296,11 +297,11 @@ export default function CustodyPage() {
                     {formatMonthDisplay(rec.month)}
                   </span>
                   {rec.isSettled ? (
-                    <span className="text-[10px] bg-green-50 text-green-600 px-2 py-0.5 rounded-full font-dubai flex items-center gap-0.5">
+                    <span className="text-[10px] bg-secondary/10 text-secondary/80 px-2 py-0.5 rounded-full font-dubai flex items-center gap-0.5">
                       <Check size={10} /> {t.accounting.custody.locked}
                     </span>
                   ) : (
-                    <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full font-dubai">
+                    <span className="text-[10px] bg-primary/15 text-secondary/70 px-2 py-0.5 rounded-full font-dubai">
                       {t.accounting.custody.unlocked}
                     </span>
                   )}

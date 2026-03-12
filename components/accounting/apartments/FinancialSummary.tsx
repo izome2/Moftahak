@@ -25,7 +25,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat(locale).format(amount) + ' ' + t.accounting.common.currency;
 
@@ -56,7 +56,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
     },
     ...(bookingsCount !== undefined ? [{
       label: t.accounting.apartments.bookingsCount,
-      value: String(bookingsCount),
+      value: new Intl.NumberFormat(locale).format(bookingsCount!),
       icon: CalendarCheck,
       bgColor: 'bg-primary/10',
       iconColor: 'text-primary',
@@ -64,7 +64,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
     }] : []),
     ...(occupiedNights !== undefined ? [{
       label: t.accounting.apartments.nightsBooked,
-      value: String(occupiedNights),
+      value: new Intl.NumberFormat(locale).format(occupiedNights!),
       icon: Moon,
       bgColor: 'bg-primary/10',
       iconColor: 'text-primary',

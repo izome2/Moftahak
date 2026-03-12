@@ -43,7 +43,7 @@ const ACCOUNTING_ROLES = ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER', '
 const InvitationManager: React.FC = () => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
 
   const ROLE_LABELS: Record<string, string> = useMemo(() => ({
     GENERAL_MANAGER: t.accounting.roles.GENERAL_MANAGER,

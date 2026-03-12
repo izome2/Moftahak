@@ -37,13 +37,13 @@ const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({ data, isLoadi
     return t.accounting.months[idx] || month;
   };
 
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currency = t.accounting.common.currency;
 
   const formatCurrency = (val: number) => {
-    if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
-    if (val >= 1000) return `${(val / 1000).toFixed(0)}K`;
-    return val.toString();
+    if (val >= 1000000) return new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(val / 1000000) + 'M';
+    if (val >= 1000) return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(val / 1000) + 'K';
+    return new Intl.NumberFormat(locale).format(val);
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

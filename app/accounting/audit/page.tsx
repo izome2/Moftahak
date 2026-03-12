@@ -230,7 +230,7 @@ const formatValue = (
   if (typeof value === 'string' && /^\d{4}-\d{2}$/.test(value)) {
     const [y, m] = value.split('-');
     const clean = `${y}-${parseInt(m)}`;
-    if (ctx.locale === 'ar-EG') {
+    if (ctx.locale === 'ar-EG-u-nu-arab') {
       return clean.replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[parseInt(d)]);
     }
     return clean;
@@ -241,7 +241,7 @@ const formatValue = (
   }
   // نسب مئوية
   if (typeof value === 'number' && (key === 'percentage' || key === 'commissionRate')) {
-    return (value * 100).toFixed(1) + '%';
+    return new Intl.NumberFormat(ctx.locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value * 100) + '%';
   }
   // أرقام عادية
   if (typeof value === 'number') {
@@ -275,7 +275,7 @@ export default function AuditLogPage() {
 
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const audit = t.accounting.audit;
 
   // Derived translation maps

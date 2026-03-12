@@ -25,7 +25,7 @@ const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
-  const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+  const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currency = t.accounting.common.currency;
 
   const formatCurrency = (amount: number) =>
@@ -44,7 +44,7 @@ const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
     },
     {
       label: t.accounting.expenses.expenseCount,
-      value: String(totalCount),
+      value: new Intl.NumberFormat(locale).format(totalCount),
       icon: Hash,
       bgColor: 'bg-primary/15',
       iconColor: 'text-primary',
@@ -60,7 +60,7 @@ const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
     },
     ...(apartmentsCount !== undefined ? [{
       label: t.accounting.expenses.apartmentsWithExpenses,
-      value: String(apartmentsCount),
+      value: new Intl.NumberFormat(locale).format(apartmentsCount!),
       icon: Building2,
       bgColor: 'bg-primary/12',
       iconColor: 'text-primary',
