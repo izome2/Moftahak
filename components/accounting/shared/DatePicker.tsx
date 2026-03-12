@@ -298,3 +298,147 @@ const DatePicker: React.FC<DatePickerProps> = ({
 
 export default DatePicker;
 
+// ---------------------------------------------------------------------------
+// MonthPicker  (YYYY-MM only)
+// ---------------------------------------------------------------------------
+interface MonthPickerProps {
+  value: string; // YYYY-MM
+  onChange: (value: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  className?: string;
+}
+
+export const MonthPicker: React.FC<MonthPickerProps> = ({
+  value,
+  onChange,
+  placeholder,
+  required,
+  className = '',
+}) => {
+  const { language } = useLanguage();
+  const isRTL = language === 'ar';
+  const locale = isRTL ? 'ar-EG-u-nu-arab' : 'en-US';
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  const initParts = (v: string | undefined) => {
+    if (v) {
+      const p = v.split('-').map(Number);
+      if (p.length >= 2) return { y: p[0], m: p[1] };
+    }
+    const now = new Date();
+    return { y: now.getFullYear(), m: now.getMonth() + 1 };
+  };
+
+  const [selYear, setSelYear] = useState(() => initParts(value).y);
+  const [selMonth, setSelMonth] = useState(() => initParts(value).m);
+
+  useEffect(() => {
+    const { y, m } = initParts(value);
+    setSelYear(y); setSelMonth(m);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  // Auto-apply
+  const applyRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => {
+    if (!isOpen) return;
+    clearTimeout(applyRef.current);
+    applyRef.current = setTimeout(() => {
+      const str = `${selYear}-${String(selMonth).padStart(2, '0')}`;
+      onChange(str);
+    }, 200);
+    return () => clearTimeout(applyRef.current);
+  }, [selMonth, selYear, isOpen, onChange]);
+
+  const openPicker = () => {
+    if (triggerRef.current) setRect(triggerRef.current.getBoundingClientRect());
+    setIsOpen(true);
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handle = (e: MouseEvent) => {
+      if (
+        popupRef.current?.contains(e.target as Node) ||
+        triggerRef.current?.contains(e.target as Node)
+      ) return;
+      setIsOpen(false);
+    };
+    document.addEventListener('mousedown', handle);
+    return () => document.removeEventListener('mousedown', handle);
+  }, [isOpen]);
+
+  const AR_MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  const EN_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monthNames = isRTL ? AR_MONTHS : EN_MONTHS;
+  const fmtMonth = (m: number) => monthNames[m - 1];
+  const fmtYear = (y: number) => new Intl.NumberFormat(locale, { useGrouping: false }).format(y);
+
+  const displayValue = value
+    ? (() => {
+        const [y, m] = value.split('-').map(Number);
+        return `${monthNames[m - 1]} ${fmtYear(y)}`;
+      })()
+    : '';
+
+  const POPUP_W = 220;
+  const popupStyle: React.CSSProperties = { position: 'fixed', zIndex: 9999, width: POPUP_W };
+  if (rect) {
+    const spaceBelow = window.innerHeight - rect.bottom - 8;
+    if (spaceBelow >= 280) {
+      popupStyle.top = rect.bottom + 6;
+    } else {
+      popupStyle.bottom = window.innerHeight - rect.top + 6;
+    }
+    const centerLeft = rect.left + rect.width / 2 - POPUP_W / 2;
+    popupStyle.left = Math.max(8, Math.min(centerLeft, window.innerWidth - POPUP_W - 8));
+  }
+
+  const popup = (
+    <div
+      ref={popupRef}
+      style={popupStyle}
+      className="rounded-2xl overflow-hidden shadow-[0_12px_40px_rgba(16,48,43,0.18)] border border-primary/30"
+    >
+      <div
+        className="flex gap-0 px-3 py-2"
+        dir="ltr"
+        style={{ background: FADE_COLOR }}
+      >
+        <WheelCol items={MONTHS12} selected={selMonth} onSelect={setSelMonth} format={fmtMonth} />
+        <div className="w-px mx-1 bg-primary/15 self-stretch my-3" />
+        <WheelCol items={YEARS}    selected={selYear}  onSelect={setSelYear}  format={fmtYear} />
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="relative">
+      <input type="hidden" value={value} required={required} />
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={openPicker}
+        className={`w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm flex items-center gap-2 focus:outline-none focus:border-primary transition-colors ${
+          isOpen ? 'border-primary' : ''
+        } ${className}`}
+        dir={isRTL ? 'rtl' : 'ltr'}
+      >
+        <Calendar size={15} className="text-secondary/40 flex-shrink-0" />
+        <span className={`flex-1 text-right ${!value ? 'text-secondary/35' : ''}`}>
+          {displayValue || placeholder || ''}
+        </span>
+      </button>
+      {mounted && isOpen && createPortal(popup, document.body)}
+    </div>
+  );
+};
+

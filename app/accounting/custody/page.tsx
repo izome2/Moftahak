@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
 import NumberInput from '@/components/accounting/shared/NumberInput';
+import { MonthPicker } from '@/components/accounting/shared/DatePicker';
 import { getEffectiveAccountingRole } from '@/lib/permissions';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -401,13 +402,10 @@ export default function CustodyPage() {
                   </div>
                   <div>
                     <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.custody.monthLabel}</label>
-                    <input
-                      type="month"
+                    <MonthPicker
                       value={formMonth}
-                      onChange={(e) => setFormMonth(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
+                      onChange={(v) => setFormMonth(v)}
                       required
-                      dir="ltr"
                     />
                   </div>
                 </div>
