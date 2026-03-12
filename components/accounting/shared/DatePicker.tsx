@@ -203,14 +203,20 @@ const DatePicker: React.FC<DatePickerProps> = ({
     return () => document.removeEventListener('mousedown', handle);
   }, [isOpen]);
 
-  const handleConfirm = () => {
-    const max = getDaysInMonth(selMonth, selYear);
-    const d = Math.min(selDay, max);
-    const str = `${selYear}-${String(selMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    if (minDate && str < minDate) return;
-    onChange(str);
-    setIsOpen(false);
-  };
+  // Auto-apply date whenever selection changes
+  const applyRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => {
+    if (!isOpen) return;
+    clearTimeout(applyRef.current);
+    applyRef.current = setTimeout(() => {
+      const max = getDaysInMonth(selMonth, selYear);
+      const d = Math.min(selDay, max);
+      const str = `${selYear}-${String(selMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      if (minDate && str < minDate) return;
+      onChange(str);
+    }, 200);
+    return () => clearTimeout(applyRef.current);
+  }, [selDay, selMonth, selYear, isOpen, minDate, onChange]);
 
   // Display
   const displayValue = value
@@ -227,22 +233,20 @@ const DatePicker: React.FC<DatePickerProps> = ({
 
   const filteredDays = DAYS31.filter(d => d <= getDaysInMonth(selMonth, selYear));
 
-  // Popup position: below trigger, constrained to viewport
-  const popupStyle: React.CSSProperties = { position: 'fixed', zIndex: 9999, width: 300 };
+  // Popup position: centered below trigger, constrained to viewport
+  const POPUP_W = 280;
+  const popupStyle: React.CSSProperties = { position: 'fixed', zIndex: 9999, width: POPUP_W };
   if (rect) {
     const spaceBelow = window.innerHeight - rect.bottom - 8;
-    if (spaceBelow >= 360) {
-      popupStyle.top = rect.bottom + 8;
+    if (spaceBelow >= 300) {
+      popupStyle.top = rect.bottom + 6;
     } else {
-      popupStyle.bottom = window.innerHeight - rect.top + 8;
+      popupStyle.bottom = window.innerHeight - rect.top + 6;
     }
-    // align right edge to trigger right edge (RTL-friendly)
-    const left = rect.right - 300;
-    popupStyle.left = Math.max(8, Math.min(left, window.innerWidth - 308));
+    // center popup under trigger
+    const centerLeft = rect.left + rect.width / 2 - POPUP_W / 2;
+    popupStyle.left = Math.max(8, Math.min(centerLeft, window.innerWidth - POPUP_W - 8));
   }
-
-  const confirmLabel = isRTL ? 'تأكيد' : 'Confirm';
-  const headerLabel  = placeholder || (isRTL ? 'اختر التاريخ' : 'Select date');
 
   const popup = (
     <div
@@ -250,22 +254,9 @@ const DatePicker: React.FC<DatePickerProps> = ({
       style={popupStyle}
       className="rounded-2xl overflow-hidden shadow-[0_12px_40px_rgba(16,48,43,0.18)] border border-primary/30"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-primary/15"
-        style={{ background: 'linear-gradient(135deg, #fdf6ee 0%, #f5e8d4 100%)' }}>
-        <span className="text-sm font-bold text-secondary font-dubai">{headerLabel}</span>
-        <button
-          type="button"
-          onClick={() => setIsOpen(false)}
-          className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-primary/15 transition-colors text-secondary/50 text-lg leading-none"
-        >
-          ×
-        </button>
-      </div>
-
       {/* Wheels container */}
       <div
-        className="flex gap-0 px-3 py-1"
+        className="flex gap-0 px-3 py-2"
         dir="ltr"
         style={{ background: FADE_COLOR }}
       >
@@ -274,17 +265,6 @@ const DatePicker: React.FC<DatePickerProps> = ({
         <WheelCol items={MONTHS12}    selected={selMonth} onSelect={setSelMonth} format={fmtMonth} />
         <div className="w-px mx-1 bg-primary/15 self-stretch my-3" />
         <WheelCol items={YEARS}       selected={selYear}  onSelect={setSelYear}  format={fmtYear} />
-      </div>
-
-      {/* Confirm btn */}
-      <div className="px-4 pb-4 pt-1" style={{ background: FADE_COLOR }}>
-        <button
-          type="button"
-          onClick={handleConfirm}
-          className="w-full py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 transition-colors"
-        >
-          {confirmLabel}
-        </button>
       </div>
     </div>
   );
