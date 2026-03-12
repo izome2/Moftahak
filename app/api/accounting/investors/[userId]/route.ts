@@ -124,14 +124,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       };
     });
 
-    // ⚡ المسحوبات عبر DB aggregation
-    const totalWithdrawals = await prisma.withdrawal.aggregate({
-      _sum: { amount: true },
-      where: { apartmentInvestorId: inv.id, deletedAt: null },
-    });
-
-    const withdrawalAmount = totalWithdrawals._sum.amount || 0;
-
     return {
       investmentId: inv.id,
       apartment: inv.apartment,
@@ -141,22 +133,36 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       totalExpenses,
       profit: totalRevenue - totalExpenses,
       investorProfit: totalInvestorProfit,
-      totalWithdrawals: withdrawalAmount,
-      balance: totalInvestorProfit - withdrawalAmount,
       monthlyBreakdown,
     };
   }));
 
-  // حساب الإجماليات
+  // ⚡ حساب إجمالي المسحوبات عبر كل الشقق (وليس لكل شقة على حدة)
+  const allInvestmentIds = investments.map(inv => inv.id);
+  const globalWithdrawals = await prisma.withdrawal.aggregate({
+    _sum: { amount: true },
+    where: { apartmentInvestorId: { in: allInvestmentIds }, deletedAt: null },
+  });
+  const totalGlobalWithdrawals = globalWithdrawals._sum.amount || 0;
+
+  // حساب الإجماليات - الرصيد الإجمالي = إجمالي الأرباح - إجمالي المسحوبات من كل الشقق
+  const totalInvestorProfitAll = result.reduce((s, r) => s + r.investorProfit, 0);
   const totals = {
-    totalInvestorProfit: result.reduce((s, r) => s + r.investorProfit, 0),
-    totalWithdrawals: result.reduce((s, r) => s + r.totalWithdrawals, 0),
-    totalBalance: result.reduce((s, r) => s + r.balance, 0),
+    totalInvestorProfit: totalInvestorProfitAll,
+    totalWithdrawals: totalGlobalWithdrawals,
+    totalBalance: totalInvestorProfitAll - totalGlobalWithdrawals,
   };
+
+  // إضافة بيانات المسحوبات لكل شقة (للعرض فقط)
+  const investmentsWithWithdrawals = result.map(r => ({
+    ...r,
+    totalWithdrawals: 0, // المسحوبات الآن إجمالية وليست لكل شقة
+    balance: r.investorProfit, // رصيد الشقة = أرباحها فقط (المسحوبات تُخصم من الإجمالي)
+  }));
 
   return successResponse({
     investor: user,
-    investments: result,
+    investments: investmentsWithWithdrawals,
     totals,
   });
 }

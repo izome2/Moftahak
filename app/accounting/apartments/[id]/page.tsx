@@ -92,7 +92,6 @@ export default function ApartmentDetailPage() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRow[]>([]);
-  const [withdrawalsMap, setWithdrawalsMap] = useState<Record<string, number>>({});
 
   const [loadingApt, setLoadingApt] = useState(true);
   const [loadingData, setLoadingData] = useState(true);
@@ -122,7 +121,7 @@ export default function ApartmentDetailPage() {
       const [summaryRes, bookingsRes, expensesRes] = await Promise.all([
         fetch(`/api/accounting/apartments/${apartmentId}/summary?month=${m}`),
         fetch(`/api/accounting/bookings?apartmentId=${apartmentId}&month=${m}`),
-        fetch(`/api/accounting/expenses?apartmentId=${apartmentId}&month=${m}`),
+        fetch(`/api/accounting/expenses?apartmentId=${apartmentId}&month=${m}&approvalStatus=APPROVED`),
       ]);
 
       const [summaryJson, bookingsJson, expensesJson] = await Promise.all([
@@ -148,37 +147,12 @@ export default function ApartmentDetailPage() {
       } else {
         setExpenses([]);
       }
-
-      // Fetch withdrawals for investors if applicable
-      if (canViewInvestors && apartment?.investors?.length) {
-        try {
-          const wMap: Record<string, number> = {};
-          await Promise.all(
-            apartment.investors.map(async (inv) => {
-              const wRes = await fetch(
-                `/api/accounting/investors/${inv.user.id}/withdrawals?month=${m}`
-              );
-              if (wRes.ok) {
-                const wJson = await wRes.json();
-                const total = (wJson.withdrawals || []).reduce(
-                  (s: number, w: { amount: number }) => s + w.amount,
-                  0
-                );
-                wMap[inv.user.id] = total;
-              }
-            })
-          );
-          setWithdrawalsMap(wMap);
-        } catch {
-          // Non-critical, proceed without withdrawals
-        }
-      }
     } catch (err) {
       console.error('Error fetching monthly data:', err);
     } finally {
       setLoadingData(false);
     }
-  }, [apartmentId, canViewInvestors, apartment?.investors]);
+  }, [apartmentId]);
 
   useEffect(() => {
     fetchApartment();
@@ -321,7 +295,6 @@ export default function ApartmentDetailPage() {
         <InvestorsTable
           investors={apartment.investors}
           profit={summary?.profit || 0}
-          withdrawals={withdrawalsMap}
           isLoading={loadingData}
         />
       )}

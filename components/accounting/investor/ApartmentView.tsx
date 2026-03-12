@@ -100,10 +100,10 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
               {t.accounting.investorPortal.myPercentage} {(investment.percentage * 100).toFixed(1)}%
             </span>
             <span className={`flex items-center gap-1 text-xs font-bold font-dubai ${
-              investment.balance >= 0 ? 'text-[#8a9a7a]' : 'text-[#c09080]'
+              investment.investorProfit >= 0 ? 'text-[#8a9a7a]' : 'text-[#c09080]'
             }`}>
               <DollarSign className="w-3 h-3" />
-              {t.accounting.investorPortal.balance} {formatCurrency(investment.balance, currency)}
+              {t.accounting.investorPortal.profit}: {formatCurrency(investment.investorProfit, currency)}
             </span>
           </div>
         </div>
@@ -205,8 +205,6 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                   <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
                     <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investors.percentageLabel}</th>
                     <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.profit}</th>
-                    <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.totalWithdrawals}</th>
-                    <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.remainingBalance}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -221,18 +219,6 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                     <td className="px-4 py-3">
                       <span className="text-[#8a9a7a] font-bold text-xs font-dubai">
                         {formatCurrency(investment.investorProfit, currency)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-[#c09080] font-bold text-xs font-dubai">
-                        {formatCurrency(investment.totalWithdrawals, currency)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`font-bold text-xs font-dubai ${
-                        investment.balance >= 0 ? 'text-secondary' : 'text-[#c09080]'
-                      }`}>
-                        {formatCurrency(investment.balance, currency)}
                       </span>
                     </td>
                   </tr>

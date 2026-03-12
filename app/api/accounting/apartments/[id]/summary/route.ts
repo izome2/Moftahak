@@ -82,6 +82,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       where: {
         apartmentId,
         deletedAt: null,
+        approvalStatus: 'APPROVED',
         ...(dateFilter ? { date: dateFilter } : {}),
       },
     }),
@@ -101,6 +102,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       where: {
         apartmentId,
         deletedAt: null,
+        approvalStatus: 'APPROVED',
         ...(dateFilter ? { date: dateFilter } : {}),
       },
     }),

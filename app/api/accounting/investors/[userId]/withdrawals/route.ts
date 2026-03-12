@@ -117,36 +117,58 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   });
   if (!investment) return notFoundResponse('الاستثمار');
 
-  // 🔒 Enterprise: حماية السحب الزائد (Overdraw Protection)
-  // حساب رصيد المستثمر الحالي
-  const [snapshots, investorSnapshots, existingWithdrawals] = await Promise.all([
+  // 🔒 حساب رصيد المستثمر الإجمالي عبر كل الشقق (وليس شقة واحدة)
+  // جلب كل استثمارات المستثمر
+  const allInvestments = await prisma.apartmentInvestor.findMany({
+    where: { userId },
+    select: { id: true, apartmentId: true, percentage: true },
+  });
+
+  const allInvestmentIds = allInvestments.map(i => i.id);
+
+  // حساب إجمالي الأرباح عبر كل الشقق + إجمالي المسحوبات
+  const [allSnapshots, allInvestorSnapshots, allExistingWithdrawals] = await Promise.all([
     prisma.monthlySnapshot.findMany({
-      where: { apartmentId: investment.apartmentId },
-      select: { month: true, profit: true, isLocked: true },
+      where: { apartmentId: { in: allInvestments.map(i => i.apartmentId) } },
+      select: { apartmentId: true, month: true, profit: true, isLocked: true },
     }),
     prisma.monthlyInvestorSnapshot.findMany({
-      where: { apartmentInvestorId },
-      select: { month: true, percentage: true },
+      where: { apartmentInvestorId: { in: allInvestmentIds } },
+      select: { apartmentInvestorId: true, month: true, percentage: true },
     }),
     prisma.withdrawal.aggregate({
       _sum: { amount: true },
-      where: { apartmentInvestorId, deletedAt: null },
+      where: { apartmentInvestorId: { in: allInvestmentIds }, deletedAt: null },
     }),
   ]);
 
-  const historicalPctMap = new Map(investorSnapshots.map(s => [s.month, s.percentage]));
+  // خريطة النسب التاريخية لكل استثمار
+  const historicalPctMap = new Map<string, Map<string, number>>();
+  for (const s of allInvestorSnapshots) {
+    if (!historicalPctMap.has(s.apartmentInvestorId)) {
+      historicalPctMap.set(s.apartmentInvestorId, new Map());
+    }
+    historicalPctMap.get(s.apartmentInvestorId)!.set(s.month, s.percentage);
+  }
+
+  // خريطة الاستثمارات
+  const investmentMap = new Map(allInvestments.map(i => [i.apartmentId, i]));
+
   let totalInvestorProfit = 0;
-  for (const snap of snapshots) {
+  for (const snap of allSnapshots) {
+    const inv = investmentMap.get(snap.apartmentId);
+    if (!inv) continue;
+    const pctMap = historicalPctMap.get(inv.id);
     const pct = snap.isLocked
-      ? (historicalPctMap.get(snap.month) ?? investment.percentage)
-      : investment.percentage;
+      ? (pctMap?.get(snap.month) ?? inv.percentage)
+      : inv.percentage;
     totalInvestorProfit += snap.profit * pct;
   }
 
-  const totalWithdrawn = existingWithdrawals._sum.amount || 0;
+  const totalWithdrawn = allExistingWithdrawals._sum.amount || 0;
   const currentBalance = totalInvestorProfit - totalWithdrawn;
 
-  // ✅ يُسمح بالاستلاف (السحب أكثر من الرصيد المتاح) - الرصيد قد يصبح سالباً
+  // ✅ يُسمح بالاستلاف (السحب أكثر من الرصيد المتاح) - الرصيد يصبح سالباً (سلفة/رصيد مدين)
 
   const withdrawal = await prisma.withdrawal.create({
     data: {

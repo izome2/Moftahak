@@ -43,8 +43,9 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   const t = useTranslation();
   const { language } = useLanguage();
   const locale = language === 'ar' ? 'ar-EG' : 'en-US';
-  const [apartmentInvestorId, setApartmentInvestorId] = useState(
-    investments.length === 1 ? investments[0].id : ''
+  // السحب من إجمالي الأرباح في كل الشقق - نستخدم أول استثمار كمرجع للربط
+  const [apartmentInvestorId] = useState(
+    investments.length > 0 ? investments[0].id : ''
   );
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState('USD');
@@ -144,36 +145,15 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-5 space-y-4" dir="rtl">
-            {/* Apartment Investment */}
-            {investments.length > 1 && (
-              <div>
-                <label className="flex items-center gap-1.5 text-xs font-medium text-secondary/70 mb-1.5 font-dubai">
-                  <Building2 className="w-3 h-3" />
-                  {t.accounting.withdrawalForm.apartmentInvestment}
-                </label>
-                <CustomSelect
-                  value={apartmentInvestorId}
-                  onChange={setApartmentInvestorId}
-                  className="w-full"
-                  placeholder={t.accounting.withdrawalForm.selectApartment}
-                  required
-                  emptyMessage={t.accounting.withdrawalForm.noInvestments}
-                  options={investments.map(inv => ({
-                    value: inv.id,
-                    label: `${inv.apartment.name} (${(inv.percentage * 100).toFixed(1)}%)`,
-                  }))}
-                />
-              </div>
-            )}
-
-            {investments.length === 1 && (
-              <div className="bg-primary/5 rounded-xl px-3 py-2.5 text-xs text-secondary/70 font-dubai
-                flex items-center gap-1.5"
-              >
-                <Building2 className="w-3 h-3 text-secondary/40" />
-                {investments[0].apartment.name} — {t.accounting.withdrawalForm.percentage} {(investments[0].percentage * 100).toFixed(1)}%
-              </div>
-            )}
+            {/* Investments Summary - السحب من إجمالي الأرباح */}
+            <div className="bg-primary/5 rounded-xl px-3 py-2.5 text-xs text-secondary/70 font-dubai space-y-1">
+              {investments.map(inv => (
+                <div key={inv.id} className="flex items-center gap-1.5">
+                  <Building2 className="w-3 h-3 text-secondary/40 shrink-0" />
+                  <span>{inv.apartment.name} — {t.accounting.withdrawalForm.percentage} {(inv.percentage * 100).toFixed(1)}%</span>
+                </div>
+              ))}
+            </div>
 
             {/* Amount + Currency */}
             <div className="flex gap-3">

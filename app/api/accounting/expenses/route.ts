@@ -40,6 +40,10 @@ export async function GET(request: NextRequest) {
   if (apartmentId) where.apartmentId = apartmentId;
   if (category) where.category = category;
 
+  // فلترة حسب حالة الاعتماد (مثلاً: approvalStatus=APPROVED لصفحة الشقة)
+  const approvalStatus = searchParams.get('approvalStatus');
+  if (approvalStatus) where.approvalStatus = approvalStatus;
+
   if (month) {
     const [year, m] = month.split('-').map(Number);
     where.date = {

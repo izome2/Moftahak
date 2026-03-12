@@ -591,7 +591,7 @@ const accountingTranslations = {
         noInvestors: 'لا يوجد مستثمرين مسجلين',
         addInvestorHint: 'أضف مستثمراً جديداً من زر "ربط مستثمر بشقة"',
         apartmentUnit: 'شقة',
-        registerWithdrawal: 'تسجيل مسحوبة',
+        registerWithdrawal: 'تسجيل سحب أرباح',
         viewFinancialDetails: 'عرض التفاصيل المالية',
         noLinkedInvestments: 'لا يوجد استثمارات مرتبطة',
         editPercentageAction: 'تعديل النسبة',
@@ -635,7 +635,7 @@ const accountingTranslations = {
       // Withdrawal Form
       // ============================================
       withdrawalForm: {
-        title: 'تسجيل مسحوبة',
+        title: 'تسجيل سحب أرباح',
         apartmentInvestment: 'الشقة (الاستثمار)',
         selectApartment: 'اختر الشقة...',
         noInvestments: 'لا يوجد استثمارات حتى الآن',
@@ -645,7 +645,7 @@ const accountingTranslations = {
         withdrawalDate: 'تاريخ السحب',
         notes: 'ملاحظات (اختياري)',
         notesPlaceholder: 'وصف السحب...',
-        submit: 'تسجيل المسحوبة',
+        submit: 'تسجيل سحب الأرباح',
       },
 
       // ============================================
@@ -669,6 +669,7 @@ const accountingTranslations = {
         totalProfits: 'إجمالي الأرباح',
         totalWithdrawals: 'إجمالي المسحوبات',
         remainingBalance: 'الرصيد المتبقي',
+        advanceBalance: 'سلفة (رصيد مدين)',
 
         // Monthly summary
         monthlyProfit: 'الربح الشهري',
@@ -1703,7 +1704,7 @@ const accountingTranslations = {
         noInvestors: 'No investors registered',
         addInvestorHint: 'Add a new investor using the "Assign Investor" button',
         apartmentUnit: 'apartment',
-        registerWithdrawal: 'Record Withdrawal',
+        registerWithdrawal: 'Record Profit Withdrawal',
         viewFinancialDetails: 'View Financial Details',
         noLinkedInvestments: 'No linked investments',
         editPercentageAction: 'Edit Percentage',
@@ -1738,7 +1739,7 @@ const accountingTranslations = {
       },
 
       withdrawalForm: {
-        title: 'Record Withdrawal',
+        title: 'Record Profit Withdrawal',
         apartmentInvestment: 'Apartment (Investment)',
         selectApartment: 'Select apartment...',
         noInvestments: 'No investments yet',
@@ -1748,7 +1749,7 @@ const accountingTranslations = {
         withdrawalDate: 'Withdrawal Date',
         notes: 'Notes (optional)',
         notesPlaceholder: 'Withdrawal description...',
-        submit: 'Record Withdrawal',
+        submit: 'Record Profit Withdrawal',
       },
 
       investorPortal: {
@@ -1768,6 +1769,7 @@ const accountingTranslations = {
         totalProfits: 'Total Profits',
         totalWithdrawals: 'Total Withdrawals',
         remainingBalance: 'Remaining Balance',
+        advanceBalance: 'Advance (Debit Balance)',
 
         monthlyProfit: 'Monthly Profit',
         noDataThisYear: 'No data for this year',

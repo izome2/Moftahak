@@ -108,7 +108,9 @@ const BalanceCard: React.FC<BalanceCardProps> = ({
               <Wallet className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#d4b0a0]" />
             )}
           </div>
-          <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.investorPortal.remainingBalance}</p>
+          <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">
+            {balance < 0 ? t.accounting.investorPortal.advanceBalance : t.accounting.investorPortal.remainingBalance}
+          </p>
           <p className={`text-[15px] sm:text-lg font-bold font-dubai leading-tight ${
             isPositive ? 'text-[#b5c4a5]' : isZero ? 'text-white/40' : 'text-[#d4b0a0]'
           }`}>

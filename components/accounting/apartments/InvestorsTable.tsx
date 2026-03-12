@@ -78,15 +78,11 @@ const InvestorsTable: React.FC<InvestorsTableProps> = ({
                 <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.name}</th>
                 <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.percentage}</th>
                 <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.profitHeader}</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">{t.accounting.apartments.withdrawals}</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.remaining}</th>
               </tr>
             </thead>
             <tbody>
               {investors.map((investor, i) => {
                 const investorProfit = profit * investor.percentage;
-                const investorWithdrawals = withdrawals[investor.user.id] || 0;
-                const remaining = investorProfit - investorWithdrawals;
 
                 return (
                   <tr
@@ -110,14 +106,6 @@ const InvestorsTable: React.FC<InvestorsTableProps> = ({
                     </td>
                     <td className="p-3 text-center font-bold text-[#8a9a7a] font-dubai">
                       {formatCurrency(investorProfit)}
-                    </td>
-                    <td className="p-3 text-center text-[#c09080] font-dubai hidden sm:table-cell">
-                      {investorWithdrawals > 0 ? formatCurrency(investorWithdrawals) : '—'}
-                    </td>
-                    <td className="p-3 text-center font-bold font-dubai">
-                      <span className={remaining >= 0 ? 'text-secondary' : 'text-[#c09080]'}>
-                        {formatCurrency(remaining)}
-                      </span>
                     </td>
                   </tr>
                 );
