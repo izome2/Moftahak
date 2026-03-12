@@ -438,7 +438,7 @@ export default function BookingsPage() {
         initialData={editBooking}
         apartments={formApartments}
         hideFinancials={hideFinancials}
-        blockPastDates={hideFinancials}
+        blockPastDates
       />
 
       {/* Delete Confirmation Dialog */}

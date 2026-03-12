@@ -15,7 +15,7 @@ interface DatePickerProps {
   className?: string;
 }
 
-const ITEM_H = 28;
+const ITEM_H = 32;
 const VISIBLE = 5;
 const PAD = Math.floor(VISIBLE / 2); // 2
 
@@ -74,9 +74,13 @@ function WheelCol({ items, selected, onSelect, format }: WheelColProps) {
   };
 
   const handleClick = (v: number) => {
+    programmatic.current = true;
     onSelect(v);
     const idx = items.indexOf(v);
-    listRef.current?.scrollTo({ top: idx * ITEM_H, behavior: 'smooth' });
+    if (idx !== -1 && listRef.current) {
+      listRef.current.scrollTo({ top: idx * ITEM_H, behavior: 'smooth' });
+    }
+    setTimeout(() => { programmatic.current = false; }, 300);
   };
 
   // Gradual opacity based on distance from selected
@@ -90,7 +94,7 @@ function WheelCol({ items, selected, onSelect, format }: WheelColProps) {
     return {
       height: ITEM_H,
       scrollSnapAlign: 'start' as const,
-      fontSize: isSel ? 14 : 11,
+      fontSize: isSel ? 15 : 12.5,
       fontWeight: isSel ? 700 : 400,
       color: isSel
         ? 'var(--color-secondary, #10302b)'
@@ -109,7 +113,7 @@ function WheelCol({ items, selected, onSelect, format }: WheelColProps) {
         style={{ height: PAD * ITEM_H, background: `linear-gradient(to top, ${FADE_COLOR}, ${FADE_CLEAR})` }}
       />
       <div
-        className="pointer-events-none absolute inset-x-1 z-10 rounded-md border border-primary/35 bg-primary/10"
+        className="pointer-events-none absolute inset-x-1 z-10 rounded-lg border border-primary/35 bg-primary/10"
         style={{ top: PAD * ITEM_H, height: ITEM_H }}
       />
       <div
