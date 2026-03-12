@@ -124,6 +124,8 @@ function WheelCol({ items, selected, onSelect, format }: WheelColProps) {
           scrollSnapType: 'y mandatory',
           paddingTop: PAD * ITEM_H,
           paddingBottom: PAD * ITEM_H,
+          scrollPaddingTop: PAD * ITEM_H,
+          scrollPaddingBottom: PAD * ITEM_H,
         }}
       >
         {items.map(item => (

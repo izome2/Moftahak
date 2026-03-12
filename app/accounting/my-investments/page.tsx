@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Wallet,
   RefreshCw,
   Loader2,
   Info,
   Building2,
+  DollarSign,
+  Receipt,
+  TrendingUp,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
@@ -14,6 +17,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import ApartmentView from '@/components/accounting/investor/ApartmentView';
 import WithdrawalsTable from '@/components/accounting/investor/WithdrawalsTable';
 import BalanceCard from '@/components/accounting/investor/BalanceCard';
+import AccountingStatsCard from '@/components/accounting/dashboard/StatsCards';
 
 // --- Types ---
 interface MonthlyBreakdown {
@@ -75,6 +79,18 @@ export default function MyInvestmentsPage() {
   const [withdrawalsTotal, setWithdrawalsTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Aggregate stats for widgets
+  const aggregateStats = useMemo(() => {
+    const totalRevenue = investments.reduce((s, inv) => s + inv.totalRevenue, 0);
+    const totalExpenses = investments.reduce((s, inv) => s + inv.totalExpenses, 0);
+    return { totalRevenue, totalExpenses, apartmentsCount: investments.length };
+  }, [investments]);
+
+  const formatCurrency = (amount: number) =>
+    '$' + new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(amount);
+
+  const fmtNum = (n: number) => new Intl.NumberFormat('en-US').format(n);
 
   // --- Fetch investor data ---
   const fetchData = useCallback(async () => {
@@ -191,6 +207,31 @@ export default function MyInvestmentsPage() {
             balance={totals.totalBalance}
             currency="USD"
           />
+
+          {/* Stats Widgets */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+            <AccountingStatsCard
+              icon={DollarSign}
+              label={t.accounting.dashboard.totalRevenue}
+              value={isLoading ? '...' : formatCurrency(aggregateStats.totalRevenue)}
+              index={0}
+              isLoading={isLoading}
+            />
+            <AccountingStatsCard
+              icon={Receipt}
+              label={t.accounting.dashboard.totalExpenses}
+              value={isLoading ? '...' : formatCurrency(aggregateStats.totalExpenses)}
+              index={1}
+              isLoading={isLoading}
+            />
+            <AccountingStatsCard
+              icon={Building2}
+              label={t.accounting.dashboard.apartmentsCount}
+              value={isLoading ? '...' : fmtNum(aggregateStats.apartmentsCount)}
+              index={2}
+              isLoading={isLoading}
+            />
+          </div>
 
           {/* Apartments count */}
           {investments.length > 0 && (

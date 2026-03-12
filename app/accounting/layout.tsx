@@ -70,7 +70,7 @@ export default function AccountingLayout({
         {/* المحتوى الرئيسي */}
         <main className="relative min-h-screen lg:mr-[21rem]">
           <div className="h-full min-h-screen p-4 sm:p-6 lg:p-8 lg:pr-4">
-            <div className="flex-1 overflow-hidden flex flex-col bg-white/95 rounded-xl lg:rounded-2xl shadow-[0_15px_60px_rgba(237,191,140,0.65)] border-2 border-primary/10 min-h-[calc(100vh-4rem)]">
+            <div className="flex-1 overflow-visible flex flex-col bg-white/95 rounded-xl lg:rounded-2xl shadow-[0_15px_60px_rgba(237,191,140,0.65)] border-2 border-primary/10 min-h-[calc(100vh-4rem)]">
               {children}
             </div>
           </div>
