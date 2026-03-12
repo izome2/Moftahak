@@ -14,14 +14,14 @@ interface DatePickerProps {
   className?: string;
 }
 
-const ITEM_H = 44;
-const VISIBLE = 5;
-const PAD = Math.floor(VISIBLE / 2); // 2
+const ITEM_H = 34;
+const VISIBLE = 3;
+const PAD = Math.floor(VISIBLE / 2); // 1
 
 const DAYS31 = Array.from({ length: 31 }, (_, i) => i + 1);
 const MONTHS12 = Array.from({ length: 12 }, (_, i) => i + 1);
 const YEAR_NOW = new Date().getFullYear();
-const YEARS = Array.from({ length: 11 }, (_, i) => YEAR_NOW - 5 + i);
+const YEARS_FUTURE = Array.from({ length: 6 }, (_, i) => YEAR_NOW + i);
 
 // Beige off-white for gradient fade (matches brand --color-white)
 const FADE_COLOR = 'rgba(253,246,238,1)';
@@ -93,7 +93,7 @@ function WheelCol({ items, selected, onSelect, format }: WheelColProps) {
       />
       {/* center highlight band */}
       <div
-        className="pointer-events-none absolute inset-x-1 z-10 rounded-xl border border-primary/40 bg-primary/12"
+        className="pointer-events-none absolute inset-x-1 z-10 rounded-lg border border-primary/40 bg-primary/12"
         style={{ top: PAD * ITEM_H, height: ITEM_H }}
       />
       {/* scroll list */}
@@ -117,7 +117,7 @@ function WheelCol({ items, selected, onSelect, format }: WheelColProps) {
               style={{
                 height: ITEM_H,
                 scrollSnapAlign: 'start',
-                fontSize: isSel ? 17 : 14,
+                fontSize: isSel ? 15 : 12,
                 fontWeight: isSel ? 700 : 400,
                 color: isSel ? 'var(--color-secondary, #10302b)' : 'rgba(16,48,43,0.28)',
               }}
@@ -231,14 +231,40 @@ const DatePicker: React.FC<DatePickerProps> = ({
   const fmtMonth = (m: number) => monthNames[m - 1];
   const fmtYear  = (y: number) => new Intl.NumberFormat(locale, { useGrouping: false }).format(y);
 
-  const filteredDays = DAYS31.filter(d => d <= getDaysInMonth(selMonth, selYear));
+  // Filter: no past dates
+  const nowD = new Date();
+  const nowYear = nowD.getFullYear();
+  const nowMonth = nowD.getMonth() + 1;
+  const nowDay = nowD.getDate();
+
+  const filteredYears = YEARS_FUTURE;
+  const filteredMonths = selYear === nowYear
+    ? MONTHS12.filter(m => m >= nowMonth)
+    : MONTHS12;
+  const maxDaysInMonth = getDaysInMonth(selMonth, selYear);
+  const filteredDays = DAYS31.filter(d => {
+    if (d > maxDaysInMonth) return false;
+    if (selYear === nowYear && selMonth === nowMonth && d < nowDay) return false;
+    return true;
+  });
+
+  // Clamp selection if current value is now out of range
+  useEffect(() => {
+    if (selYear < nowYear) setSelYear(nowYear);
+  }, [selYear, nowYear]);
+  useEffect(() => {
+    if (selYear === nowYear && selMonth < nowMonth) setSelMonth(nowMonth);
+  }, [selYear, selMonth, nowYear, nowMonth]);
+  useEffect(() => {
+    if (selYear === nowYear && selMonth === nowMonth && selDay < nowDay) setSelDay(nowDay);
+  }, [selYear, selMonth, selDay, nowYear, nowMonth, nowDay]);
 
   // Popup position: centered below trigger, constrained to viewport
-  const POPUP_W = 280;
+  const POPUP_W = 260;
   const popupStyle: React.CSSProperties = { position: 'fixed', zIndex: 9999, width: POPUP_W };
   if (rect) {
     const spaceBelow = window.innerHeight - rect.bottom - 8;
-    if (spaceBelow >= 300) {
+    if (spaceBelow >= 160) {
       popupStyle.top = rect.bottom + 6;
     } else {
       popupStyle.bottom = window.innerHeight - rect.top + 6;
@@ -260,11 +286,11 @@ const DatePicker: React.FC<DatePickerProps> = ({
         dir="ltr"
         style={{ background: FADE_COLOR }}
       >
-        <WheelCol items={filteredDays} selected={selDay}   onSelect={setSelDay}   format={fmtDay} />
-        <div className="w-px mx-1 bg-primary/15 self-stretch my-3" />
-        <WheelCol items={MONTHS12}    selected={selMonth} onSelect={setSelMonth} format={fmtMonth} />
-        <div className="w-px mx-1 bg-primary/15 self-stretch my-3" />
-        <WheelCol items={YEARS}       selected={selYear}  onSelect={setSelYear}  format={fmtYear} />
+        <WheelCol items={filteredDays}   selected={selDay}   onSelect={setSelDay}   format={fmtDay} />
+        <div className="w-px mx-1 bg-primary/15 self-stretch my-2" />
+        <WheelCol items={filteredMonths} selected={selMonth} onSelect={setSelMonth} format={fmtMonth} />
+        <div className="w-px mx-1 bg-primary/15 self-stretch my-2" />
+        <WheelCol items={filteredYears}  selected={selYear}  onSelect={setSelYear}  format={fmtYear} />
       </div>
     </div>
   );
@@ -382,6 +408,22 @@ export const MonthPicker: React.FC<MonthPickerProps> = ({
   const fmtMonth = (m: number) => monthNames[m - 1];
   const fmtYear = (y: number) => new Intl.NumberFormat(locale, { useGrouping: false }).format(y);
 
+  // Filter: no past months
+  const mpNow = new Date();
+  const mpNowYear = mpNow.getFullYear();
+  const mpNowMonth = mpNow.getMonth() + 1;
+  const filteredMonthsMP = selYear === mpNowYear
+    ? MONTHS12.filter(m => m >= mpNowMonth)
+    : MONTHS12;
+
+  // Clamp selection
+  useEffect(() => {
+    if (selYear < mpNowYear) setSelYear(mpNowYear);
+  }, [selYear, mpNowYear]);
+  useEffect(() => {
+    if (selYear === mpNowYear && selMonth < mpNowMonth) setSelMonth(mpNowMonth);
+  }, [selYear, selMonth, mpNowYear, mpNowMonth]);
+
   const displayValue = value
     ? (() => {
         const [y, m] = value.split('-').map(Number);
@@ -389,11 +431,11 @@ export const MonthPicker: React.FC<MonthPickerProps> = ({
       })()
     : '';
 
-  const POPUP_W = 220;
+  const POPUP_W = 200;
   const popupStyle: React.CSSProperties = { position: 'fixed', zIndex: 9999, width: POPUP_W };
   if (rect) {
     const spaceBelow = window.innerHeight - rect.bottom - 8;
-    if (spaceBelow >= 280) {
+    if (spaceBelow >= 160) {
       popupStyle.top = rect.bottom + 6;
     } else {
       popupStyle.bottom = window.innerHeight - rect.top + 6;
@@ -413,9 +455,9 @@ export const MonthPicker: React.FC<MonthPickerProps> = ({
         dir="ltr"
         style={{ background: FADE_COLOR }}
       >
-        <WheelCol items={MONTHS12} selected={selMonth} onSelect={setSelMonth} format={fmtMonth} />
-        <div className="w-px mx-1 bg-primary/15 self-stretch my-3" />
-        <WheelCol items={YEARS}    selected={selYear}  onSelect={setSelYear}  format={fmtYear} />
+        <WheelCol items={filteredMonthsMP} selected={selMonth} onSelect={setSelMonth} format={fmtMonth} />
+        <div className="w-px mx-1 bg-primary/15 self-stretch my-2" />
+        <WheelCol items={YEARS_FUTURE}     selected={selYear}  onSelect={setSelYear}  format={fmtYear} />
       </div>
     </div>
   );
