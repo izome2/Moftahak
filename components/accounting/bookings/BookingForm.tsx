@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, CalendarCheck, Loader2, Calendar, Phone, User, CreditCard, Clock, FileText, Building2 } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
 import NumberInput from '@/components/accounting/shared/NumberInput';
+import DatePicker from '@/components/accounting/shared/DatePicker';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -322,12 +323,10 @@ const BookingForm: React.FC<BookingFormProps> = ({
                     <Calendar size={14} className="text-[#8a9a7a]" />
                     {t.accounting.bookingForm.checkInDate} <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="date"
+                  <DatePicker
                     value={formData.checkIn}
-                    onChange={(e) => update('checkIn', e.target.value)}
-                    min={blockPastDates ? getToday() : undefined}
-                    className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors"
+                    onChange={(v) => update('checkIn', v)}
+                    minDate={blockPastDates ? getToday() : undefined}
                     required
                   />
                 </div>
@@ -336,12 +335,10 @@ const BookingForm: React.FC<BookingFormProps> = ({
                     <Calendar size={14} className="text-[#c09080]" />
                     {t.accounting.bookingForm.checkOutDate} <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="date"
+                  <DatePicker
                     value={formData.checkOut}
-                    onChange={(e) => update('checkOut', e.target.value)}
-                    min={formData.checkIn || undefined}
-                    className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors"
+                    onChange={(v) => update('checkOut', v)}
+                    minDate={formData.checkIn || undefined}
                     required
                   />
                 </div>

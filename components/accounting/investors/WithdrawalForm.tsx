@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
 import NumberInput from '@/components/accounting/shared/NumberInput';
+import DatePicker from '@/components/accounting/shared/DatePicker';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -192,13 +193,9 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 <Calendar className="w-3 h-3" />
                 {t.accounting.withdrawalForm.withdrawalDate}
               </label>
-              <input
-                type="date"
+              <DatePicker
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3 py-2.5 text-sm border-2 border-primary/20 rounded-xl
-                  focus:outline-none focus:border-primary
-                  font-dubai"
+                onChange={(v) => setDate(v)}
                 required
               />
             </div>
@@ -235,8 +232,8 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 bg-red-600 text-white rounded-xl text-sm font-bold font-dubai
-                hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+              className="w-full py-2.5 bg-rose-50 text-rose-700 border border-rose-200/60 rounded-xl text-sm font-bold font-dubai
+                hover:bg-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
                 flex items-center justify-center gap-2"
             >
               {isLoading ? (

@@ -469,6 +469,22 @@ const accountingTranslations = {
 
         amountLabel: 'المبلغ:',
         countLabel: 'العدد:',
+
+        // Approval
+        allStatuses: 'كل الحالات',
+        statusPENDING: 'بانتظار الاعتماد',
+        statusAPPROVED: 'معتمد',
+        statusREJECTED: 'مرفوض',
+        approve: 'اعتماد',
+        reject: 'رفض',
+        rejectionReasonTitle: 'سبب الرفض',
+        rejectionReasonPlaceholder: 'اكتب سبب رفض المصروف...',
+        rejectionReasonRequired: 'يجب ذكر سبب الرفض',
+        approveConfirm: 'تأكيد الاعتماد',
+        approveConfirmMsg: 'هل تريد اعتماد هذا المصروف؟',
+        approvedSuccess: 'تم اعتماد المصروف',
+        rejectedSuccess: 'تم رفض المصروف',
+        status: 'الحالة',
       },
 
       // ============================================
@@ -1602,6 +1618,22 @@ const accountingTranslations = {
 
         amountLabel: 'Amount:',
         countLabel: 'Count:',
+
+        // Approval
+        allStatuses: 'All Statuses',
+        statusPENDING: 'Pending Approval',
+        statusAPPROVED: 'Approved',
+        statusREJECTED: 'Rejected',
+        approve: 'Approve',
+        reject: 'Reject',
+        rejectionReasonTitle: 'Rejection Reason',
+        rejectionReasonPlaceholder: 'Enter reason for rejecting the expense...',
+        rejectionReasonRequired: 'Rejection reason is required',
+        approveConfirm: 'Confirm Approval',
+        approveConfirmMsg: 'Do you want to approve this expense?',
+        approvedSuccess: 'Expense approved',
+        rejectedSuccess: 'Expense rejected',
+        status: 'Status',
       },
 
       expenseForm: {

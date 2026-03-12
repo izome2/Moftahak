@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Receipt, Loader2, Pencil, Trash2, FileText } from 'lucide-react';
+import { Receipt, Loader2, Pencil, Trash2, FileText, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import CategoryBadge from './CategoryBadge';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -16,6 +16,8 @@ interface ExpenseRow {
   date: string;
   notes?: string | null;
   apartment?: { id: string; name: string } | null;
+  approvalStatus?: string;
+  rejectionReason?: string | null;
 }
 
 interface ExpensesListProps {
@@ -26,9 +28,27 @@ interface ExpensesListProps {
   showApartment?: boolean;
   canEdit?: boolean;
   canDelete?: boolean;
+  canApprove?: boolean;
   onEdit?: (expense: ExpenseRow) => void;
   onDelete?: (expense: ExpenseRow) => void;
+  onApprove?: (expense: ExpenseRow) => void;
+  onReject?: (expense: ExpenseRow) => void;
 }
+
+const ApprovalBadge: React.FC<{ status?: string; rejectionReason?: string | null; t: ReturnType<typeof useTranslation> }> = ({ status, rejectionReason, t }) => {
+  if (!status) return null;
+  const config: Record<string, { icon: React.ReactNode; label: string; className: string }> = {
+    PENDING: { icon: <Clock size={11} />, label: t.accounting.expenses.statusPENDING, className: 'bg-amber-50 text-amber-700 border-amber-200' },
+    APPROVED: { icon: <CheckCircle2 size={11} />, label: t.accounting.expenses.statusAPPROVED, className: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    REJECTED: { icon: <XCircle size={11} />, label: t.accounting.expenses.statusREJECTED, className: 'bg-rose-50 text-rose-700 border-rose-200' },
+  };
+  const c = config[status] || config.PENDING;
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[10px] font-bold font-dubai ${c.className}`} title={rejectionReason || undefined}>
+      {c.icon} {c.label}
+    </span>
+  );
+};
 
 const ExpensesList: React.FC<ExpensesListProps> = ({
   expenses,
@@ -38,8 +58,11 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
   showApartment = true,
   canEdit = false,
   canDelete = false,
+  canApprove = false,
   onEdit,
   onDelete,
+  onApprove,
+  onReject,
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
@@ -52,7 +75,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat(locale).format(amount) + ' ' + currency;
 
-  const hasActions = canEdit || canDelete;
+  const hasActions = canEdit || canDelete || canApprove;
 
   return (
     <motion.div
@@ -121,22 +144,31 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <CategoryBadge category={expense.category} size="sm" showIcon={false} />
+                    <ApprovalBadge status={expense.approvalStatus} rejectionReason={expense.rejectionReason} t={t} />
                     <span className="text-[11px] text-secondary/60 font-dubai">{formatDate(expense.date)}</span>
                   </div>
-                  {hasActions && (
-                    <div className="flex items-center gap-0.5">
-                      {canEdit && onEdit && (
-                        <button onClick={() => onEdit(expense)} className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors">
-                          <Pencil size={13} className="text-secondary/50" />
+                  <div className="flex items-center gap-0.5">
+                    {canApprove && expense.approvalStatus === 'PENDING' && onApprove && onReject && (
+                      <>
+                        <button onClick={() => onApprove(expense)} className="p-1.5 hover:bg-emerald-50 rounded-lg transition-colors" title={t.accounting.expenses.approve}>
+                          <CheckCircle2 size={14} className="text-emerald-600" />
                         </button>
-                      )}
-                      {canDelete && onDelete && (
-                        <button onClick={() => onDelete(expense)} className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors">
-                          <Trash2 size={13} className="text-secondary/45" />
+                        <button onClick={() => onReject(expense)} className="p-1.5 hover:bg-rose-50 rounded-lg transition-colors" title={t.accounting.expenses.reject}>
+                          <XCircle size={14} className="text-rose-600" />
                         </button>
-                      )}
-                    </div>
-                  )}
+                      </>
+                    )}
+                    {canEdit && onEdit && (
+                      <button onClick={() => onEdit(expense)} className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors">
+                        <Pencil size={13} className="text-secondary/50" />
+                      </button>
+                    )}
+                    {canDelete && onDelete && (
+                      <button onClick={() => onDelete(expense)} className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors">
+                        <Trash2 size={13} className="text-secondary/45" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -154,8 +186,9 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                   <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.expenses.category}</th>
                   <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">{t.accounting.expenses.date}</th>
                   <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.expenses.amount}</th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.expenses.status}</th>
                   {hasActions && (
-                    <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai w-20">{t.accounting.expenses.actions}</th>
+                    <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai w-24">{t.accounting.expenses.actions}</th>
                   )}
                 </tr>
               </thead>
@@ -192,9 +225,30 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                     <td className="px-4 py-3.5 text-center font-bold text-secondary font-dubai text-[13px]">
                       {formatCurrency(expense.amount)}
                     </td>
+                    <td className="px-4 py-3.5 text-center">
+                      <ApprovalBadge status={expense.approvalStatus} rejectionReason={expense.rejectionReason} t={t} />
+                    </td>
                     {hasActions && (
                       <td className="px-4 py-3.5 text-center">
                         <div className="flex items-center justify-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {canApprove && expense.approvalStatus === 'PENDING' && onApprove && onReject && (
+                            <>
+                              <button
+                                onClick={() => onApprove(expense)}
+                                className="p-1.5 hover:bg-emerald-50 rounded-lg transition-colors"
+                                title={t.accounting.expenses.approve}
+                              >
+                                <CheckCircle2 size={14} className="text-emerald-600" />
+                              </button>
+                              <button
+                                onClick={() => onReject(expense)}
+                                className="p-1.5 hover:bg-rose-50 rounded-lg transition-colors"
+                                title={t.accounting.expenses.reject}
+                              >
+                                <XCircle size={14} className="text-rose-600" />
+                              </button>
+                            </>
+                          )}
                           {canEdit && onEdit && (
                             <button
                               onClick={() => onEdit(expense)}

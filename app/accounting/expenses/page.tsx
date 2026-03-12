@@ -40,6 +40,8 @@ interface ExpenseRow {
   date: string;
   notes?: string | null;
   apartment?: { id: string; name: string } | null;
+  approvalStatus?: string;
+  rejectionReason?: string | null;
 }
 
 interface CategoryBreakdown {
@@ -63,6 +65,7 @@ export default function ExpensesPage() {
   const canAdd = userRole === 'GENERAL_MANAGER' || userRole === 'ADMIN' || userRole === 'OPS_MANAGER';
   const canEdit = userRole === 'GENERAL_MANAGER' || userRole === 'ADMIN' || userRole === 'OPS_MANAGER';
   const canDelete = userRole === 'GENERAL_MANAGER' || userRole === 'ADMIN';
+  const canApprove = userRole === 'GENERAL_MANAGER' || userRole === 'ADMIN';
 
   // State
   const [expenses, setExpenses] = useState<ExpenseRow[]>([]);
@@ -70,6 +73,7 @@ export default function ExpensesPage() {
   const [month, setMonth] = useState(getCurrentMonth);
   const [selectedApartment, setSelectedApartment] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [search, setSearch] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -83,6 +87,12 @@ export default function ExpensesPage() {
   const [editExpense, setEditExpense] = useState<ExpenseFormData | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<ExpenseRow | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Approval state
+  const [approveConfirm, setApproveConfirm] = useState<ExpenseRow | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<ExpenseRow | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [isApproving, setIsApproving] = useState(false);
 
   // Show charts toggle
   const [showCharts, setShowCharts] = useState(true);
@@ -105,6 +115,7 @@ export default function ExpensesPage() {
       const params = new URLSearchParams({ month });
       if (selectedApartment) params.set('apartmentId', selectedApartment);
       if (selectedCategory) params.set('category', selectedCategory);
+      if (selectedStatus) params.set('approvalStatus', selectedStatus);
 
       const res = await fetch(`/api/accounting/expenses?${params}`);
       const json = await res.json();
@@ -119,7 +130,7 @@ export default function ExpensesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [month, selectedApartment, selectedCategory]);
+  }, [month, selectedApartment, selectedCategory, selectedStatus]);
 
   useEffect(() => { fetchApartments(); }, [fetchApartments]);
   useEffect(() => { fetchExpenses(); }, [fetchExpenses]);
@@ -235,6 +246,51 @@ export default function ExpensesPage() {
     setShowForm(true);
   };
 
+  // --- Approve handler ---
+  const handleApprove = async () => {
+    if (!approveConfirm) return;
+    try {
+      setIsApproving(true);
+      const res = await fetch(`/api/accounting/expenses/${approveConfirm.id}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'approve' }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || t.accounting.errors.unexpected);
+      toast.success(t.accounting.expenses.approvedSuccess);
+      setApproveConfirm(null);
+      await fetchExpenses();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t.accounting.errors.unexpected);
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
+  // --- Reject handler ---
+  const handleReject = async () => {
+    if (!rejectTarget || !rejectionReason.trim()) return;
+    try {
+      setIsApproving(true);
+      const res = await fetch(`/api/accounting/expenses/${rejectTarget.id}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reject', rejectionReason: rejectionReason.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || t.accounting.errors.unexpected);
+      toast.success(t.accounting.expenses.rejectedSuccess);
+      setRejectTarget(null);
+      setRejectionReason('');
+      await fetchExpenses();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t.accounting.errors.unexpected);
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
   // --- Group apartments for form selector ---
   const formApartments = useMemo(
     () => apartments.map(a => ({
@@ -334,6 +390,21 @@ export default function ExpensesPage() {
             })),
           ]}
         />
+
+        {/* Approval status filter */}
+        {canApprove && (
+          <CustomSelect
+            value={selectedStatus}
+            onChange={setSelectedStatus}
+            variant="filter"
+            options={[
+              { value: '', label: t.accounting.expenses.allStatuses },
+              { value: 'PENDING', label: t.accounting.expenses.statusPENDING },
+              { value: 'APPROVED', label: t.accounting.expenses.statusAPPROVED },
+              { value: 'REJECTED', label: t.accounting.expenses.statusREJECTED },
+            ]}
+          />
+        )}
       </div>
 
       {/* Error */}
@@ -374,8 +445,11 @@ export default function ExpensesPage() {
         showApartment={!selectedApartment}
         canEdit={canEdit}
         canDelete={canDelete}
+        canApprove={canApprove}
         onEdit={handleEdit}
         onDelete={(e) => setDeleteConfirm(e as ExpenseRow)}
+        onApprove={(e) => setApproveConfirm(e as ExpenseRow)}
+        onReject={(e) => setRejectTarget(e as ExpenseRow)}
       />
 
       {/* Expense Form Modal */}
@@ -399,6 +473,60 @@ export default function ExpensesPage() {
         variant="danger"
         isLoading={isDeleting}
       />
+
+      {/* Approve Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!approveConfirm}
+        onClose={() => !isApproving && setApproveConfirm(null)}
+        onConfirm={handleApprove}
+        title={t.accounting.expenses.approveConfirm}
+        message={t.accounting.expenses.approveConfirmMsg}
+        confirmLabel={t.accounting.expenses.approve}
+        cancelLabel={t.accounting.common.cancel}
+        variant="info"
+        isLoading={isApproving}
+      />
+
+      {/* Rejection Reason Dialog */}
+      {rejectTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => !isApproving && (setRejectTarget(null), setRejectionReason(''))} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative w-full max-w-md bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl border-2 border-[#e0cdb8] shadow-2xl p-6 space-y-4"
+          >
+            <h3 className="text-lg font-bold text-secondary font-dubai">{t.accounting.expenses.rejectionReasonTitle}</h3>
+            <p className="text-sm text-secondary/60 font-dubai">{rejectTarget.description}</p>
+            <textarea
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder={t.accounting.expenses.rejectionReasonPlaceholder}
+              className="w-full p-3 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors resize-none h-24"
+              dir="rtl"
+            />
+            {rejectionReason.trim() === '' && (
+              <p className="text-xs text-rose-500 font-dubai">{t.accounting.expenses.rejectionReasonRequired}</p>
+            )}
+            <div className="flex items-center gap-3 justify-end">
+              <button
+                onClick={() => { setRejectTarget(null); setRejectionReason(''); }}
+                disabled={isApproving}
+                className="px-4 py-2 rounded-xl bg-primary/10 text-secondary font-dubai text-sm font-bold hover:bg-primary/20 transition-colors"
+              >
+                {t.accounting.common.cancel}
+              </button>
+              <button
+                onClick={handleReject}
+                disabled={isApproving || !rejectionReason.trim()}
+                className="px-4 py-2 rounded-xl bg-rose-50 text-rose-700 border-2 border-rose-200 font-dubai text-sm font-bold hover:bg-rose-100 transition-colors disabled:opacity-50"
+              >
+                {isApproving ? <Loader2 size={16} className="animate-spin mx-auto" /> : t.accounting.expenses.reject}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

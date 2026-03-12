@@ -190,15 +190,23 @@ export default function BookingsPage() {
 
   // --- Search filter (client-side) ---
   const filteredBookings = useMemo(() => {
-    if (!search.trim()) return bookings;
+    let result = bookings;
+
+    // For BOOKING_MANAGER: hide past bookings (checkOut before today)
+    if (hideFinancials) {
+      const today = new Date().toISOString().split('T')[0];
+      result = result.filter(b => b.checkOut >= today);
+    }
+
+    if (!search.trim()) return result;
     const q = search.trim().toLowerCase();
-    return bookings.filter(
+    return result.filter(
       b =>
         b.clientName.toLowerCase().includes(q) ||
         b.clientPhone?.toLowerCase().includes(q) ||
         b.apartment?.name?.toLowerCase().includes(q)
     );
-  }, [bookings, search]);
+  }, [bookings, search, hideFinancials]);
 
   // --- Create / Update booking ---
   const handleSubmitBooking = async (data: BookingFormData) => {
@@ -329,7 +337,7 @@ export default function BookingsPage() {
       </div>
 
       {/* Month Selector */}
-      <MonthSelector month={month} onChange={setMonth} />
+      <MonthSelector month={month} onChange={setMonth} blockPastMonths={hideFinancials} />
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">

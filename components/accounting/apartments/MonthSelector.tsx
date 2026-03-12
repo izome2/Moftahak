@@ -9,6 +9,7 @@ interface MonthSelectorProps {
   month: string; // YYYY-MM
   onChange: (month: string) => void;
   className?: string;
+  blockPastMonths?: boolean;
 }
 
 const getCurrentMonth = () => {
@@ -22,11 +23,12 @@ const changeMonth = (month: string, delta: number) => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 };
 
-const MonthSelector: React.FC<MonthSelectorProps> = ({ month, onChange, className = '' }) => {
+const MonthSelector: React.FC<MonthSelectorProps> = ({ month, onChange, className = '', blockPastMonths = false }) => {
   const t = useTranslation();
   const { language } = useLanguage();
   const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const isCurrentMonth = month === getCurrentMonth();
+  const isPastDisabled = blockPastMonths && isCurrentMonth;
 
   const formatMonthDisplay = (m: string) => {
     const [year, mm] = m.split('-');
@@ -39,7 +41,8 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({ month, onChange, classNam
     <div className={`flex items-center justify-center gap-4 ${className}`}>
       <button
         onClick={() => onChange(changeMonth(month, -1))}
-        className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors"
+        disabled={isPastDisabled}
+        className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label={t.accounting.monthSelector.prevMonth}
       >
         <ChevronRight size={20} className="text-secondary" />

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Receipt, Loader2, Building2, FileText, Calendar, CreditCard } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
 import NumberInput from '@/components/accounting/shared/NumberInput';
+import DatePicker from '@/components/accounting/shared/DatePicker';
 import { CATEGORY_STYLE_MAP } from './CategoryBadge';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -285,11 +286,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                     <Calendar size={14} className="text-secondary/50" />
                     {t.accounting.expenseForm.date} <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="date"
+                  <DatePicker
                     value={formData.date}
-                    onChange={(e) => update('date', e.target.value)}
-                    className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors"
+                    onChange={(v) => update('date', v)}
                     required
                   />
                 </div>
