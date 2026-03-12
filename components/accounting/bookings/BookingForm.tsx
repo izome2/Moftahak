@@ -327,6 +327,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                     value={formData.checkIn}
                     onChange={(v) => update('checkIn', v)}
                     minDate={blockPastDates ? getToday() : undefined}
+                    blockPastDates={blockPastDates}
                     required
                   />
                 </div>
@@ -339,6 +340,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                     value={formData.checkOut}
                     onChange={(v) => update('checkOut', v)}
                     minDate={formData.checkIn || undefined}
+                    blockPastDates={blockPastDates}
                     required
                   />
                 </div>

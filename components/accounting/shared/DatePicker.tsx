@@ -9,18 +9,20 @@ interface DatePickerProps {
   value: string; // YYYY-MM-DD
   onChange: (value: string) => void;
   minDate?: string; // YYYY-MM-DD
+  blockPastDates?: boolean; // hide past days/months/years from wheels
   placeholder?: string;
   required?: boolean;
   className?: string;
 }
 
-const ITEM_H = 34;
-const VISIBLE = 3;
-const PAD = Math.floor(VISIBLE / 2); // 1
+const ITEM_H = 28;
+const VISIBLE = 5;
+const PAD = Math.floor(VISIBLE / 2); // 2
 
 const DAYS31 = Array.from({ length: 31 }, (_, i) => i + 1);
 const MONTHS12 = Array.from({ length: 12 }, (_, i) => i + 1);
 const YEAR_NOW = new Date().getFullYear();
+const YEARS_ALL = Array.from({ length: 11 }, (_, i) => YEAR_NOW - 5 + i);
 const YEARS_FUTURE = Array.from({ length: 6 }, (_, i) => YEAR_NOW + i);
 
 // Beige off-white for gradient fade (matches brand --color-white)
@@ -46,7 +48,6 @@ function WheelCol({ items, selected, onSelect, format }: WheelColProps) {
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const programmatic = useRef(false);
 
-  // Instant scroll on mount / external change
   useEffect(() => {
     const el = listRef.current;
     if (!el) return;
@@ -54,7 +55,6 @@ function WheelCol({ items, selected, onSelect, format }: WheelColProps) {
     if (idx === -1) return;
     programmatic.current = true;
     el.scrollTop = idx * ITEM_H;
-    // allow onScroll to fire without triggering snap logic
     setTimeout(() => { programmatic.current = false; }, 60);
   }, [selected, items]);
 
@@ -79,24 +79,39 @@ function WheelCol({ items, selected, onSelect, format }: WheelColProps) {
     listRef.current?.scrollTo({ top: idx * ITEM_H, behavior: 'smooth' });
   };
 
+  // Gradual opacity based on distance from selected
+  const getItemStyle = (item: number): React.CSSProperties => {
+    const selIdx = items.indexOf(selected);
+    const curIdx = items.indexOf(item);
+    const dist = Math.abs(curIdx - selIdx);
+    const isSel = dist === 0;
+    // opacity: selected=1, dist1=0.45, dist2+=0.18
+    const alpha = isSel ? 1 : Math.max(0.12, 0.55 - dist * 0.2);
+    return {
+      height: ITEM_H,
+      scrollSnapAlign: 'start' as const,
+      fontSize: isSel ? 14 : 11,
+      fontWeight: isSel ? 700 : 400,
+      color: isSel
+        ? 'var(--color-secondary, #10302b)'
+        : `rgba(16,48,43,${alpha})`,
+    };
+  };
+
   return (
     <div className="relative flex-1" style={{ height: ITEM_H * VISIBLE }}>
-      {/* top fade */}
       <div
         className="pointer-events-none absolute inset-x-0 top-0 z-20"
         style={{ height: PAD * ITEM_H, background: `linear-gradient(to bottom, ${FADE_COLOR}, ${FADE_CLEAR})` }}
       />
-      {/* bottom fade */}
       <div
         className="pointer-events-none absolute inset-x-0 bottom-0 z-20"
         style={{ height: PAD * ITEM_H, background: `linear-gradient(to top, ${FADE_COLOR}, ${FADE_CLEAR})` }}
       />
-      {/* center highlight band */}
       <div
-        className="pointer-events-none absolute inset-x-1 z-10 rounded-lg border border-primary/40 bg-primary/12"
+        className="pointer-events-none absolute inset-x-1 z-10 rounded-md border border-primary/35 bg-primary/10"
         style={{ top: PAD * ITEM_H, height: ITEM_H }}
       />
-      {/* scroll list */}
       <div
         ref={listRef}
         onScroll={handleScroll}
@@ -107,25 +122,16 @@ function WheelCol({ items, selected, onSelect, format }: WheelColProps) {
           paddingBottom: PAD * ITEM_H,
         }}
       >
-        {items.map(item => {
-          const isSel = item === selected;
-          return (
-            <div
-              key={item}
-              onClick={() => handleClick(item)}
-              className="flex items-center justify-center cursor-pointer select-none transition-all duration-100 font-dubai"
-              style={{
-                height: ITEM_H,
-                scrollSnapAlign: 'start',
-                fontSize: isSel ? 15 : 12,
-                fontWeight: isSel ? 700 : 400,
-                color: isSel ? 'var(--color-secondary, #10302b)' : 'rgba(16,48,43,0.28)',
-              }}
-            >
-              {format(item)}
-            </div>
-          );
-        })}
+        {items.map(item => (
+          <div
+            key={item}
+            onClick={() => handleClick(item)}
+            className="flex items-center justify-center cursor-pointer select-none transition-all duration-100 font-dubai"
+            style={getItemStyle(item)}
+          >
+            {format(item)}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -138,6 +144,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
   value,
   onChange,
   minDate,
+  blockPastDates = false,
   placeholder,
   required,
   className = '',
@@ -231,33 +238,33 @@ const DatePicker: React.FC<DatePickerProps> = ({
   const fmtMonth = (m: number) => monthNames[m - 1];
   const fmtYear  = (y: number) => new Intl.NumberFormat(locale, { useGrouping: false }).format(y);
 
-  // Filter: no past dates
+  // Filter items based on blockPastDates
   const nowD = new Date();
   const nowYear = nowD.getFullYear();
   const nowMonth = nowD.getMonth() + 1;
   const nowDay = nowD.getDate();
 
-  const filteredYears = YEARS_FUTURE;
-  const filteredMonths = selYear === nowYear
+  const filteredYears = blockPastDates ? YEARS_FUTURE : YEARS_ALL;
+  const filteredMonths = blockPastDates && selYear === nowYear
     ? MONTHS12.filter(m => m >= nowMonth)
     : MONTHS12;
   const maxDaysInMonth = getDaysInMonth(selMonth, selYear);
   const filteredDays = DAYS31.filter(d => {
     if (d > maxDaysInMonth) return false;
-    if (selYear === nowYear && selMonth === nowMonth && d < nowDay) return false;
+    if (blockPastDates && selYear === nowYear && selMonth === nowMonth && d < nowDay) return false;
     return true;
   });
 
-  // Clamp selection if current value is now out of range
+  // Clamp selection when blockPastDates is on
   useEffect(() => {
-    if (selYear < nowYear) setSelYear(nowYear);
-  }, [selYear, nowYear]);
+    if (blockPastDates && selYear < nowYear) setSelYear(nowYear);
+  }, [selYear, nowYear, blockPastDates]);
   useEffect(() => {
-    if (selYear === nowYear && selMonth < nowMonth) setSelMonth(nowMonth);
-  }, [selYear, selMonth, nowYear, nowMonth]);
+    if (blockPastDates && selYear === nowYear && selMonth < nowMonth) setSelMonth(nowMonth);
+  }, [selYear, selMonth, nowYear, nowMonth, blockPastDates]);
   useEffect(() => {
-    if (selYear === nowYear && selMonth === nowMonth && selDay < nowDay) setSelDay(nowDay);
-  }, [selYear, selMonth, selDay, nowYear, nowMonth, nowDay]);
+    if (blockPastDates && selYear === nowYear && selMonth === nowMonth && selDay < nowDay) setSelDay(nowDay);
+  }, [selYear, selMonth, selDay, nowYear, nowMonth, nowDay, blockPastDates]);
 
   // Popup position: centered below trigger, constrained to viewport
   const POPUP_W = 260;
@@ -287,9 +294,9 @@ const DatePicker: React.FC<DatePickerProps> = ({
         style={{ background: FADE_COLOR }}
       >
         <WheelCol items={filteredDays}   selected={selDay}   onSelect={setSelDay}   format={fmtDay} />
-        <div className="w-px mx-1 bg-primary/15 self-stretch my-2" />
+        <div className="w-px mx-1 bg-primary/15 self-stretch my-1" />
         <WheelCol items={filteredMonths} selected={selMonth} onSelect={setSelMonth} format={fmtMonth} />
-        <div className="w-px mx-1 bg-primary/15 self-stretch my-2" />
+        <div className="w-px mx-1 bg-primary/15 self-stretch my-1" />
         <WheelCol items={filteredYears}  selected={selYear}  onSelect={setSelYear}  format={fmtYear} />
       </div>
     </div>
@@ -408,22 +415,6 @@ export const MonthPicker: React.FC<MonthPickerProps> = ({
   const fmtMonth = (m: number) => monthNames[m - 1];
   const fmtYear = (y: number) => new Intl.NumberFormat(locale, { useGrouping: false }).format(y);
 
-  // Filter: no past months
-  const mpNow = new Date();
-  const mpNowYear = mpNow.getFullYear();
-  const mpNowMonth = mpNow.getMonth() + 1;
-  const filteredMonthsMP = selYear === mpNowYear
-    ? MONTHS12.filter(m => m >= mpNowMonth)
-    : MONTHS12;
-
-  // Clamp selection
-  useEffect(() => {
-    if (selYear < mpNowYear) setSelYear(mpNowYear);
-  }, [selYear, mpNowYear]);
-  useEffect(() => {
-    if (selYear === mpNowYear && selMonth < mpNowMonth) setSelMonth(mpNowMonth);
-  }, [selYear, selMonth, mpNowYear, mpNowMonth]);
-
   const displayValue = value
     ? (() => {
         const [y, m] = value.split('-').map(Number);
@@ -455,9 +446,9 @@ export const MonthPicker: React.FC<MonthPickerProps> = ({
         dir="ltr"
         style={{ background: FADE_COLOR }}
       >
-        <WheelCol items={filteredMonthsMP} selected={selMonth} onSelect={setSelMonth} format={fmtMonth} />
-        <div className="w-px mx-1 bg-primary/15 self-stretch my-2" />
-        <WheelCol items={YEARS_FUTURE}     selected={selYear}  onSelect={setSelYear}  format={fmtYear} />
+        <WheelCol items={MONTHS12}     selected={selMonth} onSelect={setSelMonth} format={fmtMonth} />
+        <div className="w-px mx-1 bg-primary/15 self-stretch my-1" />
+        <WheelCol items={YEARS_ALL}    selected={selYear}  onSelect={setSelYear}  format={fmtYear} />
       </div>
     </div>
   );
