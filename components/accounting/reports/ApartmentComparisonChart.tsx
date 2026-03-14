@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useChartTooltip } from '@/hooks/useChartTooltip';
 import {
   ResponsiveContainer,
   BarChart,
@@ -59,6 +60,7 @@ const ApartmentComparisonChart: React.FC<ApartmentComparisonChartProps> = ({
   const t = useTranslation();
   const { language } = useLanguage();
   const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
+  const { onMouseMove, wrapperStyle } = useChartTooltip();
 
   if (isLoading) {
     return (
@@ -81,6 +83,7 @@ const ApartmentComparisonChart: React.FC<ApartmentComparisonChartProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
+      onMouseMove={onMouseMove}
     >
       <ResponsiveContainer width="100%" height={360}>
         <BarChart data={data} margin={{ top: 10, right: 15, left: 15, bottom: 5 }}>
@@ -102,7 +105,7 @@ const ApartmentComparisonChart: React.FC<ApartmentComparisonChartProps> = ({
             tickLine={false}
             width={50}
           />
-          <Tooltip content={<CustomTooltip currencyLabel={t.accounting.common.currency} locale={locale} />} cursor={false} />
+          <Tooltip content={<CustomTooltip currencyLabel={t.accounting.common.currency} locale={locale} />} cursor={false} wrapperStyle={wrapperStyle} isAnimationActive={false} allowEscapeViewBox={{ x: true, y: true }} />
           <Legend
             verticalAlign="top"
             align="center"

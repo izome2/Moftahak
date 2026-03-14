@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useChartTooltip } from '@/hooks/useChartTooltip';
 import {
   ResponsiveContainer,
   BarChart,
@@ -60,6 +61,7 @@ const OccupancyChart: React.FC<OccupancyChartProps> = ({
   isLoading,
 }) => {
   const t = useTranslation();
+  const { onMouseMove, wrapperStyle } = useChartTooltip();
 
   if (isLoading) {
     return (
@@ -87,6 +89,7 @@ const OccupancyChart: React.FC<OccupancyChartProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
+      onMouseMove={onMouseMove}
     >
       <ResponsiveContainer width="100%" height={360}>
         <BarChart data={chartData} margin={{ top: 10, right: 15, left: 15, bottom: 5 }}>
@@ -109,7 +112,7 @@ const OccupancyChart: React.FC<OccupancyChartProps> = ({
             domain={[0, daysInMonth]}
             tickFormatter={(v) => `${v}`}
           />
-          <Tooltip content={<CustomTooltip labels={{ busyNights: t.accounting.reports.busyNights, occupancyRate: t.accounting.reports.occupancyRate, occupancyCount: t.accounting.reports.occupancyCount, night: t.accounting.common.night }} />} cursor={false} />
+          <Tooltip content={<CustomTooltip labels={{ busyNights: t.accounting.reports.busyNights, occupancyRate: t.accounting.reports.occupancyRate, occupancyCount: t.accounting.reports.occupancyCount, night: t.accounting.common.night }} />} cursor={false} wrapperStyle={wrapperStyle} isAnimationActive={false} allowEscapeViewBox={{ x: true, y: true }} />
           <Bar
             dataKey="nights"
             name={t.accounting.reports.busyNightsLegend}

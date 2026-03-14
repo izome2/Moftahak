@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useChartTooltip } from '@/hooks/useChartTooltip';
 import {
   ResponsiveContainer,
   PieChart,
@@ -62,6 +63,7 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({ data, isLoading
   const { language } = useLanguage();
   const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currency = t.accounting.common.currency;
+  const { onMouseMove, wrapperStyle } = useChartTooltip();
 
   const SOURCE_LABELS: Record<string, string> = {
     AIRBNB: 'Airbnb',
@@ -119,6 +121,7 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({ data, isLoading
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
+      onMouseMove={onMouseMove}
     >
       <ResponsiveContainer width="100%" height={340}>
         <PieChart>
@@ -143,7 +146,7 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({ data, isLoading
               />
             ))}
           </Pie>
-          <Tooltip content={<CustomTooltip />} cursor={false} />
+          <Tooltip content={<CustomTooltip />} cursor={false} wrapperStyle={wrapperStyle} isAnimationActive={false} allowEscapeViewBox={{ x: true, y: true }} />
           <Legend
             verticalAlign="bottom"
             align="center"

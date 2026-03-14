@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useChartTooltip } from '@/hooks/useChartTooltip';
 import {
   ResponsiveContainer,
   PieChart,
@@ -55,6 +56,7 @@ const createCustomLabel = (locale: string) => ({ cx, cy, midAngle, innerRadius, 
 const ExpensePieChart: React.FC<ExpensePieChartProps> = ({ data, isLoading }) => {
   const t = useTranslation();
   const { language } = useLanguage();
+  const { onMouseMove, wrapperStyle } = useChartTooltip();
   const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currency = t.accounting.common.currency;
   const renderCustomLabel = createCustomLabel(locale);
@@ -102,6 +104,7 @@ const ExpensePieChart: React.FC<ExpensePieChartProps> = ({ data, isLoading }) =>
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
+      onMouseMove={onMouseMove}
     >
       <ResponsiveContainer width="100%" height={340}>
         <PieChart>
@@ -123,7 +126,7 @@ const ExpensePieChart: React.FC<ExpensePieChartProps> = ({ data, isLoading }) =>
               <Cell key={index} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip content={<CustomTooltip />} cursor={false} />
+          <Tooltip content={<CustomTooltip />} cursor={false} wrapperStyle={wrapperStyle} isAnimationActive={false} allowEscapeViewBox={{ x: true, y: true }} />
           <Legend
             verticalAlign="bottom"
             align="center"

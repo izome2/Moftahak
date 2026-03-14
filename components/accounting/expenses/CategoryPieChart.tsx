@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useChartTooltip } from '@/hooks/useChartTooltip';
 import {
   ResponsiveContainer,
   PieChart,
@@ -67,6 +68,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
   const { language } = useLanguage();
   const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const currency = t.accounting.common.currency;
+  const { onMouseMove, wrapperStyle } = useChartTooltip();
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat(locale).format(amount) + ' ' + currency;
@@ -125,6 +127,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
         className="bg-white rounded-xl border-2 border-primary/20 shadow-[0_4px_20px_rgba(237,191,140,0.12)] p-4"
+        onMouseMove={onMouseMove}
       >
         <h3 className="text-sm font-bold text-secondary font-dubai mb-2 text-center">
           {t.accounting.expenses.categoryDistribution}
@@ -157,7 +160,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
                   />
                 ))}
               </Pie>
-              <Tooltip content={<CustomPieTooltip />} cursor={false} />
+              <Tooltip content={<CustomPieTooltip />} cursor={false} wrapperStyle={wrapperStyle} isAnimationActive={false} allowEscapeViewBox={{ x: true, y: true }} />
               <Legend
                 verticalAlign="bottom"
                 align="center"

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useChartTooltip } from '@/hooks/useChartTooltip';
 import {
   ResponsiveContainer,
   LineChart,
@@ -64,6 +65,7 @@ const ProfitTrendChart: React.FC<ProfitTrendChartProps> = ({
   const { language } = useLanguage();
   const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const monthNames = t.accounting.months;
+  const { onMouseMove, wrapperStyle } = useChartTooltip();
 
   const formatMonthLabel = (month: string) => {
     const m = parseInt(month.split('-')[1], 10) - 1;
@@ -91,6 +93,7 @@ const ProfitTrendChart: React.FC<ProfitTrendChartProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
+      onMouseMove={onMouseMove}
     >
       <ResponsiveContainer width="100%" height={340}>
         <LineChart data={data} margin={{ top: 10, right: 15, left: 15, bottom: 5 }}>
@@ -109,7 +112,7 @@ const ProfitTrendChart: React.FC<ProfitTrendChartProps> = ({
             tickLine={false}
             width={50}
           />
-          <Tooltip content={<CustomTooltip monthNames={monthNames} currencyLabel={t.accounting.common.currency} locale={locale} />} cursor={false} />
+          <Tooltip content={<CustomTooltip monthNames={monthNames} currencyLabel={t.accounting.common.currency} locale={locale} />} cursor={false} wrapperStyle={wrapperStyle} isAnimationActive={false} allowEscapeViewBox={{ x: true, y: true }} />
           <Legend
             verticalAlign="top"
             align="center"

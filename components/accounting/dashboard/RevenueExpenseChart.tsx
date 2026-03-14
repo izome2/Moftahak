@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useChartTooltip } from '@/hooks/useChartTooltip';
 import {
   ResponsiveContainer,
   LineChart,
@@ -30,6 +31,7 @@ interface RevenueExpenseChartProps {
 const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({ data, isLoading }) => {
   const t = useTranslation();
   const { language } = useLanguage();
+  const { onMouseMove, wrapperStyle } = useChartTooltip();
 
   const formatMonthLabel = (month: string) => {
     const [, m] = month.split('-');
@@ -85,6 +87,7 @@ const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({ data, isLoadi
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
+      onMouseMove={onMouseMove}
     >
       <ResponsiveContainer width="100%" height={340}>
         <LineChart data={data} margin={{ top: 10, right: 15, left: 15, bottom: 5 }}>
@@ -103,7 +106,7 @@ const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({ data, isLoadi
             tickLine={false}
             width={50}
           />
-          <Tooltip content={<CustomTooltip />} cursor={false} />
+          <Tooltip content={<CustomTooltip />} cursor={false} wrapperStyle={wrapperStyle} isAnimationActive={false} allowEscapeViewBox={{ x: true, y: true }} />
           <Legend
             verticalAlign="top"
             align="center"
