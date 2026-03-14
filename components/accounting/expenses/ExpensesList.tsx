@@ -177,7 +177,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
           {/* Desktop Table View */}
           <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-sm">
-              <thead>
+              <thead className="sticky top-0 z-10">
                 <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
                   {showApartment && (
                     <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.expenses.apartment}</th>

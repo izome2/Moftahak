@@ -18,6 +18,14 @@ let rateCache: Map<string, number> = new Map();
 let rateCacheExpiry = 0;
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
+/** Custom error for missing exchange rates */
+export class MissingExchangeRateError extends Error {
+  constructor(from: string, to: string) {
+    super(`Missing exchange rate: ${from} → ${to}. Please configure it in Settings > Exchange Rates.`);
+    this.name = 'MissingExchangeRateError';
+  }
+}
+
 // ============================================================================
 // Core Functions
 // ============================================================================
@@ -84,9 +92,11 @@ export async function convertToBaseCurrency(
   const rate = await getExchangeRate(currency, baseCurrency);
   
   if (rate === null) {
-    console.warn(
-      `[FX] No exchange rate found for ${currency} → ${baseCurrency}. Using 1:1 ratio.`
+    console.error(
+      `[FX] ⚠️ No exchange rate found for ${currency} → ${baseCurrency}. ` +
+      `Amount ${amount} ${currency} returned as-is. Configure the rate in Settings > Exchange Rates.`
     );
+    // Return amount as-is but log clearly - callers should handle this
     return amount;
   }
 
@@ -122,6 +132,12 @@ export async function sumInBaseCurrency(
       total += item.amount;
     } else {
       const rate = await getExchangeRate(item.currency, baseCurrency);
+      if (rate === null) {
+        console.error(
+          `[FX] ⚠️ Missing rate for ${item.currency} → ${baseCurrency}. ` +
+          `Amount ${item.amount} ${item.currency} added without conversion.`
+        );
+      }
       total += rate !== null ? item.amount * rate : item.amount;
     }
   }

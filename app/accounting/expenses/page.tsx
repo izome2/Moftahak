@@ -9,8 +9,9 @@ import {
   Filter,
   Loader2,
   BarChart3,
+  SlidersHorizontal,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import MonthSelector from '@/components/accounting/apartments/MonthSelector';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
@@ -96,6 +97,10 @@ export default function ExpensesPage() {
 
   // Show charts toggle
   const [showCharts, setShowCharts] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Count active filters
+  const activeFilterCount = [selectedApartment, selectedCategory, selectedStatus].filter(Boolean).length;
 
   // --- Fetch apartments ---
   const fetchApartments = useCallback(async () => {
@@ -349,62 +354,83 @@ export default function ExpensesPage() {
       <MonthSelector month={month} onChange={setMonth} />
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        {/* Search */}
-        <div className="relative flex-1 max-w-sm">
-          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary/30" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t.accounting.expenses.searchPlaceholder}
-            className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
-          />
+      <div className="space-y-3">
+        {/* Search + filter toggle */}
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary/30" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t.accounting.expenses.searchPlaceholder}
+              className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
+            />
+          </div>
+          <button
+            onClick={() => setShowFilters(prev => !prev)}
+            className={`sm:hidden relative p-2.5 rounded-xl transition-colors ${
+              showFilters || activeFilterCount > 0 ? 'bg-secondary text-white' : 'bg-primary/10 text-secondary hover:bg-primary/20'
+            }`}
+            aria-label={showFilters ? t.accounting.common.hideFilters : t.accounting.common.showFilters}
+          >
+            <SlidersHorizontal size={18} />
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-secondary text-[10px] font-bold rounded-full flex items-center justify-center">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
         </div>
 
-        {/* Apartment filter */}
-        <CustomSelect
-          value={selectedApartment}
-          onChange={setSelectedApartment}
-          variant="filter"
-          icon={<Filter size={14} className="text-secondary/30" />}
-          options={[
-            { value: '', label: t.accounting.expenses.allApartments },
-            ...apartments.map(apt => ({
-              value: apt.id,
-              label: `${apt.name}${apt.project ? ` (${apt.project.name})` : ''}`,
-            })),
-          ]}
-        />
-
-        {/* Category filter */}
-        <CustomSelect
-          value={selectedCategory}
-          onChange={setSelectedCategory}
-          variant="filter"
-          options={[
-            { value: '', label: t.accounting.expenses.allCategories },
-            ...Object.keys(CATEGORY_STYLE_MAP).map(key => ({
-              value: key,
-              label: (t.accounting.expenseCategoriesShort as Record<string, string>)[key] || key,
-            })),
-          ]}
-        />
-
-        {/* Approval status filter */}
-        {canApprove && (
-          <CustomSelect
-            value={selectedStatus}
-            onChange={setSelectedStatus}
-            variant="filter"
-            options={[
-              { value: '', label: t.accounting.expenses.allStatuses },
-              { value: 'PENDING', label: t.accounting.expenses.statusPENDING },
-              { value: 'APPROVED', label: t.accounting.expenses.statusAPPROVED },
-              { value: 'REJECTED', label: t.accounting.expenses.statusREJECTED },
-            ]}
-          />
-        )}
+        {/* Dropdown filters - always visible on sm+, collapsible on mobile */}
+        <AnimatePresence>
+          {(showFilters || typeof window !== 'undefined') && (
+            <motion.div
+              initial={false}
+              className={`flex-col sm:flex sm:flex-row items-stretch sm:items-center gap-3 ${showFilters ? 'flex' : 'hidden sm:flex'}`}
+            >
+              <CustomSelect
+                value={selectedApartment}
+                onChange={setSelectedApartment}
+                variant="filter"
+                icon={<Filter size={14} className="text-secondary/30" />}
+                options={[
+                  { value: '', label: t.accounting.expenses.allApartments },
+                  ...apartments.map(apt => ({
+                    value: apt.id,
+                    label: `${apt.name}${apt.project ? ` (${apt.project.name})` : ''}`,
+                  })),
+                ]}
+              />
+              <CustomSelect
+                value={selectedCategory}
+                onChange={setSelectedCategory}
+                variant="filter"
+                options={[
+                  { value: '', label: t.accounting.expenses.allCategories },
+                  ...Object.keys(CATEGORY_STYLE_MAP).map(key => ({
+                    value: key,
+                    label: (t.accounting.expenseCategoriesShort as Record<string, string>)[key] || key,
+                  })),
+                ]}
+              />
+              {canApprove && (
+                <CustomSelect
+                  value={selectedStatus}
+                  onChange={setSelectedStatus}
+                  variant="filter"
+                  options={[
+                    { value: '', label: t.accounting.expenses.allStatuses },
+                    { value: 'PENDING', label: t.accounting.expenses.statusPENDING },
+                    { value: 'APPROVED', label: t.accounting.expenses.statusAPPROVED },
+                    { value: 'REJECTED', label: t.accounting.expenses.statusREJECTED },
+                  ]}
+                />
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Error */}
@@ -412,9 +438,15 @@ export default function ExpensesPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-red-50 border-2 border-red-200 rounded-xl p-4 text-red-600 font-dubai text-sm"
+          className="bg-red-50 border-2 border-red-200 rounded-xl p-4 text-center"
         >
-          {error}
+          <p className="text-red-600 font-dubai text-sm">{error}</p>
+          <button
+            onClick={fetchExpenses}
+            className="mt-2 text-sm text-red-500 underline font-dubai"
+          >
+            {t.accounting.common.retry}
+          </button>
         </motion.div>
       )}
 

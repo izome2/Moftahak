@@ -217,7 +217,7 @@ export default function InvestorsPage() {
     : investors;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6" dir="rtl">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Page Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -302,6 +302,7 @@ export default function InvestorsPage() {
           >
             <Info className="w-4 h-4 shrink-0" />
             {error}
+            <button onClick={fetchInvestors} className="text-red-500 underline text-xs font-dubai">{t.accounting.common.retry}</button>
             <button onClick={() => setError(null)} className="mr-auto text-red-400 hover:text-red-600">✕</button>
           </motion.div>
         )}

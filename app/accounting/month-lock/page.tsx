@@ -12,6 +12,7 @@ import {
   Building2,
 } from 'lucide-react';
 import MonthSelector from '@/components/accounting/apartments/MonthSelector';
+import ConfirmDialog from '@/components/accounting/shared/ConfirmDialog';
 import { useToast } from '@/components/accounting/shared/Toast';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -60,6 +61,14 @@ export default function MonthLockPage() {
   const [totalUnlocked, setTotalUnlocked] = useState(0);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null); // 'all' or apartmentId
+  const [lockAllConfirm, setLockAllConfirm] = useState(false);
+
+  const formatMonthLabel = (m: string) => {
+    const [year, mm] = m.split('-');
+    const idx = parseInt(mm, 10) - 1;
+    const yearFormatted = new Intl.NumberFormat(locale, { useGrouping: false }).format(parseInt(year, 10));
+    return `${t.accounting.months[idx] || mm} ${yearFormatted}`;
+  };
 
   const fetchStatus = useCallback(async () => {
     setLoading(true);
@@ -123,7 +132,7 @@ export default function MonthLockPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6" dir="rtl">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Page Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -182,7 +191,7 @@ export default function MonthLockPage() {
             className="mt-4 pt-4 border-t border-primary/10"
           >
             <button
-              onClick={() => handleLockAction('lock')}
+              onClick={() => setLockAllConfirm(true)}
               disabled={actionLoading !== null}
               className="flex items-center gap-2 px-5 py-2.5 bg-secondary text-white font-dubai text-sm font-bold rounded-xl hover:bg-secondary/90 transition-colors disabled:opacity-50 shadow-md"
             >
@@ -220,7 +229,7 @@ export default function MonthLockPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead>
+              <thead className="sticky top-0 z-10">
                 <tr className="bg-primary/5 border-b-2 border-primary/10">
                   <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70">{t.accounting.monthLock.apartment}</th>
                   <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70">{t.accounting.monthLock.status}</th>
@@ -318,6 +327,21 @@ export default function MonthLockPage() {
           <li>{t.accounting.monthLock.unlockAllowsEditing}</li>
         </ul>
       </motion.div>
+
+      {/* Lock All Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={lockAllConfirm}
+        onClose={() => setLockAllConfirm(false)}
+        onConfirm={() => {
+          setLockAllConfirm(false);
+          handleLockAction('lock');
+        }}
+        title={t.accounting.monthLock.lockAllTitle}
+        message={`${t.accounting.monthLock.lockAllConfirmMsg(totalUnlocked, formatMonthLabel(month))}`}
+        confirmLabel={t.accounting.monthLock.lockAll}
+        cancelLabel={t.accounting.common.cancel}
+        variant="warning"
+      />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, XCircle, AlertTriangle, Info, X } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ============================================================================
 // Toast Types
@@ -67,6 +68,7 @@ const TOAST_CONFIG: Record<ToastType, {
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const { language } = useLanguage();
 
   const removeToast = useCallback((id: string) => {
     const timer = timersRef.current.get(id);
@@ -106,20 +108,21 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ showToast, success, error, warning, info }}>
       {children}
 
-      {/* Toast Container - أعلى يسار الشاشة (RTL) */}
-      <div className="fixed top-4 left-4 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+      {/* Toast Container - يظهر حسب اتجاه اللغة */}
+      <div className={`fixed top-4 z-[200] flex flex-col gap-2 max-w-sm w-full pointer-events-none ${language === 'ar' ? 'right-4' : 'left-4'}`}>
         <AnimatePresence mode="popLayout">
           {toasts.map((toast) => {
             const config = TOAST_CONFIG[toast.type];
             const Icon = config.icon;
+            const slideX = language === 'ar' ? 80 : -80;
 
             return (
               <motion.div
                 key={toast.id}
                 layout
-                initial={{ opacity: 0, x: -80, scale: 0.9 }}
+                initial={{ opacity: 0, x: slideX, scale: 0.9 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: -80, scale: 0.9 }}
+                exit={{ opacity: 0, x: slideX, scale: 0.9 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 className={`pointer-events-auto flex items-start gap-3 p-3.5 rounded-xl border ${config.bg} ${config.border} shadow-lg`}
               >

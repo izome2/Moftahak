@@ -45,7 +45,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({ month, onChange, classNam
         className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label={t.accounting.monthSelector.prevMonth}
       >
-        <ChevronRight size={20} className="text-secondary" />
+        {language === 'ar' ? <ChevronRight size={20} className="text-secondary" /> : <ChevronLeft size={20} className="text-secondary" />}
       </button>
       <div className="text-center min-w-[160px]">
         <p className="text-lg font-bold text-secondary font-dubai">
@@ -58,7 +58,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({ month, onChange, classNam
         className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label={t.accounting.monthSelector.nextMonth}
       >
-        <ChevronLeft size={20} className="text-secondary" />
+        {language === 'ar' ? <ChevronLeft size={20} className="text-secondary" /> : <ChevronRight size={20} className="text-secondary" />}
       </button>
     </div>
   );

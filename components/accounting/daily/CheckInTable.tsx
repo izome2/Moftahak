@@ -84,7 +84,7 @@ const CheckInTable: React.FC<CheckInTableProps> = ({
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead>
+            <thead className="sticky top-0 z-10">
               <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
                 <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.daily.apartment}</th>
                 <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.daily.guest}</th>

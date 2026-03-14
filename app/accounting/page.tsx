@@ -23,6 +23,7 @@ import BookingSourceChart from '@/components/accounting/dashboard/BookingSourceC
 import RecentBookings from '@/components/accounting/dashboard/RecentBookings';
 import RecentExpenses from '@/components/accounting/dashboard/RecentExpenses';
 import DailyAlerts from '@/components/accounting/dashboard/DailyAlerts';
+import { SkeletonDashboard } from '@/components/accounting/shared/Skeleton';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -235,7 +236,7 @@ export default function AccountingDashboardPage() {
           className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors"
           aria-label={t.accounting.monthSelector.prevMonth}
         >
-          <ChevronRight size={20} className="text-secondary" />
+          {language === 'ar' ? <ChevronRight size={20} className="text-secondary" /> : <ChevronLeft size={20} className="text-secondary" />}
         </button>
         <div className="text-center min-w-[160px]">
           <p className="text-lg font-bold text-secondary font-dubai">
@@ -248,7 +249,7 @@ export default function AccountingDashboardPage() {
           className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           aria-label={t.accounting.monthSelector.nextMonth}
         >
-          <ChevronLeft size={20} className="text-secondary" />
+          {language === 'ar' ? <ChevronLeft size={20} className="text-secondary" /> : <ChevronRight size={20} className="text-secondary" />}
         </button>
       </motion.div>
 
@@ -267,6 +268,11 @@ export default function AccountingDashboardPage() {
             {t.accounting.common.retry}
           </button>
         </motion.div>
+      )}
+
+      {/* Skeleton loading state - first load only */}
+      {isLoading && !data && (
+        <SkeletonDashboard />
       )}
 
       {/* Stats Cards - filtered by role */}

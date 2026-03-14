@@ -4,6 +4,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, X } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // ============================================================================
 // ConfirmDialog - نافذة تأكيد قبل الحذف / الإجراءات الحرجة
@@ -51,8 +52,20 @@ export default function ConfirmDialog({
   isLoading = false,
 }: ConfirmDialogProps) {
   const t = useTranslation();
+  const { language } = useLanguage();
   const styles = VARIANT_STYLES[variant];
   const displayTitle = title || t.accounting.common.confirmAction;
+
+  // Escape key handler
+  React.useEffect(() => {
+    if (!isOpen || isLoading) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isLoading, onClose]);
+
   const displayMessage = message || t.accounting.common.confirmActionMessage;
   const displayConfirm = confirmLabel || t.accounting.common.confirm;
   const displayCancel = cancelLabel || t.accounting.common.cancel;
@@ -102,14 +115,7 @@ export default function ConfirmDialog({
               </p>
 
               {/* Actions */}
-              <div className="flex gap-3">
-                <button
-                  onClick={onClose}
-                  disabled={isLoading}
-                  className="flex-1 px-4 py-2.5 rounded-xl border-2 border-secondary/10 text-secondary font-dubai text-sm hover:bg-secondary/5 transition-colors disabled:opacity-50"
-                >
-                  {displayCancel}
-                </button>
+              <div className={`flex gap-3 ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
                 <button
                   onClick={onConfirm}
                   disabled={isLoading}
@@ -123,6 +129,13 @@ export default function ConfirmDialog({
                   ) : (
                     displayConfirm
                   )}
+                </button>
+                <button
+                  onClick={onClose}
+                  disabled={isLoading}
+                  className="flex-1 px-4 py-2.5 rounded-xl border-2 border-secondary/10 text-secondary font-dubai text-sm hover:bg-secondary/5 transition-colors disabled:opacity-50"
+                >
+                  {displayCancel}
                 </button>
               </div>
             </div>

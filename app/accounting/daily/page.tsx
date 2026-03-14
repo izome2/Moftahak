@@ -146,7 +146,7 @@ export default function DailyOpsPage() {
   const dateLabel = getDateLabel();
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6" dir="rtl">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Page Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -190,7 +190,7 @@ export default function DailyOpsPage() {
             className="w-9 h-9 rounded-xl bg-primary/10 hover:bg-primary/20 flex items-center
               justify-center transition-colors text-secondary"
           >
-            <ChevronRight className="w-4 h-4" />
+            {language === 'ar' ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
 
           {/* Date display */}
@@ -243,7 +243,7 @@ export default function DailyOpsPage() {
             className="w-9 h-9 rounded-xl bg-primary/10 hover:bg-primary/20 flex items-center
               justify-center transition-colors text-secondary"
           >
-            <ChevronLeft className="w-4 h-4" />
+            {language === 'ar' ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </button>
         </div>
       </motion.div>
@@ -303,10 +303,18 @@ export default function DailyOpsPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             className="bg-red-50 border-2 border-red-200 rounded-xl px-4 py-3 text-sm text-red-600
-              flex items-center gap-2 font-dubai"
+              flex flex-col items-center gap-2 font-dubai"
           >
-            <Info className="w-4 h-4 shrink-0" />
-            {error}
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4 shrink-0" />
+              {error}
+            </div>
+            <button
+              onClick={fetchDaily}
+              className="text-sm text-red-500 underline font-dubai"
+            >
+              {t.accounting.common.retry}
+            </button>
           </motion.div>
         )}
       </AnimatePresence>

@@ -78,27 +78,31 @@ export default function AccountingSettingsPage() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none"
+        className="relative"
       >
-        {tabs.map(tab => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold font-dubai
-                rounded-xl whitespace-nowrap transition-all duration-200
-                ${isActive
-                  ? 'bg-secondary text-white shadow-sm'
-                  : 'bg-primary/5 text-secondary/50 hover:bg-primary/10 hover:text-secondary'
-                }`}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              {tab.label}
-            </button>
-          );
-        })}
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+          {tabs.map(tab => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold font-dubai
+                  rounded-xl whitespace-nowrap transition-all duration-200
+                  ${isActive
+                    ? 'bg-secondary text-white shadow-sm'
+                    : 'bg-primary/5 text-secondary/50 hover:bg-primary/10 hover:text-secondary'
+                  }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+        {/* Scroll fade indicators */}
+        <div className={`absolute top-0 ${language === 'ar' ? 'left-0' : 'right-0'} h-full w-8 pointer-events-none bg-gradient-to-l from-accent/80 to-transparent sm:hidden`} />
       </motion.div>
 
       {/* Tab Content */}
