@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 import { useChartTooltip } from '@/hooks/useChartTooltip';
 import {
   ResponsiveContainer,
@@ -80,7 +81,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
     if (!active || !payload?.length) return null;
     const entry = payload[0];
     return (
-      <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      <div className="bg-white border border-secondary/[0.08] rounded-xl p-3 shadow-lg font-dubai text-sm" dir={language === 'ar' ? 'rtl' : 'ltr'}>
         <div className="flex items-center gap-2 mb-1">
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.payload.fill }} />
           <span className="font-bold text-secondary">{entry.name}</span>
@@ -99,11 +100,11 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl border-2 border-primary/20 p-6 h-[360px] flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <div className="bg-white rounded-2xl border border-secondary/[0.08] p-6 h-[360px] flex items-center justify-center">
+          <Loader2 className="w-6 h-6 text-secondary/30 animate-spin" />
         </div>
-        <div className="bg-white rounded-xl border-2 border-primary/20 p-6 h-[360px] flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <div className="bg-white rounded-2xl border border-secondary/[0.08] p-6 h-[360px] flex items-center justify-center">
+          <Loader2 className="w-6 h-6 text-secondary/30 animate-spin" />
         </div>
       </div>
     );
@@ -126,8 +127,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="bg-white rounded-xl border-2 border-primary/20 shadow-[0_4px_20px_rgba(237,191,140,0.12)] p-4"
-        onMouseMove={onMouseMove}
+        className="bg-white rounded-2xl border border-secondary/[0.08] shadow-sm p-4"
       >
         <h3 className="text-sm font-bold text-secondary font-dubai mb-2 text-center">
           {t.accounting.expenses.categoryDistribution}
@@ -178,7 +178,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.35 }}
-        className="bg-white rounded-xl border-2 border-primary/20 shadow-[0_4px_20px_rgba(237,191,140,0.12)] p-4"
+        className="bg-white rounded-2xl border border-secondary/[0.08] shadow-sm p-4"
       >
         <h3 className="text-sm font-bold text-secondary font-dubai mb-4 text-center">
           {t.accounting.expenses.apartmentComparison}
@@ -203,7 +203,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
                       {formatCurrency(apt.expense)}
                     </span>
                   </div>
-                  <div className="w-full h-5 bg-primary/5 rounded-full overflow-hidden">
+                  <div className="w-full h-5 bg-secondary/[0.04] rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.max(pct, 2)}%` }}

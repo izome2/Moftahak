@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Calendar } from 'lucide-react';
+import { BarChart3, Calendar, TrendingUp, TrendingDown, DollarSign, Wallet } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -48,14 +48,13 @@ const MonthlySummary: React.FC<MonthlySummaryProps> = ({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.2 }}
-      className="bg-white rounded-2xl border-2 border-primary/20 overflow-hidden shadow-[0_4px_20px_rgba(237,191,140,0.1)]"
+      className="bg-white rounded-2xl border border-secondary/[0.08] overflow-hidden shadow-sm"
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-5 py-3.5 border-b-2 border-primary/10
-        bg-gradient-to-l from-primary/5 to-white"
+      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-secondary/[0.06]"
       >
-        <div className="w-8 h-8 rounded-xl bg-primary/15 border-2 border-primary/30 flex items-center justify-center">
-          <BarChart3 className="w-4 h-4 text-primary" />
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+          <BarChart3 className="w-4 h-4 text-white" />
         </div>
         <div className="flex items-center gap-2">
           <h3 className="text-base font-bold text-secondary font-dubai">
@@ -82,20 +81,20 @@ const MonthlySummary: React.FC<MonthlySummaryProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.month}</th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.revenue}</th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.expenses}</th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.profit}</th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.myShare}</th>
+              <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Calendar size={12} />{t.accounting.investorPortal.month}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><TrendingUp size={12} />{t.accounting.investorPortal.revenue}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><TrendingDown size={12} />{t.accounting.investorPortal.expenses}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.investorPortal.profit}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Wallet size={12} />{t.accounting.investorPortal.myShare}</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-primary/5">
               {months.map((m, i) => (
                 <tr
                   key={m.month}
-                  className={`transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-primary/[0.03]'}
-                    hover:bg-primary/10`}
+                  className={`transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-secondary/[0.01]'}
+                    hover:bg-secondary/[0.02]`}
                 >
                   <td className="px-4 py-2.5">
                     <span className="font-medium text-secondary text-xs font-dubai">
@@ -132,7 +131,7 @@ const MonthlySummary: React.FC<MonthlySummaryProps> = ({
 
             {/* Total row */}
             <tfoot>
-              <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-t-2 border-primary/20">
+              <tr className="bg-secondary/[0.03] border-t border-secondary/[0.06]">
                 <td className="px-4 py-3 text-xs text-secondary/60 font-bold font-dubai">{t.accounting.investorPortal.total}</td>
                 <td className="px-4 py-3">
                   <span className="text-[#8a9a7a] text-xs font-bold font-dubai">

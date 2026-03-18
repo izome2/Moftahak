@@ -17,6 +17,7 @@ import { updateExpenseSchema } from '@/lib/validations/accounting';
 import { refreshMonthlySnapshot, getMonthKey } from '@/lib/accounting/snapshot';
 import { checkMonthLock } from '@/lib/accounting/month-lock';
 import { logAuditEvent, getClientIP, sanitizeForAudit, extractChanges } from '@/lib/accounting/audit';
+import { getEffectiveAccountingRole } from '@/lib/permissions';
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -41,6 +42,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   });
 
   if (!expense) return notFoundResponse('المصروف');
+
+  // OPS_MANAGER can only view their own expenses
+  const effectiveRole = getEffectiveAccountingRole(authResult.role);
+  if (effectiveRole === 'OPS_MANAGER' && expense.createdById !== authResult.userId) {
+    return notFoundResponse('المصروف');
+  }
 
   return successResponse({ expense });
 }

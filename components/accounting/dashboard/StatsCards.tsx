@@ -78,11 +78,11 @@ const AccountingStatsCard: React.FC<StatsCardProps> = ({
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
-      className="relative rounded-xl sm:rounded-2xl overflow-hidden bg-white p-4 sm:p-5 border-2 border-primary/20 cursor-pointer group will-change-transform"
+      className="relative rounded-xl sm:rounded-2xl overflow-hidden bg-white p-4 sm:p-5 border border-secondary/[0.08] cursor-pointer group will-change-transform"
       style={{
         x: smoothMouseX,
         y: smoothMouseY,
-        boxShadow: '0 4px 20px rgba(237, 191, 140, 0.15)',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
         transform: 'translateZ(0)',
         backfaceVisibility: 'hidden',
       }}
@@ -93,7 +93,7 @@ const AccountingStatsCard: React.FC<StatsCardProps> = ({
         initial={{ opacity: 0 }}
         animate={isHovered ? {
           opacity: 1,
-          boxShadow: '0 0 40px rgba(237, 191, 140, 0.4), inset 0 0 20px rgba(237, 191, 140, 0.15)',
+          boxShadow: '0 0 40px rgba(16, 48, 43, 0.08), inset 0 0 20px rgba(16, 48, 43, 0.03)',
         } : { opacity: 0 }}
         transition={{ duration: 0.3 }}
       />
@@ -112,11 +112,11 @@ const AccountingStatsCard: React.FC<StatsCardProps> = ({
         {/* Header: Icon + Label */}
         <div className="flex items-center gap-3 mb-3">
           <motion.div
-            className="p-2.5 rounded-xl bg-primary/10 shadow-md border-2 border-primary/30"
+            className="p-2.5 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 shadow-md"
             style={{ x: iconX, y: iconY }}
             whileHover={{ scale: 1.1 }}
           >
-            <Icon size={22} className="text-primary" strokeWidth={2} />
+            <Icon size={22} className="text-white" strokeWidth={2} />
           </motion.div>
           <p className="text-secondary/60 font-dubai text-xs sm:text-sm leading-tight">
             {label}
@@ -125,7 +125,7 @@ const AccountingStatsCard: React.FC<StatsCardProps> = ({
 
         {/* Value */}
         {isLoading ? (
-          <div className="h-8 bg-primary/10 rounded-lg w-24 animate-pulse" />
+          <div className="h-8 bg-secondary/[0.04] rounded-lg w-24 animate-pulse" />
         ) : (
           <motion.h3
             className="text-2xl sm:text-3xl font-bold text-secondary font-dubai"
@@ -150,7 +150,7 @@ const AccountingStatsCard: React.FC<StatsCardProps> = ({
         animate={isHovered ? { x: '-100%', opacity: [0, 0.3, 0] } : { x: '100%', opacity: 0 }}
         transition={{ duration: 0.6, ease: 'easeInOut' }}
         style={{
-          background: 'linear-gradient(90deg, transparent, rgba(237, 191, 140, 0.5), transparent)',
+          background: 'linear-gradient(90deg, transparent, rgba(16, 48, 43, 0.06), transparent)',
         }}
       />
     </motion.div>

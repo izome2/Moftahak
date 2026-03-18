@@ -60,12 +60,14 @@ const RecentBookings: React.FC<RecentBookingsProps> = ({ bookings, isLoading }) 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.35 }}
-      className="bg-white border-2 border-primary/20 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)] overflow-hidden"
+      className="bg-white border border-secondary/[0.08] rounded-2xl shadow-sm overflow-hidden"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-5 border-b border-primary/10">
+      <div className="flex items-center justify-between p-5 border-b border-secondary/[0.06]">
         <div className="flex items-center gap-2">
-          <CalendarCheck size={20} className="text-primary" />
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+            <CalendarCheck size={18} className="text-white" />
+          </div>
           <h3 className="text-lg font-bold text-secondary font-dubai">{t.accounting.dashboard.recentBookings}</h3>
         </div>
       </div>

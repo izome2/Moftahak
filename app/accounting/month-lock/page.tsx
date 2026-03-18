@@ -10,6 +10,10 @@ import {
   CheckCircle2,
   AlertTriangle,
   Building2,
+  Loader2,
+  DollarSign,
+  Calendar,
+  Settings,
 } from 'lucide-react';
 import MonthSelector from '@/components/accounting/apartments/MonthSelector';
 import ConfirmDialog from '@/components/accounting/shared/ConfirmDialog';
@@ -132,97 +136,85 @@ export default function MonthLockPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      {/* Page Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between flex-wrap gap-4"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-primary/10 shadow-md border-2 border-primary/30">
-            <ShieldCheck size={24} className="text-primary" />
+    <div className="p-4 sm:p-6 lg:p-8 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      {/* Page Header + Month Selector */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
+            <ShieldCheck size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-secondary font-dubai">{t.accounting.monthLock.title}</h1>
-            <p className="text-sm text-secondary/60 font-dubai">
+            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">{t.accounting.monthLock.title}</h1>
+            <p className="text-xs text-secondary/60 font-dubai mt-0.5 hidden sm:block">
               {t.accounting.monthLock.subtitle}
             </p>
           </div>
         </div>
 
-        <button
-          onClick={fetchStatus}
-          disabled={loading}
-          className="flex items-center gap-2 px-4 py-2.5 bg-primary/10 hover:bg-primary/20 text-secondary font-dubai text-sm font-bold rounded-xl transition-colors disabled:opacity-50"
-        >
-          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-          {t.accounting.common.refresh}
-        </button>
-      </motion.div>
+        <MonthSelector month={month} onChange={setMonth} />
 
-      {/* Month Selector + Summary */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-        className="bg-white border-2 border-primary/20 rounded-2xl p-5 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <MonthSelector month={month} onChange={setMonth} />
-
-          <div className="flex items-center gap-4 text-sm font-dubai">
-            <div className="flex items-center gap-2 px-3 py-2 bg-secondary/8 rounded-xl border border-secondary/15">
-              <Lock size={14} className="text-secondary/70" />
-              <span className="font-bold text-secondary/80">{new Intl.NumberFormat(locale).format(totalLocked)} {t.accounting.monthLock.lockedCount}</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-xl border border-primary/25">
-              <Unlock size={14} className="text-primary" />
-              <span className="font-bold text-secondary/70">{new Intl.NumberFormat(locale).format(totalUnlocked)} {t.accounting.monthLock.openCount}</span>
-            </div>
+        <div className="flex items-center gap-2 justify-end">
+          <div className="hidden sm:flex items-center gap-2 text-sm font-dubai">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-secondary/[0.06] rounded-lg border border-secondary/[0.08]">
+              <Lock size={12} className="text-secondary/60" />
+              <span className="font-bold text-secondary/70 text-xs">{new Intl.NumberFormat(locale).format(totalLocked)}</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-primary/10 rounded-lg border border-primary/15">
+              <Unlock size={12} className="text-primary/70" />
+              <span className="font-bold text-secondary/60 text-xs">{new Intl.NumberFormat(locale).format(totalUnlocked)}</span>
+            </span>
           </div>
-        </div>
-
-        {/* Lock All Button */}
-        {totalUnlocked > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-4 pt-4 border-t border-primary/10"
+          <button
+            onClick={fetchStatus}
+            disabled={loading}
+            className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
           >
-            <button
-              onClick={() => setLockAllConfirm(true)}
-              disabled={actionLoading !== null}
-              className="flex items-center gap-2 px-5 py-2.5 bg-secondary text-white font-dubai text-sm font-bold rounded-xl hover:bg-secondary/90 transition-colors disabled:opacity-50 shadow-md"
-            >
-              {actionLoading === 'all' ? (
-                <RefreshCw size={16} className="animate-spin" />
-              ) : (
-                <Lock size={16} />
-              )}
-              {t.accounting.monthLock.lockAllForMonth(month)}
-            </button>
-            <p className="text-xs text-secondary/40 font-dubai mt-2">
-              {t.accounting.monthLock.snapshotNote}
-            </p>
-          </motion.div>
-        )}
-      </motion.div>
+            <RefreshCw size={16} className={`text-secondary/40 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
+      </div>
+
+      {/* Lock All Button */}
+      {totalUnlocked > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between bg-primary/5 border border-primary/15 rounded-xl px-4 py-2.5"
+        >
+          <p className="text-xs text-secondary/50 font-dubai">
+            {t.accounting.monthLock.snapshotNote}
+          </p>
+          <button
+            onClick={() => setLockAllConfirm(true)}
+            disabled={actionLoading !== null}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-secondary text-white font-dubai text-xs font-bold rounded-lg hover:bg-secondary/90 transition-all disabled:opacity-50 shrink-0"
+          >
+            {actionLoading === 'all' ? (
+              <RefreshCw size={13} className="animate-spin" />
+            ) : (
+              <Lock size={13} />
+            )}
+            {t.accounting.monthLock.lockAll}
+          </button>
+        </motion.div>
+      )}
 
       {/* Apartments List */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-white border-2 border-primary/20 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)] overflow-hidden"
+        className="bg-white border border-secondary/[0.08] rounded-2xl shadow-sm overflow-hidden"
       >
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            <Loader2 className="w-5 h-5 text-secondary/30 animate-spin" />
           </div>
         ) : apartments.length === 0 ? (
           <div className="text-center py-20 text-secondary/40 font-dubai">
-            <Building2 size={48} className="mx-auto mb-3 opacity-30" />
+            <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
+              <Building2 size={22} className="text-secondary/25" />
+            </div>
             <p className="text-lg font-bold">{t.accounting.monthLock.noApartments}</p>
             <p className="text-sm mt-1">{t.accounting.monthLock.addApartmentsNote}</p>
           </div>
@@ -230,12 +222,12 @@ export default function MonthLockPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10">
-                <tr className="bg-primary/5 border-b-2 border-primary/10">
-                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70">{t.accounting.monthLock.apartment}</th>
-                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70">{t.accounting.monthLock.status}</th>
-                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70">{t.accounting.monthLock.profit}</th>
-                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70">{t.accounting.monthLock.lockDate}</th>
-                  <th className="text-center px-4 py-3 font-dubai font-bold text-secondary/70">{t.accounting.monthLock.action}</th>
+                <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
+                  <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Building2 size={12} />{t.accounting.monthLock.apartment}</span></th>
+                  <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><ShieldCheck size={12} />{t.accounting.monthLock.status}</span></th>
+                  <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.monthLock.profit}</span></th>
+                  <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Calendar size={12} />{t.accounting.monthLock.lockDate}</span></th>
+                  <th className="text-center px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Settings size={12} />{t.accounting.monthLock.action}</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -247,7 +239,7 @@ export default function MonthLockPage() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
                       transition={{ delay: idx * 0.03 }}
-                      className="border-b border-primary/5 hover:bg-primary/3 transition-colors"
+                      className="border-b border-secondary/[0.04] hover:bg-secondary/[0.02] transition-colors"
                     >
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2">

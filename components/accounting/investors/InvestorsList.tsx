@@ -15,6 +15,8 @@ import {
   Pencil,
   Trash2,
   Loader2,
+  Target,
+  Settings,
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -62,8 +64,8 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border-2 border-primary/20 p-8">
-        <div className="flex items-center justify-center gap-2 text-secondary/60">
+      <div className="bg-white rounded-2xl border border-secondary/[0.08] shadow-sm p-8">
+        <div className="flex items-center justify-center gap-2 text-secondary/40">
           <Loader2 className="w-5 h-5 animate-spin" />
           <span className="text-sm font-dubai">{t.accounting.investors.loadingInvestors}</span>
         </div>
@@ -73,9 +75,11 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
 
   if (investors.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border-2 border-primary/10 py-14 text-center">
-        <Users className="w-10 h-10 mx-auto mb-3 text-primary/30" />
-        <p className="text-secondary/50 font-dubai text-sm">{t.accounting.investors.noInvestors}</p>
+      <div className="text-center py-16">
+        <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
+          <Users className="w-6 h-6 text-secondary/25" />
+        </div>
+        <p className="text-secondary/40 font-dubai text-sm">{t.accounting.investors.noInvestors}</p>
         <p className="text-secondary/50 font-dubai text-xs mt-1">
           {t.accounting.investors.addInvestorHint}
         </p>
@@ -96,17 +100,17 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.05 }}
-            className="bg-white rounded-2xl border-2 border-primary/20 shadow-[0_4px_20px_rgba(237,191,140,0.1)] overflow-hidden"
+            className="bg-white rounded-2xl border border-secondary/[0.08] shadow-sm overflow-hidden"
           >
             {/* Investor Header */}
             <button
               onClick={() => setExpandedId(isExpanded ? null : investor.id)}
-              className="w-full flex items-center gap-3 px-5 py-4 hover:bg-primary/5
+              className="w-full flex items-center gap-3 px-5 py-4 hover:bg-secondary/[0.02]
                 transition-colors"
             >
               {/* Avatar */}
-              <div className="w-10 h-10 rounded-xl bg-primary/10 border-2 border-primary/30
-                flex items-center justify-center text-secondary font-bold text-sm shrink-0"
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-secondary/80
+                flex items-center justify-center text-white font-bold text-sm shrink-0"
               >
                 {investor.firstName.charAt(0)}
               </div>
@@ -152,10 +156,10 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 transition={{ duration: 0.2 }}
-                className="border-t border-primary/10"
+                className="border-t border-secondary/[0.06]"
               >
                 {/* Action buttons */}
-                <div className="flex items-center gap-2 px-5 py-2.5 bg-primary/8 border-b border-primary/10">
+                <div className="flex items-center gap-2 px-5 py-2.5 bg-secondary/[0.02] border-b border-secondary/[0.06]">
                   <button
                     onClick={() => onAddWithdrawal?.(investor)}
                     className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium
@@ -176,24 +180,24 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
 
                 {/* Investments table */}
                 {investor.investments.length === 0 ? (
-                  <div className="py-6 text-center text-secondary/55 text-xs font-dubai">
+                  <div className="py-6 text-center text-secondary/40 text-xs font-dubai">
                     {t.accounting.investors.noLinkedInvestments}
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.common.apartment}</th>
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investors.percentageLabel}</th>
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investors.yearlyTargetHeader}</th>
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investors.withdrawalsHeader}</th>
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investors.actionsHeader}</th>
+                        <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Building2 size={12} />{t.accounting.common.apartment}</span></th>
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Percent size={12} />{t.accounting.investors.percentageLabel}</span></th>
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Target size={12} />{t.accounting.investors.yearlyTargetHeader}</span></th>
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><ArrowDownCircle size={12} />{t.accounting.investors.withdrawalsHeader}</span></th>
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Settings size={12} />{t.accounting.investors.actionsHeader}</span></th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-primary/10">
+                      <tbody className="divide-y divide-secondary/[0.04]">
                         {investor.investments.map((inv) => (
-                          <tr key={inv.id} className="hover:bg-primary/10 transition-colors">
+                          <tr key={inv.id} className="hover:bg-secondary/[0.02] transition-colors">
                             <td className="px-4 py-2.5">
                               <span className="flex items-center gap-1.5 font-medium text-secondary font-dubai text-xs">
                                 <Building2 className="w-3 h-3 text-secondary/55" />
@@ -201,7 +205,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                               </span>
                             </td>
                             <td className="px-4 py-2.5">
-                              <span className="bg-primary/10 text-secondary text-xs font-bold
+                              <span className="bg-secondary/[0.06] text-secondary text-xs font-bold
                                 px-2 py-0.5 rounded-full font-dubai"
                               >
                                 {new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(inv.percentage * 100)}%
@@ -224,7 +228,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                               <div className="flex items-center gap-1">
                                 <button
                                   onClick={() => onEditInvestment?.(inv.id, investor)}
-                                  className="p-1.5 rounded-lg hover:bg-primary/10 text-secondary/50
+                                  className="p-1.5 rounded-lg hover:bg-secondary/5 text-secondary/40
                                     hover:text-secondary transition-colors"
                                   title={t.accounting.investors.editPercentageAction}
                                 >

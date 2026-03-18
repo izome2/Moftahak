@@ -76,18 +76,18 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-white rounded-2xl border-2 border-primary/20 overflow-hidden shadow-[0_4px_20px_rgba(237,191,140,0.1)]"
+      className="bg-white rounded-2xl border border-secondary/[0.08] overflow-hidden shadow-sm"
     >
       {/* Apartment Header */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-3 px-5 py-4 hover:bg-primary/5
-          transition-colors border-b border-primary/10"
+        className="w-full flex items-center gap-3 px-5 py-4 hover:bg-secondary/[0.02]
+          transition-colors border-b border-secondary/[0.06]"
       >
-        <div className="w-10 h-10 rounded-xl bg-primary/10 border-2 border-primary/30
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-secondary/80
           flex items-center justify-center shrink-0"
         >
-          <Building2 className="w-5 h-5 text-primary" />
+          <Building2 className="w-5 h-5 text-white" />
         </div>
 
         <div className="flex-1 text-right">
@@ -202,9 +202,9 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                    <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investors.percentageLabel}</th>
-                    <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.profit}</th>
+                  <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
+                    <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Percent size={12} />{t.accounting.investors.percentageLabel}</span></th>
+                    <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.investorPortal.profit}</span></th>
                   </tr>
                 </thead>
                 <tbody>

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, Loader2 } from 'lucide-react';
+import { Users, Loader2, User, Percent, DollarSign } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -45,10 +45,10 @@ const InvestorsTable: React.FC<InvestorsTableProps> = ({
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.3 }}
-      className="bg-white rounded-xl border-2 border-primary/20 shadow-[0_4px_20px_rgba(237,191,140,0.12)] overflow-hidden"
+      className="bg-white rounded-xl border border-secondary/[0.08] shadow-sm overflow-hidden"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-primary/10 bg-accent/10">
+      <div className="flex items-center justify-between p-4 border-b border-secondary/[0.06]">
         <div className="flex items-center gap-2">
           <Users size={18} className="text-secondary/60" />
           <h3 className="text-base font-bold text-secondary font-dubai">{t.accounting.apartments.investorsTable}</h3>
@@ -74,10 +74,10 @@ const InvestorsTable: React.FC<InvestorsTableProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.name}</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.percentage}</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.profitHeader}</th>
+              <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
+                <th className="px-4 py-3 text-right text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><User size={12} />{t.accounting.apartments.name}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Percent size={12} />{t.accounting.apartments.percentage}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.apartments.profitHeader}</span></th>
               </tr>
             </thead>
             <tbody>
@@ -87,8 +87,8 @@ const InvestorsTable: React.FC<InvestorsTableProps> = ({
                 return (
                   <tr
                     key={investor.id}
-                    className={`border-b border-primary/10 hover:bg-primary/10 transition-colors ${
-                      i % 2 === 0 ? 'bg-primary/[0.06]' : ''
+                    className={`border-b border-secondary/[0.04] hover:bg-secondary/[0.02] transition-colors ${
+                      i % 2 === 0 ? 'bg-secondary/[0.01]' : ''
                     }`}
                   >
                     <td className="p-3 font-dubai">

@@ -37,7 +37,7 @@ const CustomTooltip = ({ active, payload, label, labels }: any) => {
   if (!active || !payload?.length) return null;
   const entry = payload[0];
   return (
-    <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
+    <div className="bg-white border border-secondary/[0.08] rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
       <p className="text-secondary font-bold mb-1.5">{label}</p>
       <div className="flex items-center gap-2 py-0.5">
         <span className="text-secondary/70">{labels.busyNights}</span>
@@ -66,7 +66,7 @@ const OccupancyChart: React.FC<OccupancyChartProps> = ({
   if (isLoading) {
     return (
       <div className="h-[320px] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary/30" />
       </div>
     );
   }

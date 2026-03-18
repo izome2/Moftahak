@@ -24,19 +24,19 @@ interface ConfirmDialogProps {
 
 const VARIANT_STYLES = {
   danger: {
-    iconBg: 'bg-red-100',
-    iconColor: 'text-red-600',
-    confirmBtn: 'bg-red-600 hover:bg-red-700 text-white',
+    iconBg: 'bg-gradient-to-br from-secondary to-secondary/80',
+    iconColor: 'text-white',
+    confirmBtn: 'bg-secondary hover:bg-secondary/90 hover:shadow-lg hover:shadow-secondary/15 text-white',
   },
   warning: {
-    iconBg: 'bg-amber-100',
-    iconColor: 'text-amber-600',
-    confirmBtn: 'bg-amber-600 hover:bg-amber-700 text-white',
+    iconBg: 'bg-gradient-to-br from-secondary to-secondary/80',
+    iconColor: 'text-white',
+    confirmBtn: 'bg-secondary hover:bg-secondary/90 hover:shadow-lg hover:shadow-secondary/15 text-white',
   },
   info: {
-    iconBg: 'bg-blue-100',
-    iconColor: 'text-blue-600',
-    confirmBtn: 'bg-secondary hover:bg-secondary/90 text-white',
+    iconBg: 'bg-gradient-to-br from-secondary to-secondary/80',
+    iconColor: 'text-white',
+    confirmBtn: 'bg-secondary hover:bg-secondary/90 hover:shadow-lg hover:shadow-secondary/15 text-white',
   },
 };
 
@@ -92,51 +92,55 @@ export default function ConfirmDialog({
             transition={{ type: 'spring', stiffness: 400, damping: 28 }}
             className="fixed inset-0 z-[81] flex items-center justify-center p-4"
           >
-            <div className="bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] max-w-sm w-full p-6 relative border-2 border-[#e0cdb8]">
-              {/* Close */}
-              <button
-                onClick={onClose}
-                className="absolute top-3 left-3 p-1.5 rounded-lg hover:bg-secondary/5 transition-colors"
-              >
-                <X className="w-4 h-4 text-secondary/40" />
-              </button>
-
-              {/* Icon */}
-              <div className={`w-12 h-12 rounded-2xl ${styles.iconBg} flex items-center justify-center mx-auto mb-4`}>
-                <AlertTriangle className={`w-6 h-6 ${styles.iconColor}`} />
-              </div>
-
-              {/* Content */}
-              <h3 className="text-lg font-bold text-secondary font-dubai text-center mb-2">
-                {displayTitle}
-              </h3>
-              <p className="text-sm text-secondary/60 font-dubai text-center mb-6 leading-relaxed">
-                {displayMessage}
-              </p>
-
-              {/* Actions */}
-              <div className={`flex gap-3 ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
-                <button
-                  onClick={onConfirm}
-                  disabled={isLoading}
-                  className={`flex-1 px-4 py-2.5 rounded-xl font-dubai text-sm transition-colors disabled:opacity-50 ${styles.confirmBtn}`}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      {t.accounting.common.processing}
-                    </span>
-                  ) : (
-                    displayConfirm
-                  )}
-                </button>
+            <div className="bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] max-w-sm w-full relative border border-secondary/[0.08] overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-9 h-9 rounded-xl ${styles.iconBg} flex items-center justify-center`}>
+                    <AlertTriangle size={15} className={styles.iconColor} />
+                  </div>
+                  <h3 className="text-base font-bold text-secondary font-dubai tracking-tight">
+                    {displayTitle}
+                  </h3>
+                </div>
                 <button
                   onClick={onClose}
-                  disabled={isLoading}
-                  className="flex-1 px-4 py-2.5 rounded-xl border-2 border-secondary/10 text-secondary font-dubai text-sm hover:bg-secondary/5 transition-colors disabled:opacity-50"
+                  className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"
                 >
-                  {displayCancel}
+                  <X size={18} className="text-secondary/40" />
                 </button>
+              </div>
+
+              <div className="p-5 space-y-4">
+                {/* Content */}
+                <p className="text-sm text-secondary font-dubai leading-relaxed">
+                  {displayMessage}
+                </p>
+
+                {/* Actions */}
+                <div className={`flex gap-3 ${language === 'ar' ? '' : 'flex-row-reverse'}`}>
+                  <button
+                    onClick={onConfirm}
+                    disabled={isLoading}
+                    className={`flex-1 py-2.5 rounded-xl font-dubai text-sm font-bold transition-all disabled:opacity-50 ${styles.confirmBtn}`}
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        {t.accounting.common.processing}
+                      </span>
+                    ) : (
+                      displayConfirm
+                    )}
+                  </button>
+                  <button
+                    onClick={onClose}
+                    disabled={isLoading}
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors disabled:opacity-50"
+                  >
+                    {displayCancel}
+                  </button>
+                </div>
               </div>
             </div>
           </motion.div>

@@ -33,6 +33,28 @@ interface WithdrawalFormProps {
   investments: Investment[];
 }
 
+/* ─── Field wrapper ─── */
+const FormField: React.FC<{
+  icon: React.ReactNode;
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+  className?: string;
+}> = ({ icon, label, required, children, className = '' }) => (
+  <div className={className}>
+    <label className="flex items-center gap-1.5 mb-2">
+      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
+        {icon}
+      </span>
+      <span className="text-[13px] font-bold text-secondary font-dubai">{label}</span>
+      {required && <span className="text-red-400 text-xs">*</span>}
+    </label>
+    {children}
+  </div>
+);
+
+const inputClass = "w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25";
+
 const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   isOpen,
   onClose,
@@ -44,7 +66,6 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   const t = useTranslation();
   const { language } = useLanguage();
   const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
-  // السحب من إجمالي الأرباح في كل الشقق - نستخدم أول استثمار كمرجع للربط
   const [apartmentInvestorId] = useState(
     investments.length > 0 ? investments[0].id : ''
   );
@@ -112,69 +133,70 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         />
 
         {/* Modal */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 12 }}
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 12 }}
-          className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-md overflow-hidden z-10 border-2 border-[#e0cdb8]"
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+          className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-md overflow-hidden z-10 border border-secondary/[0.08]"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b-2 border-primary/10
-            bg-gradient-to-l from-primary/5 to-white"
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-[#c09080]/10 border-2 border-[#c09080]/25 flex items-center justify-center">
-                <ArrowDownCircle className="w-4 h-4 text-[#c09080]" />
+          <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-rose-500/80 flex items-center justify-center">
+                <ArrowDownCircle size={15} className="text-white" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-secondary font-dubai">{t.accounting.withdrawalForm.title}</h2>
-                <p className="text-xs text-secondary/60 font-dubai">{investorName}</p>
+                <h2 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.withdrawalForm.title}</h2>
+                <p className="text-[11px] text-secondary/40 font-dubai">{investorName}</p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-primary/10 text-secondary/40
-                hover:text-secondary/70 transition-colors"
+              className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"
             >
-              <X className="w-4 h-4" />
+              <X size={18} className="text-secondary/40" />
             </button>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-5 space-y-4" dir="rtl">
-            {/* Investments Summary - السحب من إجمالي الأرباح */}
-            <div className="bg-primary/5 rounded-xl px-3 py-2.5 text-xs text-secondary/70 font-dubai space-y-1">
+          <form onSubmit={handleSubmit} className="p-5 space-y-5" dir="rtl">
+            {/* Investments Summary */}
+            <div className="bg-secondary/[0.03] rounded-xl px-3.5 py-2.5 text-xs text-secondary font-dubai space-y-1.5 border border-secondary/[0.06]">
               {investments.map(inv => (
                 <div key={inv.id} className="flex items-center gap-1.5">
-                  <Building2 className="w-3 h-3 text-secondary/40 shrink-0" />
+                  <Building2 size={12} className="text-secondary/40 shrink-0" />
                   <span>{inv.apartment.name} — {t.accounting.withdrawalForm.percentage} {new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(inv.percentage * 100)}%</span>
                 </div>
               ))}
             </div>
 
             {/* Amount + Currency */}
-            <div className="flex gap-3">
-              <div className="flex-1">
-                <label className="flex items-center gap-1.5 text-xs font-medium text-secondary/70 mb-1.5 font-dubai">
-                  <DollarSign className="w-3 h-3" />
-                  {t.accounting.withdrawalForm.amount}
-                </label>
+            <div className="flex gap-4">
+              <FormField
+                icon={<DollarSign size={11} className="text-emerald-500/70" />}
+                label={t.accounting.withdrawalForm.amount}
+                required
+                className="flex-1"
+              >
                 <NumberInput
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="w-full px-3 py-2.5 text-sm border-2 border-primary/20 rounded-xl
-                    focus:outline-none focus:border-primary
-                    font-dubai placeholder:text-secondary/30"
+                  className={`${inputClass} ltr text-left`}
+                  dir="ltr"
                   required
                 />
-              </div>
-              <div className="w-24">
-                <label className="text-xs font-medium text-secondary/70 mb-1.5 font-dubai block">{t.accounting.withdrawalForm.currency}</label>
+              </FormField>
+              <FormField
+                icon={<DollarSign size={11} className="text-secondary/50" />}
+                label={t.accounting.withdrawalForm.currency}
+                className="w-24"
+              >
                 <CustomSelect
                   value={currency}
                   onChange={setCurrency}
@@ -184,67 +206,69 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                     { value: 'EGP', label: 'EGP' },
                   ]}
                 />
-              </div>
+              </FormField>
             </div>
 
             {/* Date */}
-            <div>
-              <label className="flex items-center gap-1.5 text-xs font-medium text-secondary/70 mb-1.5 font-dubai">
-                <Calendar className="w-3 h-3" />
-                {t.accounting.withdrawalForm.withdrawalDate}
-              </label>
+            <FormField
+              icon={<Calendar size={11} className="text-secondary/50" />}
+              label={t.accounting.withdrawalForm.withdrawalDate}
+              required
+            >
               <DatePicker
                 value={date}
                 onChange={(v) => setDate(v)}
                 required
               />
-            </div>
+            </FormField>
 
             {/* Comments */}
-            <div>
-              <label className="flex items-center gap-1.5 text-xs font-medium text-secondary/70 mb-1.5 font-dubai">
-                <MessageSquare className="w-3 h-3" />
-                {t.accounting.withdrawalForm.notes}
-              </label>
+            <FormField
+              icon={<MessageSquare size={11} className="text-secondary/50" />}
+              label={t.accounting.withdrawalForm.notes}
+            >
               <textarea
                 value={comments}
                 onChange={(e) => setComments(e.target.value)}
                 placeholder={t.accounting.withdrawalForm.notesPlaceholder}
                 maxLength={500}
                 rows={2}
-                className="w-full px-3 py-2.5 text-sm border-2 border-primary/20 rounded-xl
-                  focus:outline-none focus:border-primary
-                  font-dubai placeholder:text-secondary/30 resize-none"
+                className={`${inputClass} resize-none`}
               />
-            </div>
+            </FormField>
 
             {/* Error */}
             {error && (
-              <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl
-                px-3 py-2.5 text-xs text-red-600 font-dubai"
-              >
-                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              <div className="flex items-center gap-2 text-sm text-red-500 font-dubai bg-red-50/80 p-2.5 rounded-xl border border-red-100">
+                <AlertCircle size={14} className="shrink-0" />
                 {error}
               </div>
             )}
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-2.5 bg-rose-50 text-rose-700 border border-rose-200/60 rounded-xl text-sm font-bold font-dubai
-                hover:bg-rose-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-                flex items-center justify-center gap-2"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  {t.accounting.common.saving}
-                </>
-              ) : (
-                t.accounting.withdrawalForm.submit
-              )}
-            </button>
+            {/* Actions */}
+            <div className="flex items-center gap-3 pt-1">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+              >
+                {t.accounting.common.cancel}
+              </button>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="flex-1 py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 hover:shadow-lg hover:shadow-secondary/15 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    {t.accounting.common.saving}
+                  </>
+                ) : (
+                  t.accounting.withdrawalForm.submit
+                )}
+              </button>
+            </div>
           </form>
         </motion.div>
       </div>

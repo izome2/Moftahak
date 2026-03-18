@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CalendarCheck, Loader2 } from 'lucide-react';
+import { CalendarCheck, Loader2, User, LogIn, LogOut, Moon, DollarSign, Globe, CircleDot } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -22,6 +22,7 @@ interface BookingsTableProps {
   bookings: BookingRow[];
   totalAmount?: number;
   isLoading?: boolean;
+  hideAmounts?: boolean;
 }
 
 const SOURCE_CLASSES: Record<string, string> = {
@@ -39,7 +40,7 @@ const STATUS_CLASSES: Record<string, string> = {
   CANCELLED: 'bg-secondary/10 text-secondary/50',
 };
 
-const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, isLoading }) => {
+const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, isLoading, hideAmounts }) => {
   const t = useTranslation();
   const { language } = useLanguage();
   const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
@@ -61,17 +62,17 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, is
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="bg-white rounded-2xl border-2 border-primary/30 shadow-[0_4px_20px_rgba(237,191,140,0.15)] overflow-hidden"
+      className="bg-white rounded-2xl border border-secondary/[0.08] shadow-sm overflow-hidden"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-primary/10">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-primary/10 border-2 border-primary/30 flex items-center justify-center flex-shrink-0">
-            <CalendarCheck size={16} className="text-primary" />
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center flex-shrink-0">
+            <CalendarCheck size={16} className="text-white" />
           </div>
           <h3 className="text-sm font-bold text-secondary font-dubai">{t.accounting.apartments.bookingsRevenue}</h3>
         </div>
-        {totalAmount !== undefined && !isLoading && (
+        {totalAmount !== undefined && !isLoading && !hideAmounts && (
           <div className="bg-primary/8 px-3 py-1.5 rounded-xl">
             <span className="text-sm font-bold text-secondary font-dubai">
               {formatCurrency(totalAmount)}
@@ -87,7 +88,7 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, is
         </div>
       ) : bookings.length === 0 ? (
         <div className="text-center py-14">
-          <div className="w-12 h-12 rounded-2xl bg-primary/5 mx-auto mb-3 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
             <CalendarCheck size={22} className="text-secondary/35" />
           </div>
           <p className="text-secondary/55 font-dubai text-sm">{t.accounting.apartments.noBookingsThisMonth}</p>
@@ -96,14 +97,14 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, is
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.client}</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">{t.accounting.apartments.checkInDate}</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">{t.accounting.apartments.checkOutDate}</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.nights}</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.amountHeader}</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.source}</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden md:table-cell">{t.accounting.apartments.status}</th>
+              <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
+                <th className="px-4 py-3 text-right text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><User size={12} />{t.accounting.apartments.client}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai hidden sm:table-cell"><span className="inline-flex items-center gap-1"><LogIn size={12} />{t.accounting.apartments.checkInDate}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai hidden sm:table-cell"><span className="inline-flex items-center gap-1"><LogOut size={12} />{t.accounting.apartments.checkOutDate}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Moon size={12} />{t.accounting.apartments.nights}</span></th>
+                {!hideAmounts && <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.apartments.amountHeader}</span></th>}
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Globe size={12} />{t.accounting.apartments.source}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai hidden md:table-cell"><span className="inline-flex items-center gap-1"><CircleDot size={12} />{t.accounting.apartments.status}</span></th>
               </tr>
             </thead>
             <tbody>
@@ -116,8 +117,8 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, is
                 return (
                   <tr
                     key={booking.id}
-                    className={`border-b border-primary/10 hover:bg-primary/10 transition-colors ${
-                      i % 2 === 0 ? 'bg-primary/[0.06]' : ''
+                    className={`border-b border-secondary/[0.04] hover:bg-secondary/[0.02] transition-colors ${
+                      i % 2 === 0 ? 'bg-secondary/[0.01]' : ''
                     }`}
                   >
                     <td className="px-4 py-3.5 font-dubai">
@@ -135,9 +136,11 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, is
                     <td className="px-4 py-3.5 text-center font-bold text-secondary font-dubai text-[13px]">
                       {new Intl.NumberFormat(locale).format(booking.nights)}
                     </td>
-                    <td className="px-4 py-3.5 text-center font-bold text-secondary font-dubai text-[13px]">
-                      {formatCurrency(booking.amount)}
-                    </td>
+                    {!hideAmounts && (
+                      <td className="px-4 py-3.5 text-center font-bold text-secondary font-dubai text-[13px]">
+                        {formatCurrency(booking.amount)}
+                      </td>
+                    )}
                     <td className="px-4 py-3.5 text-center">
                       <span className={`text-[10px] px-2 py-0.5 rounded-full font-dubai ${sourceClass}`}>
                         {sourceLabel}

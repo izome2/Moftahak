@@ -16,9 +16,7 @@ import {
 
 const SETTING_KEY = 'supervisors';
 
-const DEFAULT_SUPERVISORS = [
-  'أحمد', 'محمد', 'علي', 'عمر', 'خالد', 'يوسف', 'حسن', 'إبراهيم',
-];
+const DEFAULT_SUPERVISORS: string[] = [];
 
 // GET /api/accounting/settings/supervisors
 export async function GET(request: NextRequest) {

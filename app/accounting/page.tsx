@@ -10,12 +10,11 @@ import {
   Building2,
   Percent,
   Menu,
-  ChevronRight,
-  ChevronLeft,
   RefreshCw,
   ClipboardCheck,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import MonthSelector from '@/components/accounting/apartments/MonthSelector';
 import AccountingStatsCard from '@/components/accounting/dashboard/StatsCards';
 import RevenueExpenseChart from '@/components/accounting/dashboard/RevenueExpenseChart';
 import ExpensePieChart from '@/components/accounting/dashboard/ExpensePieChart';
@@ -117,12 +116,6 @@ const getCurrentMonth = () => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 };
 
-const changeMonth = (month: string, delta: number) => {
-  const [year, m] = month.split('-').map(Number);
-  const date = new Date(year, m - 1 + delta, 1);
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-};
-
 // --- Component ---
 export default function AccountingDashboardPage() {
   const [month, setMonth] = useState(getCurrentMonth);
@@ -133,13 +126,6 @@ export default function AccountingDashboardPage() {
   const { language } = useLanguage();
 
   const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
-
-  const formatMonthDisplay = (month: string) => {
-    const [year, m] = month.split('-');
-    const monthIndex = parseInt(m, 10) - 1;
-    const yearFormatted = new Intl.NumberFormat(locale, { useGrouping: false }).format(parseInt(year, 10));
-    return `${t.accounting.months[monthIndex] || m} ${yearFormatted}`;
-  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(locale).format(amount) + ' ' + t.accounting.common.currency;
@@ -170,87 +156,55 @@ export default function AccountingDashboardPage() {
     fetchDashboard(month);
   }, [month, fetchDashboard]);
 
-  const goToPrevMonth = () => setMonth(prev => changeMonth(prev, -1));
-  const goToNextMonth = () => setMonth(prev => changeMonth(prev, 1));
-  const isCurrentMonth = month === getCurrentMonth();
-
   // الدور الفعلي من استجابة API
   const role = data?.role || 'GENERAL_MANAGER';
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
-      {/* Header */}
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-5">
+      {/* Header + Month Selector */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-        className="flex items-center justify-between gap-3 will-change-transform"
+        className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 will-change-transform"
         style={{ transform: 'translateZ(0)' }}
       >
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-primary/10 shadow-md border-2 border-primary/30">
-            <LayoutDashboard size={24} className="text-primary" />
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
+            <LayoutDashboard size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
+            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">
               {t.accounting.dashboard.title}
             </h1>
-            <p className="text-sm text-secondary/60 font-dubai">
+            <p className="text-xs text-secondary/60 font-dubai mt-0.5 hidden sm:block">
               {t.accounting.dashboard.subtitle}
             </p>
           </div>
         </div>
 
-        {/* Mobile menu + Refresh */}
-        <div className="flex items-center gap-2">
+        <MonthSelector month={month} onChange={setMonth} />
+
+        <div className="flex items-center gap-1 justify-end">
           <button
             onClick={() => fetchDashboard(month)}
-            className="p-2 hover:bg-primary/10 rounded-lg transition-colors"
+            className="p-2 hover:bg-secondary/5 rounded-lg transition-all"
             aria-label={t.accounting.common.refresh}
             title={t.accounting.common.refresh}
           >
-            <RefreshCw size={20} className={`text-secondary/60 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={18} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => {
               const event = new CustomEvent('openAccountingMenu');
               window.dispatchEvent(event);
             }}
-            className="lg:hidden p-2 hover:bg-primary/10 rounded-lg transition-colors"
+            className="lg:hidden p-2 hover:bg-secondary/5 rounded-lg transition-all"
             aria-label={t.accounting.common.openMenu}
           >
             <Menu size={28} className="text-secondary" />
           </button>
         </div>
-      </motion.div>
-
-      {/* Month Selector */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.05 }}
-        className="flex items-center justify-center gap-4"
-      >
-        <button
-          onClick={goToPrevMonth}
-          className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors"
-          aria-label={t.accounting.monthSelector.prevMonth}
-        >
-          {language === 'ar' ? <ChevronRight size={20} className="text-secondary" /> : <ChevronLeft size={20} className="text-secondary" />}
-        </button>
-        <div className="text-center min-w-[160px]">
-          <p className="text-lg font-bold text-secondary font-dubai">
-            {formatMonthDisplay(month)}
-          </p>
-        </div>
-        <button
-          onClick={goToNextMonth}
-          disabled={isCurrentMonth}
-          className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          aria-label={t.accounting.monthSelector.nextMonth}
-        >
-          {language === 'ar' ? <ChevronLeft size={20} className="text-secondary" /> : <ChevronRight size={20} className="text-secondary" />}
-        </button>
       </motion.div>
 
       {/* Error */}
@@ -362,7 +316,7 @@ export default function AccountingDashboardPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.15 }}
-            className="bg-white border-2 border-primary/20 p-5 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+            className="bg-white border border-secondary/[0.08] p-5 rounded-2xl shadow-sm"
           >
             <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
               <TrendingUp size={18} className="text-primary" />
@@ -381,7 +335,7 @@ export default function AccountingDashboardPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-white border-2 border-primary/20 p-5 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+            className="bg-white border border-secondary/[0.08] p-5 rounded-2xl shadow-sm"
           >
             <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
               <Receipt size={18} className="text-red-400" />
@@ -401,7 +355,7 @@ export default function AccountingDashboardPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.25 }}
-          className="bg-white border-2 border-primary/20 p-5 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+          className="bg-white border border-secondary/[0.08] p-5 rounded-2xl shadow-sm"
         >
           <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
             <CalendarCheck size={18} className="text-primary" />

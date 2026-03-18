@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowDownCircle, Calendar, MessageSquare } from 'lucide-react';
+import { ArrowDownCircle, Calendar, MessageSquare, DollarSign, Building2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -48,9 +48,9 @@ const WithdrawalsTable: React.FC<WithdrawalsTableProps> = ({
     });
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border-2 border-primary/20 p-8">
+      <div className="bg-white rounded-2xl border border-secondary/[0.08] p-8">
         <div className="flex items-center justify-center gap-2 text-secondary/55">
-          <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-secondary/20 border-t-secondary/60 rounded-full animate-spin" />
           <span className="text-sm font-dubai">{t.accounting.investorPortal.loadingWithdrawals}</span>
         </div>
       </div>
@@ -62,17 +62,16 @@ const WithdrawalsTable: React.FC<WithdrawalsTableProps> = ({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.3 }}
-      className="bg-white rounded-2xl border-2 border-primary/20 overflow-hidden shadow-[0_4px_20px_rgba(237,191,140,0.1)]"
+      className="bg-white rounded-2xl border border-secondary/[0.08] overflow-hidden shadow-sm"
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-5 py-3.5 border-b-2 border-primary/10
-        bg-gradient-to-l from-primary/5 to-white"
+      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-secondary/[0.06]"
       >
         <div className="w-8 h-8 rounded-xl bg-[#c09080]/10 border-2 border-[#c09080]/25 flex items-center justify-center">
           <ArrowDownCircle className="w-4 h-4 text-[#c09080]" />
         </div>
         <h3 className="text-base font-bold text-secondary font-dubai">{t.accounting.investorPortal.withdrawalsTitle}</h3>
-        <span className="mr-auto bg-primary/10 text-secondary/70 text-xs font-bold px-2.5 py-1
+        <span className="mr-auto bg-secondary/[0.04] text-secondary/70 text-xs font-bold px-2.5 py-1
           rounded-full font-dubai"
         >
           {withdrawals.length} {t.accounting.investorPortal.operationUnit}
@@ -88,19 +87,19 @@ const WithdrawalsTable: React.FC<WithdrawalsTableProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.withdrawalAmount}</th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.withdrawalDate}</th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.withdrawalApartment}</th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.withdrawalNotes}</th>
+              <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.investorPortal.withdrawalAmount}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Calendar size={12} />{t.accounting.investorPortal.withdrawalDate}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Building2 size={12} />{t.accounting.investorPortal.withdrawalApartment}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><MessageSquare size={12} />{t.accounting.investorPortal.withdrawalNotes}</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-primary/10">
               {withdrawals.map((w, i) => (
                 <tr
                   key={w.id}
-                  className={`transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-primary/[0.06]'}
-                    hover:bg-primary/10`}
+                  className={`transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-secondary/[0.01]'}
+                    hover:bg-secondary/[0.02]`}
                 >
                   <td className="px-4 py-3">
                     <span className="font-bold text-[#c09080] font-dubai">
@@ -134,7 +133,7 @@ const WithdrawalsTable: React.FC<WithdrawalsTableProps> = ({
 
             {/* Total row */}
             <tfoot>
-              <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-t-2 border-primary/20">
+              <tr className="bg-secondary/[0.03] border-t border-secondary/[0.06]">
                 <td className="px-4 py-3">
                   <span className="font-bold text-[#c09080] font-dubai">
                     {formatCurrency(total, currency)}

@@ -52,7 +52,7 @@ const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({ data, isLoadi
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null;
     return (
-      <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      <div className="bg-white border border-secondary/[0.08] rounded-xl p-3 shadow-lg font-dubai text-sm" dir={language === 'ar' ? 'rtl' : 'ltr'}>
         <p className="text-secondary font-bold mb-1.5">{formatMonthLabel(label)}</p>
         {payload.map((entry: { name: string; value: number; color: string }, i: number) => (
           <div key={i} className="flex items-center gap-2 py-0.5">
@@ -69,7 +69,7 @@ const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({ data, isLoadi
   if (isLoading) {
     return (
       <div className="h-[300px] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary/30" />
       </div>
     );
   }

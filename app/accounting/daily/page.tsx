@@ -7,7 +7,6 @@ import {
   ChevronRight,
   ChevronLeft,
   RotateCcw,
-  Calendar,
   LogIn,
   LogOut,
   Loader2,
@@ -146,125 +145,91 @@ export default function DailyOpsPage() {
   const dateLabel = getDateLabel();
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      {/* Page Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-primary/10 shadow-md border-2 border-primary/30">
-            <ClipboardList size={24} className="text-primary" />
+    <div className="p-4 sm:p-6 lg:p-8 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      {/* Page Header + Date Navigation */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
+            <ClipboardList size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-secondary font-dubai">
+            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">
               {t.accounting.daily.title}
             </h1>
-            <p className="text-sm text-secondary/60 font-dubai">
+            <p className="text-xs text-secondary font-dubai mt-0.5 hidden sm:block">
               {t.accounting.daily.subtitle}
             </p>
           </div>
         </div>
 
-        <button
-          onClick={fetchDaily}
-          disabled={isLoading}
-          className="p-2.5 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors disabled:opacity-50"
-        >
-          <RefreshCw size={18} className={`text-secondary ${isLoading ? 'animate-spin' : ''}`} />
-        </button>
-      </motion.div>
-
-      {/* Date Navigation */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-        className="bg-white rounded-2xl border-2 border-primary/20 shadow-[0_4px_20px_rgba(237,191,140,0.15)] px-5 py-4"
-      >
-        <div className="flex items-center justify-between">
-          {/* Prev day */}
+        {/* Date Nav - centered */}
+        <div className="flex items-center justify-center gap-4">
           <button
             onClick={goPrevDay}
-            className="w-9 h-9 rounded-xl bg-primary/10 hover:bg-primary/20 flex items-center
-              justify-center transition-colors text-secondary"
+            className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors"
           >
-            {language === 'ar' ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            {language === 'ar' ? <ChevronRight size={20} className="text-secondary" /> : <ChevronLeft size={20} className="text-secondary" />}
           </button>
-
-          {/* Date display */}
-          <div className="flex flex-col items-center gap-1">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-primary" />
-              <span className="text-base font-bold text-secondary font-dubai">
-                {new Date(dateString).toLocaleDateString(locale, {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </span>
-              {dateLabel && (
-                <span className="text-xs bg-primary/10 text-secondary px-2 py-0.5
-                  rounded-full font-dubai font-medium"
-                >
-                  {dateLabel}
-                </span>
-              )}
-            </div>
-
-            {/* Auto/manual indicator */}
-            <div className="flex items-center gap-2 text-xs text-secondary/40">
-              {isAuto ? (
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {isAfter7PM
-                    ? t.accounting.daily.tomorrowAutoNote
-                    : t.accounting.daily.autoUpdateNote
-                  }
-                </span>
-              ) : (
-                <button
-                  onClick={resetToAuto}
-                  className="flex items-center gap-1 text-primary hover:text-secondary
-                    transition-colors font-dubai"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  {t.accounting.daily.backToAutoDate}
-                </button>
-              )}
-            </div>
+          <div className="text-center min-w-[160px]">
+            <p className="text-lg font-bold text-secondary font-dubai">
+              {new Date(dateString).toLocaleDateString(locale, {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </p>
+            {dateLabel && (
+              <p className="text-[10px] text-secondary/50 font-dubai font-medium -mt-0.5">
+                {dateLabel}
+              </p>
+            )}
           </div>
-
-          {/* Next day */}
           <button
             onClick={goNextDay}
-            className="w-9 h-9 rounded-xl bg-primary/10 hover:bg-primary/20 flex items-center
-              justify-center transition-colors text-secondary"
+            className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors"
           >
-            {language === 'ar' ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            {language === 'ar' ? <ChevronLeft size={20} className="text-secondary" /> : <ChevronRight size={20} className="text-secondary" />}
           </button>
         </div>
-      </motion.div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-1 justify-end">
+          {!isAuto && (
+            <button
+              onClick={resetToAuto}
+              className="p-1.5 rounded-lg hover:bg-secondary/5 transition-all text-secondary/40 hover:text-secondary"
+              title={t.accounting.daily.backToAutoDate}
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          )}
+          <button
+            onClick={fetchDaily}
+            disabled={isLoading}
+            className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
+          >
+            <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
+      </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white rounded-2xl border-2 border-primary/20 shadow-[0_4px_20px_rgba(237,191,140,0.1)]
-            px-5 py-4 flex items-center gap-3"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.05 }}
+          className="relative overflow-hidden bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 rounded-2xl border border-emerald-500/15
+            px-5 py-4 flex items-center gap-3 group hover:shadow-md transition-shadow duration-300"
         >
-          <div className="w-10 h-10 rounded-xl bg-[#8a9a7a]/10 border-2 border-[#8a9a7a]/25 flex items-center justify-center">
-            <LogIn className="w-5 h-5 text-[#8a9a7a]" />
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+            <LogIn className="w-5 h-5 text-emerald-600" />
           </div>
           <div>
-            <p className="text-sm text-secondary/60 font-dubai">{t.accounting.daily.checkInsTitle}</p>
-            <p className="text-2xl font-bold text-secondary font-dubai">
+            <p className="text-[11px] text-secondary/50 font-dubai font-medium">{t.accounting.daily.checkInsTitle}</p>
+            <p className="text-xl font-bold text-secondary font-dubai tracking-tight">
               {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin text-[#8a9a7a]" />
+                <Loader2 className="w-5 h-5 animate-spin text-secondary/30" />
               ) : (
                 summary.totalCheckIns
               )}
@@ -273,20 +238,20 @@ export default function DailyOpsPage() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.15 }}
-          className="bg-white rounded-2xl border-2 border-primary/20 shadow-[0_4px_20px_rgba(237,191,140,0.1)]
-            px-5 py-4 flex items-center gap-3"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.1 }}
+          className="relative overflow-hidden bg-gradient-to-br from-rose-500/10 to-rose-500/5 rounded-2xl border border-rose-500/15
+            px-5 py-4 flex items-center gap-3 group hover:shadow-md transition-shadow duration-300"
         >
-          <div className="w-10 h-10 rounded-xl bg-[#c09080]/10 border-2 border-[#c09080]/25 flex items-center justify-center">
-            <LogOut className="w-5 h-5 text-[#c09080]" />
+          <div className="w-10 h-10 rounded-xl bg-rose-500/15 flex items-center justify-center">
+            <LogOut className="w-5 h-5 text-rose-600" />
           </div>
           <div>
-            <p className="text-sm text-secondary/60 font-dubai">{t.accounting.daily.checkOutsTitle}</p>
-            <p className="text-2xl font-bold text-secondary font-dubai">
+            <p className="text-[11px] text-secondary/50 font-dubai font-medium">{t.accounting.daily.checkOutsTitle}</p>
+            <p className="text-xl font-bold text-secondary font-dubai tracking-tight">
               {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin text-[#c09080]" />
+                <Loader2 className="w-5 h-5 animate-spin text-secondary/30" />
               ) : (
                 summary.totalCheckOuts
               )}
@@ -302,8 +267,8 @@ export default function DailyOpsPage() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="bg-red-50 border-2 border-red-200 rounded-xl px-4 py-3 text-sm text-red-600
-              flex flex-col items-center gap-2 font-dubai"
+            className="bg-red-50/80 border border-red-200/60 rounded-xl px-4 py-3 text-sm text-red-600
+              flex flex-col items-center gap-2 font-dubai backdrop-blur-sm"
           >
             <div className="flex items-center gap-2">
               <Info className="w-4 h-4 shrink-0" />
@@ -311,7 +276,7 @@ export default function DailyOpsPage() {
             </div>
             <button
               onClick={fetchDaily}
-              className="text-sm text-red-500 underline font-dubai"
+              className="text-xs text-red-500 hover:text-red-700 font-dubai font-bold transition-colors"
             >
               {t.accounting.common.retry}
             </button>
@@ -321,16 +286,14 @@ export default function DailyOpsPage() {
 
       {/* Empty state - no data for either */}
       {!isLoading && !error && checkIns.length === 0 && checkOuts.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="bg-white rounded-2xl border-2 border-primary/10 py-16 text-center"
-        >
-          <ClipboardList className="w-12 h-12 mx-auto mb-3 text-secondary/20" />
+        <div className="text-center py-16">
+          <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
+            <ClipboardList className="w-6 h-6 text-secondary/25" />
+          </div>
           <p className="text-secondary/40 font-dubai text-sm">
             {t.accounting.daily.noActivity}
           </p>
-        </motion.div>
+        </div>
       )}
 
       {/* Tables */}

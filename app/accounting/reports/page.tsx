@@ -7,6 +7,11 @@ import {
   Calendar,
   RefreshCw,
   Info,
+  PieChart,
+  TrendingUp,
+  Building2,
+  Moon,
+  Globe,
 } from 'lucide-react';
 import MonthSelector from '@/components/accounting/apartments/MonthSelector';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
@@ -221,26 +226,22 @@ export default function ReportsPage() {
   const yearOptions = Array.from({ length: 5 }, (_, i) => String(currentYear - i));
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6" dir="rtl">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-5" dir="rtl">
       {/* Page Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-primary/10 shadow-md border-2 border-primary/30">
-            <BarChart3 size={24} className="text-primary" />
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
+            <BarChart3 size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-secondary font-dubai">{t.accounting.reports.title}</h1>
-            <p className="text-sm text-secondary/60 font-dubai">
+            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">{t.accounting.reports.title}</h1>
+            <p className="text-xs text-secondary/50 font-dubai mt-0.5 hidden sm:block">
               {mode === 'monthly' ? t.accounting.reports.monthlySubtitle : t.accounting.reports.yearlySubtitle}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <ExportButtons
             month={mode === 'monthly' ? month : year}
             reportType={mode}
@@ -248,48 +249,40 @@ export default function ReportsPage() {
           <button
             onClick={() => mode === 'monthly' ? fetchMonthly(month) : fetchAnnual(year)}
             disabled={isLoading}
-            className="p-2.5 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors disabled:opacity-50"
+            className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
           >
-            <RefreshCw size={18} className={`text-secondary ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Mode Toggle + Period Selector */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4
-          bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
-      >
-        {/* Mode toggle */}
-        <div className="flex items-center gap-1 bg-primary/5 rounded-xl p-1">
+      <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center gap-0.5 bg-white border-2 border-primary/20 rounded-xl p-0.5 shadow-[0_2px_12px_rgba(237,191,140,0.10)]">
           <button
             onClick={() => setMode('monthly')}
-            className={`px-4 py-2 text-xs font-bold font-dubai rounded-lg transition-all duration-200
+            className={`px-4 py-2 text-sm font-bold font-dubai rounded-lg transition-all duration-200 flex items-center gap-1.5
               ${mode === 'monthly'
                 ? 'bg-secondary text-white shadow-sm'
                 : 'text-secondary/50 hover:text-secondary'
               }`}
           >
-            <Calendar className="w-3.5 h-3.5 inline-block ml-1" />
+            <Calendar size={14} />
             {t.accounting.reports.monthly}
           </button>
           <button
             onClick={() => setMode('annual')}
-            className={`px-4 py-2 text-xs font-bold font-dubai rounded-lg transition-all duration-200
+            className={`px-4 py-2 text-sm font-bold font-dubai rounded-lg transition-all duration-200 flex items-center gap-1.5
               ${mode === 'annual'
                 ? 'bg-secondary text-white shadow-sm'
                 : 'text-secondary/50 hover:text-secondary'
               }`}
           >
-            <BarChart3 className="w-3.5 h-3.5 inline-block ml-1" />
+            <BarChart3 size={14} />
             {t.accounting.reports.yearly}
           </button>
         </div>
 
-        {/* Period selector */}
         {mode === 'monthly' ? (
           <MonthSelector month={month} onChange={setMonth} />
         ) : (
@@ -300,7 +293,7 @@ export default function ReportsPage() {
             options={yearOptions.map(y => ({ value: y, label: y }))}
           />
         )}
-      </motion.div>
+      </div>
 
       {/* Error */}
       <AnimatePresence>
@@ -309,8 +302,8 @@ export default function ReportsPage() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="bg-red-50 border-2 border-red-200 rounded-xl px-4 py-3 text-sm text-red-600
-              flex items-center gap-2 font-dubai"
+            className="bg-red-50/80 border border-red-200/60 rounded-xl px-4 py-3 text-sm text-red-600
+              flex items-center gap-2 font-dubai backdrop-blur-sm"
           >
             <Info className="w-4 h-4 shrink-0" />
             {error}
@@ -335,11 +328,16 @@ export default function ReportsPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+              className="bg-white border border-secondary/[0.08] rounded-2xl p-4 shadow-sm"
             >
-              <h3 className="text-sm font-bold text-secondary font-dubai mb-3">
-                📊 {t.accounting.reports.apartmentComparison}
-              </h3>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                  <BarChart3 size={14} className="text-white" />
+                </div>
+                <h3 className="text-sm font-bold text-secondary font-dubai">
+                  {t.accounting.reports.apartmentComparison}
+                </h3>
+              </div>
               <ApartmentComparisonChart
                 data={comparisonData}
                 isLoading={isLoadingMonthly}
@@ -350,11 +348,16 @@ export default function ReportsPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+              className="bg-white border border-secondary/[0.08] rounded-2xl p-4 shadow-sm"
             >
-              <h3 className="text-sm font-bold text-secondary font-dubai mb-3">
-                📊 {t.accounting.reports.occupancyPerApartment}
-              </h3>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                  <Moon size={14} className="text-white" />
+                </div>
+                <h3 className="text-sm font-bold text-secondary font-dubai">
+                  {t.accounting.reports.occupancyPerApartment}
+                </h3>
+              </div>
               <OccupancyChart
                 data={occupancyData}
                 daysInMonth={getDaysInMonth(month)}
@@ -369,11 +372,16 @@ export default function ReportsPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25 }}
-              className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+              className="bg-white border border-secondary/[0.08] rounded-2xl p-4 shadow-sm"
             >
-              <h3 className="text-sm font-bold text-secondary font-dubai mb-3">
-                🥧 {t.accounting.reports.expensesByCategory}
-              </h3>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                  <PieChart size={14} className="text-white" />
+                </div>
+                <h3 className="text-sm font-bold text-secondary font-dubai">
+                  {t.accounting.reports.expensesByCategory}
+                </h3>
+              </div>
               <ExpensePieChart
                 data={expensesPieData}
                 isLoading={isLoadingMonthly}
@@ -384,11 +392,16 @@ export default function ReportsPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+              className="bg-white border border-secondary/[0.08] rounded-2xl p-4 shadow-sm"
             >
-              <h3 className="text-sm font-bold text-secondary font-dubai mb-3">
-                🥧 {t.accounting.reports.bookingSources}
-              </h3>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                  <Globe size={14} className="text-white" />
+                </div>
+                <h3 className="text-sm font-bold text-secondary font-dubai">
+                  {t.accounting.reports.bookingSources}
+                </h3>
+              </div>
               <BookingSourceChart
                 data={sourcesPieData}
                 isLoading={isLoadingMonthly}
@@ -413,11 +426,16 @@ export default function ReportsPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+            className="bg-white border border-secondary/[0.08] rounded-2xl p-4 shadow-sm"
           >
-            <h3 className="text-sm font-bold text-secondary font-dubai mb-3">
-              📈 {t.accounting.reports.profitTrend(Number(year))}
-            </h3>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                <TrendingUp size={14} className="text-white" />
+              </div>
+              <h3 className="text-sm font-bold text-secondary font-dubai">
+                {t.accounting.reports.profitTrend(Number(year))}
+              </h3>
+            </div>
             <ProfitTrendChart
               data={annualData?.monthlyBreakdown || []}
               isLoading={isLoadingAnnual}
@@ -430,11 +448,16 @@ export default function ReportsPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+              className="bg-white border border-secondary/[0.08] rounded-2xl p-4 shadow-sm"
             >
-              <h3 className="text-sm font-bold text-secondary font-dubai mb-3">
-                📊 {t.accounting.reports.yearlyApartmentComparison}
-              </h3>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                  <Building2 size={14} className="text-white" />
+                </div>
+                <h3 className="text-sm font-bold text-secondary font-dubai">
+                  {t.accounting.reports.yearlyApartmentComparison}
+                </h3>
+              </div>
               <ApartmentComparisonChart
                 data={annualComparisonData}
                 isLoading={isLoadingAnnual}
@@ -445,11 +468,16 @@ export default function ReportsPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25 }}
-              className="bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+              className="bg-white border border-secondary/[0.08] rounded-2xl p-4 shadow-sm"
             >
-              <h3 className="text-sm font-bold text-secondary font-dubai mb-3">
-                📊 {t.accounting.reports.totalOccupancy}
-              </h3>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                  <Moon size={14} className="text-white" />
+                </div>
+                <h3 className="text-sm font-bold text-secondary font-dubai">
+                  {t.accounting.reports.totalOccupancy}
+                </h3>
+              </div>
               <OccupancyChart
                 data={annualOccupancyData}
                 daysInMonth={365}

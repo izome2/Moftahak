@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Receipt, Loader2 } from 'lucide-react';
+import { Receipt, Loader2, FileText, Tag, Calendar, DollarSign } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -57,13 +57,13 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, totalAmount, is
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.2 }}
-      className="bg-white rounded-2xl border-2 border-primary/30 shadow-[0_4px_20px_rgba(237,191,140,0.15)] overflow-hidden"
+      className="bg-white rounded-2xl border border-secondary/[0.08] shadow-sm overflow-hidden"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-primary/10">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-primary/10 border-2 border-primary/30 flex items-center justify-center flex-shrink-0">
-            <Receipt size={16} className="text-primary" />
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center flex-shrink-0">
+            <Receipt size={16} className="text-white" />
           </div>
           <h3 className="text-sm font-bold text-secondary font-dubai">{t.accounting.apartments.expensesTitle}</h3>
         </div>
@@ -83,7 +83,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, totalAmount, is
         </div>
       ) : expenses.length === 0 ? (
         <div className="text-center py-14">
-          <div className="w-12 h-12 rounded-2xl bg-primary/5 mx-auto mb-3 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
             <Receipt size={22} className="text-secondary/35" />
           </div>
           <p className="text-secondary/55 font-dubai text-sm">{t.accounting.apartments.noExpensesThisMonth}</p>
@@ -92,11 +92,11 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, totalAmount, is
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.description}</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.category}</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">{t.accounting.apartments.date}</th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.apartments.amountHeader}</th>
+              <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
+                <th className="px-4 py-3 text-right text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><FileText size={12} />{t.accounting.apartments.description}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Tag size={12} />{t.accounting.apartments.category}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai hidden sm:table-cell"><span className="inline-flex items-center gap-1"><Calendar size={12} />{t.accounting.apartments.date}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.apartments.amountHeader}</span></th>
               </tr>
             </thead>
             <tbody>
@@ -107,8 +107,8 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, totalAmount, is
                 return (
                   <tr
                     key={expense.id}
-                    className={`border-b border-primary/10 hover:bg-primary/10 transition-colors ${
-                      i % 2 === 0 ? 'bg-primary/[0.06]' : ''
+                    className={`border-b border-secondary/[0.04] hover:bg-secondary/[0.02] transition-colors ${
+                      i % 2 === 0 ? 'bg-secondary/[0.01]' : ''
                     }`}
                   >
                     <td className="px-4 py-3.5 font-dubai">

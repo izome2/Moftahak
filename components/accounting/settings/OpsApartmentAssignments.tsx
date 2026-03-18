@@ -255,18 +255,24 @@ const OpsApartmentAssignments: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowAdd(false)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm z-10 overflow-hidden border-2 border-[#e0cdb8]"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-sm z-10 overflow-hidden border border-secondary/[0.08]"
             >
-              <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
-                <h4 className="text-sm font-bold text-secondary font-dubai">{t.accounting.settings.opsAssignments.addApartment}</h4>
-                <button onClick={() => setShowAdd(false)}>
-                  <X className="w-4 h-4 text-secondary/40" />
+              <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                    <Plus size={15} className="text-white" />
+                  </div>
+                  <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.settings.opsAssignments.addApartment}</h4>
+                </div>
+                <button onClick={() => setShowAdd(false)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors">
+                  <X size={18} className="text-secondary/40" />
                 </button>
               </div>
               <div className="p-5 space-y-2 max-h-[300px] overflow-y-auto" dir={language === 'ar' ? 'rtl' : 'ltr'}>
@@ -278,9 +284,9 @@ const OpsApartmentAssignments: React.FC = () => {
                       key={apt.id}
                       onClick={() => handleAddApartment(apt.id)}
                       disabled={isSaving}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-primary/10 transition text-right disabled:opacity-50"
+                      className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-secondary/[0.04] transition text-right disabled:opacity-50"
                     >
-                      <Building2 className="w-4 h-4 text-primary shrink-0" />
+                      <Building2 size={16} className="text-secondary/50 shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm font-medium text-secondary font-dubai">{apt.name}</p>
                         {apt.project && (

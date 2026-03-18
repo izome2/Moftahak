@@ -138,19 +138,15 @@ export default function MyInvestmentsPage() {
     : '';
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6" dir="rtl">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-5" dir="rtl">
       {/* Page Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-primary/10 shadow-md border-2 border-primary/30">
-            <Wallet size={24} className="text-primary" />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
+            <Wallet size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">
+            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">
               {t.accounting.myInvestments.title}
               {investorName && (
                 <span className="text-sm font-normal text-secondary/40 mr-2">
@@ -158,7 +154,7 @@ export default function MyInvestmentsPage() {
                 </span>
               )}
             </h1>
-            <p className="text-sm text-secondary/60 font-dubai">
+            <p className="text-xs text-secondary/60 font-dubai mt-0.5">
               {t.accounting.myInvestments.subtitle}
             </p>
           </div>
@@ -167,11 +163,11 @@ export default function MyInvestmentsPage() {
         <button
           onClick={fetchData}
           disabled={isLoading}
-          className="p-2.5 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors disabled:opacity-50"
+          className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
         >
-          <RefreshCw size={18} className={`text-secondary ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
         </button>
-      </motion.div>
+      </div>
 
       {/* Loading */}
       {isLoading && (
@@ -188,8 +184,8 @@ export default function MyInvestmentsPage() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-              className="bg-[#c09080]/8 border-2 border-[#c09080]/20 rounded-xl px-4 py-3 text-sm text-[#c09080]
-              flex items-center gap-2 font-dubai"
+              className="bg-red-50/80 border border-red-200/60 rounded-xl px-4 py-3 text-sm text-red-600
+              flex items-center gap-2 font-dubai backdrop-blur-sm"
           >
             <Info className="w-4 h-4 shrink-0" />
             {error}
@@ -251,9 +247,11 @@ export default function MyInvestmentsPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="bg-white rounded-2xl border-2 border-primary/20 py-16 text-center"
+              className="text-center py-16"
             >
-              <Wallet className="w-12 h-12 mx-auto mb-3 text-secondary/20" />
+              <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
+                <Wallet className="w-6 h-6 text-secondary/25" />
+              </div>
               <p className="text-secondary/40 font-dubai text-sm">
                 {t.accounting.myInvestments.noInvestments}
               </p>

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CalendarCheck, Loader2, Pencil, Trash2, Phone, Clock, FileText } from 'lucide-react';
+import { CalendarCheck, Loader2, Pencil, Trash2, Phone, Clock, FileText, Building2, User, LogIn, LogOut, Moon, DollarSign, Globe, CircleDot, Settings } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -37,18 +37,18 @@ interface BookingsListProps {
 }
 
 const SOURCE_BADGE_CLASSES: Record<string, string> = {
-  AIRBNB: 'bg-primary/10 text-secondary',
-  BOOKING_COM: 'bg-primary/10 text-secondary',
-  EXTERNAL: 'bg-secondary/10 text-secondary',
-  DIRECT: 'bg-primary/20 text-secondary',
-  OTHER: 'bg-secondary/10 text-secondary/70',
+  AIRBNB: 'bg-rose-50 text-rose-600 ring-1 ring-rose-200/60',
+  BOOKING_COM: 'bg-blue-50 text-blue-600 ring-1 ring-blue-200/60',
+  EXTERNAL: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200/60',
+  DIRECT: 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200/60',
+  OTHER: 'bg-secondary/5 text-secondary/60 ring-1 ring-secondary/10',
 };
 
 const STATUS_BADGE_CLASSES: Record<string, string> = {
-  CONFIRMED: 'bg-primary/15 text-secondary',
-  CHECKED_IN: 'bg-primary/25 text-secondary',
-  CHECKED_OUT: 'bg-secondary/10 text-secondary/70',
-  CANCELLED: 'bg-secondary/10 text-secondary/50',
+  CONFIRMED: 'bg-sky-50 text-sky-600',
+  CHECKED_IN: 'bg-emerald-50 text-emerald-600',
+  CHECKED_OUT: 'bg-secondary/5 text-secondary/50',
+  CANCELLED: 'bg-red-50 text-red-400',
 };
 
 const BookingsList: React.FC<BookingsListProps> = ({
@@ -92,30 +92,30 @@ const BookingsList: React.FC<BookingsListProps> = ({
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="bg-white rounded-2xl border-2 border-primary/30 shadow-[0_4px_20px_rgba(237,191,140,0.15)] overflow-hidden"
+      className="bg-white rounded-2xl border border-secondary/[0.08] shadow-sm overflow-hidden"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-primary/10">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-primary/10 border-2 border-primary/30 flex items-center justify-center flex-shrink-0">
-            <CalendarCheck size={16} className="text-primary" />
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center flex-shrink-0">
+            <CalendarCheck size={14} className="text-white" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-secondary font-dubai">{t.accounting.bookings.bookingsList}</h3>
+            <h3 className="text-sm font-bold text-secondary font-dubai tracking-tight">{t.accounting.bookings.bookingsList}</h3>
             {totalCount !== undefined && (
-              <p className="text-[11px] text-secondary/55 font-dubai">{new Intl.NumberFormat(locale).format(totalCount!)} {t.accounting.common.booking}</p>
+              <p className="text-[11px] text-secondary/40 font-dubai">{new Intl.NumberFormat(locale).format(totalCount!)} {t.accounting.common.booking}</p>
             )}
           </div>
         </div>
         <div className="flex items-center gap-2">
           {totalNights !== undefined && totalNights > 0 && !isLoading && (
-            <span className="text-[11px] font-bold text-secondary/60 font-dubai bg-primary/8 px-2.5 py-1 rounded-lg">
+            <span className="text-[11px] font-bold text-secondary/50 font-dubai bg-secondary/[0.04] px-2.5 py-1 rounded-lg">
               {new Intl.NumberFormat(locale).format(totalNights!)} {t.accounting.common.night}
             </span>
           )}
           {totalAmount !== undefined && !isLoading && !hideFinancials && (
-            <div className="bg-primary/8 px-3 py-1.5 rounded-xl">
-              <span className="text-sm font-bold text-secondary font-dubai">
+            <div className="bg-emerald-500/8 px-3 py-1.5 rounded-xl">
+              <span className="text-sm font-bold text-emerald-700 font-dubai">
                 {formatCurrency(totalAmount)}
               </span>
             </div>
@@ -126,14 +126,14 @@ const BookingsList: React.FC<BookingsListProps> = ({
       {/* Content */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-5 h-5 text-primary animate-spin" />
+          <Loader2 className="w-5 h-5 text-secondary/30 animate-spin" />
         </div>
       ) : bookings.length === 0 ? (
         <div className="text-center py-16">
-          <div className="w-12 h-12 rounded-2xl bg-primary/5 mx-auto mb-3 flex items-center justify-center">
-            <CalendarCheck size={22} className="text-secondary/35" />
+          <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
+            <CalendarCheck size={22} className="text-secondary/25" />
           </div>
-          <p className="text-secondary/55 font-dubai text-sm">{t.accounting.bookings.noBookingsFilter}</p>
+          <p className="text-secondary/40 font-dubai text-sm">{t.accounting.bookings.noBookingsFilter}</p>
         </div>
       ) : (
         <>
@@ -145,27 +145,27 @@ const BookingsList: React.FC<BookingsListProps> = ({
               return (
                 <div
                   key={booking.id}
-                  className={`px-5 py-3.5 space-y-2 ${booking.status === 'CANCELLED' ? 'opacity-50' : ''} ${i < bookings.length - 1 ? 'border-b border-primary/[0.06]' : ''}`}
+                  className={`px-5 py-3.5 space-y-2 ${booking.status === 'CANCELLED' ? 'opacity-40' : ''} ${i < bookings.length - 1 ? 'border-b border-secondary/[0.04]' : ''}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-bold text-secondary font-dubai text-[13px]">{booking.clientName}</p>
                       {showApartment && booking.apartment?.name && (
-                        <span className="text-[10px] bg-primary/8 text-secondary/60 px-2 py-0.5 rounded-md font-medium inline-block mt-1">
+                        <span className="text-[10px] bg-secondary/[0.04] text-secondary/50 px-2 py-0.5 rounded-md font-medium inline-block mt-1">
                           {booking.apartment.name}
                         </span>
                       )}
                     </div>
                     {!hideFinancials && (
-                      <span className="text-[13px] font-bold text-secondary font-dubai whitespace-nowrap">
+                      <span className="text-[13px] font-bold text-secondary font-dubai whitespace-nowrap tabular-nums">
                         {formatCurrency(booking.amount)}
                       </span>
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-secondary/65 font-dubai">
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-secondary/50 font-dubai">
                     <span>{formatDate(booking.checkIn)} → {formatDate(booking.checkOut)}</span>
-                    <span className="font-bold text-secondary/70">{new Intl.NumberFormat(locale).format(booking.nights)} {t.accounting.common.night}</span>
+                    <span className="font-bold text-secondary/60">{new Intl.NumberFormat(locale).format(booking.nights)} {t.accounting.common.night}</span>
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -180,13 +180,13 @@ const BookingsList: React.FC<BookingsListProps> = ({
                     {hasActions && (
                       <div className="flex items-center gap-0.5">
                         {canEdit && onEdit && (
-                          <button onClick={() => onEdit(booking)} className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors">
-                            <Pencil size={13} className="text-secondary/50" />
+                          <button onClick={() => onEdit(booking)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors">
+                            <Pencil size={13} className="text-secondary/40" />
                           </button>
                         )}
                         {canDelete && onDelete && (
-                          <button onClick={() => onDelete(booking)} className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors">
-                            <Trash2 size={13} className="text-secondary/45" />
+                          <button onClick={() => onDelete(booking)} className="p-1.5 hover:bg-red-50 rounded-lg transition-colors">
+                            <Trash2 size={13} className="text-secondary/35" />
                           </button>
                         )}
                       </div>
@@ -201,16 +201,16 @@ const BookingsList: React.FC<BookingsListProps> = ({
           <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10">
-                <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                  {showApartment && <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.bookings.apartment}</th>}
-                  <th className="px-4 py-3 text-right text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.bookings.client}</th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">{t.accounting.bookings.checkIn}</th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden sm:table-cell">{t.accounting.bookings.checkOut}</th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.bookings.nights}</th>
-                  {!hideFinancials && <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.bookings.amount}</th>}
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.bookings.source}</th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai hidden md:table-cell">{t.accounting.bookings.status}</th>
-                  {hasActions && <th className="px-4 py-3 text-center text-[11px] text-secondary/80 font-bold font-dubai w-20">{t.accounting.bookings.actions}</th>}
+                <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
+                  {showApartment && <th className="px-4 py-3 text-right text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Building2 size={12} />{t.accounting.bookings.apartment}</span></th>}
+                  <th className="px-4 py-3 text-right text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><User size={12} />{t.accounting.bookings.client}</span></th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai hidden sm:table-cell"><span className="inline-flex items-center gap-1"><LogIn size={12} />{t.accounting.bookings.checkIn}</span></th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai hidden sm:table-cell"><span className="inline-flex items-center gap-1"><LogOut size={12} />{t.accounting.bookings.checkOut}</span></th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Moon size={12} />{t.accounting.bookings.nights}</span></th>
+                  {!hideFinancials && <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.bookings.amount}</span></th>}
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Globe size={12} />{t.accounting.bookings.source}</span></th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai hidden md:table-cell"><span className="inline-flex items-center gap-1"><CircleDot size={12} />{t.accounting.bookings.status}</span></th>
+                  {hasActions && <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai w-20"><span className="inline-flex items-center gap-1"><Settings size={12} />{t.accounting.bookings.actions}</span></th>}
                 </tr>
               </thead>
               <tbody>
@@ -221,17 +221,13 @@ const BookingsList: React.FC<BookingsListProps> = ({
                   return (
                     <tr
                       key={booking.id}
-                      className={`border-b border-primary/10 hover:bg-primary/10 transition-colors group ${
-                        booking.status === 'CANCELLED'
-                          ? 'opacity-50'
-                          : i % 2 === 0
-                            ? 'bg-primary/[0.06]'
-                            : ''
+                      className={`border-b border-secondary/[0.04] hover:bg-secondary/[0.02] transition-colors group ${
+                        booking.status === 'CANCELLED' ? 'opacity-40' : ''
                       }`}
                     >
                       {showApartment && (
                         <td className="px-4 py-3.5 font-dubai">
-                          <span className="text-[11px] bg-primary/8 text-secondary/60 px-2 py-0.5 rounded-md font-medium">
+                          <span className="text-[11px] bg-secondary/[0.04] text-secondary/50 px-2 py-0.5 rounded-md font-medium">
                             {booking.apartment?.name || '—'}
                           </span>
                         </td>
@@ -288,19 +284,19 @@ const BookingsList: React.FC<BookingsListProps> = ({
                             {canEdit && onEdit && (
                               <button
                                 onClick={() => onEdit(booking)}
-                                className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors"
+                                className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"
                                 title={t.accounting.common.edit}
                               >
-                                <Pencil size={13} className="text-secondary/50" />
+                                <Pencil size={13} className="text-secondary/40" />
                               </button>
                             )}
                             {canDelete && onDelete && (
                               <button
                                 onClick={() => onDelete(booking)}
-                                className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors"
+                                className="p-1.5 hover:bg-red-50 rounded-lg transition-colors"
                                 title={t.accounting.common.delete}
                               >
-                                <Trash2 size={13} className="text-secondary/45" />
+                                <Trash2 size={13} className="text-red-400/60" />
                               </button>
                             )}
                           </div>

@@ -26,6 +26,8 @@ interface ApartmentCardProps {
   isLoading?: boolean;
   /** إخفاء الإيرادات والأرباح (مثلاً لمدير التشغيل) */
   hideRevenue?: boolean;
+  /** إخفاء المصروفات (مثلاً لمدير الحجوزات) */
+  hideExpenses?: boolean;
 }
 
 const ApartmentCard: React.FC<ApartmentCardProps> = ({
@@ -34,6 +36,7 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
   index = 0,
   isLoading = false,
   hideRevenue = false,
+  hideExpenses = false,
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
@@ -48,7 +51,7 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
     >
       <Link
         href={`/accounting/apartments/${apartment.id}`}
-        className="block bg-white rounded-2xl border-2 border-primary/20 p-5 hover:shadow-[0_8px_30px_rgba(237,191,140,0.25)] shadow-[0_4px_20px_rgba(237,191,140,0.12)] transition-all duration-300 group"
+        className="block bg-white rounded-2xl border border-secondary/[0.08] p-5 hover:shadow-md shadow-sm transition-all duration-300 group"
       >
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
@@ -89,8 +92,8 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
               <div key={n} className="h-14 bg-accent/30 rounded-xl animate-pulse" />
             ))}
           </div>
-        ) : summary ? (
-          <div className={`grid gap-3 ${hideRevenue ? 'grid-cols-1' : 'grid-cols-3'}`}>
+        ) : summary && !(hideRevenue && hideExpenses) ? (
+          <div className={`grid gap-3 ${hideRevenue || hideExpenses ? 'grid-cols-1' : 'grid-cols-3'}`}>
             {!hideRevenue && (
               <div className="bg-[#8a9a7a]/8 rounded-xl p-2.5 text-center">
                 <p className="text-[10px] text-[#8a9a7a]/70 font-dubai mb-0.5">{t.accounting.apartments.totalRevenue}</p>
@@ -99,12 +102,14 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
                 </p>
               </div>
             )}
-            <div className="bg-[#c09080]/8 rounded-xl p-2.5 text-center">
-              <p className="text-[10px] text-[#c09080]/70 font-dubai mb-0.5">{t.accounting.apartments.totalExpenses}</p>
-              <p className="text-sm font-bold text-[#c09080] font-dubai">
-                {formatCurrency(summary.totalExpenses)}
-              </p>
-            </div>
+            {!hideExpenses && (
+              <div className="bg-[#c09080]/8 rounded-xl p-2.5 text-center">
+                <p className="text-[10px] text-[#c09080]/70 font-dubai mb-0.5">{t.accounting.apartments.totalExpenses}</p>
+                <p className="text-sm font-bold text-[#c09080] font-dubai">
+                  {formatCurrency(summary.totalExpenses)}
+                </p>
+              </div>
+            )}
             {!hideRevenue && (
               <div className={`${summary.profit >= 0 ? 'bg-primary/10' : 'bg-[#c09080]/8'} rounded-xl p-2.5 text-center`}>
                 <p className="text-[10px] text-secondary/50 font-dubai mb-0.5">{t.accounting.apartments.netProfit}</p>

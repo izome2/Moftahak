@@ -12,16 +12,7 @@ interface SupervisorSelectProps {
   onSaved?: (bookingId: string, field: string, value: string) => void;
 }
 
-const SUPERVISORS = [
-  'أحمد',
-  'محمد',
-  'علي',
-  'عمر',
-  'خالد',
-  'يوسف',
-  'حسن',
-  'إبراهيم',
-];
+
 
 const SupervisorSelect: React.FC<SupervisorSelectProps> = ({
   bookingId,
@@ -40,7 +31,16 @@ const SupervisorSelect: React.FC<SupervisorSelectProps> = ({
   const btnRef = useRef<HTMLButtonElement>(null);
   const [mounted, setMounted] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [supervisors, setSupervisors] = useState<string[]>([]);
   const t = useTranslation();
+
+  // Fetch supervisors from settings API
+  useEffect(() => {
+    fetch('/api/accounting/settings/supervisors')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.supervisors) setSupervisors(d.supervisors); })
+      .catch(() => {});
+  }, []);
 
   const isAnimIn = animState === 'entering';
   const isAnimOut = animState === 'leaving';
@@ -142,12 +142,12 @@ const SupervisorSelect: React.FC<SupervisorSelectProps> = ({
         disabled={saving}
         className={`
           flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium
-          border-2 transition-all duration-200 min-w-[120px] justify-between
+          border transition-all duration-200 min-w-[120px] justify-between
           ${current
-            ? 'bg-primary/10 border-primary/30 text-secondary hover:bg-primary/15'
-            : 'bg-primary/10 border-primary/25 text-secondary/60 hover:bg-primary/15 hover:text-secondary/70'
+            ? 'bg-secondary/[0.04] border-secondary/[0.08] text-secondary hover:bg-secondary/[0.06]'
+            : 'bg-secondary/[0.03] border-secondary/[0.06] text-secondary/60 hover:bg-secondary/[0.05] hover:text-secondary/70'
           }
-          ${isOpen ? 'border-primary shadow-[0_0_0_3px_rgba(237,191,140,0.15)]' : ''}
+          ${isOpen ? 'border-secondary/20 shadow-[0_0_0_3px_rgba(16,48,43,0.06)]' : ''}
           ${saving ? 'opacity-60 cursor-wait' : 'cursor-pointer'}
         `}
       >
@@ -184,11 +184,11 @@ const SupervisorSelect: React.FC<SupervisorSelectProps> = ({
                 : 'scale(1) translateY(0)',
               transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1), transform 180ms cubic-bezier(0.16,1,0.3,1)',
             }}
-            className="bg-white rounded-2xl border-2 border-primary/25 overflow-hidden
-              shadow-[0_8px_32px_rgba(237,191,140,0.20)]"
+            className="bg-white rounded-2xl border border-secondary/[0.08] overflow-hidden
+              shadow-lg"
           >
             <div className="overflow-y-auto p-1.5" style={{ maxHeight: 'inherit' }}>
-              {SUPERVISORS.map((name) => (
+              {supervisors.map((name) => (
                 <button
                   key={name}
                   onClick={() => handleSelect(name)}
@@ -208,14 +208,14 @@ const SupervisorSelect: React.FC<SupervisorSelectProps> = ({
             </div>
 
             {/* Custom supervisor input */}
-            <form onSubmit={handleCustomSubmit} className="border-t border-primary/10 p-2">
+            <form onSubmit={handleCustomSubmit} className="border-t border-secondary/[0.06] p-2">
               <input
                 type="text"
                 value={customInput}
                 onChange={(e) => setCustomInput(e.target.value)}
                 placeholder={t.accounting.daily.customName}
-                className="w-full px-2.5 py-1.5 text-sm border-2 border-primary/20 rounded-xl
-                  focus:outline-none focus:border-primary
+                className="w-full px-2.5 py-1.5 text-sm border border-secondary/[0.08] rounded-xl
+                  focus:outline-none focus:border-secondary/20
                   placeholder:text-secondary/30 text-right"
                 dir="rtl"
               />

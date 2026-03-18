@@ -85,6 +85,9 @@ export async function POST(request: NextRequest) {
       systemSettings,
       auditLogs,
       users,
+      custodyRecords,
+      opsManagerApartments,
+      invitations,
     ] = await Promise.all([
       prisma.project.findMany({ orderBy: { createdAt: 'asc' } }),
       prisma.apartment.findMany({ orderBy: { createdAt: 'asc' } }),
@@ -102,6 +105,9 @@ export async function POST(request: NextRequest) {
         select: { id: true, firstName: true, lastName: true, email: true, phone: true, role: true, image: true, createdAt: true },
         orderBy: { createdAt: 'asc' },
       }),
+      prisma.custody.findMany({ orderBy: { createdAt: 'asc' } }),
+      prisma.opsManagerApartment.findMany({ orderBy: { createdAt: 'asc' } }),
+      prisma.invitation.findMany({ orderBy: { createdAt: 'asc' } }),
     ]);
 
     const stats = {
@@ -114,6 +120,8 @@ export async function POST(request: NextRequest) {
       withdrawals: withdrawals.length,
       snapshots: monthlySnapshots.length,
       auditLogs: auditLogs.length,
+      custodyRecords: custodyRecords.length,
+      opsAssignments: opsManagerApartments.length,
     };
 
     const data = {
@@ -129,6 +137,9 @@ export async function POST(request: NextRequest) {
       monthlyInvestorSnapshots,
       systemSettings,
       auditLogs,
+      custodyRecords,
+      opsManagerApartments,
+      invitations,
     };
 
     const backup = await prisma.systemBackup.create({

@@ -11,7 +11,7 @@ import {
   BarChart3,
   SlidersHorizontal,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -296,101 +296,67 @@ export default function BookingsPage() {
   );
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-primary/10 shadow-md border-2 border-primary/30">
-            <CalendarCheck size={24} className="text-primary" />
+    <div className="p-4 sm:p-6 lg:p-8 space-y-5">
+      {/* Header + Month Selector */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
+            <CalendarCheck size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-secondary font-dubai">{t.accounting.bookings.title}</h1>
-            <p className="text-sm text-secondary/60 font-dubai">
+            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">{t.accounting.bookings.title}</h1>
+            <p className="text-xs text-secondary font-dubai mt-0.5 hidden sm:block">
               {hideFinancials ? t.accounting.bookings.subtitle : t.accounting.bookings.altSubtitle}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <MonthSelector month={month} onChange={setMonth} blockPastMonths={hideFinancials} />
+
+        <div className="flex items-center gap-1.5 justify-end">
           <button
             onClick={fetchBookings}
             disabled={isLoading}
-            className="p-2.5 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors"
+            className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
             title={t.accounting.common.refresh}
           >
-            <RefreshCw size={18} className={`text-secondary ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
           {!hideFinancials && (
             <button
               onClick={() => setShowCharts(prev => !prev)}
-              className={`p-2.5 rounded-xl transition-colors ${showCharts ? 'bg-secondary text-white' : 'bg-primary/10 text-secondary hover:bg-primary/20'}`}
+              className={`p-2 rounded-xl transition-all ${showCharts ? 'bg-secondary/8 text-secondary' : 'hover:bg-secondary/5 text-secondary/40'}`}
               title={showCharts ? t.accounting.common.hideCharts : t.accounting.common.showCharts}
             >
-              <BarChart3 size={18} />
+              <BarChart3 size={16} />
             </button>
           )}
           {canAdd && (
             <button
               onClick={() => { setEditBooking(null); setShowForm(true); }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-secondary text-white rounded-xl font-dubai text-sm font-bold hover:bg-secondary/90 transition-colors shadow-sm"
+              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl font-dubai text-sm font-bold hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300"
             >
-              <Plus size={16} />
+              <Plus size={15} />
               {t.accounting.bookings.addBooking}
             </button>
           )}
         </div>
       </div>
 
-      {/* Month Selector */}
-      <MonthSelector month={month} onChange={setMonth} blockPastMonths={hideFinancials} />
-
       {/* Filters */}
-      <div className="space-y-3">
-        {/* Search + filter toggle */}
+      <div className="space-y-2.5">
         <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary/30" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t.accounting.bookings.searchPlaceholder}
-              className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
-            />
-          </div>
-          <button
-            onClick={() => setShowFilters(prev => !prev)}
-            className={`sm:hidden relative p-2.5 rounded-xl transition-colors ${
-              showFilters || activeFilterCount > 0 ? 'bg-secondary text-white' : 'bg-primary/10 text-secondary hover:bg-primary/20'
-            }`}
-            aria-label={showFilters ? t.accounting.common.hideFilters : t.accounting.common.showFilters}
-          >
-            <SlidersHorizontal size={18} />
-            {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-secondary text-[10px] font-bold rounded-full flex items-center justify-center">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
-        </div>
-
-        {/* Dropdown filters - always visible on sm+, collapsible on mobile */}
-        <AnimatePresence>
-          {(showFilters || typeof window !== 'undefined') && (
-            <motion.div
-              initial={false}
-              className={`flex-col sm:flex sm:flex-row items-stretch sm:items-center gap-3 ${showFilters ? 'flex' : 'hidden sm:flex'}`}
-            >
+          <div className={`flex-col sm:flex sm:flex-row items-stretch sm:items-center gap-2.5 flex-1 ${showFilters ? 'flex' : 'hidden sm:flex'}`}>
               <CustomSelect
                 value={selectedApartment}
                 onChange={setSelectedApartment}
                 variant="filter"
-                icon={<Filter size={14} className="text-secondary/30" />}
+                icon={<Filter size={13} className="text-secondary/25" />}
                 options={[
                   { value: '', label: t.accounting.bookings.allApartments },
                   ...apartments.map(apt => ({
                     value: apt.id,
-                    label: `${apt.name}${apt.project ? ` (${apt.project.name})` : ''}`,
+                    label: `${apt.name}${apt.project ? ` · ${apt.project.name}` : ''}`,
                   })),
                 ]}
               />
@@ -406,22 +372,57 @@ export default function BookingsPage() {
                 variant="filter"
                 options={STATUS_OPTIONS}
               />
-            </motion.div>
-          )}
-        </AnimatePresence>
+          </div>
+          <button
+            onClick={() => setShowFilters(prev => !prev)}
+            className={`sm:hidden relative p-2.5 rounded-xl transition-all ${
+              showFilters || activeFilterCount > 0 ? 'bg-secondary text-white shadow-md' : 'border-2 border-primary/20 bg-white text-secondary hover:border-primary/40'
+            }`}
+            aria-label={showFilters ? t.accounting.common.hideFilters : t.accounting.common.showFilters}
+          >
+            <SlidersHorizontal size={16} />
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 bg-primary text-secondary text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+          <div className="relative flex-1 min-w-[200px] hidden sm:block">
+            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t.accounting.bookings.searchPlaceholder}
+              className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary/40 transition-colors placeholder:text-secondary/40"
+            />
+          </div>
+        </div>
+
+        {/* Mobile search - only visible on mobile */}
+        <div className="sm:hidden relative">
+          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t.accounting.bookings.searchPlaceholder}
+            className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary/40 transition-colors placeholder:text-secondary/40"
+          />
+        </div>
       </div>
 
       {/* Error */}
       {error && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-red-50 border-2 border-red-200 rounded-xl p-4 text-center"
+          className="bg-red-50/80 border border-red-200/60 rounded-xl p-4 text-center backdrop-blur-sm"
         >
           <p className="text-red-600 font-dubai text-sm">{error}</p>
           <button
             onClick={fetchBookings}
-            className="mt-2 text-sm text-red-500 underline font-dubai"
+            className="mt-2 text-xs text-red-500 hover:text-red-700 font-dubai font-bold transition-colors"
           >
             {t.accounting.common.retry}
           </button>

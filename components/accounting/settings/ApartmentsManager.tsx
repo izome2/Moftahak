@@ -225,29 +225,43 @@ const ApartmentsManager: React.FC = () => {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowForm(false)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm z-10 overflow-hidden border-2 border-[#e0cdb8]"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-sm z-10 overflow-hidden border border-secondary/[0.08]"
             >
-              <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
-                <h4 className="text-sm font-bold text-secondary font-dubai">
-                  {editId ? t.accounting.settings.apartments.editApartment : t.accounting.settings.apartments.newApartment}
-                </h4>
-                <button onClick={() => setShowForm(false)}><X className="w-4 h-4 text-secondary/40" /></button>
+              <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                    <Building2 size={15} className="text-white" />
+                  </div>
+                  <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">
+                    {editId ? t.accounting.settings.apartments.editApartment : t.accounting.settings.apartments.newApartment}
+                  </h4>
+                </div>
+                <button onClick={() => setShowForm(false)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/40" /></button>
               </div>
-              <form onSubmit={handleSubmit} className="p-5 space-y-3" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <form onSubmit={handleSubmit} className="p-5 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.settings.apartments.apartmentNameRequired}</label>
+                  <label className="flex items-center gap-1.5 mb-2">
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Building2 size={11} className="text-secondary/50" /></span>
+                    <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.apartments.apartmentNameRequired}</span>
+                    <span className="text-red-400 text-xs">*</span>
+                  </label>
                   <input
                     value={name} onChange={e => setName(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25"
                     required
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.settings.apartments.projectRequired}</label>
+                  <label className="flex items-center gap-1.5 mb-2">
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Building2 size={11} className="text-secondary/50" /></span>
+                    <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.apartments.projectRequired}</span>
+                    <span className="text-red-400 text-xs">*</span>
+                  </label>
                   <CustomSelect
                     value={projectId}
                     onChange={setProjectId}
@@ -258,31 +272,42 @@ const ApartmentsManager: React.FC = () => {
                     options={projects.map(p => ({ value: p.id, label: p.name }))}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.settings.apartments.floorNumber}</label>
+                    <label className="flex items-center gap-1.5 mb-2">
+                      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Building2 size={11} className="text-secondary/50" /></span>
+                      <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.apartments.floorNumber}</span>
+                    </label>
                     <input
                       value={floor} onChange={e => setFloor(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.settings.apartments.type}</label>
+                    <label className="flex items-center gap-1.5 mb-2">
+                      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Building2 size={11} className="text-secondary/50" /></span>
+                      <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.apartments.type}</span>
+                    </label>
                     <input
                       value={type} onChange={e => setType(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25"
                     />
                   </div>
                 </div>
-                {formError && <p className="text-xs text-red-600 font-dubai">{formError}</p>}
-                <button
-                  type="submit" disabled={isSaving}
-                  className="w-full py-2.5 bg-secondary text-white rounded-xl text-sm font-bold font-dubai
-                    hover:bg-secondary/90 disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {isSaving ? t.accounting.common.saving : t.accounting.common.save}
-                </button>
+                {formError && <p className="text-sm text-red-500 font-dubai bg-red-50/80 p-2.5 rounded-xl border border-red-100">{formError}</p>}
+                <div className="flex items-center gap-3 pt-1">
+                  <button
+                    type="button" onClick={() => setShowForm(false)}
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                  >{t.accounting.common.cancel}</button>
+                  <button
+                    type="submit" disabled={isSaving}
+                    className="flex-1 py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 hover:shadow-lg hover:shadow-secondary/15 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isSaving && <Loader2 size={16} className="animate-spin" />}
+                    {isSaving ? t.accounting.common.saving : t.accounting.common.save}
+                  </button>
+                </div>
               </form>
             </motion.div>
           </div>
@@ -296,36 +321,42 @@ const ApartmentsManager: React.FC = () => {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setToggleTarget(null)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm p-5 z-10 border-2 border-[#e0cdb8]"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-sm z-10 border border-secondary/[0.08] overflow-hidden"
             >
-              <h4 className="text-sm font-bold text-secondary font-dubai mb-2">
-                {toggleTarget.isActive ? t.accounting.settings.apartments.disableApartment : t.accounting.settings.apartments.enableApartment}
-              </h4>
-              <p className="text-xs text-secondary/70 font-dubai mb-4">
-                {toggleTarget.isActive ? t.accounting.settings.apartments.disable : t.accounting.settings.apartments.enable} <strong>{toggleTarget.name}</strong>?
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleToggleActive} disabled={isToggling}
-                  className={`flex-1 py-2 rounded-xl text-xs font-bold font-dubai
-                    flex items-center justify-center gap-1 disabled:opacity-50
-                    ${toggleTarget.isActive
-                      ? 'bg-red-600 text-white hover:bg-red-700'
-                      : 'bg-green-600 text-white hover:bg-green-700'}`}
-                >
-                  {isToggling && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  {toggleTarget.isActive ? t.accounting.settings.apartments.disable : t.accounting.settings.apartments.enable}
-                </button>
-                <button
-                  onClick={() => setToggleTarget(null)}
-                  className="flex-1 py-2 bg-primary/10 text-secondary rounded-xl text-xs font-medium font-dubai hover:bg-primary/20"
-                >
-                  {t.accounting.common.cancel}
-                </button>
+              <div className="flex items-center gap-2.5 px-5 py-4 border-b border-secondary/[0.06]">
+                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${toggleTarget.isActive ? 'from-red-500 to-red-500/80' : 'from-green-500 to-green-500/80'} flex items-center justify-center`}>
+                  {toggleTarget.isActive ? <XCircle size={15} className="text-white" /> : <CheckCircle size={15} className="text-white" />}
+                </div>
+                <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">
+                  {toggleTarget.isActive ? t.accounting.settings.apartments.disableApartment : t.accounting.settings.apartments.enableApartment}
+                </h4>
+              </div>
+              <div className="p-5 space-y-4">
+                <p className="text-sm text-secondary font-dubai">
+                  {toggleTarget.isActive ? t.accounting.settings.apartments.disable : t.accounting.settings.apartments.enable} <strong>{toggleTarget.name}</strong>?
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setToggleTarget(null)}
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                  >{t.accounting.common.cancel}</button>
+                  <button
+                    onClick={handleToggleActive} disabled={isToggling}
+                    className={`flex-1 py-2.5 rounded-xl text-sm font-bold font-dubai
+                      flex items-center justify-center gap-2 disabled:opacity-50 transition-all
+                      ${toggleTarget.isActive
+                        ? 'bg-red-600 text-white hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/15'
+                        : 'bg-green-600 text-white hover:bg-green-700 hover:shadow-lg hover:shadow-green-600/15'}`}
+                  >
+                    {isToggling && <Loader2 size={14} className="animate-spin" />}
+                    {toggleTarget.isActive ? t.accounting.settings.apartments.disable : t.accounting.settings.apartments.enable}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

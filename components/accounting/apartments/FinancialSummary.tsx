@@ -13,6 +13,9 @@ interface FinancialSummaryProps {
   bookingsCount?: number;
   occupiedNights?: number;
   isLoading?: boolean;
+  hideRevenue?: boolean;
+  hideExpenses?: boolean;
+  hideProfit?: boolean;
 }
 
 const FinancialSummary: React.FC<FinancialSummaryProps> = ({
@@ -22,6 +25,9 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
   bookingsCount,
   occupiedNights,
   isLoading = false,
+  hideRevenue = false,
+  hideExpenses = false,
+  hideProfit = false,
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
@@ -30,30 +36,30 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
     new Intl.NumberFormat(locale).format(amount) + ' ' + t.accounting.common.currency;
 
   const cards = [
-    {
+    ...(!hideRevenue ? [{
       label: t.accounting.apartments.totalRevenue,
       value: formatCurrency(totalRevenue),
       icon: DollarSign,
       bgColor: 'bg-primary/15',
       iconColor: 'text-primary',
       valueColor: 'text-secondary',
-    },
-    {
+    }] : []),
+    ...(!hideExpenses ? [{
       label: t.accounting.apartments.totalExpenses,
       value: formatCurrency(totalExpenses),
       icon: Receipt,
       bgColor: 'bg-secondary/10',
       iconColor: 'text-secondary/70',
       valueColor: 'text-secondary',
-    },
-    {
+    }] : []),
+    ...(!hideProfit ? [{
       label: t.accounting.apartments.netProfit,
       value: formatCurrency(profit),
       icon: TrendingUp,
       bgColor: 'bg-primary/20',
       iconColor: 'text-primary',
       valueColor: 'text-secondary',
-    },
+    }] : []),
     ...(bookingsCount !== undefined ? [{
       label: t.accounting.apartments.bookingsCount,
       value: new Intl.NumberFormat(locale).format(bookingsCount!),
@@ -80,7 +86,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: i * 0.06 }}
-          className="bg-white rounded-xl border-2 border-primary/20 p-4 shadow-[0_4px_20px_rgba(237,191,140,0.12)]"
+          className="bg-white rounded-xl border border-secondary/[0.08] p-4 shadow-sm"
         >
           <div className="flex items-center gap-2 mb-2">
             <div className={`p-1.5 rounded-lg ${card.bgColor}`}>

@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useChartTooltip } from '@/hooks/useChartTooltip';
+import { PieChart as PieChartIcon, Building2 } from 'lucide-react';
 import {
   ResponsiveContainer,
   PieChart,
@@ -95,7 +96,7 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({
     if (!active || !payload?.length) return null;
     const entry = payload[0];
     return (
-      <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
+      <div className="bg-white border border-secondary/[0.06] rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
         <div className="flex items-center gap-2 mb-1">
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.payload.fill }} />
           <span className="font-bold text-secondary">{entry.name}</span>
@@ -114,11 +115,11 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl border-2 border-primary/20 p-6 h-[360px] flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <div className="bg-white rounded-2xl border border-secondary/[0.08] p-6 h-[360px] flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary/20" />
         </div>
-        <div className="bg-white rounded-xl border-2 border-primary/20 p-6 h-[360px] flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <div className="bg-white rounded-2xl border border-secondary/[0.08] p-6 h-[360px] flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary/20" />
         </div>
       </div>
     );
@@ -140,14 +141,19 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="bg-white rounded-xl border-2 border-primary/20 shadow-[0_4px_20px_rgba(237,191,140,0.12)] p-4"
+        className="bg-white rounded-2xl border border-secondary/[0.08] shadow-sm p-4"
         onMouseMove={onMouseMove}
       >
-        <h3 className="text-sm font-bold text-secondary font-dubai mb-2 text-center">
-          {t.accounting.bookings.sourceDistribution}
-        </h3>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+            <PieChartIcon size={13} className="text-white" />
+          </div>
+          <h3 className="text-sm font-bold text-secondary font-dubai tracking-tight">
+            {t.accounting.bookings.sourceDistribution}
+          </h3>
+        </div>
         {pieData.length === 0 ? (
-          <div className="h-[280px] flex items-center justify-center text-secondary/40 font-dubai text-sm">
+          <div className="h-[280px] flex items-center justify-center text-secondary/30 font-dubai text-sm">
             {t.accounting.common.noData}
           </div>
         ) : (
@@ -160,9 +166,9 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({
                 labelLine={false}
                 label={renderCustomLabel}
                 outerRadius={115}
-                innerRadius={40}
+                innerRadius={45}
                 cornerRadius={6}
-                paddingAngle={2}
+                paddingAngle={3}
                 dataKey="value"
                 stroke="rgba(255,255,255,0.5)"
                 strokeWidth={2}
@@ -192,13 +198,18 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.35 }}
-        className="bg-white rounded-xl border-2 border-primary/20 shadow-[0_4px_20px_rgba(237,191,140,0.12)] p-4"
+        className="bg-white rounded-2xl border border-secondary/[0.08] shadow-sm p-4"
       >
-        <h3 className="text-sm font-bold text-secondary font-dubai mb-4 text-center">
-          {t.accounting.bookings.apartmentRevenueComparison}
-        </h3>
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+            <Building2 size={13} className="text-white" />
+          </div>
+          <h3 className="text-sm font-bold text-secondary font-dubai tracking-tight">
+            {t.accounting.bookings.apartmentRevenueComparison}
+          </h3>
+        </div>
         {!hasBarData ? (
-          <div className="h-[280px] flex items-center justify-center text-secondary/40 font-dubai text-sm">
+          <div className="h-[280px] flex items-center justify-center text-secondary/30 font-dubai text-sm">
             {t.accounting.common.noData}
           </div>
         ) : (
@@ -217,7 +228,7 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({
                       {formatCurrency(apt.revenue)}
                     </span>
                   </div>
-                  <div className="w-full h-5 bg-primary/5 rounded-full overflow-hidden">
+                  <div className="w-full h-5 bg-secondary/[0.04] rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.max(pct, 2)}%` }}

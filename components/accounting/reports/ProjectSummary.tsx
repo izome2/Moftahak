@@ -53,11 +53,11 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
     return (
       <div className="space-y-4">
         {/* Total summary skeleton */}
-        <div className="animate-pulse bg-primary/10 rounded-2xl h-28" />
+        <div className="animate-pulse bg-secondary/[0.04] rounded-2xl h-28" />
         {/* Apartment cards skeleton */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map(i => (
-            <div key={i} className="animate-pulse bg-primary/10 rounded-2xl h-40" />
+            <div key={i} className="animate-pulse bg-secondary/[0.04] rounded-2xl h-40" />
           ))}
         </div>
       </div>
@@ -179,13 +179,13 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="bg-white border-2 border-primary/20 rounded-2xl p-4 hover:shadow-[0_4px_20px_rgba(237,191,140,0.2)]
+                className="bg-white border border-secondary/[0.08] rounded-2xl p-4 hover:shadow-md
                   transition-shadow duration-200"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-primary/10 border-2 border-primary/30 flex items-center justify-center">
-                      <Building2 className="w-4 h-4 text-secondary" />
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                      <Building2 className="w-4 h-4 text-white" />
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-secondary font-dubai">{apt.name}</h4>
@@ -210,7 +210,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
                     <span className="text-secondary/50">{t.accounting.dashboard.expensesLabel}</span>
                     <span className="font-bold text-secondary/70">{formatCurrency(apt.expenses)}</span>
                   </div>
-                  <div className="h-px bg-primary/10" />
+                  <div className="h-px bg-secondary/[0.06]" />
                   <div className="flex items-center justify-between text-xs font-dubai">
                     <span className="text-secondary/60 font-bold">{t.accounting.dashboard.netProfit}</span>
                     <span className={`font-bold ${apt.profit >= 0 ? 'text-secondary' : 'text-secondary/50'}`}>

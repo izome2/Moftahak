@@ -162,7 +162,7 @@ const FieldLabel = ({ fieldKey, fieldLabels, className = '' }: { fieldKey: strin
   const label = fieldLabels[fieldKey] || fieldKey;
   return (
     <span className={`inline-flex items-center gap-1 ${className}`}>
-      {Icon && <Icon size={12} className="text-secondary/70 shrink-0" />}
+      {Icon && <Icon size={12} className="text-secondary shrink-0" />}
       {label}
     </span>
   );
@@ -487,9 +487,9 @@ export default function AuditLogPage() {
           {/* جدول التغييرات */}
           <div className="bg-secondary/5 rounded-xl overflow-hidden">
             <div className="grid grid-cols-3 bg-secondary/10 px-4 py-2">
-              <span className="text-xs font-bold text-secondary/60 font-dubai">{audit.field}</span>
-              <span className="text-xs font-bold text-secondary/60 font-dubai">{audit.oldValue}</span>
-              <span className="text-xs font-bold text-secondary/60 font-dubai">{audit.newValue}</span>
+              <span className="text-xs font-bold text-secondary font-dubai">{audit.field}</span>
+              <span className="text-xs font-bold text-secondary font-dubai">{audit.oldValue}</span>
+              <span className="text-xs font-bold text-secondary font-dubai">{audit.newValue}</span>
             </div>
             {[...changedKeys].map(key => (
               <div key={key} className="grid grid-cols-3 px-4 py-2 border-t border-secondary/5">
@@ -544,7 +544,7 @@ export default function AuditLogPage() {
           {entries.map(([key, value]) => (
             <div key={key} className="flex gap-2 items-baseline">
               <span className="text-secondary font-bold font-dubai shrink-0 min-w-[100px]"><FieldLabel fieldKey={key} fieldLabels={fieldLabels} />:</span>
-              <span className="text-secondary/70 font-dubai">
+              <span className="text-secondary font-dubai">
                 {formatValue(key, value, ctx)}
               </span>
             </div>
@@ -555,7 +555,7 @@ export default function AuditLogPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="p-4 sm:p-6 lg:p-8 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Page Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -563,12 +563,12 @@ export default function AuditLogPage() {
         className="flex items-center justify-between flex-wrap gap-4"
       >
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-primary/10 shadow-md border-2 border-primary/30">
-            <ScrollText size={24} className="text-primary" />
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
+            <ScrollText size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-secondary font-dubai">{audit.title}</h1>
-            <p className="text-sm text-secondary/60 font-dubai">
+            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">{audit.title}</h1>
+            <p className="text-xs text-secondary font-dubai mt-0.5">
               {audit.subtitle}
             </p>
           </div>
@@ -577,9 +577,9 @@ export default function AuditLogPage() {
         <button
           onClick={() => { setAllLogs([]); fetchLogs(1, false); }}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2.5 bg-primary/10 hover:bg-primary/20 text-secondary font-dubai text-sm font-bold rounded-xl transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 px-4 py-2.5 hover:bg-secondary/5 text-secondary font-dubai text-sm font-bold rounded-xl transition-all disabled:opacity-50"
         >
-          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+          <RefreshCw size={16} className={`${loading ? 'animate-spin' : ''} text-secondary/40`} />
           {t.accounting.common.refresh}
         </button>
       </motion.div>
@@ -589,7 +589,7 @@ export default function AuditLogPage() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="flex flex-wrap items-center gap-3 bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+        className="flex flex-wrap items-center gap-3 bg-white border-2 border-primary/20 rounded-2xl p-4 shadow-[0_4px_20px_rgba(237,191,140,0.12)]"
       >
         <Filter size={18} className="text-secondary/40" />
 
@@ -613,18 +613,18 @@ export default function AuditLogPage() {
 
         {/* Search */}
         <div className="relative flex-1 min-w-[200px]">
-          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary/30" />
+          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={audit.searchPlaceholder}
-            className="w-full pr-9 pl-3 py-2 bg-primary/5 border border-primary/20 rounded-xl text-sm font-dubai text-secondary placeholder:text-secondary/30 focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="w-full pr-10 pl-4 py-2.5 bg-white border-2 border-primary/20 rounded-xl text-sm font-dubai text-secondary placeholder:text-secondary/40 focus:outline-none focus:border-primary/40 transition-colors"
           />
         </div>
 
         {/* Total count */}
-        <span className="text-xs text-secondary/50 font-dubai font-bold bg-primary/5 px-3 py-2 rounded-lg">
+        <span className="text-xs text-secondary font-dubai font-bold bg-secondary/[0.04] px-3 py-2 rounded-lg">
           {allLogs.length} {audit.recordUnit}
         </span>
       </motion.div>
@@ -634,11 +634,11 @@ export default function AuditLogPage() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-white border-2 border-primary/20 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)] overflow-hidden"
+        className="bg-white border border-secondary/[0.08] rounded-2xl shadow-sm overflow-hidden"
       >
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary/30" />
           </div>
         ) : filteredLogs.length === 0 ? (
           <div className="text-center py-20 text-secondary/40 font-dubai">
@@ -650,19 +650,25 @@ export default function AuditLogPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-primary/5 border-b-2 border-primary/10">
-                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70 whitespace-nowrap">
+                <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
+                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/45 whitespace-nowrap">
                     <div className="flex items-center gap-1"><Calendar size={14} /> {audit.time}</div>
                   </th>
-                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70 whitespace-nowrap">
+                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/45 whitespace-nowrap">
                     <div className="flex items-center gap-1"><User size={14} /> {audit.user}</div>
                   </th>
-                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70 whitespace-nowrap">
+                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/45 whitespace-nowrap">
                     <div className="flex items-center gap-1"><ArrowUpDown size={14} /> {audit.operation}</div>
                   </th>
-                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70 whitespace-nowrap">{audit.entity}</th>
-                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70 whitespace-nowrap">{audit.identifier}</th>
-                  <th className="text-right px-4 py-3 font-dubai font-bold text-secondary/70 whitespace-nowrap">{audit.details}</th>
+                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/45 whitespace-nowrap">
+                    <div className="flex items-center gap-1"><Tag size={14} /> {audit.entity}</div>
+                  </th>
+                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/45 whitespace-nowrap">
+                    <div className="flex items-center gap-1"><Bookmark size={14} /> {audit.identifier}</div>
+                  </th>
+                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/45 whitespace-nowrap">
+                    <div className="flex items-center gap-1"><FileText size={14} /> {audit.details}</div>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -677,10 +683,10 @@ export default function AuditLogPage() {
                           initial={{ opacity: 0, y: 5 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: Math.min(idx * 0.02, 0.4) }}
-                          className={`border-b border-primary/5 hover:bg-primary/3 transition-colors cursor-pointer ${isExpanded ? 'bg-primary/5' : ''}`}
+                          className={`border-b border-secondary/[0.04] hover:bg-secondary/[0.02] transition-colors cursor-pointer ${isExpanded ? 'bg-secondary/[0.02]' : ''}`}
                           onClick={() => (log.before || log.after || log.metadata) && setExpandedId(isExpanded ? null : log.id)}
                         >
-                          <td className="px-4 py-3 font-dubai text-secondary/70 whitespace-nowrap text-xs">
+                          <td className="px-4 py-3 font-dubai text-secondary whitespace-nowrap text-xs">
                             {formatDate(log.createdAt)}
                           </td>
                           <td className="px-4 py-3 font-dubai text-secondary font-semibold whitespace-nowrap">
@@ -691,10 +697,10 @@ export default function AuditLogPage() {
                               {actionLabel}
                             </span>
                           </td>
-                          <td className="px-4 py-3 font-dubai text-secondary/70 text-xs">
+                          <td className="px-4 py-3 font-dubai text-secondary text-xs">
                             {entityLabels[log.entity] || log.entity}
                           </td>
-                          <td className="px-4 py-3 text-xs text-secondary/60 font-dubai max-w-[140px]" title={log.entityId || ''}>
+                          <td className="px-4 py-3 text-xs text-secondary font-dubai max-w-[140px]" title={log.entityId || ''}>
                             {log.entity === 'APARTMENT' && log.entityId && apartmentsMap[log.entityId]
                               ? apartmentsMap[log.entityId]
                               : (() => {
@@ -707,7 +713,7 @@ export default function AuditLogPage() {
                           </td>
                           <td className="px-4 py-3">
                             {(log.before || log.after || log.metadata) ? (
-                              <span className="text-xs font-dubai font-bold text-secondary/80 hover:text-secondary transition-colors">
+                              <span className="text-xs font-dubai font-bold text-secondary hover:text-secondary transition-colors">
                                 {isExpanded ? audit.hideDetails : audit.showDetails}
                               </span>
                             ) : (
@@ -729,7 +735,7 @@ export default function AuditLogPage() {
                               }}
                             >
                               <div style={{ overflow: 'hidden', minHeight: 0 }}>
-                                <div className="border-t-2 border-primary/10 bg-accent/20 px-4 py-4 sm:px-6 sm:py-5">
+                                <div className="border-t border-secondary/[0.06] bg-secondary/[0.02] px-4 py-4 sm:px-6 sm:py-5">
                                   {renderUnifiedDetails(log)}
                                   {log.ipAddress && (
                                     <p className="mt-3 text-[10px] text-secondary/30 font-dubai">
@@ -754,7 +760,7 @@ export default function AuditLogPage() {
       <div ref={sentinelRef} className="h-1" />
       {loadingMore && (
         <div className="flex items-center justify-center py-4">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-secondary/30" />
           <span className="mr-3 text-sm font-dubai text-secondary/50">{audit.loadingMore}</span>
         </div>
       )}

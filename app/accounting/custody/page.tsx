@@ -168,104 +168,106 @@ export default function CustodyPage() {
   const totalRemaining = records.reduce((s, r) => s + r.remaining, 0);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-5">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="flex items-center justify-between gap-3"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-primary/10 shadow-md border-2 border-primary/30">
-            <Wallet size={24} className="text-primary" />
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
+            <Wallet size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">{t.accounting.custody.title}</h1>
-            <p className="text-sm text-secondary/60 font-dubai">
+            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">{t.accounting.custody.title}</h1>
+            <p className="text-xs text-secondary font-dubai mt-0.5">
               {isGeneralManager ? t.accounting.custody.subtitleAdmin : t.accounting.custody.subtitleUser}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {isGeneralManager && (
             <button
               onClick={() => setShowCreate(true)}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl font-dubai text-sm font-bold hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300"
             >
-              <Plus size={16} />
+              <Plus size={15} />
               <span className="hidden sm:inline">{t.accounting.custody.newCustody}</span>
             </button>
           )}
           <button
             onClick={fetchRecords}
-            className="p-2 hover:bg-primary/10 rounded-lg transition-colors"
+            className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
             aria-label={t.accounting.common.refresh}
           >
-            <RefreshCw size={20} className={`text-secondary/60 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('openAccountingMenu'))}
-            className="lg:hidden p-2 hover:bg-primary/10 rounded-lg transition-colors"
+            className="lg:hidden p-2 hover:bg-secondary/5 rounded-xl transition-all"
             aria-label={t.accounting.common.openMenu}
           >
-            <Menu size={28} className="text-secondary" />
+            <Menu size={22} className="text-secondary/60" />
           </button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Summary Stats */}
       {records.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-xl border-2 border-primary/20 p-4 shadow-[0_4px_20px_rgba(237,191,140,0.12)]"
+            transition={{ duration: 0.35 }}
+            className="relative overflow-hidden bg-gradient-to-br from-blue-500/10 to-blue-500/5 rounded-2xl border border-blue-500/15 p-4 group hover:shadow-md transition-shadow duration-300"
           >
-            <p className="text-xs text-secondary/60 font-dubai mb-1">{t.accounting.custody.totalCustody}</p>
-            <p className="text-lg font-bold text-secondary font-dubai">{formatCurrency(totalAmount)}</p>
+            <span className="text-[11px] text-secondary/50 font-dubai font-medium">{t.accounting.custody.totalCustody}</span>
+            <p className="text-lg font-bold text-secondary font-dubai mt-1 tracking-tight">{formatCurrency(totalAmount)}</p>
           </motion.div>
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="bg-white rounded-xl border-2 border-primary/20 p-4 shadow-[0_4px_20px_rgba(237,191,140,0.12)]"
+            transition={{ duration: 0.35, delay: 0.05 }}
+            className="relative overflow-hidden bg-gradient-to-br from-rose-500/10 to-rose-500/5 rounded-2xl border border-rose-500/15 p-4 group hover:shadow-md transition-shadow duration-300"
           >
-            <p className="text-xs text-secondary/60 font-dubai mb-1">{t.accounting.custody.spent}</p>
-            <p className="text-lg font-bold text-[#c09080] font-dubai">{formatCurrency(totalSpent)}</p>
+            <span className="text-[11px] text-secondary/50 font-dubai font-medium">{t.accounting.custody.spent}</span>
+            <p className="text-lg font-bold text-rose-700 font-dubai mt-1 tracking-tight">{formatCurrency(totalSpent)}</p>
           </motion.div>
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white rounded-xl border-2 border-primary/20 p-4 shadow-[0_4px_20px_rgba(237,191,140,0.12)]"
+            transition={{ duration: 0.35, delay: 0.1 }}
+            className="relative overflow-hidden bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 rounded-2xl border border-emerald-500/15 p-4 group hover:shadow-md transition-shadow duration-300"
           >
-            <p className="text-xs text-secondary/60 font-dubai mb-1">{t.accounting.custody.remaining}</p>
-            <p className="text-lg font-bold text-[#8a9a7a] font-dubai">{formatCurrency(totalRemaining)}</p>
+            <span className="text-[11px] text-secondary/50 font-dubai font-medium">{t.accounting.custody.remaining}</span>
+            <p className="text-lg font-bold text-emerald-700 font-dubai mt-1 tracking-tight">{formatCurrency(totalRemaining)}</p>
           </motion.div>
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-center">
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-50/80 border border-red-200/60 rounded-xl p-4 text-center backdrop-blur-sm"
+        >
           <p className="text-red-600 font-dubai text-sm">{error}</p>
-          <button onClick={fetchRecords} className="mt-2 text-sm text-red-500 underline font-dubai">
+          <button onClick={fetchRecords} className="mt-2 text-xs text-red-500 hover:text-red-700 font-dubai font-bold transition-colors">
             {t.accounting.common.retry}
           </button>
-        </div>
+        </motion.div>
       )}
 
       {/* Records */}
       {isLoading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          <Loader2 className="w-5 h-5 text-secondary/30 animate-spin" />
         </div>
       ) : records.length === 0 ? (
         <div className="text-center py-16">
-          <Wallet size={48} className="text-secondary/20 mx-auto mb-3" />
-          <p className="text-secondary/50 font-dubai">{t.accounting.custody.noCustody}</p>
+          <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
+            <Wallet size={22} className="text-secondary/25" />
+          </div>
+          <p className="text-secondary/40 font-dubai text-sm">{t.accounting.custody.noCustody}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -275,12 +277,12 @@ export default function CustodyPage() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.04 }}
-              className="bg-white rounded-2xl border-2 border-primary/20 p-5 shadow-[0_4px_20px_rgba(237,191,140,0.12)]"
+              className="bg-white rounded-2xl border border-secondary/[0.08] shadow-sm p-5"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-primary/10">
-                    <Building2 size={18} className="text-primary" />
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                    <Building2 size={15} className="text-white" />
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-secondary font-dubai">
@@ -294,15 +296,15 @@ export default function CustodyPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs bg-primary/10 text-secondary/60 px-2 py-0.5 rounded-full font-dubai">
+                  <span className="text-xs bg-secondary/[0.06] text-secondary px-2 py-0.5 rounded-full font-dubai">
                     {formatMonthDisplay(rec.month)}
                   </span>
                   {rec.isSettled ? (
-                    <span className="text-[10px] bg-secondary/10 text-secondary/80 px-2 py-0.5 rounded-full font-dubai flex items-center gap-0.5">
+                    <span className="text-[10px] bg-secondary/10 text-secondary px-2 py-0.5 rounded-full font-dubai flex items-center gap-0.5">
                       <Check size={10} /> {t.accounting.custody.locked}
                     </span>
                   ) : (
-                    <span className="text-[10px] bg-primary/15 text-secondary/70 px-2 py-0.5 rounded-full font-dubai">
+                    <span className="text-[10px] bg-secondary/[0.06] text-secondary px-2 py-0.5 rounded-full font-dubai">
                       {t.accounting.custody.unlocked}
                     </span>
                   )}
@@ -311,22 +313,22 @@ export default function CustodyPage() {
 
               {/* Amounts */}
               <div className="grid grid-cols-3 gap-3">
-                <div className="bg-primary/5 rounded-xl p-2.5 text-center">
+                <div className="bg-blue-500/8 rounded-xl p-2.5 text-center">
                   <p className="text-[10px] text-secondary/50 font-dubai mb-0.5">{t.accounting.custody.custodyLabel}</p>
                   <p className="text-sm font-bold text-secondary font-dubai">{formatCurrency(rec.amount)}</p>
                 </div>
-                <div className="bg-[#c09080]/8 rounded-xl p-2.5 text-center">
-                  <p className="text-[10px] text-[#c09080]/70 font-dubai mb-0.5">{t.accounting.custody.spent}</p>
-                  <p className="text-sm font-bold text-[#c09080] font-dubai">{formatCurrency(rec.spent)}</p>
+                <div className="bg-rose-500/8 rounded-xl p-2.5 text-center">
+                  <p className="text-[10px] text-rose-600/70 font-dubai mb-0.5">{t.accounting.custody.spent}</p>
+                  <p className="text-sm font-bold text-rose-700 font-dubai">{formatCurrency(rec.spent)}</p>
                 </div>
-                <div className="bg-[#8a9a7a]/8 rounded-xl p-2.5 text-center">
-                  <p className="text-[10px] text-[#8a9a7a]/70 font-dubai mb-0.5">{t.accounting.custody.remaining}</p>
-                  <p className="text-sm font-bold text-[#8a9a7a] font-dubai">{formatCurrency(rec.remaining)}</p>
+                <div className="bg-emerald-500/8 rounded-xl p-2.5 text-center">
+                  <p className="text-[10px] text-emerald-600/70 font-dubai mb-0.5">{t.accounting.custody.remaining}</p>
+                  <p className="text-sm font-bold text-emerald-700 font-dubai">{formatCurrency(rec.remaining)}</p>
                 </div>
               </div>
 
               {rec.notes && (
-                <p className="text-xs text-secondary/50 font-dubai mt-2 bg-primary/5 rounded-lg px-3 py-1.5">
+                <p className="text-xs text-secondary/40 font-dubai mt-2 bg-secondary/[0.03] rounded-lg px-3 py-1.5">
                   {rec.notes}
                 </p>
               )}
@@ -344,23 +346,35 @@ export default function CustodyPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowCreate(false)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-md z-10 overflow-hidden border-2 border-[#e0cdb8]"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-md z-10 overflow-hidden border border-secondary/[0.08]"
             >
-              <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
-                <h4 className="text-sm font-bold text-secondary font-dubai">{t.accounting.custody.newCustodyTitle}</h4>
-                <button onClick={() => setShowCreate(false)}>
-                  <X className="w-4 h-4 text-secondary/40" />
+              <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                    <Wallet size={15} className="text-white" />
+                  </div>
+                  <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.custody.newCustodyTitle}</h4>
+                </div>
+                <button onClick={() => setShowCreate(false)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors">
+                  <X size={18} className="text-secondary/40" />
                 </button>
               </div>
-              <form onSubmit={handleCreate} className="p-5 space-y-3" dir="rtl">
+              <form onSubmit={handleCreate} className="p-5 space-y-5" dir="rtl">
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.custody.opsManager}</label>
+                  <label className="flex items-center gap-1.5 mb-2">
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
+                      <Menu size={11} className="text-secondary/50" />
+                    </span>
+                    <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.custody.opsManager}</span>
+                    <span className="text-red-400 text-xs">*</span>
+                  </label>
                   <CustomSelect
                     value={formManagerId}
                     onChange={setFormManagerId}
@@ -375,7 +389,13 @@ export default function CustodyPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.custody.apartmentLabel}</label>
+                  <label className="flex items-center gap-1.5 mb-2">
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
+                      <Building2 size={11} className="text-secondary/50" />
+                    </span>
+                    <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.custody.apartmentLabel}</span>
+                    <span className="text-red-400 text-xs">*</span>
+                  </label>
                   <CustomSelect
                     value={formApartmentId}
                     onChange={setFormApartmentId}
@@ -389,19 +409,31 @@ export default function CustodyPage() {
                     }))}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.custody.amountLabel(t.accounting.common.currency)}</label>
+                    <label className="flex items-center gap-1.5 mb-2">
+                      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
+                        <Wallet size={11} className="text-emerald-500/70" />
+                      </span>
+                      <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.custody.amountLabel(t.accounting.common.currency)}</span>
+                      <span className="text-red-400 text-xs">*</span>
+                    </label>
                     <NumberInput
                       value={formAmount}
                       onChange={(e) => setFormAmount(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25"
                       required
                       dir="ltr"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.custody.monthLabel}</label>
+                    <label className="flex items-center gap-1.5 mb-2">
+                      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
+                        <Check size={11} className="text-secondary/50" />
+                      </span>
+                      <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.custody.monthLabel}</span>
+                      <span className="text-red-400 text-xs">*</span>
+                    </label>
                     <MonthPicker
                       value={formMonth}
                       onChange={(v) => setFormMonth(v)}
@@ -410,24 +442,37 @@ export default function CustodyPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.custody.notesLabel}</label>
+                  <label className="flex items-center gap-1.5 mb-2">
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
+                      <Menu size={11} className="text-secondary/50" />
+                    </span>
+                    <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.custody.notesLabel}</span>
+                  </label>
                   <textarea
                     value={formNotes}
                     onChange={(e) => setFormNotes(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai resize-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25 resize-none"
                     rows={2}
                   />
                 </div>
-                {formError && <p className="text-xs text-red-600 font-dubai">{formError}</p>}
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="w-full py-2.5 bg-secondary text-white rounded-xl text-sm font-bold font-dubai
-                    hover:bg-secondary/90 disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {isSaving ? t.accounting.common.saving : t.accounting.custody.createCustody}
-                </button>
+                {formError && <p className="text-sm text-red-500 font-dubai bg-red-50/80 p-2.5 rounded-xl border border-red-100">{formError}</p>}
+                <div className="flex items-center gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreate(false)}
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                  >
+                    {t.accounting.common.cancel}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="flex-1 py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 hover:shadow-lg hover:shadow-secondary/15 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isSaving && <Loader2 size={16} className="animate-spin" />}
+                    {isSaving ? t.accounting.common.saving : t.accounting.custody.createCustody}
+                  </button>
+                </div>
               </form>
             </motion.div>
           </div>

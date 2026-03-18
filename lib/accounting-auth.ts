@@ -165,7 +165,9 @@ export function checkAccountingRateLimit(
   }
 
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
-  const { allowed } = checkRateLimit(ip, {
+  const path = request.nextUrl.pathname;
+  const identifier = `${ip}:${path}`;
+  const { allowed } = checkRateLimit(identifier, {
     maxRequests: options?.maxRequests ?? 30,
     windowMs: options?.windowMs ?? 60 * 1000, // 1 minute default
   });

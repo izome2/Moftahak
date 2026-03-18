@@ -21,6 +21,7 @@ import {
   DollarSign,
   FileText,
   Hash,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface BackupData {
@@ -42,10 +43,25 @@ interface BackupData {
     systemSettings?: any[];
     auditLogs?: any[];
     users?: any[];
+    custodyRecords?: any[];
+    opsManagerApartments?: any[];
+    invitations?: any[];
   };
 }
 
-type SectionKey = 'projects' | 'apartments' | 'bookings' | 'expenses' | 'investors' | 'withdrawals' | 'users' | 'auditLogs';
+type SectionKey = 'projects' | 'apartments' | 'bookings' | 'expenses' | 'investors' | 'withdrawals' | 'users' | 'auditLogs' | 'custodyRecords';
+
+const COLOR_MAP: Record<string, { bg: string; border: string; text: string }> = {
+  blue:    { bg: 'bg-blue-50',    border: 'border-blue-200',    text: 'text-blue-600' },
+  emerald: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-600' },
+  purple:  { bg: 'bg-purple-50',  border: 'border-purple-200',  text: 'text-purple-600' },
+  red:     { bg: 'bg-red-50',     border: 'border-red-200',     text: 'text-red-600' },
+  amber:   { bg: 'bg-amber-50',   border: 'border-amber-200',   text: 'text-amber-600' },
+  orange:  { bg: 'bg-orange-50',  border: 'border-orange-200',  text: 'text-orange-600' },
+  teal:    { bg: 'bg-teal-50',    border: 'border-teal-200',    text: 'text-teal-600' },
+  gray:    { bg: 'bg-gray-50',    border: 'border-gray-200',    text: 'text-gray-600' },
+  cyan:    { bg: 'bg-cyan-50',    border: 'border-cyan-200',    text: 'text-cyan-600' },
+};
 
 const SECTION_DEFS: { key: SectionKey; sectionKey: keyof typeof import('@/lib/translations').default.ar.accounting.backup.sections; icon: React.ElementType; dataKey: string; color: string }[] = [
   { key: 'projects', sectionKey: 'projects', icon: FolderKanban, dataKey: 'projects', color: 'blue' },
@@ -54,6 +70,7 @@ const SECTION_DEFS: { key: SectionKey; sectionKey: keyof typeof import('@/lib/tr
   { key: 'expenses', sectionKey: 'expenses', icon: Receipt, dataKey: 'expenses', color: 'red' },
   { key: 'investors', sectionKey: 'investors', icon: Users, dataKey: 'apartmentInvestors', color: 'amber' },
   { key: 'withdrawals', sectionKey: 'withdrawals', icon: Wallet, dataKey: 'withdrawals', color: 'orange' },
+  { key: 'custodyRecords', sectionKey: 'custodyRecords', icon: ShieldCheck, dataKey: 'custodyRecords', color: 'cyan' },
   { key: 'users', sectionKey: 'users', icon: Users, dataKey: 'users', color: 'teal' },
   { key: 'auditLogs', sectionKey: 'auditLog', icon: FileText, dataKey: 'auditLogs', color: 'gray' },
 ];
@@ -105,7 +122,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
           animate={{ opacity: 1 }}
           className="text-center"
         >
-          <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-3" />
+          <Loader2 className="w-10 h-10 animate-spin text-secondary/30 mx-auto mb-3" />
           <p className="text-secondary font-dubai font-bold">{t.accounting.backup.loading}</p>
         </motion.div>
       </div>
@@ -118,7 +135,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-2xl p-8 shadow-xl border-2 border-rose-200/60 max-w-md text-center space-y-4"
+          className="bg-white rounded-2xl p-8 shadow-xl border border-rose-200/60 max-w-md text-center space-y-4"
           dir={language === 'ar' ? 'rtl' : 'ltr'}
         >
           <div className="p-3 rounded-xl bg-rose-50/80 border border-rose-200/60 w-fit mx-auto">
@@ -146,12 +163,12 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b-2 border-primary/20 shadow-lg"
+        className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-secondary/[0.08] shadow-sm"
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-primary/10 border-2 border-primary/30">
-              <Database className="w-5 h-5 text-primary" />
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-secondary to-secondary/80">
+              <Database className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="text-lg font-bold text-secondary font-dubai">{backup.name}</h1>
@@ -195,7 +212,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
           {backup.stats && Object.entries(backup.stats).filter(([, v]) => (v as number) > 0).map(([key, value], i) => (
             <div
               key={key}
-              className="bg-white rounded-xl border-2 border-primary/15 p-3 text-center"
+              className="bg-white rounded-xl border border-secondary/[0.08] p-3 text-center"
             >
               <p className="text-2xl font-bold text-secondary font-dubai">{value as number}</p>
               <p className="text-xs text-secondary/50 font-dubai">{(t.accounting.backup.sections as any)[key] || key}</p>
@@ -216,16 +233,16 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + i * 0.05 }}
-                className="bg-white rounded-2xl border-2 border-primary/15 overflow-hidden"
+                className="bg-white rounded-2xl border border-secondary/[0.08] overflow-hidden"
               >
                 {/* Section Header */}
                 <button
                   onClick={() => toggleSection(section.key)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-primary/5 transition-colors"
+                  className="w-full flex items-center justify-between p-4 hover:bg-secondary/[0.02] transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-xl bg-${section.color}-50 border border-${section.color}-200`}>
-                      <section.icon className={`w-4 h-4 text-${section.color}-600`} />
+                    <div className={`p-2 rounded-xl ${COLOR_MAP[section.color]?.bg || 'bg-gray-50'} border ${COLOR_MAP[section.color]?.border || 'border-gray-200'}`}>
+                      <section.icon className={`w-4 h-4 ${COLOR_MAP[section.color]?.text || 'text-gray-600'}`} />
                     </div>
                     <div className={language === 'ar' ? 'text-right' : 'text-left'}>
                       <h3 className="font-bold text-secondary font-dubai text-sm">{t.accounting.backup.sections[section.sectionKey]}</h3>
@@ -274,7 +291,7 @@ function DataTable({ items, section, t, locale, language }: { items: any[]; sect
   return (
     <table className="w-full text-sm font-dubai">
       <thead>
-        <tr className="border-b-2 border-primary/10">
+        <tr className="border-b border-secondary/[0.06]">
           <th className={`${language === 'ar' ? 'text-right' : 'text-left'} py-2 px-3 text-xs font-bold text-secondary/50`}>#</th>
           {columns.map(col => (
             <th key={col.key} className={`${language === 'ar' ? 'text-right' : 'text-left'} py-2 px-3 text-xs font-bold text-secondary/50 whitespace-nowrap`}>
@@ -355,7 +372,7 @@ function getColumnsForSection(section: SectionKey, t: ReturnType<typeof useTrans
       return [
         { key: 'apartmentId', label: h.apartmentId },
         { key: 'userId', label: h.investorId },
-        { key: 'percentage', label: h.percentage, render: (v: number) => `${v}%` },
+        { key: 'percentage', label: h.percentage, render: (v: number) => `${Math.round(v * 100)}%` },
       ];
     case 'withdrawals':
       return [
@@ -378,6 +395,15 @@ function getColumnsForSection(section: SectionKey, t: ReturnType<typeof useTrans
         { key: 'action', label: h.action },
         { key: 'entity', label: h.entity },
         { key: 'createdAt', label: h.date, render: fmtDate },
+      ];
+    case 'custodyRecords':
+      return [
+        { key: 'month', label: h.month },
+        { key: 'amount', label: h.amount, render: fmtMoney },
+        { key: 'currency', label: h.currency },
+        { key: 'spent', label: h.spent, render: fmtMoney },
+        { key: 'remaining', label: h.remaining, render: fmtMoney },
+        { key: 'isSettled', label: h.settled, render: (v: boolean) => v ? '✓' : '✗' },
       ];
     default:
       return [];

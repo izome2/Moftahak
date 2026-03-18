@@ -112,6 +112,7 @@ export default function SystemManager() {
   // تصفية النظام
   // ═══════════════════════════════════════
   const handleReset = async () => {
+    if (resetState === 'loading') return;
     setResetState('loading');
     setModalStep('none');
 
@@ -181,15 +182,17 @@ export default function SystemManager() {
   // العرض
   // ═══════════════════════════════════════
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center gap-2 text-secondary">
-        <Database className="w-5 h-5 text-primary" />
-        <h2 className="text-lg font-bold font-dubai">{t.accounting.settings.system.title}</h2>
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+          <Database className="w-4 h-4 text-white" />
+        </div>
+        <div>
+          <h2 className="text-base font-bold font-dubai text-secondary">{t.accounting.settings.system.title}</h2>
+          <p className="text-[11px] text-secondary/50 font-dubai">{t.accounting.settings.system.subtitle}</p>
+        </div>
       </div>
-      <p className="text-sm text-secondary/60 font-dubai -mt-3">
-        {t.accounting.settings.system.subtitle}
-      </p>
 
       {/* Message Banner */}
       <AnimatePresence>
@@ -198,143 +201,143 @@ export default function SystemManager() {
             initial={{ opacity: 0, y: -10, height: 0 }}
             animate={{ opacity: 1, y: 0, height: 'auto' }}
             exit={{ opacity: 0, y: -10, height: 0 }}
-            className={`px-4 py-3 rounded-xl text-sm font-dubai flex items-center gap-2 ${
+            className={`px-3.5 py-2.5 rounded-xl text-xs font-dubai flex items-center gap-2 ${
               messageType === 'success'
                 ? 'bg-green-50 border border-green-200 text-green-700'
                 : 'bg-red-50 border border-red-200 text-red-700'
             }`}
           >
             {messageType === 'success'
-              ? <CheckCircle2 className="w-4 h-4 shrink-0" />
-              : <XCircle className="w-4 h-4 shrink-0" />
+              ? <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+              : <XCircle className="w-3.5 h-3.5 shrink-0" />
             }
             {message}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Reset Button */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="border-2 border-rose-200/60 rounded-2xl p-5 space-y-4 hover:border-rose-200 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-rose-50/80 border border-rose-200/60">
-            <RotateCcw className="w-5 h-5 text-rose-400" />
-          </div>
-          <div>
-            <h3 className="font-bold text-secondary font-dubai">{t.accounting.settings.system.resetSystem}</h3>
-            <p className="text-xs text-secondary/50 font-dubai">{t.accounting.settings.system.resetDescription}</p>
-          </div>
-        </div>
-        <p className="text-xs text-secondary/60 font-dubai leading-relaxed">
-          {t.accounting.settings.system.resetWarning}
-        </p>
-        <button
-          onClick={handleResetClick}
-          disabled={resetState === 'loading'}
-          className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-dubai font-bold text-sm
-            bg-rose-100 text-rose-700 border-2 border-rose-200 hover:bg-rose-200/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      {/* Two-Column Layout: Reset (left/start) | Backups (right/end) */}
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-4">
+        {/* Reset Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="border-2 border-rose-200/40 rounded-2xl p-4 hover:border-rose-200/70 transition-colors self-start"
         >
-          {resetState === 'loading' ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> {t.accounting.settings.system.resetting}</>
-          ) : (
-            <><RotateCcw className="w-4 h-4" /> {t.accounting.settings.system.resetButton}</>
-          )}
-        </button>
-      </motion.div>
-
-      {/* Backup History */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="border-2 border-primary/20 rounded-2xl p-5 space-y-4"
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/30">
-              <History className="w-5 h-5 text-primary" />
+          <div className="flex items-center gap-2.5 mb-3">
+            <div className="p-2 rounded-lg bg-rose-50/80 border border-rose-200/60">
+              <RotateCcw className="w-4 h-4 text-rose-400" />
             </div>
             <div>
-              <h3 className="font-bold text-secondary font-dubai">{t.accounting.settings.system.backupHistory}</h3>
-              <p className="text-xs text-secondary/50 font-dubai">
+              <h3 className="text-sm font-bold text-secondary font-dubai">{t.accounting.settings.system.resetSystem}</h3>
+              <p className="text-[11px] text-secondary/50 font-dubai">{t.accounting.settings.system.resetDescription}</p>
+            </div>
+          </div>
+          <p className="text-[11px] text-secondary/50 font-dubai leading-relaxed mb-3">
+            {t.accounting.settings.system.resetWarning}
+          </p>
+          <button
+            onClick={handleResetClick}
+            disabled={resetState === 'loading'}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-dubai font-bold text-xs
+              bg-rose-50 text-rose-600 border border-rose-200/60 hover:bg-rose-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {resetState === 'loading' ? (
+              <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {t.accounting.settings.system.resetting}</>
+            ) : (
+              <><RotateCcw className="w-3.5 h-3.5" /> {t.accounting.settings.system.resetButton}</>
+            )}
+          </button>
+        </motion.div>
+
+        {/* Backup History Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="border border-secondary/[0.08] rounded-2xl p-4 self-start"
+        >
+          <div className="flex items-center gap-2.5 mb-3">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-secondary to-secondary/80">
+              <History className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-bold text-secondary font-dubai">{t.accounting.settings.system.backupHistory}</h3>
+              <p className="text-[11px] text-secondary/50 font-dubai">
                 {backups.length > 0 ? `${backups.length} ${t.accounting.settings.system.savedBackup}` : t.accounting.settings.system.noBackups}
               </p>
             </div>
           </div>
-        </div>
 
-        {loadingBackups ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin text-primary" />
-          </div>
-        ) : backups.length === 0 ? (
-          <div className="text-center py-8">
-            <Archive className="w-10 h-10 text-secondary/20 mx-auto mb-2" />
-            <p className="text-sm text-secondary/40 font-dubai">{t.accounting.settings.system.noBackupsSaved}</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {backups.map((backup, i) => (
-              <motion.div
-                key={backup.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.03 }}
-                className="group bg-primary/5 rounded-xl px-4 py-3 flex items-center justify-between hover:bg-primary/10 transition-colors"
-              >
-                <button
-                  onClick={() => handleOpenBackup(backup)}
-                  className="flex items-center gap-3 flex-1 text-right"
+          {loadingBackups ? (
+            <div className="flex items-center justify-center py-6">
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+            </div>
+          ) : backups.length === 0 ? (
+            <div className="text-center py-6">
+              <Archive className="w-8 h-8 text-secondary/15 mx-auto mb-1.5" />
+              <p className="text-xs text-secondary/35 font-dubai">{t.accounting.settings.system.noBackupsSaved}</p>
+            </div>
+          ) : (
+            <div className="space-y-1.5 max-h-[280px] overflow-y-auto scrollbar-none">
+              {backups.map((backup, i) => (
+                <motion.div
+                  key={backup.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.03 }}
+                  className="group bg-secondary/[0.03] rounded-xl px-3 py-2.5 flex items-center justify-between hover:bg-secondary/[0.06] transition-colors"
                 >
-                  <div className="p-1.5 rounded-lg bg-white border border-primary/20">
-                    <Database className="w-3.5 h-3.5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-secondary font-dubai">{backup.name}</p>
-                    <div className="flex items-center gap-2 text-[11px] text-secondary/40 font-dubai">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-2.5 h-2.5" />
-                        {new Date(backup.createdAt).toLocaleDateString(locale, {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                      {backup.stats && (
-                        <span className="text-secondary/30">
-                          • {backup.stats.bookings || 0} {t.accounting.common.booking}
-                          • {backup.stats.expenses || 0} {t.accounting.common.expense}
-                        </span>
-                      )}
+                  <button
+                    onClick={() => handleOpenBackup(backup)}
+                    className="flex items-center gap-2.5 flex-1 text-right"
+                  >
+                    <div className="p-1.5 rounded-lg bg-white border border-primary/20">
+                      <Database className="w-3 h-3 text-primary" />
                     </div>
+                    <div>
+                      <p className="text-xs font-bold text-secondary font-dubai">{backup.name}</p>
+                      <div className="flex items-center gap-2 text-[10px] text-secondary/40 font-dubai">
+                        <span className="flex items-center gap-0.5">
+                          <Clock className="w-2.5 h-2.5" />
+                          {new Date(backup.createdAt).toLocaleDateString(locale, {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                        {backup.stats && (
+                          <span className="text-secondary/25">
+                            • {backup.stats.bookings || 0} {t.accounting.common.booking}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                  <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleOpenBackup(backup); }}
+                      className="p-1.5 hover:bg-white rounded-lg transition text-secondary/40 hover:text-primary"
+                      title={t.accounting.common.open}
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDeleteBackup(backup); }}
+                      className="p-1.5 hover:bg-rose-50 rounded-lg transition text-secondary/40 hover:text-rose-400"
+                      title={t.accounting.common.delete}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
                   </div>
-                </button>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleOpenBackup(backup); }}
-                    className="p-1.5 hover:bg-white rounded-lg transition text-secondary/40 hover:text-primary"
-                    title={t.accounting.common.open}
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleDeleteBackup(backup); }}
-                    className="p-1.5 hover:bg-rose-50 rounded-lg transition text-secondary/40 hover:text-rose-400"
-                    title={t.accounting.common.delete}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </motion.div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </div>
 
       {/* ═══════════════════════════════════════
           Modal: هل تريد إنشاء نسخة احتياطية؟
@@ -379,8 +382,8 @@ export default function SystemManager() {
         {modalStep === 'name-backup' && (
           <ModalOverlay onClose={() => setModalStep('none')} dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/30">
-                <Archive className="w-5 h-5 text-primary" />
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-secondary to-secondary/80">
+                <Archive className="w-5 h-5 text-white" />
               </div>
               <h3 className="font-bold text-lg text-secondary font-dubai">{t.accounting.settings.system.backupNameTitle}</h3>
             </div>
@@ -393,8 +396,8 @@ export default function SystemManager() {
               onChange={(e) => setBackupName(e.target.value)}
               placeholder={t.accounting.settings.system.backupNameExample}
               autoFocus
-              className="w-full px-4 py-2.5 rounded-xl border-2 border-primary/20 text-sm text-secondary font-dubai
-                focus:border-primary focus:outline-none transition-colors"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm
+                focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] focus:outline-none transition-all placeholder:text-secondary/25"
               dir={language === 'ar' ? 'rtl' : 'ltr'}
               onKeyDown={(e) => e.key === 'Enter' && backupName.trim() && handleCreateBackup()}
             />
@@ -443,7 +446,8 @@ export default function SystemManager() {
             <div className="flex gap-2">
               <button
                 onClick={handleReset}
-                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-rose-100 text-rose-700 border-2 border-rose-200 hover:bg-rose-200/80 transition-colors"
+                disabled={resetState === 'loading'}
+                className="flex-1 py-2.5 rounded-xl font-dubai font-bold text-sm bg-rose-100 text-rose-700 border-2 border-rose-200 hover:bg-rose-200/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {t.accounting.settings.system.yesReset}
               </button>
@@ -465,12 +469,12 @@ export default function SystemManager() {
         {modalStep === 'open-backup' && selectedBackup && (
           <ModalOverlay onClose={() => { setModalStep('none'); setSelectedBackup(null); }} dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/30">
-                <Database className="w-5 h-5 text-primary" />
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-secondary to-secondary/80">
+                <Database className="w-5 h-5 text-white" />
               </div>
               <h3 className="font-bold text-lg text-secondary font-dubai">{t.accounting.settings.system.openBackupTitle}</h3>
             </div>
-            <div className="bg-primary/5 rounded-xl p-4 mb-4 space-y-2">
+            <div className="bg-secondary/[0.03] rounded-xl p-4 mb-4 space-y-2">
               <p className="text-sm font-bold text-secondary font-dubai">{selectedBackup.name}</p>
               <p className="text-xs text-secondary/50 font-dubai flex items-center gap-1">
                 <Clock className="w-3 h-3" />
@@ -564,11 +568,12 @@ function ModalOverlay({ children, onClose, dir }: { children: React.ReactNode; o
       onClick={onClose}
     >
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
+        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 20 }}
+        transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl p-6 w-full max-w-sm shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] border-2 border-[#e0cdb8] space-y-0"
+        className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] border border-secondary/[0.08] space-y-0"
         dir={dir}
       >
         {children}

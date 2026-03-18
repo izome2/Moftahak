@@ -56,6 +56,7 @@ export default function ApartmentsPage() {
   const canManage = session?.user?.role === 'GENERAL_MANAGER' || session?.user?.role === 'ADMIN';
   const effectiveRole = getEffectiveAccountingRole(session?.user?.role || '');
   const isOpsManager = effectiveRole === 'OPS_MANAGER';
+  const isBookingManager = effectiveRole === 'BOOKING_MANAGER';
 
   const [apartments, setApartments] = useState<Apartment[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -176,53 +177,47 @@ export default function ApartmentsPage() {
   }, {});
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="flex items-center justify-between gap-3"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-primary/10 shadow-md border-2 border-primary/30">
-            <Building2 size={24} className="text-primary" />
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-5">
+      {/* Header + Month Selector */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
+            <Building2 size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">{t.accounting.apartments.title}</h1>
-            <p className="text-sm text-secondary/60 font-dubai">{t.accounting.apartments.subtitle}</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">{t.accounting.apartments.title}</h1>
+            <p className="text-xs text-secondary font-dubai mt-0.5 hidden sm:block">{t.accounting.apartments.subtitle}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <MonthSelector month={month} onChange={setMonth} />
+
+        <div className="flex items-center gap-1.5 justify-end">
           {canManage && (
             <button
               onClick={() => { setEditApartment(null); setShowForm(true); }}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl font-dubai text-sm font-bold hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300"
             >
-              <Plus size={16} />
+              <Plus size={15} />
               <span className="hidden sm:inline">{t.accounting.apartments.addApartment}</span>
             </button>
           )}
           <button
             onClick={() => fetchData()}
-            className="p-2 hover:bg-primary/10 rounded-lg transition-colors"
+            className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
             aria-label={t.accounting.common.refresh}
           >
-            <RefreshCw size={20} className={`text-secondary/60 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('openAccountingMenu'))}
-            className="lg:hidden p-2 hover:bg-primary/10 rounded-lg transition-colors"
+            className="lg:hidden p-2 hover:bg-secondary/5 rounded-xl transition-all"
             aria-label={t.accounting.common.openMenu}
           >
-            <Menu size={28} className="text-secondary" />
+            <Menu size={22} className="text-secondary/60" />
           </button>
         </div>
-      </motion.div>
-
-      {/* Month Selector */}
-      <MonthSelector month={month} onChange={setMonth} />
+      </div>
 
       {/* Filters */}
       <motion.div
@@ -233,13 +228,13 @@ export default function ApartmentsPage() {
       >
         {/* Search */}
         <div className="relative flex-1">
-          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary/40" />
+          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t.accounting.apartments.searchPlaceholder}
-            className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
+            className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary/40 transition-colors placeholder:text-secondary/40"
           />
         </div>
 
@@ -303,7 +298,7 @@ export default function ApartmentsPage() {
                 <h2 className="text-lg font-bold text-secondary font-dubai">
                   {project?.name || t.accounting.common.noProject}
                 </h2>
-                <span className="text-xs bg-primary/10 text-secondary/60 px-2 py-0.5 rounded-full font-dubai">
+                <span className="text-xs bg-primary/10 text-secondary px-2 py-0.5 rounded-full font-dubai">
                   {apts.length} {t.accounting.apartments.apartmentUnit}
                 </span>
               </div>
@@ -317,7 +312,8 @@ export default function ApartmentsPage() {
                     summary={summaries[apt.id] || null}
                     index={i}
                     isLoading={summariesLoading}
-                    hideRevenue={isOpsManager}
+                    hideRevenue={isOpsManager || isBookingManager}
+                    hideExpenses={isBookingManager}
                   />
                 ))}
               </div>

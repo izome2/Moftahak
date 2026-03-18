@@ -283,20 +283,28 @@ const InvitationManager: React.FC = () => {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowCreate(false)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm z-10 overflow-hidden border-2 border-[#e0cdb8]"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-sm z-10 overflow-hidden border border-secondary/[0.08]"
             >
-              <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
-                <h4 className="text-sm font-bold text-secondary font-dubai">{t.accounting.settings.invitations.newInvitation}</h4>
-                <button onClick={() => setShowCreate(false)}><X className="w-4 h-4 text-secondary/40" /></button>
+              <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                    <Link2 size={15} className="text-white" />
+                  </div>
+                  <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.settings.invitations.newInvitation}</h4>
+                </div>
+                <button onClick={() => setShowCreate(false)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/40" /></button>
               </div>
-              <div className="p-5 space-y-4" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              <div className="p-5 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai flex items-center gap-1">
-                    <Shield className="w-3 h-3" /> {t.accounting.settings.invitations.selectRole}
+                  <label className="flex items-center gap-1.5 mb-2">
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Shield size={11} className="text-secondary/50" /></span>
+                    <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.invitations.selectRole}</span>
+                    <span className="text-red-400 text-xs">*</span>
                   </label>
                   <CustomSelect
                     value={selectedRole}
@@ -305,9 +313,9 @@ const InvitationManager: React.FC = () => {
                     options={ACCOUNTING_ROLES.map(r => ({ value: r, label: ROLE_LABELS[r] }))}
                   />
                 </div>
-                <div className="bg-amber-50 rounded-xl p-3">
+                <div className="bg-amber-50/80 rounded-xl p-3 border border-amber-100">
                   <div className="flex items-start gap-2">
-                    <AlertCircle className="w-3.5 h-3.5 text-amber-600 mt-0.5 shrink-0" />
+                    <AlertCircle size={14} className="text-amber-600 mt-0.5 shrink-0" />
                     <div className="text-[10px] text-amber-700 font-dubai space-y-1">
                       <p>• {t.accounting.settings.invitations.validityNote}</p>
                       <p>• {t.accounting.settings.invitations.singleUseNote}</p>
@@ -315,15 +323,20 @@ const InvitationManager: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={handleCreate}
-                  disabled={isCreating}
-                  className="w-full py-2.5 bg-secondary text-white rounded-xl text-sm font-bold font-dubai
-                    hover:bg-secondary/90 disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {isCreating ? t.accounting.settings.invitations.creating : t.accounting.settings.invitations.createInvitation}
-                </button>
+                <div className="flex items-center gap-3 pt-1">
+                  <button
+                    type="button" onClick={() => setShowCreate(false)}
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                  >{t.accounting.common.cancel}</button>
+                  <button
+                    onClick={handleCreate}
+                    disabled={isCreating}
+                    className="flex-1 py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 hover:shadow-lg hover:shadow-secondary/15 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isCreating && <Loader2 size={16} className="animate-spin" />}
+                    {isCreating ? t.accounting.settings.invitations.creating : t.accounting.settings.invitations.createInvitation}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -337,15 +350,21 @@ const InvitationManager: React.FC = () => {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setCreatedInvite(null)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm z-10 overflow-hidden border-2 border-[#e0cdb8]"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-sm z-10 overflow-hidden border border-secondary/[0.08]"
             >
-              <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
-                <h4 className="text-sm font-bold text-secondary font-dubai">{t.accounting.settings.invitations.invitationCreated}</h4>
-                <button onClick={() => setCreatedInvite(null)}><X className="w-4 h-4 text-secondary/40" /></button>
+              <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-green-500 to-green-500/80 flex items-center justify-center">
+                    <Check size={15} className="text-white" />
+                  </div>
+                  <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.settings.invitations.invitationCreated}</h4>
+                </div>
+                <button onClick={() => setCreatedInvite(null)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/40" /></button>
               </div>
               <div className="p-5 space-y-4 flex flex-col items-center" dir="rtl">
                 <div className="flex items-center gap-2">
@@ -353,29 +372,28 @@ const InvitationManager: React.FC = () => {
                     {ROLE_LABELS[createdInvite.role]}
                   </span>
                   <span className="text-[10px] text-secondary/50 font-dubai flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> {t.accounting.settings.invitations.validFor}
+                    <Clock size={12} /> {t.accounting.settings.invitations.validFor}
                   </span>
                 </div>
 
                 {qrDataUrl && (
-                  <div className="bg-[#fdf6ee] rounded-2xl p-3 shadow-inner">
+                  <div className="bg-secondary/[0.03] rounded-2xl p-3 border border-secondary/[0.06]">
                     <img src={qrDataUrl} alt="QR Code" className="w-56 h-56" />
                   </div>
                 )}
 
                 <button
                   onClick={() => handleCopyLink(createdInvite.code)}
-                  className="w-full py-2.5 bg-secondary text-white rounded-xl text-sm font-bold font-dubai
-                    hover:bg-secondary/90 flex items-center justify-center gap-2 transition"
+                  className="w-full py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 hover:shadow-lg hover:shadow-secondary/15 transition-all flex items-center justify-center gap-2"
                 >
                   {copied ? (
                     <>
-                      <Check className="w-4 h-4" />
+                      <Check size={16} />
                       {t.accounting.settings.invitations.copied}
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4" />
+                      <Copy size={16} />
                       {t.accounting.settings.invitations.copyInviteLink}
                     </>
                   )}
@@ -397,31 +415,36 @@ const InvitationManager: React.FC = () => {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setQrInvite(null)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm z-10 overflow-hidden border-2 border-[#e0cdb8]"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-sm z-10 overflow-hidden border border-secondary/[0.08]"
             >
-              <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
-                <h4 className="text-sm font-bold text-secondary font-dubai">{t.accounting.settings.invitations.qrCode}</h4>
-                <button onClick={() => setQrInvite(null)}><X className="w-4 h-4 text-secondary/40" /></button>
+              <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                    <QrCode size={15} className="text-white" />
+                  </div>
+                  <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.settings.invitations.qrCode}</h4>
+                </div>
+                <button onClick={() => setQrInvite(null)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/40" /></button>
               </div>
               <div className="p-5 flex flex-col items-center space-y-4">
                 <span className={`text-xs rounded px-2 py-1 font-bold font-dubai ${ROLE_COLORS[qrInvite.role]}`}>
                   {ROLE_LABELS[qrInvite.role]}
                 </span>
                 {qrViewDataUrl && (
-                  <div className="bg-[#fdf6ee] rounded-2xl p-3 shadow-inner">
+                  <div className="bg-secondary/[0.03] rounded-2xl p-3 border border-secondary/[0.06]">
                     <img src={qrViewDataUrl} alt="QR Code" className="w-56 h-56" />
                   </div>
                 )}
                 <button
                   onClick={() => handleCopyLink(qrInvite.code)}
-                  className="w-full py-2.5 bg-secondary text-white rounded-xl text-sm font-bold font-dubai
-                    hover:bg-secondary/90 flex items-center justify-center gap-2 transition"
+                  className="w-full py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 hover:shadow-lg hover:shadow-secondary/15 transition-all flex items-center justify-center gap-2"
                 >
-                  {copied ? <><Check className="w-4 h-4" /> {t.accounting.settings.invitations.copied}</> : <><Copy className="w-4 h-4" /> {t.accounting.settings.invitations.copyLink}</>}
+                  {copied ? <><Check size={16} /> {t.accounting.settings.invitations.copied}</> : <><Copy size={16} /> {t.accounting.settings.invitations.copyLink}</>}
                 </button>
               </div>
             </motion.div>
@@ -436,31 +459,38 @@ const InvitationManager: React.FC = () => {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setDeleteTarget(null)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm p-5 z-10 border-2 border-[#e0cdb8]"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-sm z-10 border border-secondary/[0.08] overflow-hidden"
             >
-              <h4 className="text-sm font-bold text-secondary font-dubai mb-2">{t.accounting.settings.invitations.deleteInvitation}</h4>
-              <p className="text-xs text-secondary/70 font-dubai mb-4">
-                {t.accounting.settings.invitations.confirmDeleteInvitation(ROLE_LABELS[deleteTarget.role] || deleteTarget.role)}
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleDelete} disabled={isDeleting}
-                  className="flex-1 py-2 bg-red-600 text-white rounded-xl text-xs font-bold font-dubai
-                    hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-1"
-                >
-                  {isDeleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  {t.accounting.common.delete}
-                </button>
-                <button
-                  onClick={() => setDeleteTarget(null)}
-                  className="flex-1 py-2 bg-primary/10 text-secondary rounded-xl text-xs font-medium font-dubai hover:bg-primary/20"
-                >
-                  {t.accounting.common.cancel}
-                </button>
+              <div className="flex items-center gap-2.5 px-5 py-4 border-b border-secondary/[0.06]">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-red-500/80 flex items-center justify-center">
+                  <Trash2 size={15} className="text-white" />
+                </div>
+                <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.settings.invitations.deleteInvitation}</h4>
+              </div>
+              <div className="p-5 space-y-4">
+                <p className="text-sm text-secondary font-dubai">
+                  {t.accounting.settings.invitations.confirmDeleteInvitation(ROLE_LABELS[deleteTarget.role] || deleteTarget.role)}
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setDeleteTarget(null)}
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                  >
+                    {t.accounting.common.cancel}
+                  </button>
+                  <button
+                    onClick={handleDelete} disabled={isDeleting}
+                    className="flex-1 py-2.5 rounded-xl bg-red-600 text-white font-dubai text-sm font-bold hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/15 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isDeleting && <Loader2 size={14} className="animate-spin" />}
+                    {t.accounting.common.delete}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

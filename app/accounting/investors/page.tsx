@@ -9,6 +9,11 @@ import {
   Loader2,
   Info,
   Search,
+  X,
+  Percent,
+  Target,
+  Trash2,
+  AlertTriangle,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import InvestorsList from '@/components/accounting/investors/InvestorsList';
@@ -217,53 +222,42 @@ export default function InvestorsPage() {
     : investors;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="p-4 sm:p-6 lg:p-8 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Page Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-primary/10 shadow-md border-2 border-primary/30">
-            <Users size={24} className="text-primary" />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
+            <Users size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-secondary font-dubai">{t.accounting.investors.title}</h1>
-            <p className="text-sm text-secondary/60 font-dubai">
+            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">{t.accounting.investors.title}</h1>
+            <p className="text-xs text-secondary font-dubai mt-0.5">
               {t.accounting.investors.subtitle}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={fetchInvestors}
             disabled={isLoading}
-            className="p-2.5 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors disabled:opacity-50"
+            className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
           >
-            <RefreshCw size={18} className={`text-secondary ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => setShowAssignModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-bold
-              bg-secondary text-white rounded-xl hover:bg-secondary/90
-              transition-all duration-200 font-dubai"
+            className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl font-dubai text-sm font-bold hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300"
           >
-            <Plus className="w-4 h-4" />
+            <Plus size={15} />
             {t.accounting.investors.assignInvestor}
           </button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Search */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-        className="relative"
-      >
-        <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary/30" />
+      <div className="relative">
+        <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
         <input
           type="text"
           value={search}
@@ -271,17 +265,17 @@ export default function InvestorsPage() {
           placeholder={t.accounting.investors.searchPlaceholder}
           className="w-full pr-10 pl-4 py-2.5 text-sm border-2 border-primary/20 rounded-xl
             bg-white text-secondary font-dubai
-            focus:outline-none focus:border-primary transition-colors
-            placeholder:text-secondary/30"
+            focus:outline-none focus:border-primary/40 transition-colors
+            placeholder:text-secondary/40"
         />
-      </motion.div>
+      </div>
 
       {/* Summary */}
       {!isLoading && investors.length > 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex items-center gap-4 text-sm text-secondary/60 font-dubai"
+          className="flex items-center gap-4 text-sm text-secondary font-dubai"
         >
           <span>{investors.length} {t.accounting.investors.investorUnit}</span>
           <span>
@@ -297,12 +291,12 @@ export default function InvestorsPage() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="bg-red-50 border-2 border-red-200 rounded-xl px-4 py-3 text-sm text-red-600
-              flex items-center gap-2 font-dubai"
+            className="bg-red-50/80 border border-red-200/60 rounded-xl px-4 py-3 text-sm text-red-600
+              flex items-center gap-2 font-dubai backdrop-blur-sm"
           >
             <Info className="w-4 h-4 shrink-0" />
             {error}
-            <button onClick={fetchInvestors} className="text-red-500 underline text-xs font-dubai">{t.accounting.common.retry}</button>
+            <button onClick={fetchInvestors} className="text-xs text-red-500 hover:text-red-700 font-dubai font-bold transition-colors">{t.accounting.common.retry}</button>
             <button onClick={() => setError(null)} className="mr-auto text-red-400 hover:text-red-600">✕</button>
           </motion.div>
         )}
@@ -351,50 +345,75 @@ export default function InvestorsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setEditInvestment(null)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm overflow-hidden z-10 border-2 border-[#e0cdb8]"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-sm overflow-hidden z-10 border border-secondary/[0.08]"
             >
-                <div className="flex items-center justify-between px-5 py-4 border-b-2 border-primary/10">
-                <h2 className="text-base font-bold text-secondary font-dubai">{t.accounting.investors.editPercentage}</h2>
-                <button onClick={() => setEditInvestment(null)} className="text-secondary/40 hover:text-secondary/70">✕</button>
+              <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                    <Percent size={15} className="text-white" />
+                  </div>
+                  <h2 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.investors.editPercentage}</h2>
+                </div>
+                <button onClick={() => setEditInvestment(null)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors">
+                  <X size={18} className="text-secondary/40" />
+                </button>
               </div>
-              <form onSubmit={handleEditSubmit} className="p-5 space-y-4" dir="rtl">
+              <form onSubmit={handleEditSubmit} className="p-5 space-y-5" dir="rtl">
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1.5 block font-dubai">{t.accounting.investors.percentageLabel}</label>
+                  <label className="flex items-center gap-1.5 mb-2">
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
+                      <Percent size={11} className="text-secondary/50" />
+                    </span>
+                    <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.investors.percentageLabel}</span>
+                    <span className="text-red-400 text-xs">*</span>
+                  </label>
                   <NumberInput
                     value={editPercentage}
                     onChange={(e) => setEditPercentage(e.target.value)}
-                    className="w-full px-3 py-2.5 text-sm border-2 border-primary/20 rounded-xl
-                      focus:outline-none focus:border-primary font-dubai"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25"
                     required
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1.5 block font-dubai">{t.accounting.investors.yearlyTarget}</label>
+                  <label className="flex items-center gap-1.5 mb-2">
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
+                      <Target size={11} className="text-secondary/50" />
+                    </span>
+                    <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.investors.yearlyTarget}</span>
+                  </label>
                   <NumberInput
                     value={editTarget}
                     onChange={(e) => setEditTarget(e.target.value)}
-                    className="w-full px-3 py-2.5 text-sm border-2 border-primary/20 rounded-xl
-                      focus:outline-none focus:border-primary font-dubai"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25"
                   />
                 </div>
                 {editError && (
-                  <p className="text-xs text-red-600 font-dubai">{editError}</p>
+                  <p className="text-sm text-red-500 font-dubai bg-red-50/80 p-2.5 rounded-xl border border-red-100">{editError}</p>
                 )}
-                <button
-                  type="submit"
-                  disabled={editLoading}
-                  className="w-full py-2.5 bg-secondary text-white rounded-xl text-sm font-bold font-dubai
-                    hover:bg-secondary/90 disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {editLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  {editLoading ? t.accounting.common.saving : t.accounting.investors.saveEdit}
-                </button>
+                <div className="flex items-center gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setEditInvestment(null)}
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                  >
+                    {t.accounting.common.cancel}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={editLoading}
+                    className="flex-1 py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 hover:shadow-lg hover:shadow-secondary/15 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {editLoading ? <Loader2 size={16} className="animate-spin" /> : null}
+                    {editLoading ? t.accounting.common.saving : t.accounting.investors.saveEdit}
+                  </button>
+                </div>
               </form>
             </motion.div>
           </div>
@@ -410,37 +429,43 @@ export default function InvestorsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setDeleteConfirm(null)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm p-5 z-10 border-2 border-[#e0cdb8]"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-sm overflow-hidden z-10 border border-secondary/[0.08]"
             >
-              <h3 className="text-base font-bold text-secondary font-dubai mb-2">
-                {t.accounting.investors.confirmRemove}
-              </h3>
-              <p className="text-sm text-secondary/70 font-dubai mb-4">
-                {t.accounting.investors.confirmRemoveMessage(`${deleteConfirm.investor.firstName} ${deleteConfirm.investor.lastName}`, '')}
-              </p>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={confirmDelete}
-                  disabled={isDeleting}
-                  className="flex-1 py-2 bg-red-600 text-white rounded-xl text-sm font-bold font-dubai
-                    hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  {isDeleting ? t.accounting.common.deleting : t.accounting.investors.yesRemove}
-                </button>
-                <button
-                  onClick={() => setDeleteConfirm(null)}
-                  className="flex-1 py-2 bg-primary/10 text-secondary rounded-xl text-sm font-medium font-dubai
-                    hover:bg-primary/20"
-                >
-                  {t.accounting.common.cancel}
-                </button>
+              <div className="flex items-center gap-2.5 px-5 py-4 border-b border-secondary/[0.06]">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-red-500/80 flex items-center justify-center">
+                  <AlertTriangle size={15} className="text-white" />
+                </div>
+                <h3 className="text-base font-bold text-secondary font-dubai tracking-tight">
+                  {t.accounting.investors.confirmRemove}
+                </h3>
+              </div>
+              <div className="p-5 space-y-4">
+                <p className="text-sm text-secondary font-dubai">
+                  {t.accounting.investors.confirmRemoveMessage(`${deleteConfirm.investor.firstName} ${deleteConfirm.investor.lastName}`, '')}
+                </p>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setDeleteConfirm(null)}
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                  >
+                    {t.accounting.common.cancel}
+                  </button>
+                  <button
+                    onClick={confirmDelete}
+                    disabled={isDeleting}
+                    className="flex-1 py-2.5 rounded-xl bg-red-600 text-white font-dubai text-sm font-bold hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/15 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isDeleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={14} />}
+                    {isDeleting ? t.accounting.common.deleting : t.accounting.investors.yesRemove}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

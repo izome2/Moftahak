@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Building2, Loader2 } from 'lucide-react';
+import { X, Building2, Loader2, FileText, Layers } from 'lucide-react';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -27,6 +27,27 @@ interface ApartmentFormProps {
   initialData?: ApartmentData | null;
   projects: Project[];
 }
+
+const FormField: React.FC<{
+  icon: React.ReactNode;
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+  className?: string;
+}> = ({ icon, label, required, children, className = '' }) => (
+  <div className={className}>
+    <label className="flex items-center gap-1.5 mb-2">
+      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
+        {icon}
+      </span>
+      <span className="text-[13px] font-bold text-secondary font-dubai">{label}</span>
+      {required && <span className="text-red-400 text-xs">*</span>}
+    </label>
+    {children}
+  </div>
+);
+
+const inputClass = "w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25";
 
 const ApartmentForm: React.FC<ApartmentFormProps> = ({
   isOpen,
@@ -95,7 +116,6 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
         >
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -104,37 +124,38 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
             onClick={onClose}
           />
 
-          {/* Modal */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-md border-2 border-[#e0cdb8] overflow-hidden"
+            className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-md border border-secondary/[0.08] overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-primary/10">
-              <div className="flex items-center gap-2">
-                <Building2 size={20} className="text-primary" />
-                <h2 className="text-lg font-bold text-secondary font-dubai">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                  <Building2 size={15} className="text-white" />
+                </div>
+                <h2 className="text-base font-bold text-secondary font-dubai tracking-tight">
                   {isEdit ? t.accounting.apartmentForm.editTitle : t.accounting.apartmentForm.addTitle}
                 </h2>
               </div>
               <button
                 onClick={onClose}
-                className="p-1.5 hover:bg-primary/10 rounded-lg transition-colors"
+                className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"
               >
-                <X size={18} className="text-secondary/60" />
+                <X size={18} className="text-secondary/40" />
               </button>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="p-5 space-y-4">
-              {/* Project */}
-              <div>
-                <label className="block text-sm font-bold text-secondary font-dubai mb-1.5">
-                  {t.accounting.apartmentForm.project} <span className="text-red-500">*</span>
-                </label>
+            <form onSubmit={handleSubmit} className="p-5 space-y-5">
+              <FormField
+                icon={<Building2 size={11} className="text-secondary/50" />}
+                label={t.accounting.apartmentForm.project}
+                required
+              >
                 <CustomSelect
                   value={formData.projectId}
                   onChange={(v) => setFormData(prev => ({ ...prev, projectId: v }))}
@@ -144,71 +165,68 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
                   emptyMessage={t.accounting.apartmentForm.noProjects}
                   options={projects.map(p => ({ value: p.id, label: p.name }))}
                 />
-              </div>
+              </FormField>
 
-              {/* Name */}
-              <div>
-                <label className="block text-sm font-bold text-secondary font-dubai mb-1.5">
-                  {t.accounting.apartmentForm.apartmentName} <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                icon={<FileText size={11} className="text-secondary/50" />}
+                label={t.accounting.apartmentForm.apartmentName}
+                required
+              >
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   placeholder={t.accounting.apartmentForm.namePlaceholder}
-                  className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
+                  className={inputClass}
                   required
                 />
-              </div>
+              </FormField>
 
-              {/* Floor & Type */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-bold text-secondary font-dubai mb-1.5">
-                    {t.accounting.apartmentForm.floorNumber}
-                  </label>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  icon={<Layers size={11} className="text-secondary/50" />}
+                  label={t.accounting.apartmentForm.floorNumber}
+                >
                   <input
                     type="text"
                     value={formData.floor || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, floor: e.target.value }))}
                     placeholder={t.accounting.apartmentForm.floorPlaceholder}
-                    className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
+                    className={inputClass}
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-secondary font-dubai mb-1.5">
-                    {t.accounting.apartmentForm.apartmentType}
-                  </label>
+                </FormField>
+                <FormField
+                  icon={<Building2 size={11} className="text-secondary/50" />}
+                  label={t.accounting.apartmentForm.apartmentType}
+                >
                   <input
                     type="text"
                     value={formData.type || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
                     placeholder={t.accounting.apartmentForm.typePlaceholder}
-                    className="w-full p-3 rounded-xl border-2 border-primary/20 bg-accent/20 text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
+                    className={inputClass}
                   />
-                </div>
+                </FormField>
               </div>
 
-              {/* Error */}
               {error && (
-                <p className="text-sm text-red-500 font-dubai bg-red-50 p-2.5 rounded-lg">
+                <p className="text-sm text-red-500 font-dubai bg-red-50/80 p-2.5 rounded-xl border border-red-100">
                   {error}
                 </p>
               )}
 
-              {/* Actions */}
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex items-center gap-3 pt-1">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 p-3 rounded-xl border-2 border-primary/20 text-secondary font-dubai text-sm font-bold hover:bg-accent/30 transition-colors"
+                  className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                 >
                   {t.accounting.common.cancel}
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 p-3 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 hover:shadow-lg hover:shadow-secondary/15 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>

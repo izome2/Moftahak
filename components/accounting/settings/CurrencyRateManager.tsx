@@ -97,9 +97,9 @@ const CurrencyRateManager: React.FC = () => {
           animate={{ opacity: 1 }}
           className="space-y-3"
         >
-          <div className="bg-primary/5 rounded-xl p-4">
+          <div className="bg-secondary/[0.03] rounded-xl p-4">
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border-2 border-primary/20">
+              <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-secondary/[0.08]">
                 <span className="text-xs font-bold text-secondary font-dubai">1 USD</span>
                 <span className="text-secondary/30">=</span>
               </div>
@@ -107,8 +107,8 @@ const CurrencyRateManager: React.FC = () => {
                 <NumberInput
                   value={inputRate}
                   onChange={e => setInputRate(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl
-                    focus:outline-none focus:border-primary font-dubai font-bold text-secondary"
+                  className="w-full px-3 py-2 text-sm border border-secondary/[0.08] rounded-xl
+                    focus:outline-none focus:border-secondary/20 font-dubai font-bold text-secondary"
                 />
               </div>
               <span className="text-xs font-bold text-secondary font-dubai">EGP</span>
@@ -146,7 +146,7 @@ const CurrencyRateManager: React.FC = () => {
             <button
               onClick={fetchRate}
               disabled={isLoading}
-              className="p-2 text-secondary/40 hover:text-secondary transition rounded-lg hover:bg-primary/5"
+              className="p-2 text-secondary/40 hover:text-secondary transition rounded-lg hover:bg-secondary/5"
             >
               <RefreshCw className="w-3.5 h-3.5" />
             </button>

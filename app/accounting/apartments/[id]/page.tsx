@@ -84,8 +84,10 @@ export default function ApartmentDetailPage() {
 
   const effectiveRole = getEffectiveAccountingRole(session?.user?.role || '');
   const isOpsManager = effectiveRole === 'OPS_MANAGER';
+  const isBookingManager = effectiveRole === 'BOOKING_MANAGER';
   const canViewBookings = !isOpsManager;
-  const canViewRevenue = !isOpsManager;
+  const canViewRevenue = !isOpsManager && !isBookingManager;
+  const canViewExpenses = !isBookingManager;
 
   const [month, setMonth] = useState(getCurrentMonth);
   const [apartment, setApartment] = useState<ApartmentInfo | null>(null);
@@ -194,12 +196,12 @@ export default function ApartmentDetailPage() {
 
   return (
     <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
-      {/* Header */}
+      {/* Header + Month Selector */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="flex items-center justify-between gap-3"
+        className="grid grid-cols-[1fr_auto_1fr] items-center gap-3"
       >
         <div className="flex items-center gap-3">
           {/* Back button */}
@@ -234,7 +236,9 @@ export default function ApartmentDetailPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <MonthSelector month={month} onChange={setMonth} />
+
+        <div className="flex items-center gap-2 justify-end">
           <button
             onClick={() => fetchMonthlyData(month)}
             className="p-2 hover:bg-primary/10 rounded-lg transition-colors"
@@ -252,10 +256,7 @@ export default function ApartmentDetailPage() {
         </div>
       </motion.div>
 
-      {/* Month Selector */}
-      <MonthSelector month={month} onChange={setMonth} />
-
-      {/* Financial Summary Cards - hide revenue/profit for OPS_MANAGER */}
+      {/* Financial Summary Cards */}
       {canViewRevenue ? (
         <FinancialSummary
           totalRevenue={summary?.totalRevenue || 0}
@@ -265,12 +266,26 @@ export default function ApartmentDetailPage() {
           occupiedNights={summary?.occupiedNights}
           isLoading={loadingData}
         />
+      ) : isBookingManager ? (
+        <FinancialSummary
+          totalRevenue={0}
+          totalExpenses={0}
+          profit={0}
+          bookingsCount={summary?.bookingsCount}
+          occupiedNights={summary?.occupiedNights}
+          isLoading={loadingData}
+          hideRevenue
+          hideExpenses
+          hideProfit
+        />
       ) : (
         <FinancialSummary
           totalRevenue={0}
           totalExpenses={summary?.totalExpenses || 0}
           profit={0}
           isLoading={loadingData}
+          hideRevenue
+          hideProfit
         />
       )}
 
@@ -278,17 +293,20 @@ export default function ApartmentDetailPage() {
       {canViewBookings && (
         <BookingsTable
           bookings={bookings}
-          totalAmount={bookingsTotal}
+          totalAmount={canViewRevenue ? bookingsTotal : 0}
           isLoading={loadingData}
+          hideAmounts={!canViewRevenue}
         />
       )}
 
-      {/* Expenses Table */}
-      <ExpensesTable
-        expenses={expenses}
-        totalAmount={expensesTotal}
-        isLoading={loadingData}
-      />
+      {/* Expenses Table - hidden for BOOKING_MANAGER */}
+      {canViewExpenses && (
+        <ExpensesTable
+          expenses={expenses}
+          totalAmount={expensesTotal}
+          isLoading={loadingData}
+        />
+      )}
 
       {/* Investors Table (General Manager only) */}
       {canViewInvestors && apartment.investors && apartment.investors.length > 0 && (

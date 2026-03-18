@@ -200,36 +200,49 @@ const TeamManager: React.FC = () => {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setEditMember(null)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm z-10 overflow-hidden border-2 border-[#e0cdb8]"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-sm z-10 overflow-hidden border border-secondary/[0.08]"
             >
-              <div className="flex items-center justify-between px-5 py-3.5 border-b-2 border-primary/10">
-                <h4 className="text-sm font-bold text-secondary font-dubai">{t.accounting.settings.team.editMember}</h4>
-                <button onClick={() => setEditMember(null)}><X className="w-4 h-4 text-secondary/40" /></button>
+              <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+                    <Pencil size={15} className="text-white" />
+                  </div>
+                  <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.settings.team.editMember}</h4>
+                </div>
+                <button onClick={() => setEditMember(null)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/40" /></button>
               </div>
-              <div className="p-5 space-y-3" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-                <div className="grid grid-cols-2 gap-3">
+              <div className="p-5 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.settings.team.firstName}</label>
+                    <label className="flex items-center gap-1.5 mb-2">
+                      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Users size={11} className="text-secondary/50" /></span>
+                      <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.team.firstName}</span>
+                    </label>
                     <input
                       value={editFirstName} onChange={e => setEditFirstName(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai">{t.accounting.settings.team.lastName}</label>
+                    <label className="flex items-center gap-1.5 mb-2">
+                      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Users size={11} className="text-secondary/50" /></span>
+                      <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.team.lastName}</span>
+                    </label>
                     <input
                       value={editLastName} onChange={e => setEditLastName(e.target.value)}
-                      className="w-full px-3 py-2 text-sm border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary font-dubai"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-secondary/70 mb-1 block font-dubai flex items-center gap-1">
-                    <Shield className="w-3 h-3" /> {t.accounting.settings.team.role}
+                  <label className="flex items-center gap-1.5 mb-2">
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Shield size={11} className="text-secondary/50" /></span>
+                    <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.team.role}</span>
                   </label>
                   <CustomSelect
                     value={editRole}
@@ -238,16 +251,21 @@ const TeamManager: React.FC = () => {
                     options={ACCOUNTING_ROLES.map(r => ({ value: r, label: ROLE_LABELS[r] }))}
                   />
                 </div>
-                {editError && <p className="text-xs text-red-600 font-dubai">{editError}</p>}
-                <button
-                  onClick={handleEditSave}
-                  disabled={editSaving}
-                  className="w-full py-2.5 bg-secondary text-white rounded-xl text-sm font-bold font-dubai
-                    hover:bg-secondary/90 disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {editSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {editSaving ? t.accounting.common.saving : t.accounting.common.saveChanges}
-                </button>
+                {editError && <p className="text-sm text-red-500 font-dubai bg-red-50/80 p-2.5 rounded-xl border border-red-100">{editError}</p>}
+                <div className="flex items-center gap-3 pt-1">
+                  <button
+                    type="button" onClick={() => setEditMember(null)}
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                  >{t.accounting.common.cancel}</button>
+                  <button
+                    onClick={handleEditSave}
+                    disabled={editSaving}
+                    className="flex-1 py-2.5 rounded-xl bg-secondary text-white font-dubai text-sm font-bold hover:bg-secondary/90 hover:shadow-lg hover:shadow-secondary/15 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {editSaving && <Loader2 size={16} className="animate-spin" />}
+                    {editSaving ? t.accounting.common.saving : t.accounting.common.saveChanges}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -261,32 +279,37 @@ const TeamManager: React.FC = () => {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setDeleteTarget(null)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="relative bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)] w-full max-w-sm p-5 z-10 border-2 border-[#e0cdb8]"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-sm z-10 border border-secondary/[0.08] overflow-hidden"
             >
-              <h4 className="text-sm font-bold text-secondary font-dubai mb-2">{t.accounting.settings.team.deleteMember}</h4>
-              <p className="text-xs text-secondary/70 font-dubai mb-4">
-                {t.accounting.settings.team.confirmDeleteMember(`${deleteTarget.firstName} ${deleteTarget.lastName}`)}
-                {' '}{t.accounting.settings.team.cannotUndo}
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleDelete} disabled={isDeleting}
-                  className="flex-1 py-2 bg-red-600 text-white rounded-xl text-xs font-bold font-dubai
-                    hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-1"
-                >
-                  {isDeleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  {t.accounting.common.delete}
-                </button>
-                <button
-                  onClick={() => setDeleteTarget(null)}
-                  className="flex-1 py-2 bg-primary/10 text-secondary rounded-xl text-xs font-medium font-dubai hover:bg-primary/20"
-                >
-                  {t.accounting.common.cancel}
-                </button>
+              <div className="flex items-center gap-2.5 px-5 py-4 border-b border-secondary/[0.06]">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-red-500/80 flex items-center justify-center">
+                  <Trash2 size={15} className="text-white" />
+                </div>
+                <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.settings.team.deleteMember}</h4>
+              </div>
+              <div className="p-5 space-y-4">
+                <p className="text-sm text-secondary font-dubai">
+                  {t.accounting.settings.team.confirmDeleteMember(`${deleteTarget.firstName} ${deleteTarget.lastName}`)}
+                  {' '}{t.accounting.settings.team.cannotUndo}
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setDeleteTarget(null)}
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                  >{t.accounting.common.cancel}</button>
+                  <button
+                    onClick={handleDelete} disabled={isDeleting}
+                    className="flex-1 py-2.5 rounded-xl bg-red-600 text-white font-dubai text-sm font-bold hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/15 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isDeleting && <Loader2 size={14} className="animate-spin" />}
+                    {t.accounting.common.delete}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

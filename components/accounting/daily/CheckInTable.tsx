@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { LogIn, Phone, Plane, Clock, Building2 } from 'lucide-react';
+import { LogIn, Phone, Plane, Clock, Building2, Loader2, User, Moon, UserCheck } from 'lucide-react';
 import SupervisorSelect from './SupervisorSelect';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -43,10 +43,10 @@ const CheckInTable: React.FC<CheckInTableProps> = ({
     new Date(dateString).toLocaleDateString(locale, { month: 'short', day: 'numeric' });
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border-2 border-primary/20 p-8">
-        <div className="flex items-center justify-center gap-2 text-secondary/60">
-          <div className="w-5 h-5 border-2 border-primary/30 border-t-green-500 rounded-full animate-spin" />
-          <span className="text-sm">{t.accounting.daily.loadingCheckIn}</span>
+      <div className="bg-white rounded-2xl border border-secondary/[0.08] shadow-sm p-8">
+        <div className="flex items-center justify-center gap-2 text-secondary/40">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span className="text-sm font-dubai">{t.accounting.daily.loadingCheckIn}</span>
         </div>
       </div>
     );
@@ -57,19 +57,17 @@ const CheckInTable: React.FC<CheckInTableProps> = ({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.1 }}
-      className="bg-white rounded-2xl border-2 border-primary/20 overflow-hidden shadow-[0_4px_20px_rgba(237,191,140,0.15)]"
+      className="bg-white rounded-2xl border border-secondary/[0.08] overflow-hidden shadow-sm"
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-5 py-3.5 border-b-2 border-primary/10
-        bg-gradient-to-l from-primary/5 to-white"
-      >
-        <div className="w-8 h-8 rounded-xl bg-[#8a9a7a]/10 border-2 border-[#8a9a7a]/25 flex items-center justify-center">
-          <LogIn className="w-4 h-4 text-[#8a9a7a]" />
+      <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-secondary/[0.06]">
+        <div className="w-8 h-8 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+          <LogIn className="w-4 h-4 text-emerald-600" />
         </div>
-        <h3 className="text-base font-bold text-secondary font-dubai">
+        <h3 className="text-sm font-bold text-secondary font-dubai tracking-tight">
           {t.accounting.daily.checkInTitle}
         </h3>
-        <span className="mr-auto bg-[#8a9a7a]/10 text-[#8a9a7a] text-xs font-bold
+        <span className="mr-auto bg-emerald-500/10 text-emerald-700 text-[11px] font-bold
           px-2.5 py-1 rounded-full font-dubai"
         >
           {checkIns.length} {t.accounting.common.booking}
@@ -77,22 +75,22 @@ const CheckInTable: React.FC<CheckInTableProps> = ({
       </div>
 
       {checkIns.length === 0 ? (
-        <div className="py-10 text-center text-secondary/55">
-          <LogIn className="w-8 h-8 mx-auto mb-2 opacity-40" />
+        <div className="py-10 text-center text-secondary/40">
+          <LogIn className="w-8 h-8 mx-auto mb-2 opacity-30" />
           <p className="text-sm font-dubai">{t.accounting.daily.noCheckIns}</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="sticky top-0 z-10">
-              <tr className="bg-gradient-to-l from-primary/15 to-primary/25 border-b border-primary/20">
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.daily.apartment}</th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.daily.guest}</th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.daily.contact}</th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.daily.arrival}</th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.daily.nights}</th>
+              <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Building2 size={12} />{t.accounting.daily.apartment}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><User size={12} />{t.accounting.daily.guest}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Phone size={12} />{t.accounting.daily.contact}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Clock size={12} />{t.accounting.daily.arrival}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Moon size={12} />{t.accounting.daily.nights}</span></th>
                 {canAssignSupervisor && (
-                  <th className="text-right px-4 py-3 text-[11px] text-secondary/80 font-bold font-dubai">{t.accounting.daily.receptionSupervisor}</th>
+                  <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><UserCheck size={12} />{t.accounting.daily.receptionSupervisor}</span></th>
                 )}
               </tr>
             </thead>
@@ -105,15 +103,15 @@ const CheckInTable: React.FC<CheckInTableProps> = ({
                     className={`
                       transition-colors duration-150
                       ${hasActivity
-                        ? 'bg-white hover:bg-primary/5'
-                        : 'bg-primary/5 opacity-50'
+                        ? 'bg-white hover:bg-secondary/[0.02]'
+                        : 'bg-secondary/[0.02] opacity-50'
                       }
                     `}
                   >
                     {/* الشقة */}
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
-                        <Building2 className="w-3.5 h-3.5 text-secondary/55" />
+                        <Building2 className="w-3.5 h-3.5 text-secondary/40" />
                         <span className="font-medium text-secondary font-dubai">
                           {row.apartment?.name || '—'}
                         </span>
@@ -166,7 +164,7 @@ const CheckInTable: React.FC<CheckInTableProps> = ({
 
                     {/* الليالي */}
                     <td className="px-4 py-3">
-                      <span className="text-xs bg-secondary/5 text-secondary/70 px-2 py-0.5
+                      <span className="text-xs bg-secondary/[0.04] text-secondary/50 px-2 py-0.5
                         rounded-full font-dubai font-medium"
                       >
                         {new Intl.NumberFormat(locale).format(row.nights)} {t.accounting.common.night}

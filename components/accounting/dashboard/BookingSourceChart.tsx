@@ -76,7 +76,7 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({ data, isLoading
     if (!active || !payload?.length) return null;
     const entry = payload[0];
     return (
-      <div className="bg-white border-2 border-primary/20 rounded-xl p-3 shadow-lg font-dubai text-sm" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      <div className="bg-white border border-secondary/[0.08] rounded-xl p-3 shadow-lg font-dubai text-sm" dir={language === 'ar' ? 'rtl' : 'ltr'}>
         <div className="flex items-center gap-2 mb-1">
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.payload.fill }} />
           <span className="font-bold text-secondary">{entry.name}</span>
@@ -96,7 +96,7 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({ data, isLoading
   if (isLoading) {
     return (
       <div className="h-[300px] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary/30" />
       </div>
     );
   }

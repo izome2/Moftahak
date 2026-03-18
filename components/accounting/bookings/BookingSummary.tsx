@@ -41,41 +41,51 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
       label: t.accounting.bookings.totalRevenue,
       value: formatCurrency(revenue),
       icon: DollarSign,
-      bgColor: 'bg-[#8a9a7a]/12',
-      iconColor: 'text-[#8a9a7a]',
-      valueColor: 'text-[#8a9a7a]',
+      gradient: 'from-emerald-500/10 to-emerald-500/5',
+      iconBg: 'bg-emerald-500/15',
+      iconColor: 'text-emerald-600',
+      valueColor: 'text-emerald-700',
+      accent: 'border-emerald-500/15',
     }] : []),
     {
       label: t.accounting.bookings.bookingsCount,
       value: new Intl.NumberFormat(locale).format(totalBookings),
       icon: CalendarCheck,
-      bgColor: 'bg-primary/15',
-      iconColor: 'text-primary',
+      gradient: 'from-blue-500/10 to-blue-500/5',
+      iconBg: 'bg-blue-500/15',
+      iconColor: 'text-blue-600',
       valueColor: 'text-secondary',
+      accent: 'border-blue-500/15',
     },
     {
       label: t.accounting.bookings.nightsBooked,
       value: new Intl.NumberFormat(locale).format(totalNights),
       icon: Moon,
-      bgColor: 'bg-secondary/8',
-      iconColor: 'text-secondary/60',
+      gradient: 'from-violet-500/10 to-violet-500/5',
+      iconBg: 'bg-violet-500/15',
+      iconColor: 'text-violet-600',
       valueColor: 'text-secondary',
+      accent: 'border-violet-500/15',
     },
     ...(!hideFinancials ? [{
       label: t.accounting.bookings.avgNightRate,
       value: formatCurrency(Math.round(avg)),
       icon: TrendingUp,
-      bgColor: 'bg-primary/20',
-      iconColor: 'text-primary',
+      gradient: 'from-amber-500/10 to-amber-500/5',
+      iconBg: 'bg-amber-500/15',
+      iconColor: 'text-amber-600',
       valueColor: 'text-secondary',
+      accent: 'border-amber-500/15',
     }] : []),
     ...(apartmentsCount !== undefined ? [{
       label: t.accounting.bookings.activeApartments,
       value: new Intl.NumberFormat(locale).format(apartmentsCount!),
       icon: Building2,
-      bgColor: 'bg-primary/12',
-      iconColor: 'text-primary',
+      gradient: 'from-secondary/10 to-secondary/5',
+      iconBg: 'bg-secondary/10',
+      iconColor: 'text-secondary/70',
       valueColor: 'text-secondary',
+      accent: 'border-secondary/10',
     }] : []),
   ];
 
@@ -84,21 +94,21 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
       {cards.map((card, i) => (
         <motion.div
           key={card.label}
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: i * 0.06 }}
-          className="bg-white rounded-xl border-2 border-primary/20 p-4 shadow-[0_4px_20px_rgba(237,191,140,0.12)]"
+          transition={{ duration: 0.35, delay: i * 0.05 }}
+          className={`relative overflow-hidden bg-gradient-to-br ${card.gradient} rounded-2xl border ${card.accent} p-4 group hover:shadow-md transition-shadow duration-300`}
         >
-          <div className="flex items-center gap-2 mb-2">
-            <div className={`p-1.5 rounded-lg ${card.bgColor} border border-primary/20`}>
-              <card.icon size={16} className={card.iconColor} />
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] text-secondary/50 font-dubai font-medium">{card.label}</span>
+            <div className={`w-8 h-8 rounded-xl ${card.iconBg} flex items-center justify-center`}>
+              <card.icon size={15} className={card.iconColor} />
             </div>
-            <span className="text-xs text-secondary/60 font-dubai">{card.label}</span>
           </div>
           {isLoading ? (
-            <div className="h-7 bg-primary/10 rounded-lg w-20 animate-pulse" />
+            <div className="h-7 bg-secondary/8 rounded-lg w-20 animate-pulse" />
           ) : (
-            <p className={`text-lg sm:text-xl font-bold font-dubai ${card.valueColor}`}>
+            <p className={`text-lg sm:text-xl font-bold font-dubai ${card.valueColor} tracking-tight`}>
               {card.value}
             </p>
           )}

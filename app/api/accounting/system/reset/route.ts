@@ -12,13 +12,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { requireAccountingAuth, checkAccountingRateLimit, errorResponse } from '@/lib/accounting-auth';
+import { requireAccountingAuth, errorResponse } from '@/lib/accounting-auth';
 import { logAuditEvent } from '@/lib/accounting/audit';
 
 export async function POST(request: NextRequest) {
-  // Rate limit — very strict
-  const rateLimitError = checkAccountingRateLimit(request, { maxRequests: 2 });
-  if (rateLimitError) return rateLimitError;
+  // No rate limit — already protected by auth + GM-only role + explicit confirmation text
 
   // Auth — GM only
   const authResult = await requireAccountingAuth('canManageInvestors');
@@ -53,6 +51,7 @@ export async function POST(request: NextRequest) {
       projectCount,
       currencyCount,
       settingsCount,
+      custodyCount,
     ] = await Promise.all([
       prisma.monthlySnapshot.count(),
       prisma.monthlyInvestorSnapshot.count(),
@@ -65,6 +64,7 @@ export async function POST(request: NextRequest) {
       prisma.project.count(),
       prisma.currencyRate.count(),
       prisma.systemSetting.count(),
+      prisma.custody.count(),
     ]);
 
     // Delete in order (respecting FK constraints)
@@ -75,11 +75,13 @@ export async function POST(request: NextRequest) {
     deleted.monthlySnapshots = (await prisma.monthlySnapshot.deleteMany({})).count;
     deleted.bookings = (await prisma.booking.deleteMany({})).count;
     deleted.expenses = (await prisma.expense.deleteMany({})).count;
+    deleted.custodyRecords = (await prisma.custody.deleteMany({})).count;
     deleted.apartmentInvestors = (await prisma.apartmentInvestor.deleteMany({})).count;
     deleted.apartments = (await prisma.apartment.deleteMany({})).count;
     deleted.projects = (await prisma.project.deleteMany({})).count;
     deleted.currencyRates = (await prisma.currencyRate.deleteMany({})).count;
     deleted.systemSettings = (await prisma.systemSetting.deleteMany({})).count;
+    deleted.invitations = (await prisma.invitation.deleteMany({})).count;
 
     if (!keepUsers) {
       // Delete all accounting-role users except the current user
@@ -112,6 +114,7 @@ export async function POST(request: NextRequest) {
           projects: projectCount,
           currencies: currencyCount,
           settings: settingsCount,
+          custodyRecords: custodyCount,
         },
       },
     });

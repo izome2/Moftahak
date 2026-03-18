@@ -120,15 +120,15 @@ export default function InvestorDetailPage() {
   }, [fetchData, fetchWithdrawals]);
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-5">
       {/* Back button + Page header */}
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.back()}
-          className="w-10 h-10 rounded-xl bg-primary/10 border-2 border-primary/30
-            flex items-center justify-center shrink-0 hover:bg-primary/20 transition-colors"
+          className="w-10 h-10 rounded-xl hover:bg-secondary/5
+            flex items-center justify-center shrink-0 transition-all"
         >
-          <ArrowRight className="w-5 h-5 text-primary" />
+          <ArrowRight className="w-5 h-5 text-secondary/40" />
         </button>
 
         <div className="flex-1">
@@ -145,11 +145,11 @@ export default function InvestorDetailPage() {
         <button
           onClick={() => { fetchData(); fetchWithdrawals(); }}
           disabled={isLoading}
-          className="w-10 h-10 rounded-xl bg-primary/10 border-2 border-primary/30
-            flex items-center justify-center shrink-0 hover:bg-primary/20 transition-colors
+          className="w-10 h-10 rounded-xl hover:bg-secondary/5
+            flex items-center justify-center shrink-0 transition-all
             disabled:opacity-40"
         >
-          <RefreshCw className={`w-5 h-5 text-primary ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-5 h-5 text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
@@ -157,7 +157,7 @@ export default function InvestorDetailPage() {
       {isLoading && (
         <div className="flex items-center justify-center py-20">
           <div className="text-center space-y-3">
-            <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
+            <Loader2 className="w-8 h-8 animate-spin text-secondary/30 mx-auto" />
             <p className="text-sm text-secondary/50 font-dubai">{t.accounting.investorDetail.loadingData}</p>
           </div>
         </div>
@@ -170,7 +170,7 @@ export default function InvestorDetailPage() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="bg-[#c09080]/10 border-2 border-[#c09080]/25 rounded-2xl p-5 text-center"
+            className="bg-red-50/80 border border-red-200/60 rounded-2xl p-5 text-center backdrop-blur-sm"
           >
             <AlertTriangle className="w-8 h-8 text-[#c09080] mx-auto mb-2" />
             <p className="text-sm font-bold text-[#c09080] font-dubai mb-3">{error}</p>
@@ -198,12 +198,12 @@ export default function InvestorDetailPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="bg-white rounded-2xl border-2 border-primary/20 p-5
-              shadow-[0_4px_20px_rgba(237,191,140,0.1)]"
+            className="bg-white rounded-2xl border border-secondary/[0.08] p-5
+              shadow-sm"
           >
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 border-2 border-primary/30
-                flex items-center justify-center text-secondary font-bold text-lg shrink-0"
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-secondary/80
+                flex items-center justify-center text-white font-bold text-lg shrink-0"
               >
                 {data.investor.firstName.charAt(0)}
               </div>
@@ -239,7 +239,7 @@ export default function InvestorDetailPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="bg-white rounded-2xl border-2 border-primary/20 p-10 text-center"
+              className="bg-white rounded-2xl border border-secondary/[0.08] p-10 text-center"
             >
               <Building2 className="w-10 h-10 text-secondary/20 mx-auto mb-3" />
               <p className="text-sm text-secondary/40 font-dubai">{t.accounting.investorDetail.noInvestments}</p>
@@ -247,10 +247,10 @@ export default function InvestorDetailPage() {
           ) : (
             <div className="space-y-4">
               <h3 className="text-base font-bold text-secondary font-dubai flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-primary/10 border-2 border-primary/30
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/80
                   flex items-center justify-center"
                 >
-                  <Building2 className="w-4 h-4 text-primary" />
+                  <Building2 className="w-4 h-4 text-white" />
                 </div>
                 {t.accounting.investorDetail.investments(data.investments.length)}
               </h3>

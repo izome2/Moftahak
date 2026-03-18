@@ -10,8 +10,10 @@ import {
   Loader2,
   BarChart3,
   SlidersHorizontal,
+  XCircle,
+  MessageSquare,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import MonthSelector from '@/components/accounting/apartments/MonthSelector';
 import CustomSelect from '@/components/accounting/shared/CustomSelect';
@@ -307,41 +309,42 @@ export default function ExpensesPage() {
   );
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-primary/10 shadow-md border-2 border-primary/30">
-            <Receipt size={24} className="text-primary" />
+    <div className="p-4 sm:p-6 lg:p-8 space-y-5">
+      {/* Header + Month Selector */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
+            <Receipt size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-secondary font-dubai">{t.accounting.expenses.title}</h1>
-            <p className="text-sm text-secondary/60 font-dubai">{t.accounting.expenses.subtitle}</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">{t.accounting.expenses.title}</h1>
+            <p className="text-xs text-secondary font-dubai mt-0.5 hidden sm:block">{t.accounting.expenses.subtitle}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <MonthSelector month={month} onChange={setMonth} />
+
+        <div className="flex items-center gap-1.5 justify-end">
           <button
             onClick={fetchExpenses}
             disabled={isLoading}
-            className="p-2.5 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors"
-            title=""
-            aria-label={t.accounting.common.refresh}
+            className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
+            title={t.accounting.common.refresh}
           >
-            <RefreshCw size={18} className={`text-secondary ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => setShowCharts(prev => !prev)}
-            className={`p-2.5 rounded-xl transition-colors ${showCharts ? 'bg-secondary text-white' : 'bg-primary/10 text-secondary hover:bg-primary/20'}`}
+            className={`p-2 rounded-xl transition-all ${showCharts ? 'bg-secondary/8 text-secondary' : 'hover:bg-secondary/5 text-secondary/40'}`}
             title=""
             aria-label={showCharts ? t.accounting.common.hideCharts : t.accounting.common.showCharts}
           >
-            <BarChart3 size={18} />
+            <BarChart3 size={16} />
           </button>
           {canAdd && (
             <button
               onClick={() => { setEditExpense(null); setShowForm(true); }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-secondary text-white rounded-xl font-dubai text-sm font-bold hover:bg-secondary/90 transition-colors shadow-sm"
+              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl font-dubai text-sm font-bold hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300"
             >
               <Plus size={16} />
               {t.accounting.expenses.addExpense}
@@ -350,51 +353,15 @@ export default function ExpensesPage() {
         </div>
       </div>
 
-      {/* Month Selector */}
-      <MonthSelector month={month} onChange={setMonth} />
-
       {/* Filters */}
-      <div className="space-y-3">
-        {/* Search + filter toggle */}
+      <div className="space-y-2.5">
         <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary/30" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t.accounting.expenses.searchPlaceholder}
-              className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-secondary/30"
-            />
-          </div>
-          <button
-            onClick={() => setShowFilters(prev => !prev)}
-            className={`sm:hidden relative p-2.5 rounded-xl transition-colors ${
-              showFilters || activeFilterCount > 0 ? 'bg-secondary text-white' : 'bg-primary/10 text-secondary hover:bg-primary/20'
-            }`}
-            aria-label={showFilters ? t.accounting.common.hideFilters : t.accounting.common.showFilters}
-          >
-            <SlidersHorizontal size={18} />
-            {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-secondary text-[10px] font-bold rounded-full flex items-center justify-center">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
-        </div>
-
-        {/* Dropdown filters - always visible on sm+, collapsible on mobile */}
-        <AnimatePresence>
-          {(showFilters || typeof window !== 'undefined') && (
-            <motion.div
-              initial={false}
-              className={`flex-col sm:flex sm:flex-row items-stretch sm:items-center gap-3 ${showFilters ? 'flex' : 'hidden sm:flex'}`}
-            >
+          <div className={`flex-col sm:flex sm:flex-row items-stretch sm:items-center gap-2.5 flex-1 ${showFilters ? 'flex' : 'hidden sm:flex'}`}>
               <CustomSelect
                 value={selectedApartment}
                 onChange={setSelectedApartment}
                 variant="filter"
-                icon={<Filter size={14} className="text-secondary/30" />}
+                icon={<Filter size={13} className="text-secondary/25" />}
                 options={[
                   { value: '', label: t.accounting.expenses.allApartments },
                   ...apartments.map(apt => ({
@@ -428,9 +395,44 @@ export default function ExpensesPage() {
                   ]}
                 />
               )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+          </div>
+          <button
+            onClick={() => setShowFilters(prev => !prev)}
+            className={`sm:hidden relative p-2.5 rounded-xl transition-all ${
+              showFilters || activeFilterCount > 0 ? 'bg-secondary text-white shadow-md' : 'border-2 border-primary/20 bg-white text-secondary hover:border-primary/40'
+            }`}
+            aria-label={showFilters ? t.accounting.common.hideFilters : t.accounting.common.showFilters}
+          >
+            <SlidersHorizontal size={18} />
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 bg-primary text-secondary text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+          <div className="relative flex-1 min-w-[200px] hidden sm:block">
+            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t.accounting.expenses.searchPlaceholder}
+              className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary/40 transition-colors placeholder:text-secondary/40"
+            />
+          </div>
+        </div>
+
+        {/* Mobile search - only visible on mobile */}
+        <div className="sm:hidden relative">
+          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t.accounting.expenses.searchPlaceholder}
+            className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary/40 transition-colors placeholder:text-secondary/40"
+          />
+        </div>
       </div>
 
       {/* Error */}
@@ -438,12 +440,12 @@ export default function ExpensesPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-red-50 border-2 border-red-200 rounded-xl p-4 text-center"
+          className="bg-red-50/80 border border-red-200/60 rounded-xl p-4 text-center backdrop-blur-sm"
         >
           <p className="text-red-600 font-dubai text-sm">{error}</p>
           <button
             onClick={fetchExpenses}
-            className="mt-2 text-sm text-red-500 underline font-dubai"
+            className="mt-2 text-xs text-red-500 hover:text-red-700 font-dubai font-bold transition-colors"
           >
             {t.accounting.common.retry}
           </button>
@@ -522,39 +524,58 @@ export default function ExpensesPage() {
       {/* Rejection Reason Dialog */}
       {rejectTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => !isApproving && (setRejectTarget(null), setRejectionReason(''))} />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => !isApproving && (setRejectTarget(null), setRejectionReason(''))} />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="relative w-full max-w-md bg-gradient-to-tl from-[#ece1cf] to-white rounded-2xl border-2 border-[#e0cdb8] shadow-2xl p-6 space-y-4"
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+            className="relative w-full max-w-md bg-white rounded-2xl border border-secondary/[0.08] shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] overflow-hidden"
           >
-            <h3 className="text-lg font-bold text-secondary font-dubai">{t.accounting.expenses.rejectionReasonTitle}</h3>
-            <p className="text-sm text-secondary/60 font-dubai">{rejectTarget.description}</p>
-            <textarea
-              value={rejectionReason}
-              onChange={(e) => setRejectionReason(e.target.value)}
-              placeholder={t.accounting.expenses.rejectionReasonPlaceholder}
-              className="w-full p-3 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary transition-colors resize-none h-24"
-              dir="rtl"
-            />
-            {rejectionReason.trim() === '' && (
-              <p className="text-xs text-rose-500 font-dubai">{t.accounting.expenses.rejectionReasonRequired}</p>
-            )}
-            <div className="flex items-center gap-3 justify-end">
-              <button
-                onClick={() => { setRejectTarget(null); setRejectionReason(''); }}
-                disabled={isApproving}
-                className="px-4 py-2 rounded-xl bg-primary/10 text-secondary font-dubai text-sm font-bold hover:bg-primary/20 transition-colors"
-              >
-                {t.accounting.common.cancel}
-              </button>
-              <button
-                onClick={handleReject}
-                disabled={isApproving || !rejectionReason.trim()}
-                className="px-4 py-2 rounded-xl bg-rose-50 text-rose-700 border-2 border-rose-200 font-dubai text-sm font-bold hover:bg-rose-100 transition-colors disabled:opacity-50"
-              >
-                {isApproving ? <Loader2 size={16} className="animate-spin mx-auto" /> : t.accounting.expenses.reject}
-              </button>
+            <div className="flex items-center gap-2.5 px-5 py-4 border-b border-secondary/[0.06]">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-rose-500/80 flex items-center justify-center">
+                <XCircle size={15} className="text-white" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.expenses.rejectionReasonTitle}</h3>
+                <p className="text-[11px] text-secondary/40 font-dubai">{rejectTarget.description}</p>
+              </div>
+            </div>
+            <div className="p-5 space-y-5">
+              <div>
+                <label className="flex items-center gap-1.5 mb-2">
+                  <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
+                    <MessageSquare size={11} className="text-secondary/50" />
+                  </span>
+                  <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.expenses.rejectionReasonTitle}</span>
+                  <span className="text-red-400 text-xs">*</span>
+                </label>
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder={t.accounting.expenses.rejectionReasonPlaceholder}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25 resize-none h-24"
+                  dir="rtl"
+                />
+              </div>
+              {rejectionReason.trim() === '' && (
+                <p className="text-sm text-red-500 font-dubai bg-red-50/80 p-2.5 rounded-xl border border-red-100">{t.accounting.expenses.rejectionReasonRequired}</p>
+              )}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => { setRejectTarget(null); setRejectionReason(''); }}
+                  disabled={isApproving}
+                  className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                >
+                  {t.accounting.common.cancel}
+                </button>
+                <button
+                  onClick={handleReject}
+                  disabled={isApproving || !rejectionReason.trim()}
+                  className="flex-1 py-2.5 rounded-xl bg-red-600 text-white font-dubai text-sm font-bold hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/15 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isApproving ? <Loader2 size={16} className="animate-spin" /> : t.accounting.expenses.reject}
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>

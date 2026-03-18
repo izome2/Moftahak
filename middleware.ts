@@ -34,6 +34,9 @@ const accountingPageAccess: Record<string, AccountingRole[]> = {
   '/accounting/my-investments': ['INVESTOR'],
   '/accounting/reports':       ['GENERAL_MANAGER'],
   '/accounting/settings':      ['GENERAL_MANAGER'],
+  '/accounting/audit':         ['GENERAL_MANAGER'],
+  '/accounting/backup':        ['GENERAL_MANAGER'],
+  '/accounting/month-lock':    ['GENERAL_MANAGER'],
 };
 
 function canAccessAccountingPath(role: string | undefined, pathname: string): boolean {
@@ -66,11 +69,6 @@ export async function middleware(request: NextRequest) {
     secureCookie: process.env.NODE_ENV === 'production',
   });
   
-  // Log للتشخيص في بيئة الإنتاج
-  console.log('Middleware - Path:', pathname);
-  console.log('Middleware - Token exists:', !!token);
-  console.log('Middleware - Token role:', token?.role);
-  
   // التحقق من المسارات المحمية
   const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path));
   const isAdminPath = adminOnlyPaths.some(path => pathname.startsWith(path));
@@ -79,14 +77,12 @@ export async function middleware(request: NextRequest) {
   
   // إذا كان المسار محمي ولا يوجد مستخدم مسجل
   if ((isProtectedPath || isAccountingApi) && !token) {
-    console.log('Middleware - Redirecting: No token for protected path');
     const url = new URL('/', request.url);
     return NextResponse.redirect(url);
   }
   
   // إذا كان المسار خاص بالأدمن والمستخدم ليس أدمن
   if (isAdminPath && token?.role !== 'ADMIN') {
-    console.log('Middleware - Redirecting: Not admin, role is:', token?.role);
     const url = new URL('/', request.url);
     return NextResponse.redirect(url);
   }
@@ -100,14 +96,12 @@ export async function middleware(request: NextRequest) {
     
     // يجب أن يكون لديه دور حسابات
     if (!role || !ACCOUNTING_ROLES.includes(role as AccountingRole)) {
-      console.log('Middleware - Redirecting: Not an accounting role, role is:', rawRole);
       const url = new URL('/', request.url);
       return NextResponse.redirect(url);
     }
     
     // التحقق من صلاحية الوصول للمسار المحدد
     if (!canAccessAccountingPath(role, pathname)) {
-      console.log('Middleware - Redirecting: No access to accounting path:', pathname);
       const url = new URL('/accounting', request.url);
       return NextResponse.redirect(url);
     }

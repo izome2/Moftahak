@@ -32,7 +32,7 @@ export function Skeleton({ className, style }: SkeletonProps) {
 /** بطاقة إحصائية skeleton */
 export function SkeletonStatsCard() {
   return (
-    <div className="bg-white border-2 border-primary/10 rounded-2xl p-5 space-y-3">
+    <div className="bg-white border border-secondary/[0.08] rounded-2xl p-5 space-y-3">
       <div className="flex items-center justify-between">
         <Skeleton className="w-10 h-10 rounded-xl" />
         <Skeleton className="w-16 h-4" />
@@ -59,7 +59,7 @@ export function SkeletonTableRow({ cols = 5 }: { cols?: number }) {
 /** جدول كامل skeleton */
 export function SkeletonTable({ rows = 5, cols = 5 }: { rows?: number; cols?: number }) {
   return (
-    <div className="bg-white border-2 border-primary/10 rounded-2xl overflow-hidden">
+    <div className="bg-white border border-secondary/[0.08] rounded-2xl overflow-hidden">
       {/* Header */}
       <div className="flex gap-6 px-4 py-3 bg-secondary/5 border-b border-primary/10">
         {Array.from({ length: cols }).map((_, i) => (
@@ -81,7 +81,7 @@ export function SkeletonTable({ rows = 5, cols = 5 }: { rows?: number; cols?: nu
 /** بطاقة محتوى skeleton */
 export function SkeletonCard() {
   return (
-    <div className="bg-white border-2 border-primary/10 rounded-2xl p-5 space-y-4">
+    <div className="bg-white border border-secondary/[0.08] rounded-2xl p-5 space-y-4">
       <div className="flex items-center gap-3">
         <Skeleton className="w-10 h-10 rounded-full" />
         <div className="space-y-2 flex-1">
@@ -98,7 +98,7 @@ export function SkeletonCard() {
 /** رسم بياني skeleton */
 export function SkeletonChart({ height = 'h-64' }: { height?: string }) {
   return (
-    <div className={cn('bg-white border-2 border-primary/10 rounded-2xl p-5 space-y-4', height)}>
+    <div className={cn('bg-white border border-secondary/[0.08] rounded-2xl p-5 space-y-4', height)}>
       <div className="flex items-center justify-between">
         <Skeleton className="w-28 h-5" />
         <Skeleton className="w-20 h-4" />

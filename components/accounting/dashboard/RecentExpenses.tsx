@@ -53,12 +53,14 @@ const RecentExpenses: React.FC<RecentExpensesProps> = ({ expenses, isLoading }) 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
-      className="bg-white border-2 border-primary/20 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)] overflow-hidden"
+      className="bg-white border border-secondary/[0.08] rounded-2xl shadow-sm overflow-hidden"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-5 border-b border-primary/10">
+      <div className="flex items-center justify-between p-5 border-b border-secondary/[0.06]">
         <div className="flex items-center gap-2">
-          <Receipt size={20} className="text-primary" />
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
+            <Receipt size={18} className="text-white" />
+          </div>
           <h3 className="text-lg font-bold text-secondary font-dubai">{t.accounting.dashboard.recentExpenses}</h3>
         </div>
       </div>
@@ -83,7 +85,7 @@ const RecentExpenses: React.FC<RecentExpensesProps> = ({ expenses, isLoading }) 
               return (
                 <div
                   key={expense.id}
-                  className="flex items-center gap-3 p-3 bg-primary/5 rounded-xl hover:bg-primary/8 transition-colors"
+                  className="flex items-center gap-3 p-3 bg-secondary/[0.03] rounded-xl hover:bg-secondary/[0.05] transition-colors"
                 >
                   {/* Info */}
                   <div className="flex-1 min-w-0">

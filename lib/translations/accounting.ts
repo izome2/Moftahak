@@ -424,6 +424,10 @@ const accountingTranslations = {
         notesPlaceholder: 'ملاحظات إضافية...',
         saveEdit: 'حفظ التعديلات',
         saveBooking: 'حفظ الحجز',
+        next: 'التالي',
+        back: 'رجوع',
+        stepBookingInfo: 'معلومات الحجز',
+        stepDetails: 'التفاصيل والمالية',
 
         // Validation
         apartmentRequired: 'يجب اختيار الشقة',
@@ -508,6 +512,10 @@ const accountingTranslations = {
         notesPlaceholder: 'ملاحظات إضافية...',
         saveEdit: 'حفظ التعديلات',
         saveExpense: 'حفظ المصروف',
+        stepExpenseInfo: 'معلومات المصروف',
+        stepAmountDate: 'المبلغ والتاريخ',
+        next: 'التالي',
+        back: 'رجوع',
 
         // Validation
         apartmentRequired: 'يجب اختيار الشقة',
@@ -535,12 +543,12 @@ const accountingTranslations = {
 
         // New custody form
         newCustodyTitle: 'عهدة جديدة',
-        opsManager: 'مدير التشغيل *',
+        opsManager: 'مدير التشغيل',
         noManagers: 'لا يوجد مديرين حتى الآن',
-        apartmentLabel: 'الشقة *',
+        apartmentLabel: 'الشقة',
         noApartments: 'لا يوجد شقق حتى الآن',
-        amountLabel: (currency: string) => `المبلغ (${currency}) *`,
-        monthLabel: 'الشهر *',
+        amountLabel: (currency: string) => `المبلغ (${currency})`,
+        monthLabel: 'الشهر',
         notesLabel: 'ملاحظات',
         createCustody: 'إنشاء العهدة',
       },
@@ -995,7 +1003,7 @@ const accountingTranslations = {
         // Projects Manager
         projects: {
           title: 'المشاريع',
-          projectName: 'اسم المشروع *',
+          projectName: 'اسم المشروع',
           description: 'الوصف',
           noProjects: 'لا توجد مشاريع',
           apartmentUnit: 'شقة',
@@ -1016,8 +1024,8 @@ const accountingTranslations = {
           enable: 'تفعيل',
           editApartment: 'تعديل الشقة',
           newApartment: 'شقة جديدة',
-          apartmentNameRequired: 'اسم الشقة *',
-          projectRequired: 'المشروع *',
+          apartmentNameRequired: 'اسم الشقة',
+          projectRequired: 'المشروع',
           selectProject: 'اختر المشروع',
           noProjects: 'لا يوجد مشاريع حتى الآن',
           floorNumber: 'الطابق',
@@ -1078,7 +1086,7 @@ const accountingTranslations = {
           activeStatus: 'نشطة',
           day: 'يوم',
           hour: 'ساعة',
-          selectRole: 'اختر الدور *',
+          selectRole: 'اختر الدور',
           validityNote: 'صلاحية الدعوة ٣ أيام فقط',
           singleUseNote: 'الدعوة لاستخدام واحد فقط',
           expiresAfterRegister: 'تنتهي فوراً بعد التسجيل',
@@ -1166,6 +1174,7 @@ const accountingTranslations = {
           users: 'المستخدمين',
           auditLog: 'سجل المراجعة',
           snapshots: 'اللقطات',
+          custodyRecords: 'سجلات العهدة',
         },
 
         // Table headers
@@ -1197,6 +1206,10 @@ const accountingTranslations = {
           action: 'الإجراء',
           entity: 'الكيان',
           notes: 'ملاحظات',
+          month: 'الشهر',
+          settled: 'مقفلة',
+          spent: 'المصروف',
+          remaining: 'المتبقي',
         },
       },
       // ============================================
@@ -1587,6 +1600,10 @@ const accountingTranslations = {
         notesPlaceholder: 'Additional notes...',
         saveEdit: 'Save Changes',
         saveBooking: 'Save Booking',
+        next: 'Next',
+        back: 'Back',
+        stepBookingInfo: 'Booking Info',
+        stepDetails: 'Details & Financials',
 
         apartmentRequired: 'Apartment is required',
         clientNameRequired: 'Client name is required',
@@ -1660,6 +1677,10 @@ const accountingTranslations = {
         notesPlaceholder: 'Additional notes...',
         saveEdit: 'Save Changes',
         saveExpense: 'Save Expense',
+        stepExpenseInfo: 'Expense Info',
+        stepAmountDate: 'Amount & Date',
+        next: 'Next',
+        back: 'Back',
 
         apartmentRequired: 'Apartment is required',
         descriptionRequired: 'Description is required',
@@ -1682,12 +1703,12 @@ const accountingTranslations = {
         custodyLabel: 'Custody',
 
         newCustodyTitle: 'New Custody',
-        opsManager: 'Operations Manager *',
+        opsManager: 'Operations Manager',
         noManagers: 'No managers yet',
-        apartmentLabel: 'Apartment *',
+        apartmentLabel: 'Apartment',
         noApartments: 'No apartments yet',
-        amountLabel: (currency: string) => `Amount (${currency}) *`,
-        monthLabel: 'Month *',
+        amountLabel: (currency: string) => `Amount (${currency})`,
+        monthLabel: 'Month',
         notesLabel: 'Notes',
         createCustody: 'Create Custody',
       },
@@ -2081,7 +2102,7 @@ const accountingTranslations = {
 
         projects: {
           title: 'Projects',
-          projectName: 'Project Name *',
+          projectName: 'Project Name',
           description: 'Description',
           noProjects: 'No projects',
           apartmentUnit: 'apartment',
@@ -2101,8 +2122,8 @@ const accountingTranslations = {
           enable: 'Enable',
           editApartment: 'Edit Apartment',
           newApartment: 'New Apartment',
-          apartmentNameRequired: 'Apartment Name *',
-          projectRequired: 'Project *',
+          apartmentNameRequired: 'Apartment Name',
+          projectRequired: 'Project',
           selectProject: 'Select Project',
           noProjects: 'No projects yet',
           floorNumber: 'Floor',
@@ -2158,7 +2179,7 @@ const accountingTranslations = {
           activeStatus: 'Active',
           day: 'day',
           hour: 'hour',
-          selectRole: 'Select Role *',
+          selectRole: 'Select Role',
           validityNote: 'Invitation valid for 3 days only',
           singleUseNote: 'Single use invitation only',
           expiresAfterRegister: 'Expires immediately after registration',
@@ -2238,6 +2259,7 @@ const accountingTranslations = {
           users: 'Users',
           auditLog: 'Audit Log',
           snapshots: 'Snapshots',
+          custodyRecords: 'Custody Records',
         },
 
         headers: {
@@ -2268,6 +2290,10 @@ const accountingTranslations = {
           action: 'Action',
           entity: 'Entity',
           notes: 'Notes',
+          month: 'Month',
+          settled: 'Settled',
+          spent: 'Spent',
+          remaining: 'Remaining',
         },
       },
       // ============================================

@@ -111,8 +111,8 @@ const SupervisorsManager: React.FC = () => {
               onChange={e => setNewName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addSupervisor())}
               placeholder={t.accounting.settings.supervisors.newSupervisorPlaceholder}
-              className="flex-1 px-3 py-2 text-sm border-2 border-primary/20 rounded-xl
-                focus:outline-none focus:border-primary font-dubai placeholder:text-secondary/30"
+              className="flex-1 px-3 py-2 text-sm border border-secondary/[0.08] rounded-xl
+                focus:outline-none focus:border-secondary/20 font-dubai placeholder:text-secondary/30"
             />
             <button
               onClick={addSupervisor}
@@ -135,7 +135,7 @@ const SupervisorsManager: React.FC = () => {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  className="flex items-center gap-1.5 bg-primary/5 rounded-lg px-3 py-1.5
+                  className="flex items-center gap-1.5 bg-secondary/[0.04] rounded-lg px-3 py-1.5
                     text-sm text-secondary font-dubai group"
                 >
                   {name}
