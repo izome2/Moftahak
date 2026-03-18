@@ -13,6 +13,7 @@ import Button from './ui/Button';
 import { fadeInUp, staggerContainer } from '@/lib/animations/variants';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const CTASection: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -20,6 +21,8 @@ const CTASection: React.FC = () => {
   const isInView = useScrollAnimation(ref as React.RefObject<Element>, { threshold: 0.1, rootMargin: '0px 0px 200px 0px', once: true });
   const { data: session } = useSession();
   const t = useTranslation();
+  const { language } = useLanguage();
+  const isRTL = language === 'ar';
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -166,13 +169,13 @@ const CTASection: React.FC = () => {
             variants={fadeInUp}
             className="relative"
           >
-          {}
-          <div className="absolute top-0 right-0 w-67 h-33 z-20" style={{ transform: 'translateY(-70%)' }}>
+          {/* Contact SVG background */}
+          <div className={`absolute top-0 ${isRTL ? 'right-0' : 'left-0'} w-67 h-33 z-20`} style={{ transform: `translateY(-70%)${!isRTL ? ' scaleX(-1)' : ''}` }}>
             <img src="/images/contact.svg" alt="" className="w-full h-full" />
           </div>
           
-          {}
-          <div className="absolute top-0 right-6 md:right-8 z-30 flex items-center gap-2" style={{ transform: 'translateY(-80%)' }}>
+          {/* Contact icon + title */}
+          <div className={`absolute top-0 ${isRTL ? 'right-6 md:right-8' : 'left-6 md:left-8'} z-30 flex items-center gap-2`} style={{ transform: 'translateY(-80%)' }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-secondary">
               <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"></path>
             </svg>
@@ -181,7 +184,7 @@ const CTASection: React.FC = () => {
             </h3>
           </div>
           
-          <div className="lg:overflow-hidden lg:border-2 lg:border-[#e8cebc] lg:rounded-[1.5rem_0_1.5rem_1.5rem] lg:shadow-[0_0_40px_rgba(212,165,116,0.5)]">
+          <div className={`lg:overflow-hidden lg:border-2 lg:border-[#e8cebc] ${isRTL ? 'lg:rounded-[1.5rem_0_1.5rem_1.5rem]' : 'lg:rounded-[0_1.5rem_1.5rem_1.5rem]'} lg:shadow-[0_0_40px_rgba(212,165,116,0.5)]`}>
             <style jsx>{`
               @media (min-width: 1024px) {
                 .contact-card-wrapper {

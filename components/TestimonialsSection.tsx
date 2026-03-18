@@ -4,6 +4,7 @@ import React, { useRef, useMemo } from 'react';
 import { Quote, User } from 'lucide-react';
 import AnimatedStroke from './ui/AnimatedStroke';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Testimonial {
   id: number;
@@ -16,6 +17,8 @@ const TestimonialsSection: React.FC = () => {
   const scrollRef1 = useRef<HTMLDivElement>(null);
   const scrollRef2 = useRef<HTMLDivElement>(null);
   const t = useTranslation();
+  const { language } = useLanguage();
+  const isRTL = language === 'ar';
 
   const testimonials: Testimonial[] = useMemo(() => 
     t.testimonials.items.map((item, index) => ({
@@ -58,7 +61,7 @@ const TestimonialsSection: React.FC = () => {
           <div className="overflow-hidden mb-6">
             <div 
               ref={scrollRef1}
-              className="flex gap-6 animate-scroll-ltr"
+              className={`flex gap-6 ${isRTL ? 'animate-scroll-rtl' : 'animate-scroll-ltr'}`}
             >
               {duplicatedRow1.map((testimonial, index) => (
                 <div
@@ -108,7 +111,7 @@ const TestimonialsSection: React.FC = () => {
           <div className="overflow-hidden">
             <div 
               ref={scrollRef2}
-              className="flex gap-6 animate-scroll-ltr-delayed"
+              className={`flex gap-6 ${isRTL ? 'animate-scroll-rtl-delayed' : 'animate-scroll-ltr-delayed'}`}
             >
               {duplicatedRow2.map((testimonial, index) => (
                 <div
@@ -157,13 +160,33 @@ const TestimonialsSection: React.FC = () => {
       </div>
 
       <style jsx>{`
+        @keyframes scroll-rtl {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(50%);
+          }
+        }
+
         @keyframes scroll-ltr {
           from {
             transform: translateX(0);
           }
           to {
-            transform: translateX(calc(50%));
+            transform: translateX(-50%);
           }
+        }
+
+        .animate-scroll-rtl {
+          animation: scroll-rtl 10s linear infinite;
+          will-change: transform;
+        }
+
+        .animate-scroll-rtl-delayed {
+          animation: scroll-rtl 10s linear infinite;
+          animation-delay: -5s;
+          will-change: transform;
         }
 
         .animate-scroll-ltr {
