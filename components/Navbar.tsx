@@ -30,6 +30,13 @@ const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
+  // Listen for custom event to open auth modal from other components
+  useEffect(() => {
+    const handleOpenAuth = () => setIsAuthModalOpen(true);
+    window.addEventListener('open-auth-modal', handleOpenAuth);
+    return () => window.removeEventListener('open-auth-modal', handleOpenAuth);
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -58,6 +65,7 @@ const Navbar: React.FC = () => {
     { label: t.nav.home, href: '#home' },
     { label: t.nav.about, href: '#about' },
     { label: t.nav.services, href: '#services' },
+    { label: t.nav.courses, href: '#courses' },
     { label: t.nav.feasibility, href: '/feasibility-request', isPage: true },
     { label: t.nav.content, href: '#content' },
     { label: t.nav.contact, href: '#contact' },

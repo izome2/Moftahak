@@ -1,7 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { put, del } from '@vercel/blob';
+import { mkdir, writeFile, unlink } from 'fs/promises';
+import { join, dirname } from 'path';
+
+const useBlob = !!process.env.BLOB_READ_WRITE_TOKEN;
+
+async function uploadToBlob(filename: string, file: File) {
+  const { put } = await import('@vercel/blob');
+  const blob = await put(filename, file, {
+    access: 'public',
+    addRandomSuffix: false,
+  });
+  return blob.url;
+}
+
+async function uploadToLocal(filename: string, file: File) {
+  const uploadsDir = join(process.cwd(), 'public', 'uploads');
+  const fullPath = join(uploadsDir, filename);
+  await mkdir(dirname(fullPath), { recursive: true });
+  const buffer = Buffer.from(await file.arrayBuffer());
+  await writeFile(fullPath, buffer);
+  return `/uploads/${filename}`;
+}
+
+async function deleteOldAvatar(imageUrl: string) {
+  if (!imageUrl || imageUrl.startsWith('/images/default-avatar')) return;
+
+  if (imageUrl.startsWith('https://') && useBlob) {
+    try {
+      const { del } = await import('@vercel/blob');
+      await del(imageUrl);
+    } catch (error) {
+      console.error('Error deleting old avatar from blob:', error);
+    }
+  } else if (imageUrl.startsWith('/uploads/')) {
+    try {
+      const fullPath = join(process.cwd(), 'public', imageUrl);
+      await unlink(fullPath);
+    } catch (error) {
+      console.error('Error deleting old avatar from local:', error);
+    }
+  }
+}
 
 // POST - Upload user avatar
 export async function POST(request: NextRequest) {
@@ -49,16 +90,9 @@ export async function POST(request: NextRequest) {
       select: { image: true },
     });
 
-    // Delete old avatar from Vercel Blob if exists and not default
-    if (currentUser?.image && 
-        !currentUser.image.startsWith('/images/default-avatar') &&
-        currentUser.image.startsWith('https://')) {
-      try {
-        await del(currentUser.image);
-      } catch (error) {
-        console.error('Error deleting old avatar:', error);
-        // Continue anyway, don't block upload
-      }
+    // Delete old avatar if exists
+    if (currentUser?.image) {
+      await deleteOldAvatar(currentUser.image);
     }
 
     // Generate unique filename with path
@@ -66,22 +100,21 @@ export async function POST(request: NextRequest) {
     const extension = file.type.split('/')[1];
     const filename = `avatars/${session.user.id}-${timestamp}.${extension}`;
 
-    // Upload to Vercel Blob
-    const blob = await put(filename, file, {
-      access: 'public',
-      addRandomSuffix: false,
-    });
+    // Upload to Vercel Blob or local storage
+    const imageUrl = useBlob
+      ? await uploadToBlob(filename, file)
+      : await uploadToLocal(filename, file);
 
     // Update user profile with new image URL
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { image: blob.url },
+      data: { image: imageUrl },
     });
 
     return NextResponse.json({
       success: true,
       message: 'تم رفع الصورة بنجاح',
-      imageUrl: blob.url,
+      imageUrl,
     });
   } catch (error) {
     console.error('Upload error:', error);
@@ -110,16 +143,9 @@ export async function DELETE(request: NextRequest) {
       select: { image: true },
     });
 
-    // Delete from Vercel Blob if exists and not default
-    if (currentUser?.image && 
-        !currentUser.image.startsWith('/images/default-avatar') &&
-        currentUser.image.startsWith('https://')) {
-      try {
-        await del(currentUser.image);
-      } catch (error) {
-        console.error('Error deleting avatar from blob:', error);
-        // Continue anyway
-      }
+    // Delete old avatar if exists
+    if (currentUser?.image) {
+      await deleteOldAvatar(currentUser.image);
     }
 
     // Reset to default avatar

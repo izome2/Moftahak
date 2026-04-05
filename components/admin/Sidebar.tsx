@@ -14,7 +14,9 @@ import {
   ChevronLeft,
   Menu,
   X,
-  Home
+  Home,
+  PlayCircle,
+  ClipboardList
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
@@ -66,6 +68,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onClose, onOpen }) => {
   const menuItems = [
     { icon: LayoutDashboard, label: t.admin.sidebar.dashboard, href: '/admin' },
     { icon: FileText, label: t.admin.sidebar.feasibilityStudies, href: '/admin/feasibility' },
+    { icon: PlayCircle, label: t.admin.sidebar.courses, href: '/admin/courses' },
+    { icon: ClipboardList, label: t.admin.sidebar.enrollments, href: '/admin/courses/enrollments' },
     { icon: MessageSquare, label: t.admin.sidebar.consultationRequests, href: '/admin/consultations' },
     { icon: Users, label: t.admin.sidebar.users, href: '/admin/users' },
     { icon: Settings, label: t.admin.sidebar.settings, href: '/admin/settings' },

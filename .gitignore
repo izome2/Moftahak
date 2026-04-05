@@ -44,3 +44,6 @@ next-env.d.ts
 
 # Generated Prisma client
 /generated/
+
+# Local uploads (dev only)
+/public/uploads/

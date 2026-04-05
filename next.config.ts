@@ -59,6 +59,11 @@ const nextConfig: NextConfig = {
     optimizeCss: true,
     // Enable partial prerendering for better performance
     ppr: false,
+    // السماح برفع ملفات كبيرة (500MB للفيديو)
+    serverActions: {
+      bodySizeLimit: '512mb',
+    },
+    proxyClientMaxBodySize: '512mb',
   },
   
   // Turbopack configuration (empty to silence warnings)

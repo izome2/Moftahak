@@ -21,7 +21,7 @@ export default function AdminLayout({
   const t = useTranslation();
   const { isRTL } = useLanguage();
   
-  // كشف صفحة المحرر لتوسيع مساحة العمل
+  // كشف صفحة المحرر لتوسيع مساحة العمل (فقط محرر دراسات الجدوى)
   const isEditorPage = pathname === '/admin/feasibility/new' || 
     (pathname?.startsWith('/admin/feasibility/') && pathname !== '/admin/feasibility');
 

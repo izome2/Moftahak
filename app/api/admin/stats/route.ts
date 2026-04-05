@@ -23,6 +23,10 @@ export async function GET() {
       totalFeasibilityStudies,
       recentUsers,
       recentConsultations,
+      totalCourses,
+      pendingEnrollments,
+      courseRevenue,
+      recentEnrollments,
     ] = await Promise.all([
       // إجمالي المستخدمين
       prisma.user.count(),
@@ -62,6 +66,29 @@ export async function GET() {
           createdAt: true,
         },
       }),
+
+      // إحصائيات الدورات
+      prisma.course.count(),
+      prisma.courseEnrollment.count({ where: { status: 'PENDING' } }),
+      prisma.courseEnrollment.aggregate({
+        where: { status: 'CONFIRMED' },
+        _sum: { amount: true },
+      }),
+      
+      // آخر 5 طلبات اشتراك
+      prisma.courseEnrollment.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          paymentCode: true,
+          status: true,
+          amount: true,
+          createdAt: true,
+          user: { select: { firstName: true, lastName: true } },
+          course: { select: { title: true } },
+        },
+      }),
     ]);
 
     const response = NextResponse.json({
@@ -69,11 +96,14 @@ export async function GET() {
         totalUsers,
         pendingConsultations,
         totalFeasibilityStudies,
-        // حالياً لا يوجد جدول للمراجعات، سنضع 0
         totalReviews: 0,
+        totalCourses,
+        pendingEnrollments,
+        totalCourseRevenue: courseRevenue._sum.amount || 0,
       },
       recentUsers,
       recentConsultations,
+      recentEnrollments,
     });
 
     return addSecurityHeaders(response);

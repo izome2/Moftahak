@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Users, FileText, MessageSquare, Star, Menu, Loader2, Clock, CheckCircle2, Eye, Calculator } from 'lucide-react';
+import { Users, FileText, MessageSquare, Star, Menu, Loader2, Clock, CheckCircle2, Eye, Calculator, PlayCircle, ClipboardList, DollarSign } from 'lucide-react';
 import StatsCard from '@/components/admin/StatsCard';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -35,6 +35,19 @@ interface DashboardStats {
   pendingConsultations: number;
   totalFeasibilityStudies: number;
   totalReviews: number;
+  totalCourses: number;
+  pendingEnrollments: number;
+  totalCourseRevenue: number;
+}
+
+interface RecentEnrollment {
+  id: string;
+  paymentCode: string;
+  status: string;
+  amount: number;
+  createdAt: string;
+  user: { firstName: string; lastName: string };
+  course: { title: string };
 }
 
 const statusIcons: Record<string, { icon: React.ElementType; color: string }> = {
@@ -54,9 +67,13 @@ export default function AdminDashboard() {
     pendingConsultations: 0,
     totalFeasibilityStudies: 0,
     totalReviews: 0,
+    totalCourses: 0,
+    pendingEnrollments: 0,
+    totalCourseRevenue: 0,
   });
   const [recentUsers, setRecentUsers] = useState<RecentUser[]>([]);
   const [recentConsultations, setRecentConsultations] = useState<RecentConsultation[]>([]);
+  const [recentEnrollments, setRecentEnrollments] = useState<RecentEnrollment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,6 +105,7 @@ export default function AdminDashboard() {
         setStats(data.stats);
         setRecentUsers(data.recentUsers);
         setRecentConsultations(data.recentConsultations);
+        setRecentEnrollments(data.recentEnrollments || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
       } finally {
@@ -194,6 +212,34 @@ export default function AdminDashboard() {
           iconBgColor="bg-primary/20"
           iconColor="text-primary"
           index={3}
+        />
+      </div>
+
+      {/* بطاقات إحصائيات الدورات */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+        <StatsCard
+          icon={PlayCircle}
+          label={t.admin.dashboard.totalCourses}
+          value={isLoading ? '...' : stats.totalCourses}
+          iconBgColor="bg-primary/20"
+          iconColor="text-primary"
+          index={4}
+        />
+        <StatsCard
+          icon={ClipboardList}
+          label={t.admin.dashboard.pendingEnrollments}
+          value={isLoading ? '...' : stats.pendingEnrollments}
+          iconBgColor="bg-amber-100"
+          iconColor="text-amber-600"
+          index={5}
+        />
+        <StatsCard
+          icon={DollarSign}
+          label={t.admin.dashboard.courseRevenue}
+          value={isLoading ? '...' : `${new Intl.NumberFormat(language === 'ar' ? 'ar-EG' : 'en-US').format(stats.totalCourseRevenue)} ${language === 'ar' ? 'ج.م' : 'EGP'}`}
+          iconBgColor="bg-emerald-100"
+          iconColor="text-emerald-600"
+          index={6}
         />
       </div>
 
@@ -369,6 +415,66 @@ export default function AdminDashboard() {
           </div>
         </motion.div>
       </div>
+
+      {/* آخر طلبات الاشتراك في الدورات */}
+      {recentEnrollments.length > 0 && (
+        <motion.div 
+          className="bg-white border-2 border-primary/20 p-6 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)] hover:shadow-[0_8px_30px_rgba(237,191,140,0.25)] will-change-transform"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+          style={{ transform: 'translateZ(0)' }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-secondary font-dubai">
+              {t.admin.dashboard.recentEnrollments}
+            </h2>
+            <Link 
+              href="/admin/courses/enrollments" 
+              className="text-sm text-primary hover:text-primary/80 font-dubai transition-colors"
+            >
+              {t.admin.viewAll}
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {recentEnrollments.map((enrollment) => {
+              const statusColors: Record<string, string> = {
+                PENDING: 'text-amber-600',
+                CONFIRMED: 'text-emerald-600',
+                EXPIRED: 'text-red-600',
+                REFUNDED: 'text-blue-600',
+              };
+              return (
+                <Link 
+                  key={enrollment.id}
+                  href="/admin/courses/enrollments"
+                  className="flex items-center gap-3 p-3 bg-accent/30 rounded-xl hover:bg-accent/50 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <ClipboardList className="w-5 h-5 text-secondary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-secondary font-dubai truncate">
+                      {enrollment.user.firstName} {enrollment.user.lastName}
+                    </p>
+                    <p className="text-xs text-secondary/60 font-dubai truncate">
+                      {enrollment.course.title}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                    <span className={`font-mono text-xs font-bold ${statusColors[enrollment.status] || 'text-secondary'}`}>
+                      {enrollment.paymentCode}
+                    </span>
+                    <p className="text-xs text-secondary/50 font-dubai">
+                      {formatDate(enrollment.createdAt)}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

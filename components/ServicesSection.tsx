@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
@@ -19,6 +19,7 @@ import {
 } from '@/lib/animations/variants';
 import AnimatedStroke from './ui/AnimatedStroke';
 import { useTranslation } from '@/hooks/useTranslation';
+import CourseServiceCard from '@/components/courses/CourseServiceCard';
 
 interface Service {
   id: number;
@@ -40,15 +41,32 @@ const ServicesSection: React.FC = () => {
   const gridRef = useRef<HTMLDivElement>(null!);
   const [showGyroButton, setShowGyroButton] = React.useState(false);
   const [gyroRequested, setGyroRequested] = React.useState(false);
+  const [courses, setCourses] = useState<any[]>([]);
   const t = useTranslation();
   
   const isHeaderInView = useScrollAnimation(headerRef, { threshold: 0.3, once: true });
   const isGridInView = useScrollAnimation(gridRef, { threshold: 0.1, once: true });
+
   
   
   const gyro = useGyroscope(0.8);
 
-  
+  // جلب الدورات المنشورة
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const res = await fetch('/api/courses?limit=3');
+        if (res.ok) {
+          const data = await res.json();
+          setCourses(data.courses || []);
+        }
+      } catch {
+        // silent - لا نوقف العرض إذا فشل الجلب
+      }
+    };
+    fetchCourses();
+  }, []);
+
   useEffect(() => {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const needsPermission = 
@@ -221,6 +239,41 @@ const ServicesSection: React.FC = () => {
             <ServiceCard key={service.id} service={service} index={index} gyroData={gyro} />
           ))}
         </motion.div>
+
+        {/* Courses Section */}
+        {courses.length > 0 && (
+          <>
+            <div id="courses" className="scroll-mt-20" />
+            <motion.div
+              className="text-center mt-20 mb-12"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+              variants={fadeInUp}
+            >
+              <motion.h3
+                className="text-3xl md:text-4xl font-bold text-secondary mb-3 font-bristone"
+                variants={fadeInUp}
+              >
+                <AnimatedStroke delay={0.3}>
+                  {t.services.coursesTitle}
+                </AnimatedStroke>
+              </motion.h3>
+            </motion.div>
+
+            <motion.div
+              className={`grid gap-8 max-w-4xl mx-auto ${courses.length === 1 ? 'grid-cols-1 max-w-lg' : 'grid-cols-1 md:grid-cols-2'}`}
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+            >
+              {courses.map((course, index) => (
+                <CourseServiceCard key={course.id} course={course} index={index} gyroData={gyro} />
+              ))}
+            </motion.div>
+          </>
+        )}
       </Container>
     </section>
   );

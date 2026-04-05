@@ -28,6 +28,15 @@ model User {
   // العلاقات
   feasibilityStudies FeasibilityStudy[] @relation("AdminStudies")
 
+  // علاقات نظام الدورات
+  adminCourses      Course[]             @relation("AdminCourses")
+  enrollments       CourseEnrollment[]   @relation("UserEnrollments")
+  lessonProgress    LessonProgress[]     @relation("UserProgress")
+  lessonComments    LessonComment[]      @relation("UserComments")
+  lessonLikes       LessonLike[]         @relation("UserLikes")
+  lessonDislikes    LessonDislike[]      @relation("UserDislikes")
+  courseReviews     CourseReview[]        @relation("UserReviews")
+
   // علاقات نظام الحسابات
   investments       ApartmentInvestor[]
   createdBookings   Booking[]    @relation("BookingCreator")
@@ -88,6 +97,25 @@ enum FeasibilityRequestStatus {
   IN_PROGRESS   // قيد المعالجة
   COMPLETED     // مكتمل
   REJECTED      // مرفوض
+}
+
+// ============================================================================
+// Enums - نظام الدورات التدريبية
+// ============================================================================
+
+// مستوى الدورة
+enum CourseLevel {
+  BEGINNER      // مبتدئ
+  INTERMEDIATE  // متوسط
+  ADVANCED      // متقدم
+}
+
+// حالة الاشتراك في الدورة
+enum EnrollmentStatus {
+  PENDING       // في انتظار تأكيد الدفع
+  CONFIRMED     // تم التأكيد - نشط
+  EXPIRED       // منتهي الصلاحية
+  REFUNDED      // مسترد
 }
 
 // Consultation Model - نموذج طلب الاستشارة
@@ -280,6 +308,222 @@ model PasswordReset {
   @@index([email, expiresAt])
   @@index([phone, expiresAt])
   @@map("password_resets")
+}
+
+// ============================================================================
+// نظام الدورات التدريبية - Courses System
+// ============================================================================
+
+// Course Model - نموذج الدورة
+model Course {
+  id               String            @id @default(cuid())
+  title            String                                    // اسم الدورة
+  slug             String            @unique                  // رابط URL فريد
+  description      String            @db.Text                 // وصف تفصيلي
+  shortDescription String?           @map("short_description") // وصف مختصر للبطاقة
+  price            Float                                      // السعر بالجنيه
+  currency         String            @default("EGP")
+  thumbnailUrl     String?           @map("thumbnail_url")    // صورة غلاف الدورة
+  previewVideoUrl  String?           @map("preview_video_url") // فيديو تعريفي
+  features         Json?                                      // قائمة مميزات الدورة ["ميزة 1", "ميزة 2"]
+  level            CourseLevel       @default(BEGINNER)        // مستوى الدورة
+  isPublished      Boolean           @default(false) @map("is_published")
+  sortOrder        Int               @default(0) @map("sort_order")
+
+  // إحصائيات محسوبة (تُحدّث عند تعديل الدروس)
+  totalDuration    Int               @default(0) @map("total_duration")  // إجمالي المدة بالثواني
+  lessonsCount     Int               @default(0) @map("lessons_count")   // عدد الدروس
+
+  // العلاقات
+  sections         CourseSection[]
+  enrollments      CourseEnrollment[]
+  reviews          CourseReview[]
+
+  // الأدمن المنشئ
+  admin            User              @relation("AdminCourses", fields: [adminId], references: [id])
+  adminId          String            @map("admin_id")
+
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  @@index([isPublished])
+  @@index([sortOrder])
+  @@map("courses")
+}
+
+// CourseSection Model - أقسام الدورة
+model CourseSection {
+  id          String         @id @default(cuid())
+  title       String                                         // عنوان القسم
+  sortOrder   Int            @default(0) @map("sort_order")
+
+  course      Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId     String         @map("course_id")
+
+  lessons     CourseLesson[]
+
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  @@index([courseId, sortOrder])
+  @@map("course_sections")
+}
+
+// CourseLesson Model - دروس الدورة
+model CourseLesson {
+  id            String           @id @default(cuid())
+  title         String                                       // عنوان الدرس
+  description   String?                                      // وصف اختياري
+  videoUrl      String           @map("video_url")           // رابط الفيديو
+  duration      Int              @default(0)                 // المدة بالثواني
+  sortOrder     Int              @default(0) @map("sort_order")
+  isFree        Boolean          @default(false) @map("is_free") // درس مجاني (معاينة)
+
+  section       CourseSection    @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  sectionId     String           @map("section_id")
+
+  // العلاقات
+  progress      LessonProgress[]
+  comments      LessonComment[]
+  likes         LessonLike[]
+  dislikes      LessonDislike[]
+
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  @@index([sectionId, sortOrder])
+  @@map("course_lessons")
+}
+
+// CourseEnrollment Model - اشتراكات الدورات
+model CourseEnrollment {
+  id               String           @id @default(cuid())
+  status           EnrollmentStatus @default(PENDING)
+  paymentCode      String           @unique @map("payment_code")  // رمز الدفع (6 أحرف)
+
+  user             User             @relation("UserEnrollments", fields: [userId], references: [id], onDelete: Cascade)
+  userId           String           @map("user_id")
+
+  course           Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId          String           @map("course_id")
+
+  // بيانات الدفع
+  phone            String                                         // رقم الهاتف
+  phoneVerified    Boolean          @default(false) @map("phone_verified")
+  amount           Float                                          // المبلغ المدفوع
+
+  // تتبع التقدم
+  completedLessons Int              @default(0) @map("completed_lessons")
+  lastAccessedAt   DateTime?        @map("last_accessed_at")
+  completedAt      DateTime?        @map("completed_at")
+
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  @@unique([userId, courseId])    // مستخدم واحد = اشتراك واحد لكل دورة
+  @@index([status])
+  @@index([courseId])
+  @@index([paymentCode])
+  @@map("course_enrollments")
+}
+
+// LessonProgress Model - تقدم مشاهدة الدروس
+model LessonProgress {
+  id              String        @id @default(cuid())
+  watchedSeconds  Int           @default(0) @map("watched_seconds")   // الثواني المشاهدة
+  isCompleted     Boolean       @default(false) @map("is_completed")
+  lastPosition    Int           @default(0) @map("last_position")     // آخر موضع للمتابعة (بالثواني)
+
+  user            User          @relation("UserProgress", fields: [userId], references: [id])
+  userId          String        @map("user_id")
+
+  lesson          CourseLesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId        String        @map("lesson_id")
+
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@map("lesson_progress")
+}
+
+// LessonComment Model - تعليقات الدروس
+model LessonComment {
+  id          String          @id @default(cuid())
+  content     String          @db.Text
+
+  user        User            @relation("UserComments", fields: [userId], references: [id])
+  userId      String          @map("user_id")
+
+  lesson      CourseLesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId    String          @map("lesson_id")
+
+  // الردود - مستوى واحد فقط
+  parent      LessonComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId    String?         @map("parent_id")
+  replies     LessonComment[] @relation("CommentReplies")
+
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  @@index([lessonId, createdAt])
+  @@index([parentId])
+  @@map("lesson_comments")
+}
+
+// LessonLike Model - إعجابات الدروس
+model LessonLike {
+  id        String        @id @default(cuid())
+
+  user      User          @relation("UserLikes", fields: [userId], references: [id])
+  userId    String        @map("user_id")
+
+  lesson    CourseLesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId  String        @map("lesson_id")
+
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@unique([userId, lessonId])  // لايك واحد لكل مستخدم لكل درس
+  @@index([lessonId])
+  @@map("lesson_likes")
+}
+
+// LessonDislike Model - عدم إعجاب الدروس
+model LessonDislike {
+  id        String        @id @default(cuid())
+
+  user      User          @relation("UserDislikes", fields: [userId], references: [id])
+  userId    String        @map("user_id")
+
+  lesson    CourseLesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId  String        @map("lesson_id")
+
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@unique([userId, lessonId])
+  @@index([lessonId])
+  @@map("lesson_dislikes")
+}
+
+// CourseReview Model - تقييمات الدورات
+model CourseReview {
+  id        String   @id @default(cuid())
+  rating    Int                                  // 1-5 نجوم
+  comment   String?  @db.Text                    // تعليق اختياري
+
+  user      User     @relation("UserReviews", fields: [userId], references: [id])
+  userId    String   @map("user_id")
+
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId   String   @map("course_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, courseId])  // تقييم واحد لكل مستخدم لكل دورة
+  @@index([courseId])
+  @@map("course_reviews")
 }
 
 // ============================================================================
