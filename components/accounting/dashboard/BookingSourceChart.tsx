@@ -75,18 +75,19 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({ data, isLoading
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.length) return null;
     const entry = payload[0];
+    const d = entry.payload;
     return (
       <div className="bg-white border border-secondary/[0.08] rounded-xl p-3 shadow-lg font-dubai text-sm" dir={language === 'ar' ? 'rtl' : 'ltr'}>
         <div className="flex items-center gap-2 mb-1">
-          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.payload.fill }} />
-          <span className="font-bold text-secondary">{entry.name}</span>
+          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.fill }} />
+          <span className="font-bold text-secondary">{d.name}</span>
         </div>
         <p className="text-secondary/70">
-          {t.accounting.dashboard.amount} <span className="font-bold text-secondary">{new Intl.NumberFormat(locale).format(entry.value)} {currency}</span>
+          {t.accounting.dashboard.amount} <span className="font-bold text-secondary">{new Intl.NumberFormat(locale).format(d.amount)} {currency}</span>
         </p>
-        {entry.payload.count !== undefined && (
+        {d.count !== undefined && (
           <p className="text-secondary/70">
-            {t.accounting.dashboard.bookingsLabel} <span className="font-bold text-secondary">{entry.payload.count}</span>
+            {t.accounting.dashboard.bookingsLabel} <span className="font-bold text-secondary">{d.count}</span>
           </p>
         )}
       </div>
@@ -109,9 +110,14 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({ data, isLoading
     );
   }
 
+  const totalAmount = data.reduce((sum, d) => sum + d.amount, 0);
+  const totalCount = data.reduce((sum, d) => sum + d.count, 0);
+  const useCount = totalAmount === 0 && totalCount > 0;
+
   const chartData = data.map(d => ({
     name: SOURCE_LABELS[d.source] || d.source,
-    value: d.amount,
+    value: useCount ? d.count : d.amount,
+    amount: d.amount,
     count: d.count,
     sourceKey: d.source,
   }));

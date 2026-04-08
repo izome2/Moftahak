@@ -275,8 +275,8 @@ const UserCard: React.FC<UserCardProps> = ({
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
-                        style={{ ...desktopRoleMenu.style, boxShadow: SHADOWS.popup }}
+                        className="absolute top-full mt-1 end-0 z-[300] min-w-[200px] bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
+                        style={{ boxShadow: SHADOWS.popup }}
                       >
                         <p className="px-4 py-1.5 text-xs font-dubai text-secondary/40 font-medium">{t.admin.usersPage.chooseRole}</p>
                         <div className="px-1.5">
@@ -344,8 +344,8 @@ const UserCard: React.FC<UserCardProps> = ({
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
-                      style={{ ...desktopMoreMenu.style, boxShadow: SHADOWS.popup }}
+                      className="absolute top-full mt-1 end-0 z-[300] min-w-[200px] bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
+                      style={{ boxShadow: SHADOWS.popup }}
                     >
                       <div className="px-2 py-1">
                         <button
@@ -451,8 +451,8 @@ const UserCard: React.FC<UserCardProps> = ({
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
-                      style={{ ...mobileMenu.style, boxShadow: SHADOWS.popup }}
+                      className="absolute top-full mt-1 end-0 z-[300] min-w-[200px] bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
+                      style={{ boxShadow: SHADOWS.popup }}
                     >
                       <div className="px-2 py-1">
                         <button

@@ -289,8 +289,8 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
-                      style={{ ...moreMenu.style, boxShadow: SHADOWS.popup }}
+                      className="absolute top-full mt-1 end-0 z-[300] min-w-[200px] bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
+                      style={{ boxShadow: SHADOWS.popup }}
                     >
                       <div className="px-2 py-1">
                         <button
@@ -572,8 +572,8 @@ export default function ConsultationsPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
-                    style={{ ...filterMenu.style, boxShadow: SHADOWS.popup }}
+                    className="absolute top-full mt-1 end-0 z-[300] min-w-[200px] bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
+                    style={{ boxShadow: SHADOWS.popup }}
                   >
                     {filterOptions.map((option) => {
                       const isSelected = statusFilter === option.value;

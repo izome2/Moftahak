@@ -510,8 +510,8 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="bg-white rounded-2xl border-2 border-primary/20 py-3 min-w-40 overflow-y-auto"
-                      style={{ ...moreMenu.style, boxShadow: SHADOWS.popup }}
+                      className="absolute top-full mt-1 end-0 z-[300] min-w-[200px] bg-white rounded-2xl border-2 border-primary/20 py-3 overflow-y-auto"
+                      style={{ boxShadow: SHADOWS.popup }}
                     >
                       {/* معاينة */}
                       {shareId && (

@@ -1,30 +1,39 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 
 /**
  * Makes recharts Tooltip follow the mouse cursor using fixed positioning.
- * Overrides recharts' internal absolute positioning which breaks inside
- * framer-motion containers (transform creates a new containing block).
+ * Uses ref-based updates to avoid re-renders for smooth tracking.
+ * Components should spread wrapperStyle on Tooltip and onMouseMove on container.
  */
 export function useChartTooltip() {
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const rafRef = useRef(0);
+  const posRef = useRef({ x: 0, y: 0 });
 
   const onMouseMove = useCallback((e: React.MouseEvent) => {
-    const x = e.clientX;
-    const y = e.clientY;
-    cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => setPos({ x, y }));
+    posRef.current = { x: e.clientX, y: e.clientY };
+    // Directly update all tooltip wrappers in this chart
+    const container = e.currentTarget;
+    const wrapper = container.querySelector('.recharts-tooltip-wrapper') as HTMLElement;
+    if (wrapper) {
+      wrapper.style.position = 'fixed';
+      wrapper.style.top = `${e.clientY + 14}px`;
+      wrapper.style.left = `${e.clientX + 14}px`;
+      wrapper.style.transform = 'none';
+      wrapper.style.pointerEvents = 'none';
+      wrapper.style.zIndex = '9999';
+      wrapper.style.visibility = 'visible';
+    }
   }, []);
 
   const wrapperStyle: React.CSSProperties = {
     position: 'fixed',
-    top: pos.y + 16,
-    left: pos.x + 16,
+    top: 0,
+    left: 0,
     transform: 'none',
     pointerEvents: 'none',
     zIndex: 9999,
+    transition: 'none',
   };
 
   return { onMouseMove, wrapperStyle };
