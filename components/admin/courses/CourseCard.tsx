@@ -45,6 +45,7 @@ interface CourseCardProps {
 const SHADOWS = {
   card: 'rgba(237, 191, 140, 0.15) 0px 4px 20px',
   cardHover: 'rgba(237, 191, 140, 0.25) 0px 8px 30px',
+  popup: 'rgba(16, 48, 43, 0.25) 0px 25px 50px -12px',
 };
 
 const levelColors = {
@@ -84,7 +85,7 @@ export default function CourseCard({ course, onEdit, onDelete, onTogglePublish }
       exit={{ opacity: 0, y: -20 }}
       whileHover={{ y: -4 }}
       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-      className="relative bg-white rounded-2xl border border-primary/10 overflow-hidden group"
+      className="relative bg-white rounded-2xl border-2 border-primary/20 overflow-hidden group"
       style={{ boxShadow: SHADOWS.card }}
       onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = SHADOWS.cardHover; }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.boxShadow = SHADOWS.card; }}
@@ -140,50 +141,57 @@ export default function CourseCard({ course, onEdit, onDelete, onTogglePublish }
 
           {/* القائمة المنسدلة */}
           {showMenu && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className={`absolute bottom-10 ${isRTL ? 'left-0' : 'right-0'} bg-white rounded-xl shadow-lg border border-primary/10 overflow-hidden z-20 min-w-[160px]`}
-            >
-              <button
-                onClick={() => { onEdit(course.id); setShowMenu(false); }}
-                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-secondary hover:bg-primary/5 transition-colors"
+            <>
+              <div 
+                className="fixed inset-0 z-10"
+                onClick={() => setShowMenu(false)}
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className={`absolute bottom-10 ${isRTL ? 'left-0' : 'right-0'} bg-white rounded-2xl border-2 border-primary/20 overflow-hidden z-20 min-w-[160px] py-2`}
+                style={{ boxShadow: SHADOWS.popup }}
               >
-                <Edit3 className="w-4 h-4" />
-                {ct.editCourse}
-              </button>
-              <button
-                onClick={() => { onTogglePublish(course.id, course.isPublished); setShowMenu(false); }}
-                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-secondary hover:bg-primary/5 transition-colors"
-              >
-                {course.isPublished ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                {course.isPublished ? ct.unpublishCourse : ct.publishCourse}
-              </button>
-              <button
-                onClick={() => { onDelete(course.id); setShowMenu(false); }}
-                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-                {ct.deleteCourse}
-              </button>
-            </motion.div>
+                <button
+                  onClick={() => { onEdit(course.id); setShowMenu(false); }}
+                  className="w-[calc(100%-16px)] flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-sm text-secondary hover:bg-primary/10 transition-colors font-dubai"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  {ct.editCourse}
+                </button>
+                <button
+                  onClick={() => { onTogglePublish(course.id, course.isPublished); setShowMenu(false); }}
+                  className="w-[calc(100%-16px)] flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-sm text-secondary hover:bg-primary/10 transition-colors font-dubai"
+                >
+                  {course.isPublished ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {course.isPublished ? ct.unpublishCourse : ct.publishCourse}
+                </button>
+                <button
+                  onClick={() => { onDelete(course.id); setShowMenu(false); }}
+                  className="w-[calc(100%-16px)] flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-sm text-red-600 hover:bg-red-50 transition-colors font-dubai"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {ct.deleteCourse}
+                </button>
+              </motion.div>
+            </>
           )}
         </div>
       </div>
 
       {/* محتوى البطاقة */}
       <div className="p-4">
-        <h3 className="font-bold text-secondary text-base line-clamp-2 mb-2 leading-relaxed">
+        <h3 className="font-bold text-secondary font-dubai text-base line-clamp-2 mb-2 leading-relaxed">
           {course.title}
         </h3>
         {course.shortDescription && (
-          <p className="text-secondary/60 text-sm line-clamp-2 mb-3">
+          <p className="text-secondary/60 font-dubai text-sm line-clamp-2 mb-3">
             {course.shortDescription}
           </p>
         )}
 
         {/* إحصائيات */}
-        <div className="flex items-center gap-3 text-xs text-secondary/50 mb-3 flex-wrap">
+        <div className="flex items-center gap-3 text-xs text-secondary/50 mb-3 flex-wrap font-dubai">
           <span className="flex items-center gap-1">
             <BookOpen className="w-3.5 h-3.5" />
             {course.lessonsCount} {course.lessonsCount === 1 ? ct.lesson : ct.lessons}
@@ -209,7 +217,7 @@ export default function CourseCard({ course, onEdit, onDelete, onTogglePublish }
         {/* زر التعديل الرئيسي */}
         <button
           onClick={() => onEdit(course.id)}
-          className="w-full py-2.5 rounded-xl bg-secondary/5 hover:bg-secondary/10 text-secondary text-sm font-medium transition-colors flex items-center justify-center gap-2"
+          className="w-full py-2.5 rounded-xl bg-primary/15 hover:bg-primary/25 border border-primary/20 text-secondary text-sm font-dubai font-medium transition-colors flex items-center justify-center gap-2"
         >
           <Edit3 className="w-4 h-4" />
           {ct.editCourse}

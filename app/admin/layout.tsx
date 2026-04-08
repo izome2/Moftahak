@@ -77,7 +77,7 @@ export default function AdminLayout({
             <div className={`flex-1 overflow-hidden flex flex-col ${
               isEditorPage 
                 ? 'bg-accent' 
-                : 'bg-white/80 backdrop-blur-md rounded-xl lg:rounded-2xl shadow-[0_15px_60px_rgba(237,191,140,0.65)] border-2 border-primary/10'
+                : 'bg-white/80 backdrop-blur-md rounded-xl lg:rounded-2xl shadow-[0_15px_60px_rgba(16,48,43,0.18),0_4px_20px_rgba(16,48,43,0.10)] border-2 border-primary/10'
             }`}>
               {children}
             </div>

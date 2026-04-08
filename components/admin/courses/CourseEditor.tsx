@@ -95,6 +95,14 @@ const LEVEL_OPTIONS: { value: CourseLevel; label_ar: string; label_en: string }[
   { value: 'ADVANCED', label_ar: 'متقدم', label_en: 'Advanced' },
 ];
 
+const SHADOWS = {
+  card: 'rgba(237, 191, 140, 0.15) 0px 4px 20px',
+  cardHover: 'rgba(237, 191, 140, 0.25) 0px 8px 30px',
+  button: 'rgba(16, 48, 43, 0.15) 0px 4px 12px',
+  icon: 'rgba(237, 191, 140, 0.3) 0px 4px 12px',
+  input: 'rgba(237, 191, 140, 0.08) 0px 2px 8px',
+};
+
 export default function CourseEditor({ courseId }: CourseEditorProps) {
   const router = useRouter();
   const t = useTranslation();
@@ -469,37 +477,54 @@ export default function CourseEditor({ courseId }: CourseEditorProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      <div className="flex items-center justify-center h-full font-dubai">
+        <div className="flex flex-col items-center gap-4">
+          <div
+            className="w-14 h-14 rounded-2xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center"
+            style={{ boxShadow: SHADOWS.icon }}
+          >
+            <Loader2 className="w-7 h-7 text-primary animate-spin" />
+          </div>
+          <p className="text-sm text-secondary/50 font-dubai">
+            {isRTL ? 'جاري التحميل...' : 'Loading...'}
+          </p>
+        </div>
       </div>
     );
   }
 
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
+  const totalLessons = form.sections.reduce((sum, s) => sum + s.lessons.length, 0);
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="flex-none p-6 pb-4 border-b border-primary/10">
-        <div className="flex items-center justify-between gap-4">
+    <div className="h-full flex flex-col overflow-hidden font-dubai">
+      {/* ─── Header ─── */}
+      <div className="flex-none px-4 lg:px-6 py-3.5 border-b-2 border-primary/15 bg-white/80 backdrop-blur-sm">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.push('/admin/courses')}
-              className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
+              className="w-10 h-10 rounded-xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center hover:bg-primary/20 transition-colors"
+              style={{ boxShadow: SHADOWS.icon }}
             >
               <BackIcon className="w-4 h-4 text-secondary" />
             </button>
             <div>
-              <h1 className="text-lg font-bold text-secondary">
+              <h1 className="text-base lg:text-lg font-bold text-secondary font-dubai">
                 {isEdit ? et.editTitle : et.createTitle}
               </h1>
+              <p className="text-[11px] text-secondary/50 font-dubai hidden sm:block">
+                {isRTL
+                  ? isEdit ? 'تعديل بيانات ومحتوى الدورة' : 'أنشئ دورة جديدة وأضف الأقسام والدروس'
+                  : isEdit ? 'Edit course details and content' : 'Create a new course with sections and lessons'}
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => router.push('/admin/courses')}
-              className="px-4 py-2 rounded-xl text-sm text-secondary/60 hover:bg-secondary/5 transition-colors"
+              className="px-3 lg:px-4 py-2.5 rounded-xl text-sm text-secondary/60 hover:bg-primary/10 border-2 border-transparent hover:border-primary/15 transition-all font-dubai"
             >
               {et.cancel}
             </button>
@@ -508,418 +533,454 @@ export default function CourseEditor({ courseId }: CourseEditorProps) {
               whileTap={{ scale: 0.98 }}
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-secondary text-white text-sm font-medium hover:bg-secondary/90 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 lg:px-5 py-2.5 rounded-xl bg-secondary text-white text-sm font-bold font-dubai hover:bg-secondary/90 transition-colors disabled:opacity-50 border-2 border-secondary"
+              style={{ boxShadow: SHADOWS.button }}
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              {saving ? et.saving : et.save}
+              <span className="hidden sm:inline">{saving ? et.saving : et.save}</span>
             </motion.button>
           </div>
         </div>
 
-        {error && (
-          <div className="mt-3 flex items-start gap-2 px-4 py-2.5 rounded-xl bg-red-50 text-red-600 text-sm">
-            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-            <div className="whitespace-pre-line">{error}</div>
-          </div>
-        )}
-      </div>
-
-      {/* Form Content */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-8">
-        {/* ─── القسم 1: المعلومات الأساسية ─── */}
-        <section>
-          <h2 className="text-base font-bold text-secondary mb-4 flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-primary" />
-            {et.basicInfo}
-          </h2>
-          <div className="space-y-4">
-            {/* عنوان الدورة */}
-            <div>
-              <label className="block text-sm font-medium text-secondary/70 mb-1.5">
-                {et.courseTitle}
-              </label>
-              <input
-                type="text"
-                value={form.title}
-                onChange={(e) => updateForm({ title: e.target.value })}
-                placeholder={et.courseTitlePlaceholder}
-                className="w-full px-4 py-2.5 rounded-xl border border-primary/15 bg-white/80 focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm text-secondary placeholder:text-secondary/30"
-              />
-            </div>
-
-            {/* وصف الدورة */}
-            <div>
-              <label className="block text-sm font-medium text-secondary/70 mb-1.5">
-                {et.description}
-              </label>
-              <textarea
-                value={form.description}
-                onChange={(e) => updateForm({ description: e.target.value })}
-                placeholder={et.descriptionPlaceholder}
-                rows={4}
-                className="w-full px-4 py-2.5 rounded-xl border border-primary/15 bg-white/80 focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm text-secondary placeholder:text-secondary/30 resize-none"
-              />
-            </div>
-
-            {/* المستوى */}
-            <div>
-              <label className="block text-sm font-medium text-secondary/70 mb-1.5">
-                {et.courseLevel}
-              </label>
-              <select
-                value={form.level}
-                onChange={(e) => updateForm({ level: e.target.value as CourseLevel })}
-                className="w-full px-4 py-2.5 rounded-xl border border-primary/15 bg-white/80 focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm text-secondary"
-              >
-                {LEVEL_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {isRTL ? opt.label_ar : opt.label_en}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* اسم المدرب (shortDescription تُستخدم كوصف مختصر) */}
-            <div>
-              <label className="block text-sm font-medium text-secondary/70 mb-1.5">
-                {et.instructorName}
-              </label>
-              <input
-                type="text"
-                value={form.shortDescription}
-                onChange={(e) => updateForm({ shortDescription: e.target.value })}
-                placeholder={et.instructorNamePlaceholder}
-                className="w-full px-4 py-2.5 rounded-xl border border-primary/15 bg-white/80 focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm text-secondary placeholder:text-secondary/30"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* ─── القسم 2: التسعير ─── */}
-        <section>
-          <h2 className="text-base font-bold text-secondary mb-4 flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-primary" />
-            {et.pricing}
-          </h2>
-          <div className="space-y-4">
-            {/* اختيار مجاني / مدفوع */}
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => updateForm({ price: 0 })}
-                className={`relative flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
-                  form.price === 0
-                    ? 'border-emerald-400 bg-emerald-50/80 shadow-sm'
-                    : 'border-primary/15 bg-white/60 hover:border-primary/30'
-                }`}
-              >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                  form.price === 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-primary/10 text-secondary/40'
-                }`}>
-                  <Gift className="w-5 h-5" />
-                </div>
-                <div className={`text-start ${ isRTL ? 'text-right' : 'text-left' }`}>
-                  <p className={`text-sm font-bold ${
-                    form.price === 0 ? 'text-emerald-700' : 'text-secondary/60'
-                  }`}>{et.freeCourse}</p>
-                  <p className="text-xs text-secondary/40">{et.freeCourseHint}</p>
-                </div>
-                {form.price === 0 && (
-                  <div className="absolute top-2 left-2 right-auto rtl:right-2 rtl:left-auto w-2 h-2 rounded-full bg-emerald-400" />
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={() => { if (form.price === 0) updateForm({ price: 100 }); }}
-                className={`relative flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
-                  form.price > 0
-                    ? 'border-primary bg-primary/5 shadow-sm'
-                    : 'border-primary/15 bg-white/60 hover:border-primary/30'
-                }`}
-              >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                  form.price > 0 ? 'bg-primary/20 text-secondary' : 'bg-primary/10 text-secondary/40'
-                }`}>
-                  <DollarSign className="w-5 h-5" />
-                </div>
-                <div className={`text-start ${ isRTL ? 'text-right' : 'text-left' }`}>
-                  <p className={`text-sm font-bold ${
-                    form.price > 0 ? 'text-secondary' : 'text-secondary/60'
-                  }`}>{et.paidCourse}</p>
-                  <p className="text-xs text-secondary/40">{et.paidCourseHint}</p>
-                </div>
-                {form.price > 0 && (
-                  <div className="absolute top-2 left-2 right-auto rtl:right-2 rtl:left-auto w-2 h-2 rounded-full bg-primary" />
-                )}
-              </button>
-            </div>
-
-            {/* حقل السعر - يظهر فقط عند اختيار مدفوع */}
-            <AnimatePresence>
-              {form.price > 0 && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div>
-                    <label className="block text-sm font-medium text-secondary/70 mb-1.5">
-                      {et.coursePrice}
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        min={1}
-                        value={form.price}
-                        onChange={(e) => updateForm({ price: Math.max(1, Number(e.target.value) || 0) })}
-                        placeholder={et.coursePricePlaceholder}
-                        className="w-full px-4 py-2.5 rounded-xl border border-primary/15 bg-white/80 focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm text-secondary placeholder:text-secondary/30"
-                      />
-                      <span className="absolute top-1/2 -translate-y-1/2 text-xs text-secondary/40 ltr:right-4 rtl:left-4">
-                        {isRTL ? 'ج.م' : 'EGP'}
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </section>
-
-        {/* ─── القسم 3: الوسائط ─── */}
-        <section>
-          <h2 className="text-base font-bold text-secondary mb-4 flex items-center gap-2">
-            <ImageIcon className="w-4 h-4 text-primary" />
-            {et.media}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <VideoUploadZone
-              type="thumbnail"
-              currentUrl={form.thumbnailUrl || null}
-              courseId={courseId}
-              onUploadComplete={(url) => updateForm({ thumbnailUrl: url })}
-              onRemove={() => updateForm({ thumbnailUrl: '' })}
-              label={et.thumbnail}
-            />
-            <VideoUploadZone
-              type="video"
-              currentUrl={form.previewVideoUrl || null}
-              courseId={courseId}
-              onUploadComplete={(url) => updateForm({ previewVideoUrl: url })}
-              onRemove={() => updateForm({ previewVideoUrl: '' })}
-              label={et.previewVideo}
-            />
-          </div>
-        </section>
-
-        {/* ─── القسم 4: المميزات ─── */}
-        <section>
-          <h2 className="text-base font-bold text-secondary mb-4 flex items-center gap-2">
-            <Star className="w-4 h-4 text-primary" />
-            {et.features}
-          </h2>
-          <div className="space-y-2">
-            {form.features.map((feature, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <span className="flex-1 px-3 py-2 rounded-lg bg-primary/5 text-sm text-secondary border border-primary/10">
-                  {feature}
-                </span>
-                <button
-                  onClick={() => removeFeature(i)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition-colors"
-                >
+        {/* Error Banner */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-3 flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-50 border-2 border-red-200 text-red-600 text-sm font-dubai">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <div className="whitespace-pre-line flex-1">{error}</div>
+                <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600 transition-colors">
                   <X className="w-4 h-4" />
                 </button>
               </div>
-            ))}
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={newFeature}
-                onChange={(e) => setNewFeature(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
-                placeholder={et.featurePlaceholder}
-                className="flex-1 px-3 py-2 rounded-xl border border-primary/15 bg-white/80 focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm text-secondary placeholder:text-secondary/30"
-              />
-              <button
-                onClick={addFeature}
-                className="px-3 py-2 rounded-xl bg-primary/10 text-secondary text-sm font-medium hover:bg-primary/20 transition-colors"
-              >
-                {et.addFeature}
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* ─── القسم 5: أقسام الدورة والدروس ─── */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-bold text-secondary flex items-center gap-2">
-              <Film className="w-4 h-4 text-primary" />
-              {et.sections}
-            </h2>
-            <button
-              onClick={addSection}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary/5 text-secondary text-sm font-medium hover:bg-secondary/10 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              {et.addSection}
-            </button>
-          </div>
-
-          {form.sections.length === 0 ? (
-            <div className="text-center py-12 text-secondary/40 text-sm border-2 border-dashed border-primary/15 rounded-xl">
-              {et.noSections}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <AnimatePresence mode="popLayout">
-                {form.sections.map((section, sIndex) => (
-                  <motion.div
-                    key={section.id || `new-${sIndex}`}
-                    layout
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="bg-white border border-primary/10 rounded-xl overflow-hidden"
-                    style={{ boxShadow: 'rgba(237, 191, 140, 0.1) 0px 2px 10px' }}
-                  >
-                    {/* Section header */}
-                    <div
-                      className="flex items-center gap-3 px-4 py-3 bg-primary/5 cursor-pointer select-none"
-                      onClick={() => toggleSection(sIndex)}
-                    >
-                      <GripVertical className="w-4 h-4 text-secondary/30 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <input
-                          type="text"
-                          value={section.title}
-                          onChange={(e) => updateSection(sIndex, { title: e.target.value })}
-                          onClick={(e) => e.stopPropagation()}
-                          placeholder={et.sectionTitlePlaceholder}
-                          className="w-full bg-transparent text-sm font-bold text-secondary placeholder:text-secondary/30 focus:outline-none"
-                        />
-                      </div>
-                      <span className="text-xs text-secondary/40 flex-shrink-0">
-                        {section.lessons.length} {section.lessons.length === 1 ? ct.lesson : ct.lessons}
-                      </span>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); removeSection(sIndex); }}
-                        className="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition-colors"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                      {section.isExpanded ? (
-                        <ChevronUp className="w-4 h-4 text-secondary/40" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-secondary/40" />
-                      )}
-                    </div>
-
-                    {/* Lessons */}
-                    <AnimatePresence>
-                      {section.isExpanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="p-4 space-y-3">
-                            {section.lessons.length === 0 ? (
-                              <p className="text-center text-sm text-secondary/30 py-4">
-                                {et.noLessons}
-                              </p>
-                            ) : (
-                              section.lessons.map((lesson, lIndex) => (
-                                <div
-                                  key={lesson.id || `new-${sIndex}-${lIndex}`}
-                                  className="border border-primary/10 rounded-xl p-3 space-y-3 bg-white/50"
-                                >
-                                  <div className="flex items-start gap-2">
-                                    <GripVertical className="w-4 h-4 text-secondary/20 mt-2.5 flex-shrink-0" />
-                                    <div className="flex-1 space-y-3">
-                                      {/* Lesson title */}
-                                      <input
-                                        type="text"
-                                        value={lesson.title}
-                                        onChange={(e) => updateLesson(sIndex, lIndex, { title: e.target.value })}
-                                        placeholder={et.lessonTitlePlaceholder}
-                                        className="w-full px-3 py-2 rounded-lg border border-primary/10 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm text-secondary placeholder:text-secondary/30"
-                                      />
-
-                                      {/* Video upload */}
-                                      <VideoUploadZone
-                                        type="video"
-                                        currentUrl={lesson.videoUrl || null}
-                                        courseId={courseId}
-                                        onUploadComplete={(url) => {
-                                          updateLesson(sIndex, lIndex, { videoUrl: url });
-                                          // استخراج المدة تلقائياً
-                                          getVideoDuration(url).then(duration => {
-                                            if (duration > 0) updateLesson(sIndex, lIndex, { duration });
-                                          });
-                                        }}
-                                        onRemove={() => updateLesson(sIndex, lIndex, { videoUrl: '', duration: 0 })}
-                                        label={et.lessonVideo}
-                                      />
-
-                                      {/* مدة الفيديو (تلقائي) */}
-                                      {lesson.duration > 0 && (
-                                        <p className="text-xs text-secondary/40 flex items-center gap-1">
-                                          <Film className="w-3 h-3" />
-                                          {Math.floor(lesson.duration / 60)}:{String(lesson.duration % 60).padStart(2, '0')} {isRTL ? 'دقيقة' : 'min'}
-                                        </p>
-                                      )}
-
-                                      {/* درس مجاني (معاينة) */}
-                                      <label className="flex items-center gap-2 cursor-pointer select-none">
-                                        <input
-                                          type="checkbox"
-                                          checked={lesson.isFree}
-                                          onChange={(e) => updateLesson(sIndex, lIndex, { isFree: e.target.checked })}
-                                          className="w-4 h-4 rounded border-primary/20 text-primary focus:ring-primary/30 accent-primary"
-                                        />
-                                        <span className="text-xs text-secondary/50">
-                                          {isRTL ? 'درس مجاني (معاينة)' : 'Free preview lesson'}
-                                        </span>
-                                      </label>
-                                    </div>
-                                    <button
-                                      onClick={() => removeLesson(sIndex, lIndex)}
-                                      className="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition-colors mt-1"
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
-                                  </div>
-                                </div>
-                              ))
-                            )}
-
-                            {/* Add lesson button */}
-                            <button
-                              onClick={() => addLesson(sIndex)}
-                              className="w-full py-2 rounded-xl border-2 border-dashed border-primary/15 text-sm text-secondary/40 hover:border-primary/30 hover:text-secondary/60 transition-colors flex items-center justify-center gap-1.5"
-                            >
-                              <Plus className="w-4 h-4" />
-                              {et.addLesson}
-                            </button>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
+            </motion.div>
           )}
-        </section>
+        </AnimatePresence>
+      </div>
 
-        {/* Bottom padding */}
-        <div className="h-8" />
+      {/* ─── Two-Panel Body ─── */}
+      <div className="flex-1 overflow-y-auto lg:overflow-hidden" style={{ backgroundColor: '#fffffe' }}>
+        <div className="lg:h-full flex flex-col lg:flex-row">
+
+          {/* ═══ Right Panel: Form Inputs ═══ */}
+          <div className="lg:w-[45%] lg:overflow-y-auto p-4 lg:p-5 space-y-4 lg:border-e-2 border-primary/10">
+
+            {/* Card 1: Basic Info */}
+            <div className="bg-white border-2 border-primary/20 rounded-2xl overflow-hidden" style={{ boxShadow: SHADOWS.card }}>
+              <div className="px-4 lg:px-5 py-3 border-b border-primary/10 bg-primary/5 flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center">
+                  <BookOpen className="w-4 h-4 text-primary" />
+                </div>
+                <h3 className="text-sm font-bold text-secondary font-dubai">{et.basicInfo}</h3>
+              </div>
+              <div className="p-4 lg:p-5 space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-secondary/60 mb-1.5 font-dubai">{et.courseTitle}</label>
+                  <input
+                    type="text"
+                    value={form.title}
+                    onChange={(e) => updateForm({ title: e.target.value })}
+                    placeholder={et.courseTitlePlaceholder}
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-primary/15 bg-white focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/15 text-sm text-secondary font-dubai placeholder:text-secondary/30 transition-all"
+                    style={{ boxShadow: SHADOWS.input }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-secondary/60 mb-1.5 font-dubai">{et.description}</label>
+                  <textarea
+                    value={form.description}
+                    onChange={(e) => updateForm({ description: e.target.value })}
+                    placeholder={et.descriptionPlaceholder}
+                    rows={3}
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-primary/15 bg-white focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/15 text-sm text-secondary font-dubai placeholder:text-secondary/30 resize-none transition-all"
+                    style={{ boxShadow: SHADOWS.input }}
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-secondary/60 mb-1.5 font-dubai">{et.courseLevel}</label>
+                    <select
+                      value={form.level}
+                      onChange={(e) => updateForm({ level: e.target.value as CourseLevel })}
+                      className="w-full px-4 py-2.5 rounded-xl border-2 border-primary/15 bg-white focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/15 text-sm text-secondary font-dubai transition-all"
+                      style={{ boxShadow: SHADOWS.input }}
+                    >
+                      {LEVEL_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {isRTL ? opt.label_ar : opt.label_en}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-secondary/60 mb-1.5 font-dubai">{et.instructorName}</label>
+                    <input
+                      type="text"
+                      value={form.shortDescription}
+                      onChange={(e) => updateForm({ shortDescription: e.target.value })}
+                      placeholder={et.instructorNamePlaceholder}
+                      className="w-full px-4 py-2.5 rounded-xl border-2 border-primary/15 bg-white focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/15 text-sm text-secondary font-dubai placeholder:text-secondary/30 transition-all"
+                      style={{ boxShadow: SHADOWS.input }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: Pricing */}
+            <div className="bg-white border-2 border-primary/20 rounded-2xl overflow-hidden" style={{ boxShadow: SHADOWS.card }}>
+              <div className="px-4 lg:px-5 py-3 border-b border-primary/10 bg-primary/5 flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center">
+                  <DollarSign className="w-4 h-4 text-primary" />
+                </div>
+                <h3 className="text-sm font-bold text-secondary font-dubai">{et.pricing}</h3>
+              </div>
+              <div className="p-4 lg:p-5 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => updateForm({ price: 0 })}
+                    className={`relative flex items-center gap-2.5 p-3 rounded-xl border-2 transition-all ${
+                      form.price === 0
+                        ? 'border-emerald-400 bg-emerald-50/80'
+                        : 'border-primary/15 bg-white hover:border-primary/30'
+                    }`}
+                    style={{ boxShadow: form.price === 0 ? '0 2px 12px rgba(52, 211, 153, 0.15)' : 'none' }}
+                  >
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                      form.price === 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-primary/10 text-secondary/40'
+                    }`}>
+                      <Gift className="w-4 h-4" />
+                    </div>
+                    <div className="text-start min-w-0">
+                      <p className={`text-xs font-bold font-dubai ${form.price === 0 ? 'text-emerald-700' : 'text-secondary/60'}`}>{et.freeCourse}</p>
+                      <p className="text-[10px] text-secondary/40 font-dubai truncate">{et.freeCourseHint}</p>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { if (form.price === 0) updateForm({ price: 100 }); }}
+                    className={`relative flex items-center gap-2.5 p-3 rounded-xl border-2 transition-all ${
+                      form.price > 0
+                        ? 'border-primary bg-primary/5'
+                        : 'border-primary/15 bg-white hover:border-primary/30'
+                    }`}
+                    style={{ boxShadow: form.price > 0 ? SHADOWS.input : 'none' }}
+                  >
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                      form.price > 0 ? 'bg-primary/20 text-secondary' : 'bg-primary/10 text-secondary/40'
+                    }`}>
+                      <DollarSign className="w-4 h-4" />
+                    </div>
+                    <div className="text-start min-w-0">
+                      <p className={`text-xs font-bold font-dubai ${form.price > 0 ? 'text-secondary' : 'text-secondary/60'}`}>{et.paidCourse}</p>
+                      <p className="text-[10px] text-secondary/40 font-dubai truncate">{et.paidCourseHint}</p>
+                    </div>
+                  </button>
+                </div>
+
+                <AnimatePresence>
+                  {form.price > 0 && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="pt-1">
+                        <label className="block text-xs font-bold text-secondary/60 mb-1.5 font-dubai">{et.coursePrice}</label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min={1}
+                            value={form.price}
+                            onChange={(e) => updateForm({ price: Math.max(1, Number(e.target.value) || 0) })}
+                            placeholder={et.coursePricePlaceholder}
+                            className="w-full px-4 py-2.5 rounded-xl border-2 border-primary/15 bg-white focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/15 text-sm text-secondary font-dubai placeholder:text-secondary/30 transition-all"
+                            style={{ boxShadow: SHADOWS.input }}
+                          />
+                          <span className="absolute top-1/2 -translate-y-1/2 text-xs text-secondary/40 font-dubai ltr:right-4 rtl:left-4">
+                            {isRTL ? 'ج.م' : 'EGP'}
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+
+            {/* Card 3: Media */}
+            <div className="bg-white border-2 border-primary/20 rounded-2xl overflow-hidden" style={{ boxShadow: SHADOWS.card }}>
+              <div className="px-4 lg:px-5 py-3 border-b border-primary/10 bg-primary/5 flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center">
+                  <ImageIcon className="w-4 h-4 text-primary" />
+                </div>
+                <h3 className="text-sm font-bold text-secondary font-dubai">{et.media}</h3>
+              </div>
+              <div className="p-4 lg:p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <VideoUploadZone
+                  type="thumbnail"
+                  currentUrl={form.thumbnailUrl || null}
+                  courseId={courseId}
+                  onUploadComplete={(url) => updateForm({ thumbnailUrl: url })}
+                  onRemove={() => updateForm({ thumbnailUrl: '' })}
+                  label={et.thumbnail}
+                />
+                <VideoUploadZone
+                  type="video"
+                  currentUrl={form.previewVideoUrl || null}
+                  courseId={courseId}
+                  onUploadComplete={(url) => updateForm({ previewVideoUrl: url })}
+                  onRemove={() => updateForm({ previewVideoUrl: '' })}
+                  label={et.previewVideo}
+                />
+              </div>
+            </div>
+
+            {/* Card 4: Features */}
+            <div className="bg-white border-2 border-primary/20 rounded-2xl overflow-hidden" style={{ boxShadow: SHADOWS.card }}>
+              <div className="px-4 lg:px-5 py-3 border-b border-primary/10 bg-primary/5 flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center">
+                  <Star className="w-4 h-4 text-primary" />
+                </div>
+                <h3 className="text-sm font-bold text-secondary font-dubai">{et.features}</h3>
+              </div>
+              <div className="p-4 lg:p-5 space-y-2">
+                {form.features.map((feature, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="flex-1 px-3 py-2 rounded-xl bg-primary/5 text-sm text-secondary font-dubai border border-primary/10">
+                      {feature}
+                    </span>
+                    <button
+                      onClick={() => removeFeature(i)}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={newFeature}
+                    onChange={(e) => setNewFeature(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
+                    placeholder={et.featurePlaceholder}
+                    className="flex-1 px-3 py-2.5 rounded-xl border-2 border-primary/15 bg-white focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/15 text-sm text-secondary font-dubai placeholder:text-secondary/30 transition-all"
+                  />
+                  <button
+                    onClick={addFeature}
+                    className="px-3 py-2.5 rounded-xl bg-primary/15 border-2 border-primary/20 text-secondary text-sm font-bold font-dubai hover:bg-primary/25 transition-colors"
+                  >
+                    {et.addFeature}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* ═══ Left Panel: Course Sections & Lessons ═══ */}
+          <div className="lg:w-[55%] lg:overflow-y-auto p-4 lg:p-5">
+            <div className="bg-white border-2 border-primary/20 rounded-2xl overflow-hidden h-fit" style={{ boxShadow: SHADOWS.card }}>
+              <div className="px-4 lg:px-5 py-3 border-b border-primary/10 bg-primary/5 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center">
+                    <Film className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-secondary font-dubai">{et.sections}</h3>
+                    <p className="text-[10px] text-secondary/40 font-dubai">
+                      {form.sections.length} {form.sections.length === 1 ? (isRTL ? 'قسم' : 'section') : (isRTL ? 'أقسام' : 'sections')} • {totalLessons} {totalLessons === 1 ? ct.lesson : ct.lessons}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={addSection}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-secondary text-white text-xs font-bold font-dubai hover:bg-secondary/90 transition-colors border-2 border-secondary"
+                  style={{ boxShadow: SHADOWS.button }}
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  {et.addSection}
+                </button>
+              </div>
+
+              {form.sections.length === 0 ? (
+                <div className="text-center py-16 px-6">
+                  <div
+                    className="w-14 h-14 rounded-2xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center mx-auto mb-4"
+                    style={{ boxShadow: SHADOWS.icon }}
+                  >
+                    <Film className="w-7 h-7 text-primary/40" />
+                  </div>
+                  <p className="text-sm text-secondary/40 font-dubai mb-1">{et.noSections}</p>
+                  <p className="text-xs text-secondary/30 font-dubai">
+                    {isRTL ? 'أضف أقسام ودروس لبناء محتوى الدورة' : 'Add sections and lessons to build course content'}
+                  </p>
+                </div>
+              ) : (
+                <div className="p-3 lg:p-4 space-y-3">
+                  <AnimatePresence mode="popLayout">
+                    {form.sections.map((section, sIndex) => (
+                      <motion.div
+                        key={section.id || `new-${sIndex}`}
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="bg-white border-2 border-primary/15 rounded-xl overflow-hidden"
+                        style={{ boxShadow: 'rgba(237, 191, 140, 0.08) 0px 2px 10px' }}
+                      >
+                        {/* Section Header */}
+                        <div
+                          className="flex items-center gap-2.5 px-3 lg:px-4 py-3 bg-gradient-to-l from-primary/5 to-transparent cursor-pointer select-none hover:from-primary/10 transition-all"
+                          onClick={() => toggleSection(sIndex)}
+                        >
+                          <GripVertical className="w-4 h-4 text-secondary/25 flex-shrink-0" />
+                          <div className="w-7 h-7 rounded-lg bg-secondary/8 flex items-center justify-center flex-shrink-0">
+                            <span className="text-xs font-bold text-secondary/50 font-dubai">{sIndex + 1}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <input
+                              type="text"
+                              value={section.title}
+                              onChange={(e) => updateSection(sIndex, { title: e.target.value })}
+                              onClick={(e) => e.stopPropagation()}
+                              placeholder={et.sectionTitlePlaceholder}
+                              className="w-full bg-transparent text-sm font-bold text-secondary font-dubai placeholder:text-secondary/30 focus:outline-none"
+                            />
+                          </div>
+                          <span className="text-[10px] text-secondary/40 flex-shrink-0 font-dubai bg-primary/8 px-2 py-1 rounded-lg">
+                            {section.lessons.length} {section.lessons.length === 1 ? ct.lesson : ct.lessons}
+                          </span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); removeSection(sIndex); }}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition-colors flex-shrink-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-secondary/40 flex-shrink-0">
+                            {section.isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </div>
+                        </div>
+
+                        {/* Lessons */}
+                        <AnimatePresence>
+                          {section.isExpanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="px-3 lg:px-4 pb-4 pt-2 space-y-3 border-t border-primary/8">
+                                {section.lessons.length === 0 ? (
+                                  <p className="text-center text-xs text-secondary/30 py-6 font-dubai">
+                                    {et.noLessons}
+                                  </p>
+                                ) : (
+                                  section.lessons.map((lesson, lIndex) => (
+                                    <div
+                                      key={lesson.id || `new-${sIndex}-${lIndex}`}
+                                      className="border-2 border-primary/10 rounded-xl p-3 space-y-3 bg-accent/20 hover:border-primary/20 transition-colors"
+                                    >
+                                      <div className="flex items-start gap-2">
+                                        <GripVertical className="w-4 h-4 text-secondary/20 mt-2.5 flex-shrink-0" />
+                                        <div className="flex-1 space-y-3 min-w-0">
+                                          {/* Lesson title */}
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                              <Film className="w-3 h-3 text-primary/60" />
+                                            </div>
+                                            <input
+                                              type="text"
+                                              value={lesson.title}
+                                              onChange={(e) => updateLesson(sIndex, lIndex, { title: e.target.value })}
+                                              placeholder={et.lessonTitlePlaceholder}
+                                              className="flex-1 min-w-0 px-3 py-2 rounded-lg border-2 border-primary/10 bg-white focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/15 text-sm text-secondary font-dubai placeholder:text-secondary/30 transition-all"
+                                            />
+                                          </div>
+
+                                          {/* Video upload */}
+                                          <VideoUploadZone
+                                            type="video"
+                                            currentUrl={lesson.videoUrl || null}
+                                            courseId={courseId}
+                                            onUploadComplete={(url) => {
+                                              updateLesson(sIndex, lIndex, { videoUrl: url });
+                                              // استخراج المدة تلقائياً
+                                              getVideoDuration(url).then(duration => {
+                                                if (duration > 0) updateLesson(sIndex, lIndex, { duration });
+                                              });
+                                            }}
+                                            onRemove={() => updateLesson(sIndex, lIndex, { videoUrl: '', duration: 0 })}
+                                            label={et.lessonVideo}
+                                          />
+
+                                          {/* Meta: Duration + Free toggle */}
+                                          <div className="flex items-center justify-between flex-wrap gap-2">
+                                            {lesson.duration > 0 && (
+                                              <span className="text-[11px] text-secondary/40 flex items-center gap-1 font-dubai bg-primary/5 px-2 py-1 rounded-lg">
+                                                <Film className="w-3 h-3" />
+                                                {Math.floor(lesson.duration / 60)}:{String(lesson.duration % 60).padStart(2, '0')} {isRTL ? 'دقيقة' : 'min'}
+                                              </span>
+                                            )}
+                                            <label className="flex items-center gap-2 cursor-pointer select-none">
+                                              <input
+                                                type="checkbox"
+                                                checked={lesson.isFree}
+                                                onChange={(e) => updateLesson(sIndex, lIndex, { isFree: e.target.checked })}
+                                                className="w-4 h-4 rounded border-primary/20 text-primary focus:ring-primary/30 accent-primary"
+                                              />
+                                              <span className="text-[11px] text-secondary/50 font-dubai">
+                                                {isRTL ? 'درس مجاني (معاينة)' : 'Free preview lesson'}
+                                              </span>
+                                            </label>
+                                          </div>
+                                        </div>
+                                        <button
+                                          onClick={() => removeLesson(sIndex, lIndex)}
+                                          className="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition-colors mt-1 flex-shrink-0"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))
+                                )}
+
+                                {/* Add lesson button */}
+                                <button
+                                  onClick={() => addLesson(sIndex)}
+                                  className="w-full py-2.5 rounded-xl border-2 border-dashed border-primary/15 text-xs text-secondary/40 font-dubai font-bold hover:border-primary/30 hover:text-secondary/60 hover:bg-primary/5 transition-all flex items-center justify-center gap-1.5"
+                                >
+                                  <Plus className="w-3.5 h-3.5" />
+                                  {et.addLesson}
+                                </button>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom padding */}
+            <div className="h-6 lg:h-4" />
+          </div>
+
+        </div>
       </div>
     </div>
   );
