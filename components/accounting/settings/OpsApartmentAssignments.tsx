@@ -19,6 +19,7 @@ interface OpsManager {
   firstName: string;
   lastName: string;
   role: string;
+  image?: string | null;
 }
 
 interface Apartment {
@@ -188,6 +189,7 @@ const OpsApartmentAssignments: React.FC = () => {
             options={managers.map((m) => ({
               value: m.id,
               label: `${m.firstName} ${m.lastName} (${m.role === 'OPS_MANAGER' ? t.accounting.roles.OPS_MANAGER : t.accounting.roles.BOOKING_MANAGER})`,
+              image: m.image,
             }))}
           />
 

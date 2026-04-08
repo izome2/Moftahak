@@ -27,6 +27,7 @@ interface InvestorUser {
   firstName: string;
   lastName: string;
   email?: string | null;
+  image?: string | null;
 }
 
 interface AssignInvestorModalProps {
@@ -69,6 +70,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
             firstName: inv.firstName,
             lastName: inv.lastName,
             email: inv.email,
+            image: inv.image,
           }))
         );
       }
@@ -221,6 +223,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
                   options={investorUsers.map(u => ({
                     value: u.id,
                     label: `${u.firstName} ${u.lastName}${u.email ? ` (${u.email})` : ''}`,
+                    image: u.image,
                   }))}
                 />
               )}

@@ -11,6 +11,7 @@ import { ChevronDown, Check } from 'lucide-react';
 export interface SelectOption {
   value: string;
   label: string;
+  image?: string | null;
 }
 
 export interface SelectGroup {
@@ -65,19 +66,19 @@ export default function CustomSelect({
 
   useEffect(() => setMounted(true), []);
 
-  /* ---- resolve selected label ---- */
-  const selectedLabel = useMemo(() => {
+  /* ---- resolve selected option ---- */
+  const selectedOption = useMemo(() => {
     for (const item of options) {
       if (isGroup(item)) {
         const f = item.options.find(o => o.value === value);
-        if (f) return f.label;
-      } else if (item.value === value) return item.label;
+        if (f) return f;
+      } else if (item.value === value) return item;
     }
     return null;
   }, [options, value]);
 
-  const text = selectedLabel ?? placeholder ?? '';
-  const showPlaceholder = !selectedLabel && !!placeholder;
+  const text = selectedOption?.label ?? placeholder ?? '';
+  const showPlaceholder = !selectedOption && !!placeholder;
 
   /* ---- dropdown position (fixed, portal-safe) ---- */
   const calc = useCallback(() => {
@@ -121,6 +122,26 @@ export default function CustomSelect({
     ? 'py-2.5 px-3 rounded-xl border-2 border-primary/20 bg-white hover:border-primary/40'
     : 'p-3 rounded-xl border-2 border-primary/20 bg-accent/20 hover:border-primary/40';
 
+  /* ---- avatar helper ---- */
+  const Avatar = ({ src, name, size = 24 }: { src?: string | null; name: string; size?: number }) => {
+    const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    return src ? (
+      <img
+        src={src}
+        alt={name}
+        width={size}
+        height={size}
+        className="rounded-full object-cover shrink-0 border border-primary/15"
+        style={{ width: size, height: size }}
+      />
+    ) : (
+      <span
+        className="rounded-full bg-primary/15 text-secondary/60 flex items-center justify-center shrink-0 font-dubai font-bold border border-primary/15"
+        style={{ width: size, height: size, fontSize: size * 0.4 }}
+      >{initials}</span>
+    );
+  };
+
   /* ---- render one option row ---- */
   const optBtn = (o: SelectOption, indent = false) => (
     <button
@@ -134,7 +155,10 @@ export default function CustomSelect({
           ? 'bg-primary/12 text-secondary font-medium'
           : 'text-secondary/70 hover:bg-primary/[0.06] hover:text-secondary'}`}
     >
-      <span className="truncate">{o.label}</span>
+      <span className="flex items-center gap-2.5 truncate">
+        {o.image !== undefined && <Avatar src={o.image} name={o.label} />}
+        <span className="truncate">{o.label}</span>
+      </span>
       {o.value === value && <Check size={13} className="text-primary shrink-0" />}
     </button>
   );
@@ -155,6 +179,9 @@ export default function CustomSelect({
       >
         <span className="flex items-center gap-2 truncate">
           {icon}
+          {selectedOption?.image !== undefined && selectedOption?.image !== null && (
+            <Avatar src={selectedOption.image} name={selectedOption.label} size={22} />
+          )}
           <span className={showPlaceholder ? 'text-secondary/40' : ''}>
             {text}
           </span>
