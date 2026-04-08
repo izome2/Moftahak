@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { type AccountingRole, getEffectiveAccountingRole } from '@/lib/permissions';
+import { type AccountingRole, getEffectiveAccountingRole, getAllEffectiveRoles } from '@/lib/permissions';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -77,6 +77,7 @@ const AccountingSidebar: React.FC<AccountingSidebarProps> = ({
   const { language } = useLanguage();
 
   const userRole = (session?.user?.role || '') as string;
+  const userAdditionalRoles = ((session?.user as { additionalRoles?: string[] })?.additionalRoles || []) as string[];
 
   useEffect(() => {
     const handleResize = () => {
@@ -107,10 +108,11 @@ const AccountingSidebar: React.FC<AccountingSidebarProps> = ({
     };
   }, [isMobile, isMobileOpen]);
 
-  // فلترة العناصر حسب دور المستخدم (ADMIN يُعامَل كـ GENERAL_MANAGER)
+  // فلترة العناصر حسب أدوار المستخدم (الأساسية + الإضافية)
   const effectiveRole = getEffectiveAccountingRole(userRole) || userRole;
+  const allEffectiveRoles = getAllEffectiveRoles(userRole, userAdditionalRoles);
   const visibleItems = ALL_MENU_ITEMS.filter(item =>
-    item.roles.includes(effectiveRole as AccountingRole)
+    allEffectiveRoles.some(role => item.roles.includes(role))
   );
 
   const handleLogout = async () => {

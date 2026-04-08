@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Menu } from 'lucide-react';
 import AccountingSidebar from '@/components/accounting/Sidebar';
-import { isAccountingRole } from '@/lib/permissions';
+import { isAccountingRole, getAllEffectiveRoles } from '@/lib/permissions';
 import { ToastProvider } from '@/components/accounting/shared/Toast';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -21,20 +21,23 @@ export default function AccountingLayout({
   const t = useTranslation();
   const { language } = useLanguage();
 
+  const additionalRoles = ((session?.user as { additionalRoles?: string[] })?.additionalRoles || []) as string[];
+  const hasAccountingAccess = getAllEffectiveRoles(session?.user?.role, additionalRoles).length > 0;
+
   // حماية الصفحة - يجب أن يكون المستخدم مسجلاً ولديه دور حسابات
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/');
-    } else if (status === 'authenticated' && !isAccountingRole(session?.user?.role)) {
+    } else if (status === 'authenticated' && !hasAccountingAccess) {
       router.push('/');
     }
-  }, [status, session, router]);
+  }, [status, session, router, hasAccountingAccess]);
 
   // عرض loading أثناء التحقق
   if (
     status === 'loading' ||
     !session ||
-    !isAccountingRole(session?.user?.role)
+    !hasAccountingAccess
   ) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-l from-primary/20 via-accent/40 to-accent/60">

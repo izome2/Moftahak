@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { ACCOUNTING_ROLES } from '@/lib/permissions';
+import type { Role } from '@prisma/client';
 
 const PROTECTED_ROLES = ['ADMIN', 'GENERAL_MANAGER'];
 
@@ -28,31 +30,22 @@ export async function POST(
 
     const { code } = await params;
     const userId = session.user.id;
-    const currentRole = session.user.role;
 
-    // الحماية: لا يمكن لـ ADMIN تغيير دوره
-    if (currentRole === 'ADMIN') {
+    // جلب بيانات المستخدم الحالية من قاعدة البيانات
+    const currentUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true, additionalRoles: true },
+    });
+
+    if (!currentUser) {
       return NextResponse.json(
-        {
-          success: false,
-          message: 'لا يمكن تغيير دور المسؤول الأساسي للنظام',
-          error: 'ADMIN_PROTECTED',
-        },
-        { status: 403 }
+        { success: false, message: 'المستخدم غير موجود', error: 'USER_NOT_FOUND' },
+        { status: 404 }
       );
     }
 
-    // الحماية: لا يمكن لـ GENERAL_MANAGER التنازل عن دوره
-    if (currentRole === 'GENERAL_MANAGER') {
-      return NextResponse.json(
-        {
-          success: false,
-          message: 'لا يمكن تغيير دور المدير العام. يجب التواصل مع المسؤول الأساسي',
-          error: 'GM_PROTECTED',
-        },
-        { status: 403 }
-      );
-    }
+    const currentRole = currentUser.role;
+    const currentAdditionalRoles = currentUser.additionalRoles || [];
 
     // التحقق من صلاحية الدعوة
     const invitation = await prisma.invitation.findUnique({
@@ -80,34 +73,56 @@ export async function POST(
       );
     }
 
-    // إذا كان المستخدم بالفعل بنفس الدور المطلوب
-    if (currentRole === invitation.role) {
-      // نعلم الدعوة كمستخدمة ونعيد النجاح دون تغيير
+    const invitedRole = invitation.role;
+
+    // إذا كان المستخدم بالفعل بنفس الدور (أساسي أو إضافي)
+    const allCurrentRoles = [currentRole, ...currentAdditionalRoles] as string[];
+    if (allCurrentRoles.includes(invitedRole)) {
       await prisma.invitation.update({
         where: { id: invitation.id },
-        data: {
-          used: true,
-          usedAt: new Date(),
-          usedById: userId,
-        },
+        data: { used: true, usedAt: new Date(), usedById: userId },
       });
 
       return NextResponse.json({
         success: true,
-        message: `أنت بالفعل ${ROLE_LABELS[invitation.role] || invitation.role}`,
-        user: {
-          id: userId,
-          role: currentRole,
-        },
+        message: `أنت بالفعل ${ROLE_LABELS[invitedRole] || invitedRole}`,
+        user: { id: userId, role: currentRole, additionalRoles: currentAdditionalRoles },
         alreadySameRole: true,
       });
     }
 
-    // تحديث دور المستخدم + تعليم الدعوة كمستخدمة
+    // تحديد كيفية إضافة الدور الجديد
+    const isCurrentRoleAccounting = ACCOUNTING_ROLES.includes(currentRole as typeof ACCOUNTING_ROLES[number]);
+    const isInvitedRoleAccounting = ACCOUNTING_ROLES.includes(invitedRole as typeof ACCOUNTING_ROLES[number]);
+
+    let updateData: { role?: Role; additionalRoles?: Role[] };
+
+    if (currentRole === 'ADMIN') {
+      // ADMIN: يحتفظ بدوره الأساسي ويضيف الدور الجديد كإضافي
+      updateData = {
+        additionalRoles: [...currentAdditionalRoles, invitedRole] as Role[],
+      };
+    } else if (currentRole === 'GENERAL_MANAGER') {
+      // المدير العام: يحتفظ بدوره ويضيف كإضافي
+      updateData = {
+        additionalRoles: [...currentAdditionalRoles, invitedRole] as Role[],
+      };
+    } else if (currentRole === 'USER' || !isCurrentRoleAccounting) {
+      // مستخدم عادي بدون دور حسابات: يصبح الدور الجديد هو الأساسي
+      updateData = {
+        role: invitedRole as Role,
+      };
+    } else {
+      // لديه دور حسابات بالفعل: يحتفظ بالأساسي ويضيف الجديد كإضافي
+      updateData = {
+        additionalRoles: [...currentAdditionalRoles, invitedRole] as Role[],
+      };
+    }
+
     const [updatedUser] = await prisma.$transaction([
       prisma.user.update({
         where: { id: userId },
-        data: { role: invitation.role },
+        data: updateData,
         select: {
           id: true,
           firstName: true,
@@ -115,22 +130,19 @@ export async function POST(
           email: true,
           phone: true,
           role: true,
+          additionalRoles: true,
           image: true,
         },
       }),
       prisma.invitation.update({
         where: { id: invitation.id },
-        data: {
-          used: true,
-          usedAt: new Date(),
-          usedById: userId,
-        },
+        data: { used: true, usedAt: new Date(), usedById: userId },
       }),
     ]);
 
     return NextResponse.json({
       success: true,
-      message: `تم تعيينك كـ ${ROLE_LABELS[invitation.role] || invitation.role} بنجاح`,
+      message: `تمت إضافة دور ${ROLE_LABELS[invitedRole] || invitedRole} بنجاح`,
       user: updatedUser,
     });
   } catch (error) {
