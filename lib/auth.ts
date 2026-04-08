@@ -99,8 +99,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             token.additionalRoles = freshUser.additionalRoles || [];
             token.firstName = freshUser.firstName;
             token.lastName = freshUser.lastName;
-            token.image = freshUser.image;
-            token.phone = freshUser.phone;
+            token.image = freshUser.image ?? undefined;
+            token.phone = freshUser.phone ?? undefined;
             token.email = freshUser.email;
           }
         } catch {
