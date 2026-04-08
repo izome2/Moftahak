@@ -7,7 +7,7 @@ const SAFE_MARGIN = 12;
  * يستخدم fixed positioning لضمان بقاء القائمة داخل الـ viewport
  */
 export function useDropdownPosition() {
-  const triggerRef = useRef<HTMLButtonElement | HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement>(null);
   const [style, setStyle] = useState<CSSProperties>({});
 
   const recalculate = useCallback((estimatedHeight = 320) => {
