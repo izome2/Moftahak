@@ -19,6 +19,7 @@ import {
   Home,
   ShieldCheck,
   ScrollText,
+  ArrowRight,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
@@ -179,13 +180,26 @@ const AccountingSidebar: React.FC<AccountingSidebarProps> = ({
                   {t.accounting.roles[userRole as keyof typeof t.accounting.roles] || t.accounting.roles[effectiveRole as keyof typeof t.accounting.roles] || userRole}
                 </p>
               </div>
-              <Link
-                href="/"
-                className="p-2.5 hover:bg-primary/10 rounded-xl transition-colors shrink-0"
-                title={t.accounting.sidebar.backToMain}
-              >
-                <Home size={24} className="text-secondary" />
-              </Link>
+              <div className="flex items-center gap-1 shrink-0">
+                {userRole === 'ADMIN' && (
+                  <Link
+                    href="/admin"
+                    className="p-2 hover:bg-primary/10 rounded-xl transition-colors"
+                    title={t.accounting.sidebar.backToDashboard}
+                  >
+                    <ArrowRight size={22} className="text-secondary" />
+                  </Link>
+                )}
+                {userRole !== 'ADMIN' && (
+                  <Link
+                    href="/"
+                    className="p-2 hover:bg-primary/10 rounded-xl transition-colors"
+                    title={t.accounting.sidebar.backToMain}
+                  >
+                    <Home size={22} className="text-secondary" />
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         )}

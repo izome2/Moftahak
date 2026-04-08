@@ -359,7 +359,7 @@ const InvitationManager: React.FC = () => {
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-green-500 to-green-500/80 flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
                     <Check size={15} className="text-white" />
                   </div>
                   <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.settings.invitations.invitationCreated}</h4>

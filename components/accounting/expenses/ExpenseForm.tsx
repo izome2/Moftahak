@@ -190,7 +190,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06] shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#c09080] to-[#c09080]/80 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center">
                   <Receipt size={15} className="text-white" />
                 </div>
                 <div>

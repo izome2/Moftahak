@@ -120,112 +120,113 @@ export default function InvestorDetailPage() {
   }, [fetchData, fetchWithdrawals]);
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-5">
-      {/* Back button + Page header */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => router.back()}
-          className="w-10 h-10 rounded-xl hover:bg-secondary/5
-            flex items-center justify-center shrink-0 transition-all"
-        >
-          <ArrowRight className="w-5 h-5 text-secondary/40" />
-        </button>
-
-        <div className="flex-1">
-          <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai">
-            {t.accounting.investorDetail.financialDetails}
-          </h1>
-          {data && (
-            <p className="text-sm text-secondary/50 font-dubai mt-0.5">
-              {data.investor.firstName} {data.investor.lastName}
-            </p>
-          )}
+    <div className="flex-1 flex flex-col gap-3" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      {/* Header Card */}
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] p-3 sm:p-4 md:p-5 lg:p-6">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
+            <button
+              onClick={() => router.back()}
+              className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center shrink-0 hover:opacity-90 transition-opacity"
+            >
+              <ArrowRight size={16} className="text-white sm:w-5 sm:h-5" />
+            </button>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">
+                {t.accounting.investorDetail.financialDetails}
+                {data && (
+                  <span className="text-sm font-normal text-secondary/40 mr-2">
+                    — {data.investor.firstName} {data.investor.lastName}
+                  </span>
+                )}
+              </h1>
+              {data?.investor.email && (
+                <p className="text-xs text-secondary/60 font-dubai mt-0.5 hidden sm:flex items-center gap-1">
+                  <Mail className="w-3 h-3" />
+                  {data.investor.email}
+                </p>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={() => { fetchData(); fetchWithdrawals(); }}
+            disabled={isLoading}
+            className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all shrink-0"
+          >
+            <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
         </div>
-
-        <button
-          onClick={() => { fetchData(); fetchWithdrawals(); }}
-          disabled={isLoading}
-          className="w-10 h-10 rounded-xl hover:bg-secondary/5
-            flex items-center justify-center shrink-0 transition-all
-            disabled:opacity-40"
-        >
-          <RefreshCw className={`w-5 h-5 text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
-        </button>
       </div>
 
-      {/* Loading State */}
-      {isLoading && (
-        <div className="flex items-center justify-center py-20">
-          <div className="text-center space-y-3">
-            <Loader2 className="w-8 h-8 animate-spin text-secondary/30 mx-auto" />
-            <p className="text-sm text-secondary/50 font-dubai">{t.accounting.investorDetail.loadingData}</p>
+      {/* Content Card */}
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] flex-1 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-5 overflow-y-auto">
+        {/* Loading State */}
+        {isLoading && (
+          <div className="py-16 flex flex-col items-center gap-3 text-secondary/40">
+            <Loader2 className="w-8 h-8 animate-spin" />
+            <p className="text-sm font-dubai">{t.accounting.investorDetail.loadingData}</p>
           </div>
-        </div>
-      )}
-
-      {/* Error State */}
-      <AnimatePresence>
-        {error && !isLoading && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className="bg-red-50/80 border border-red-200/60 rounded-2xl p-5 text-center backdrop-blur-sm"
-          >
-            <AlertTriangle className="w-8 h-8 text-[#c09080] mx-auto mb-2" />
-            <p className="text-sm font-bold text-[#c09080] font-dubai mb-3">{error}</p>
-            <button
-              onClick={fetchData}
-              className="px-4 py-2 bg-secondary text-white rounded-xl text-sm font-dubai
-                hover:bg-secondary/90 transition-colors"
-            >
-              {t.accounting.common.retry}
-            </button>
-          </motion.div>
         )}
-      </AnimatePresence>
 
-      {/* Content */}
-      {data && !isLoading && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className="space-y-6"
-        >
-          {/* Investor Info Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white rounded-2xl border border-secondary/[0.08] p-5
-              shadow-sm"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-secondary/80
-                flex items-center justify-center text-white font-bold text-lg shrink-0"
+        {/* Error State */}
+        <AnimatePresence>
+          {error && !isLoading && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="bg-red-50/80 border border-red-200/60 rounded-xl px-4 py-3 text-sm text-red-600
+                flex items-center gap-2 font-dubai backdrop-blur-sm"
+            >
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              {error}
+              <button
+                onClick={fetchData}
+                className="mr-auto px-3 py-1 bg-secondary text-white rounded-lg text-xs font-dubai
+                  hover:bg-secondary/90 transition-colors"
               >
-                {data.investor.firstName.charAt(0)}
-              </div>
-              <div className="flex-1">
-                <h2 className="text-lg font-bold text-secondary font-dubai">
-                  {data.investor.firstName} {data.investor.lastName}
-                </h2>
-                {data.investor.email && (
-                  <p className="flex items-center gap-1 text-sm text-secondary/50 font-dubai mt-0.5">
-                    <Mail className="w-3.5 h-3.5" />
-                    {data.investor.email}
+                {t.accounting.common.retry}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Content */}
+        {data && !isLoading && (
+          <>
+            {/* Investor Info Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-gradient-to-bl from-[#10302b] via-[#163d36] to-[#1a4a42] rounded-2xl
+                border border-[#8a9a7a]/20 shadow-[0_8px_32px_rgba(16,48,43,0.35)] overflow-hidden p-5"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15
+                  flex items-center justify-center text-white font-bold text-lg shrink-0"
+                >
+                  {data.investor.firstName.charAt(0)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-lg font-bold text-white font-dubai truncate">
+                    {data.investor.firstName} {data.investor.lastName}
+                  </h2>
+                  {data.investor.email && (
+                    <p className="flex items-center gap-1 text-sm text-white/50 font-dubai mt-0.5">
+                      <Mail className="w-3.5 h-3.5" />
+                      <span className="truncate">{data.investor.email}</span>
+                    </p>
+                  )}
+                </div>
+                <div className="text-center shrink-0 bg-white/5 border border-white/8 rounded-xl px-4 py-3">
+                  <p className="text-[11px] text-white/50 font-dubai">{t.accounting.investorDetail.investmentsCount}</p>
+                  <p className="text-2xl font-bold text-primary font-dubai">
+                    {data.investments.length}
                   </p>
-                )}
+                </div>
               </div>
-              <div className="text-left">
-                <p className="text-xs text-secondary/40 font-dubai">{t.accounting.investorDetail.investmentsCount}</p>
-                <p className="text-2xl font-bold text-secondary font-dubai">
-                  {data.investments.length}
-                </p>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
 
           {/* Balance Card */}
           <BalanceCard
@@ -239,21 +240,24 @@ export default function InvestorDetailPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="bg-white rounded-2xl border border-secondary/[0.08] p-10 text-center"
+              className="bg-white/60 rounded-2xl border border-secondary/[0.06] p-10 text-center"
             >
-              <Building2 className="w-10 h-10 text-secondary/20 mx-auto mb-3" />
+              <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
+                <Building2 className="w-6 h-6 text-secondary/25" />
+              </div>
               <p className="text-sm text-secondary/40 font-dubai">{t.accounting.investorDetail.noInvestments}</p>
             </motion.div>
           ) : (
             <div className="space-y-4">
-              <h3 className="text-base font-bold text-secondary font-dubai flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-secondary to-secondary/80
-                  flex items-center justify-center"
-                >
-                  <Building2 className="w-4 h-4 text-white" />
-                </div>
-                {t.accounting.investorDetail.investments(data.investments.length)}
-              </h3>
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.25 }}
+                className="flex items-center gap-2 text-xs text-secondary/60 font-dubai"
+              >
+                <Building2 className="w-3.5 h-3.5" />
+                <span>{t.accounting.investorDetail.investments(data.investments.length)}</span>
+              </motion.div>
               {data.investments.map((inv) => (
                 <ApartmentView key={inv.investmentId} investment={inv} />
               ))}
@@ -266,8 +270,9 @@ export default function InvestorDetailPage() {
             total={withdrawalsTotal}
             isLoading={isWithdrawalsLoading}
           />
-        </motion.div>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

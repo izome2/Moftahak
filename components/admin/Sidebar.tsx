@@ -16,7 +16,8 @@ import {
   X,
   Home,
   PlayCircle,
-  ClipboardList
+  ClipboardList,
+  Calculator
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
@@ -72,6 +73,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onClose, onOpen }) => {
     { icon: ClipboardList, label: t.admin.sidebar.enrollments, href: '/admin/courses/enrollments' },
     { icon: MessageSquare, label: t.admin.sidebar.consultationRequests, href: '/admin/consultations' },
     { icon: Users, label: t.admin.sidebar.users, href: '/admin/users' },
+    { icon: Calculator, label: t.admin.sidebar.accountingSystem, href: '/accounting', isExternal: true },
     { icon: Settings, label: t.admin.sidebar.settings, href: '/admin/settings' },
   ];
 
@@ -155,7 +157,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onClose, onOpen }) => {
         <nav className="flex-1 p-4 overflow-y-auto">
           <ul className="space-y-2">
             {menuItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = item.href === '/accounting' 
+                ? pathname?.startsWith('/accounting') 
+                : pathname === item.href;
               const Icon = item.icon;
               const isSettingsPage = item.href === '/admin/settings';
 

@@ -39,6 +39,7 @@ import {
 import Link from 'next/link';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useDropdownPosition } from '@/hooks/useDropdownPosition';
 
 // ============================================
 // 🎨 DESIGN TOKENS
@@ -133,6 +134,7 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
+  const moreMenu = useDropdownPosition();
   const statusLabels: Record<string, string> = {
     PENDING: t.admin.consultationStatus.new,
     READ: t.admin.consultationStatus.read,
@@ -262,9 +264,14 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
             {/* قائمة المزيد */}
             <div className="relative">
               <motion.button 
+                ref={moreMenu.triggerRef as React.RefObject<HTMLButtonElement>}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => setMenuOpen(menuOpen === consultation.id ? null : consultation.id)}
+                onClick={() => {
+                  const opening = menuOpen !== consultation.id;
+                  if (opening) moreMenu.recalculate(180);
+                  setMenuOpen(opening ? consultation.id : null);
+                }}
                 className="p-2.5 hover:bg-primary/10 rounded-xl transition-colors"
               >
                 <MoreVertical className="w-5 h-5 text-secondary/60" />
@@ -274,16 +281,16 @@ const ConsultationCard: React.FC<ConsultationCardProps> = ({
                 {menuOpen === consultation.id && (
                   <>
                     <div 
-                      className="fixed inset-0 z-[150]"
+                      className="fixed inset-0 z-[299]"
                       onClick={() => setMenuOpen(null)}
                     />
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: -5 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute left-0 top-full mt-2 bg-white rounded-2xl border-2 border-primary/30 py-2 z-[160] min-w-[160px] overflow-hidden"
-                      style={{ boxShadow: SHADOWS.popup }}
+                      className="bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
+                      style={{ ...moreMenu.style, boxShadow: SHADOWS.popup }}
                     >
                       <div className="px-2 py-1">
                         <button
@@ -345,6 +352,7 @@ export default function ConsultationsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
+  const filterMenu = useDropdownPosition();
 
   // Status label lookup
   const statusLabels: Record<string, string> = {
@@ -526,12 +534,16 @@ export default function ConsultationsPage() {
           </div>
 
           {/* فلتر الحالة */}
-          <div className="relative z-[9999]">
+          <div className="relative">
             <motion.button
+              ref={filterMenu.triggerRef as React.RefObject<HTMLButtonElement>}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
-              onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
-              className="flex items-center gap-3 px-4 py-4 bg-white border-2 border-primary/20 rounded-2xl cursor-pointer min-w-[180px] transition-all hover:border-primary/40"
+              onClick={() => {
+                if (!filterDropdownOpen) filterMenu.recalculate(250);
+                setFilterDropdownOpen(!filterDropdownOpen);
+              }}
+              className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4 bg-white border-2 border-primary/20 rounded-2xl cursor-pointer sm:min-w-[180px] transition-all hover:border-primary/40"
               style={{ boxShadow: SHADOWS.card }}
             >
               <Funnel className="w-5 h-5 text-secondary/40" />
@@ -552,16 +564,16 @@ export default function ConsultationsPage() {
               {filterDropdownOpen && (
                 <>
                   <div 
-                    className="fixed inset-0 z-[99998]"
+                    className="fixed inset-0 z-[299]"
                     onClick={() => setFilterDropdownOpen(false)}
                   />
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border-2 border-primary/30 py-2 z-[99999] overflow-hidden"
-                    style={{ boxShadow: SHADOWS.popup }}
+                    className="bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
+                    style={{ ...filterMenu.style, boxShadow: SHADOWS.popup }}
                   >
                     {filterOptions.map((option) => {
                       const isSelected = statusFilter === option.value;

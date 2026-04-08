@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Users, FileText, MessageSquare, Star, Menu, Loader2, Clock, CheckCircle2, Eye, Calculator, PlayCircle, ClipboardList, DollarSign } from 'lucide-react';
+import { Users, FileText, MessageSquare, Star, Menu, Loader2, Clock, CheckCircle2, Eye, PlayCircle, ClipboardList, DollarSign } from 'lucide-react';
 import StatsCard from '@/components/admin/StatsCard';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -243,48 +243,18 @@ export default function AdminDashboard() {
         />
       </div>
 
-      {/* بطاقة نظام الحسابات */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-        style={{ transform: 'translateZ(0)' }}
-      >
-        <Link
-          href="/accounting"
-          className="block bg-gradient-to-l from-secondary to-secondary/90 border-2 border-primary/30 p-6 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)] hover:shadow-[0_8px_30px_rgba(237,191,140,0.25)] transition-all duration-300 hover:-translate-y-1 group"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
-                <Calculator className="w-7 h-7 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-white font-dubai">{t.admin.dashboard.accountingSystem}</h3>
-                <p className="text-sm text-white/60 font-dubai mt-1">
-                  {t.admin.dashboard.accountingDesc}
-                </p>
-              </div>
-            </div>
-            <div className="text-primary text-2xl group-hover:translate-x-[-4px] transition-transform">
-              ←
-            </div>
-          </div>
-        </Link>
-      </motion.div>
-
       {/* الأقسام الإضافية */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* آخر المستخدمين */}
         <motion.div 
-          className="bg-white border-2 border-primary/20 p-6 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)] hover:shadow-[0_8px_30px_rgba(237,191,140,0.25)] will-change-transform"
+          className="bg-white border-2 border-primary/20 p-4 sm:p-6 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)] hover:shadow-[0_8px_30px_rgba(237,191,140,0.25)] will-change-transform"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
           style={{ transform: 'translateZ(0)' }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-secondary font-dubai">
+            <h2 className="text-lg sm:text-xl font-bold text-secondary font-dubai">
               {t.admin.dashboard.recentUsers}
             </h2>
             <Link 
@@ -344,14 +314,14 @@ export default function AdminDashboard() {
 
         {/* آخر الطلبات */}
         <motion.div 
-          className="bg-white border-2 border-primary/20 p-6 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)] hover:shadow-[0_8px_30px_rgba(237,191,140,0.25)] will-change-transform"
+          className="bg-white border-2 border-primary/20 p-4 sm:p-6 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)] hover:shadow-[0_8px_30px_rgba(237,191,140,0.25)] will-change-transform"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
           style={{ transform: 'translateZ(0)' }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-secondary font-dubai">
+            <h2 className="text-lg sm:text-xl font-bold text-secondary font-dubai">
               {t.admin.dashboard.recentConsultations}
             </h2>
             <Link 
@@ -419,14 +389,14 @@ export default function AdminDashboard() {
       {/* آخر طلبات الاشتراك في الدورات */}
       {recentEnrollments.length > 0 && (
         <motion.div 
-          className="bg-white border-2 border-primary/20 p-6 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)] hover:shadow-[0_8px_30px_rgba(237,191,140,0.25)] will-change-transform"
+          className="bg-white border-2 border-primary/20 p-4 sm:p-6 rounded-2xl shadow-[0_4px_20px_rgba(237,191,140,0.15)] hover:shadow-[0_8px_30px_rgba(237,191,140,0.25)] will-change-transform"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
           style={{ transform: 'translateZ(0)' }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-secondary font-dubai">
+            <h2 className="text-lg sm:text-xl font-bold text-secondary font-dubai">
               {t.admin.dashboard.recentEnrollments}
             </h2>
             <Link 

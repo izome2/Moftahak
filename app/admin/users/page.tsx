@@ -35,6 +35,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useDropdownPosition } from '@/hooks/useDropdownPosition';
 
 // ============================================
 // 🎨 DESIGN TOKENS
@@ -142,6 +143,9 @@ const UserCard: React.FC<UserCardProps> = ({
   const isCurrentUser = user.id === currentUserId;
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMenu = useDropdownPosition();
+  const desktopRoleMenu = useDropdownPosition();
+  const desktopMoreMenu = useDropdownPosition();
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -182,8 +186,9 @@ const UserCard: React.FC<UserCardProps> = ({
         }}
       />
 
-      <div className="relative p-5">
-        <div className="flex items-start gap-4">
+      <div className="relative p-4 sm:p-5">
+        {/* Desktop layout */}
+        <div className="hidden sm:flex items-start gap-4">
           {/* صورة المستخدم */}
           <motion.div 
             className="relative w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center border-2 border-primary/30 shrink-0 overflow-hidden"
@@ -224,19 +229,19 @@ const UserCard: React.FC<UserCardProps> = ({
             {/* معلومات التواصل */}
             <div className="flex flex-wrap items-center gap-4 text-sm text-secondary/60">
               <span className="flex items-center gap-1.5">
-                <Mail className="w-4 h-4" />
-                {user.email}
+                <Mail className="w-4 h-4 shrink-0" />
+                <span className="truncate">{user.email}</span>
               </span>
               <span className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4" />
+                <Calendar className="w-4 h-4 shrink-0" />
                 {new Date(user.createdAt).toLocaleDateString('ar-EG')}
               </span>
             </div>
           </div>
 
-          {/* الإجراءات */}
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-2 relative" ref={dropdownRef}>
+          {/* الإجراءات - Desktop */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 relative" ref={dropdownRef}>
               {actionLoading === user.id ? (
                 <div className="px-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white">
                   <Loader2 className="w-4 h-4 animate-spin text-secondary/60" />
@@ -244,9 +249,13 @@ const UserCard: React.FC<UserCardProps> = ({
               ) : (
                 <div className="relative">
                   <motion.button
+                    ref={desktopRoleMenu.triggerRef as React.RefObject<HTMLButtonElement>}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                    onClick={() => { 
+                      if (!roleDropdownOpen) desktopRoleMenu.recalculate(350);
+                      setRoleDropdownOpen(!roleDropdownOpen); 
+                    }}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-dubai font-medium text-sm border-2 transition-all cursor-pointer ${
                       roleDropdownOpen 
                         ? 'border-primary/50 bg-primary/5' 
@@ -262,12 +271,12 @@ const UserCard: React.FC<UserCardProps> = ({
                   <AnimatePresence>
                     {roleDropdownOpen && (
                       <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: -5 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute left-0 top-full mt-2 bg-white rounded-2xl border-2 border-primary/30 py-2 z-[300] min-w-[200px] overflow-hidden"
-                        style={{ boxShadow: SHADOWS.popup }}
+                        className="bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
+                        style={{ ...desktopRoleMenu.style, boxShadow: SHADOWS.popup }}
                       >
                         <p className="px-4 py-1.5 text-xs font-dubai text-secondary/40 font-medium">{t.admin.usersPage.chooseRole}</p>
                         <div className="px-1.5">
@@ -307,12 +316,17 @@ const UserCard: React.FC<UserCardProps> = ({
               )}
             </div>
 
-            {/* قائمة المزيد */}
+            {/* قائمة المزيد - Desktop */}
             <div className="relative">
               <motion.button 
+                ref={desktopMoreMenu.triggerRef as React.RefObject<HTMLButtonElement>}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => setMenuOpen(menuOpen === user.id ? null : user.id)}
+                onClick={() => {
+                  const opening = menuOpen !== user.id;
+                  if (opening) desktopMoreMenu.recalculate(200);
+                  setMenuOpen(opening ? user.id : null);
+                }}
                 className="p-2.5 hover:bg-primary/10 rounded-xl transition-colors"
               >
                 <MoreVertical className="w-5 h-5 text-secondary/60" />
@@ -322,16 +336,16 @@ const UserCard: React.FC<UserCardProps> = ({
                 {menuOpen === user.id && (
                   <>
                     <div 
-                      className="fixed inset-0 z-150"
+                      className="fixed inset-0 z-[299]"
                       onClick={() => setMenuOpen(null)}
                     />
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: -5 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute left-0 top-full mt-2 bg-white rounded-2xl border-2 border-primary/30 py-2 z-160 min-w-[180px] overflow-hidden"
-                      style={{ boxShadow: SHADOWS.popup }}
+                      className="bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
+                      style={{ ...desktopMoreMenu.style, boxShadow: SHADOWS.popup }}
                     >
                       <div className="px-2 py-1">
                         <button
@@ -347,8 +361,115 @@ const UserCard: React.FC<UserCardProps> = ({
                         </button>
                       </div>
                       
-                      {/* خيار تغيير الصلاحية للموبايل */}
-                      <div className="px-2 py-1 sm:hidden">
+                      {!isCurrentUser && (
+                        <>
+                          <div className="h-px bg-primary/10 my-1" />
+                          
+                          <div className="px-2 py-1">
+                            <button
+                              onClick={() => {
+                                onDelete(user.id);
+                                setMenuOpen(null);
+                              }}
+                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-dubai text-red-600 hover:bg-red-50 transition-colors group/item"
+                            >
+                              <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center group-hover/item:bg-red-100 transition-colors">
+                                <Trash2 className="w-4 h-4" />
+                              </div>
+                              <span className="flex-1 text-right">{t.admin.usersPage.deleteUser}</span>
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile layout */}
+        <div className="sm:hidden space-y-3">
+          {/* الصف الأول: الصورة + الاسم + زر المزيد */}
+          <div className="flex items-center gap-3">
+            <motion.div 
+              className="relative w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center border-2 border-primary/30 shrink-0 overflow-hidden"
+              style={{ boxShadow: SHADOWS.icon }}
+            >
+              {user.image ? (
+                <Image
+                  src={user.image}
+                  alt={`${user.firstName} ${user.lastName}`}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <span className="text-sm font-bold text-secondary font-dubai">
+                  {user.firstName[0]}{user.lastName[0]}
+                </span>
+              )}
+            </motion.div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-dubai font-bold text-[15px] text-secondary truncate">
+                  {user.firstName} {user.lastName}
+                </h3>
+                {isCurrentUser && (
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-dubai font-medium bg-primary/20 text-primary border border-primary/30">
+                    {t.admin.usersPage.you}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* زر المزيد - Mobile */}
+            <div className="relative shrink-0">
+              <motion.button 
+                ref={mobileMenu.triggerRef as React.RefObject<HTMLButtonElement>}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => {
+                  const opening = menuOpen !== user.id;
+                  if (opening) mobileMenu.recalculate(400);
+                  setMenuOpen(opening ? user.id : null);
+                }}
+                className="p-2 hover:bg-primary/10 rounded-xl transition-colors"
+              >
+                <MoreVertical className="w-5 h-5 text-secondary/60" />
+              </motion.button>
+              
+              <AnimatePresence>
+                {menuOpen === user.id && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-[299]"
+                      onClick={() => setMenuOpen(null)}
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="bg-white rounded-2xl border-2 border-primary/30 py-2 overflow-y-auto"
+                      style={{ ...mobileMenu.style, boxShadow: SHADOWS.popup }}
+                    >
+                      <div className="px-2 py-1">
+                        <button
+                          onClick={() => {
+                            setMenuOpen(null);
+                          }}
+                          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-dubai text-secondary hover:bg-primary/10 transition-colors group/item"
+                        >
+                          <div className="w-8 h-8 bg-secondary/5 rounded-lg flex items-center justify-center group-hover/item:bg-secondary/10 transition-colors">
+                            <Eye className="w-4 h-4" />
+                          </div>
+                          <span className="flex-1 text-right">{t.admin.viewDetails}</span>
+                        </button>
+                      </div>
+                      
+                      {/* تغيير الصلاحية - Mobile */}
+                      <div className="px-2 py-1">
                         <p className="px-3 py-1.5 text-xs font-dubai text-secondary/40 font-medium">{t.admin.usersPage.changeRole}</p>
                         {Object.entries(roleConfig).map(([value, config]) => {
                           const RIcon = config.icon;
@@ -403,6 +524,26 @@ const UserCard: React.FC<UserCardProps> = ({
                 )}
               </AnimatePresence>
             </div>
+          </div>
+
+          {/* الصف الثاني: بادج الدور */}
+          <div>
+            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-dubai font-medium border ${role.bgColor} ${role.textColor} ${role.borderColor}`}>
+              <RoleIcon className="w-3 h-3 ml-1.5" />
+              {roleLabel}
+            </span>
+          </div>
+
+          {/* الصف الثالث: البريد والتاريخ */}
+          <div className="flex items-center justify-between gap-2 text-xs text-secondary/60">
+            <span className="flex items-center gap-1.5 min-w-0">
+              <Mail className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">{user.email}</span>
+            </span>
+            <span className="flex items-center gap-1.5 shrink-0">
+              <Calendar className="w-3.5 h-3.5" />
+              {new Date(user.createdAt).toLocaleDateString('ar-EG')}
+            </span>
           </div>
         </div>
       </div>

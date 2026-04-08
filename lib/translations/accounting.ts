@@ -235,6 +235,7 @@ const accountingTranslations = {
         audit: 'سجل المراجعة',
         settings: 'الإعدادات',
         backToMain: 'العودة للصفحة الرئيسية',
+        backToDashboard: 'العودة للوحة التحكم',
         logout: 'تسجيل الخروج',
       },
 
@@ -1441,6 +1442,7 @@ const accountingTranslations = {
         audit: 'Audit Log',
         settings: 'Settings',
         backToMain: 'Back to Main Page',
+        backToDashboard: 'Back to Dashboard',
         logout: 'Logout',
       },
 

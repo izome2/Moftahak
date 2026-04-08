@@ -44,6 +44,7 @@ import {
 import useCurrencyFormatter from '@/hooks/useCurrencyFormatter';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useDropdownPosition } from '@/hooks/useDropdownPosition';
 
 // ============================================
 // 🎨 DESIGN TOKENS
@@ -213,6 +214,7 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
 }) => {
   const t = useTranslation();
   const { language } = useLanguage();
+  const moreMenu = useDropdownPosition();
   const propertyTypeLabels = t.admin.propertyTypes;
   const studyTypeLabelsMap = t.admin.studyTypes;
   const isRequest = item.type === 'request';
@@ -484,9 +486,13 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
             {/* قائمة المزيد */}
             <div className="relative">
               <motion.button 
+                ref={moreMenu.triggerRef}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => setMenuOpen(menuOpen === id ? null : id)}
+                onClick={() => {
+                  moreMenu.recalculate(200);
+                  setMenuOpen(menuOpen === id ? null : id);
+                }}
                 className="p-2.5 hover:bg-primary/10 rounded-xl transition-colors"
               >
                 <MoreVertical className="w-5 h-5 text-secondary/60" />
@@ -496,16 +502,16 @@ const UnifiedCard: React.FC<UnifiedCardProps> = ({
                 {menuOpen === id && (
                   <>
                     <div 
-                      className="fixed inset-0 z-150"
+                      className="fixed inset-0 z-[299]"
                       onClick={() => setMenuOpen(null)}
                     />
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: -5 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute left-0 top-full mt-2 bg-white rounded-2xl border-2 border-primary/20 py-3 z-160 min-w-40 overflow-hidden"
-                      style={{ boxShadow: SHADOWS.popup }}
+                      className="bg-white rounded-2xl border-2 border-primary/20 py-3 min-w-40 overflow-y-auto"
+                      style={{ ...moreMenu.style, boxShadow: SHADOWS.popup }}
                     >
                       {/* معاينة */}
                       {shareId && (
