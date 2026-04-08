@@ -100,10 +100,18 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     let totalRevenue = 0;
     let totalExpenses = 0;
     let totalInvestorProfit = 0;
+    let totalOccupiedNights = 0;
+    let totalDaysInPeriod = 0;
 
     const monthlyBreakdown = snapshots.map(snap => {
       totalRevenue += snap.totalRevenue;
       totalExpenses += snap.totalExpenses;
+
+      // حساب أيام الشهر لنسبة الإشغال
+      const [y, m] = snap.month.split('-').map(Number);
+      const daysInMonth = new Date(y, m, 0).getDate();
+      totalOccupiedNights += snap.occupiedNights;
+      totalDaysInPeriod += daysInMonth;
 
       // 🔒 النسبة: تاريخية (إذا مقفل ومحفوظ) أو حالية
       const effectivePercentage = snap.isLocked
@@ -124,6 +132,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       };
     });
 
+    // نسبة الإشغال الإجمالية للشقة
+    const occupancyRate = totalDaysInPeriod > 0
+      ? Math.round((totalOccupiedNights / totalDaysInPeriod) * 100)
+      : 0;
+
     return {
       investmentId: inv.id,
       apartment: inv.apartment,
@@ -133,17 +146,28 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       totalExpenses,
       profit: totalRevenue - totalExpenses,
       investorProfit: totalInvestorProfit,
+      occupancyRate,
       monthlyBreakdown,
     };
   }));
 
-  // ⚡ حساب إجمالي المسحوبات عبر كل الشقق (وليس لكل شقة على حدة)
+  // ⚡ حساب المسحوبات لكل استثمار + الإجمالي
   const allInvestmentIds = investments.map(inv => inv.id);
-  const globalWithdrawals = await prisma.withdrawal.aggregate({
+  
+  // مسحوبات لكل شقة (للعرض التفصيلي)
+  const withdrawalsByInvestment = await prisma.withdrawal.groupBy({
+    by: ['apartmentInvestorId'],
     _sum: { amount: true },
     where: { apartmentInvestorId: { in: allInvestmentIds }, deletedAt: null },
   });
-  const totalGlobalWithdrawals = globalWithdrawals._sum.amount || 0;
+  const withdrawalMap = new Map(
+    withdrawalsByInvestment.map(w => [w.apartmentInvestorId, w._sum.amount || 0])
+  );
+
+  // إجمالي المسحوبات عبر كل الشقق
+  const totalGlobalWithdrawals = withdrawalsByInvestment.reduce(
+    (sum, w) => sum + (w._sum.amount || 0), 0
+  );
 
   // حساب الإجماليات - الرصيد الإجمالي = إجمالي الأرباح - إجمالي المسحوبات من كل الشقق
   const totalInvestorProfitAll = result.reduce((s, r) => s + r.investorProfit, 0);
@@ -153,12 +177,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     totalBalance: totalInvestorProfitAll - totalGlobalWithdrawals,
   };
 
-  // إضافة بيانات المسحوبات لكل شقة (للعرض فقط)
-  const investmentsWithWithdrawals = result.map(r => ({
-    ...r,
-    totalWithdrawals: 0, // المسحوبات الآن إجمالية وليست لكل شقة
-    balance: r.investorProfit, // رصيد الشقة = أرباحها فقط (المسحوبات تُخصم من الإجمالي)
-  }));
+  // إضافة بيانات المسحوبات لكل شقة
+  const investmentsWithWithdrawals = result.map(r => {
+    const aptWithdrawals = withdrawalMap.get(r.investmentId) || 0;
+    return {
+      ...r,
+      totalWithdrawals: aptWithdrawals,
+      balance: r.investorProfit - aptWithdrawals,
+    };
+  });
 
   return successResponse({
     investor: user,

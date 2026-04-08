@@ -185,7 +185,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-lg border border-secondary/[0.08] overflow-hidden max-h-[90vh] flex flex-col"
+            className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-lg border border-secondary/[0.08] overflow-hidden max-h-[95vh] sm:max-h-[90vh] flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06] shrink-0">
@@ -365,7 +365,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                     className="p-5 space-y-5"
                   >
                     {/* Amount + Date */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <FormField
                         icon={<CreditCard size={11} className="text-emerald-500/70" />}
                         label={t.accounting.expenseForm.amount}

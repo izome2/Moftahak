@@ -32,9 +32,9 @@ export async function GET(request: NextRequest) {
   if (projectId) where.projectId = projectId;
   if (!includeInactive) where.isActive = true;
 
-  // 🔒 مدير التشغيل يرى فقط الشقق المعينة له
+  // 🔒 مدير التشغيل ومدير الحجوزات يرون فقط الشقق المعينة لهم
   const effectiveRole = getEffectiveAccountingRole(authResult.role);
-  if (effectiveRole === 'OPS_MANAGER') {
+  if (effectiveRole === 'OPS_MANAGER' || effectiveRole === 'BOOKING_MANAGER') {
     const assignedIds = await getAssignedApartmentIds(authResult.userId);
     if (assignedIds.length > 0) {
       where.id = { in: assignedIds };

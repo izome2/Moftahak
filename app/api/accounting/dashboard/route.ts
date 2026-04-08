@@ -39,9 +39,9 @@ export async function GET(request: NextRequest) {
   const startOfMonth = new Date(year, m - 1, 1);
   const endOfMonth = new Date(year, m, 1);
 
-  // 🔒 مدير التشغيل: فقط الشقق المعينة له
+  // 🔒 مدير التشغيل ومدير الحجوزات: فقط الشقق المعينة لهم
   let assignedApartmentFilter: Record<string, unknown> | undefined;
-  if (effectiveRole === 'OPS_MANAGER') {
+  if (effectiveRole === 'OPS_MANAGER' || effectiveRole === 'BOOKING_MANAGER') {
     const assignedIds = await getAssignedApartmentIds(authResult.userId);
     if (assignedIds.length > 0) {
       assignedApartmentFilter = { apartmentId: { in: assignedIds } };

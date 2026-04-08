@@ -80,12 +80,12 @@ const CheckOutTable: React.FC<CheckOutTableProps> = ({
           <table className="w-full text-sm">
             <thead className="sticky top-0 z-10">
               <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Building2 size={12} />{t.accounting.daily.apartment}</span></th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><User size={12} />{t.accounting.daily.guest}</span></th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Phone size={12} />{t.accounting.daily.contact}</span></th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Calendar size={12} />{t.accounting.daily.departure}</span></th>
+                <th className="text-right px-2 sm:px-4 py-2 sm:py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Building2 size={12} />{t.accounting.daily.apartment}</span></th>
+                <th className="text-right px-2 sm:px-4 py-2 sm:py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><User size={12} />{t.accounting.daily.guest}</span></th>
+                <th className="text-right px-2 sm:px-4 py-2 sm:py-3 text-[11px] text-secondary/45 font-medium font-dubai hidden md:table-cell"><span className="inline-flex items-center gap-1"><Phone size={12} />{t.accounting.daily.contact}</span></th>
+                <th className="text-right px-2 sm:px-4 py-2 sm:py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Calendar size={12} />{t.accounting.daily.departure}</span></th>
                 {canAssignSupervisor && (
-                  <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><UserCheck size={12} />{t.accounting.daily.deliverySupervisor}</span></th>
+                  <th className="text-right px-2 sm:px-4 py-2 sm:py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><UserCheck size={12} />{t.accounting.daily.deliverySupervisor}</span></th>
                 )}
               </tr>
             </thead>
@@ -104,7 +104,7 @@ const CheckOutTable: React.FC<CheckOutTableProps> = ({
                     `}
                   >
                     {/* الشقة */}
-                    <td className="px-4 py-3">
+                    <td className="px-2 sm:px-4 py-2 sm:py-3">
                       <div className="flex items-center gap-1.5">
                         <Building2 className="w-3.5 h-3.5 text-secondary/40" />
                         <span className="font-medium text-secondary font-dubai">
@@ -114,14 +114,14 @@ const CheckOutTable: React.FC<CheckOutTableProps> = ({
                     </td>
 
                     {/* الضيف */}
-                    <td className="px-4 py-3">
+                    <td className="px-2 sm:px-4 py-2 sm:py-3">
                       <span className="font-medium text-secondary font-dubai">
                         {row.clientName}
                       </span>
                     </td>
 
                     {/* التواصل */}
-                    <td className="px-4 py-3">
+                    <td className="px-2 sm:px-4 py-2 sm:py-3 hidden md:table-cell">
                       {row.clientPhone ? (
                         <a
                           href={`tel:${row.clientPhone}`}
@@ -137,7 +137,7 @@ const CheckOutTable: React.FC<CheckOutTableProps> = ({
                     </td>
 
                     {/* الخروج */}
-                    <td className="px-4 py-3">
+                    <td className="px-2 sm:px-4 py-2 sm:py-3">
                       <span className="text-secondary/70 text-xs font-dubai">
                         {formatDate(row.checkOut)}
                       </span>
@@ -145,7 +145,7 @@ const CheckOutTable: React.FC<CheckOutTableProps> = ({
 
                     {/* مشرف الاستلام */}
                     {canAssignSupervisor && (
-                      <td className="px-4 py-3">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3">
                         <SupervisorSelect
                           bookingId={row.id}
                           field="deliverySupervisor"

@@ -226,22 +226,22 @@ export default function ReportsPage() {
   const yearOptions = Array.from({ length: 5 }, (_, i) => String(currentYear - i));
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-5" dir="rtl">
-      {/* Page Header */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
-            <BarChart3 size={20} className="text-white" />
+    <div className="flex-1 flex flex-col gap-3" dir="rtl">
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] p-3 sm:p-4 md:p-5 lg:p-6 space-y-2 sm:space-y-3">
+      {/* Title + Actions */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
+          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center shrink-0">
+            <BarChart3 size={16} className="text-white sm:w-5 sm:h-5" />
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">{t.accounting.reports.title}</h1>
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">{t.accounting.reports.title}</h1>
             <p className="text-xs text-secondary/50 font-dubai mt-0.5 hidden sm:block">
               {mode === 'monthly' ? t.accounting.reports.monthlySubtitle : t.accounting.reports.yearlySubtitle}
             </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 shrink-0">
           <ExportButtons
             month={mode === 'monthly' ? month : year}
             reportType={mode}
@@ -249,9 +249,9 @@ export default function ReportsPage() {
           <button
             onClick={() => mode === 'monthly' ? fetchMonthly(month) : fetchAnnual(year)}
             disabled={isLoading}
-            className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
+            className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
           >
-            <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
@@ -294,7 +294,9 @@ export default function ReportsPage() {
           />
         )}
       </div>
+      </div>
 
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] flex-1 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-5 overflow-y-auto">
       {/* Error */}
       <AnimatePresence>
         {error && (
@@ -487,6 +489,7 @@ export default function ReportsPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

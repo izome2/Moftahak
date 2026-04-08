@@ -60,7 +60,7 @@ export default function AccountingLayout({
         {/* زر فتح القائمة على الموبايل */}
         <button
           onClick={() => setIsMobileMenuOpen(true)}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 px-6 py-3 rounded-full bg-white text-secondary hover:bg-primary/10 transition-all duration-300 hover:scale-105 lg:hidden flex items-center gap-2 shadow-[0_10px_40px_rgba(16,48,43,0.15),0_0_0_1px_rgba(237,191,140,0.3)]"
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-white text-secondary hover:bg-primary/10 transition-all duration-300 hover:scale-105 lg:hidden flex items-center gap-2 shadow-[0_10px_40px_rgba(16,48,43,0.15),0_0_0_1px_rgba(237,191,140,0.3)]"
           aria-label={t.accounting.common.openMenu}
         >
           <Menu className="w-5 h-5" />
@@ -69,8 +69,8 @@ export default function AccountingLayout({
 
         {/* المحتوى الرئيسي */}
         <main className="relative min-h-screen lg:mr-[21rem]">
-          <div className="h-full min-h-screen p-4 sm:p-6 lg:p-8 lg:pr-4">
-            <div className="flex-1 overflow-visible flex flex-col bg-white/95 rounded-xl lg:rounded-2xl shadow-lg border border-secondary/[0.08] min-h-[calc(100vh-4rem)]">
+          <div className="h-full min-h-screen p-2 sm:p-4 md:p-6 lg:p-8 lg:pr-4 pb-20 lg:pb-8">
+            <div className="flex flex-col gap-3 min-h-[calc(100vh-4rem)]">
               {children}
             </div>
           </div>

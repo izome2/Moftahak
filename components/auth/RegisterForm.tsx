@@ -484,7 +484,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin, onSuccess,
         }
       } else {
         console.error('Registration failed:', data);
-        if (data.error === 'EMAIL_EXISTS') {
+        if (data.error === 'USE_EXISTING_ACCOUNT') {
+          // الحساب موجود بالفعل + يوجد كود دعوة → ننتقل لتسجيل الدخول
+          setErrors({ general: 'لديك حساب بالفعل! قم بتسجيل الدخول لقبول الدعوة' });
+          setTimeout(() => {
+            onSwitchToLogin();
+          }, 2000);
+        } else if (data.error === 'EMAIL_EXISTS') {
           setErrors({ email: 'هذا البريد الإلكتروني مسجل بالفعل. هل تريد تسجيل الدخول؟' });
         } else if (data.error === 'PHONE_EXISTS') {
           setErrors({ phone: 'هذا الرقم مسجل بالفعل. هل تريد تسجيل الدخول؟' });

@@ -13,7 +13,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
-import { hasPermission, hasAnyPermission, isAccountingRole, getEffectiveAccountingRole } from '@/lib/permissions';
+import { hasPermission, hasAnyPermission, isAccountingRole, getEffectiveAccountingRole, getAllEffectiveRoles } from '@/lib/permissions';
 import type { Permission } from '@/lib/permissions';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { addSecurityHeaders } from '@/lib/security-headers';
@@ -74,8 +74,11 @@ export async function requireAccountingSession(): Promise<AuthResult> {
   }
 
   const role = session.user.role;
+  const additionalRoles = (session.user as { additionalRoles?: string[] }).additionalRoles || [];
 
-  if (!isAccountingRole(role)) {
+  // التحقق من وجود أي دور حسابات (أساسي أو إضافي)
+  const allRoles = getAllEffectiveRoles(role, additionalRoles);
+  if (allRoles.length === 0) {
     return {
       session: null,
       userId: null,
@@ -109,7 +112,8 @@ export async function requireAccountingAuth(
   const sessionResult = await requireAccountingSession();
   if (sessionResult.error) return sessionResult;
 
-  if (!hasPermission(sessionResult.role, permission)) {
+  const additionalRoles = (sessionResult.session?.user as { additionalRoles?: string[] })?.additionalRoles || [];
+  if (!hasPermission(sessionResult.role, permission, additionalRoles)) {
     return {
       session: null,
       userId: null,
@@ -135,7 +139,8 @@ export async function requireAnyAccountingAuth(
   const sessionResult = await requireAccountingSession();
   if (sessionResult.error) return sessionResult;
 
-  if (!hasAnyPermission(sessionResult.role, permissions)) {
+  const additionalRoles = (sessionResult.session?.user as { additionalRoles?: string[] })?.additionalRoles || [];
+  if (!hasAnyPermission(sessionResult.role, permissions, additionalRoles)) {
     return {
       session: null,
       userId: null,

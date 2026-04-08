@@ -43,9 +43,10 @@ async function loadExchangeRates(): Promise<Map<string, number>> {
   const newCache = new Map<string, number>();
 
   for (const rate of rates) {
-    // Store both directions
-    const forwardKey = `${rate.fromCurrency}->${rate.toCurrency}`;
-    const reverseKey = `${rate.toCurrency}->${rate.fromCurrency}`;
+    const monthKey = rate.month || 'default';
+    // Store both directions with month
+    const forwardKey = `${rate.fromCurrency}->${rate.toCurrency}@${monthKey}`;
+    const reverseKey = `${rate.toCurrency}->${rate.fromCurrency}@${monthKey}`;
     newCache.set(forwardKey, rate.rate);
     newCache.set(reverseKey, 1 / rate.rate);
   }
@@ -58,19 +59,34 @@ async function loadExchangeRates(): Promise<Map<string, number>> {
 
 /**
  * جلب سعر الصرف بين عملتين
+ * يبحث أولاً عن سعر خاص بالشهر، ثم يرجع للسعر الافتراضي
+ * @param month - الشهر بصيغة "YYYY-MM" (اختياري)
  * @returns سعر الصرف أو 1 إذا كانت نفس العملة
  * @returns null إذا لم يتم العثور على سعر صرف
  */
 export async function getExchangeRate(
   fromCurrency: string,
-  toCurrency: string
+  toCurrency: string,
+  month?: string
 ): Promise<number | null> {
   if (fromCurrency === toCurrency) return 1;
 
   const rates = await loadExchangeRates();
-  const key = `${fromCurrency}->${toCurrency}`;
-
-  return rates.get(key) ?? null;
+  
+  // Try month-specific rate
+  if (month) {
+    const monthKey = `${fromCurrency}->${toCurrency}@${month}`;
+    const monthRate = rates.get(monthKey);
+    if (monthRate !== undefined) return monthRate;
+  }
+  
+  // Try to find any rate (latest first) as fallback
+  // This handles calls without a month parameter
+  for (const [key, val] of rates) {
+    if (key.startsWith(`${fromCurrency}->${toCurrency}@`)) return val;
+  }
+  
+  return null;
 }
 
 /**
@@ -80,23 +96,24 @@ export async function getExchangeRate(
  * @param amount - المبلغ الأصلي
  * @param currency - عملة المبلغ
  * @param baseCurrency - العملة الأساسية (الافتراضي: USD)
+ * @param month - الشهر بصيغة "YYYY-MM" (اختياري - لاستخدام سعر الشهر)
  * @returns المبلغ بالعملة الأساسية
  */
 export async function convertToBaseCurrency(
   amount: number,
   currency: string,
-  baseCurrency: string = DEFAULT_BASE_CURRENCY
+  baseCurrency: string = DEFAULT_BASE_CURRENCY,
+  month?: string
 ): Promise<number> {
   if (currency === baseCurrency) return amount;
 
-  const rate = await getExchangeRate(currency, baseCurrency);
+  const rate = await getExchangeRate(currency, baseCurrency, month);
   
   if (rate === null) {
     console.error(
-      `[FX] ⚠️ No exchange rate found for ${currency} → ${baseCurrency}. ` +
+      `[FX] ⚠️ No exchange rate found for ${currency} → ${baseCurrency}${month ? ` (month: ${month})` : ''}. ` +
       `Amount ${amount} ${currency} returned as-is. Configure the rate in Settings > Exchange Rates.`
     );
-    // Return amount as-is but log clearly - callers should handle this
     return amount;
   }
 
@@ -109,11 +126,13 @@ export async function convertToBaseCurrency(
  * 
  * @param items - مصفوفة من {amount, currency}
  * @param baseCurrency - العملة الأساسية
+ * @param month - الشهر بصيغة "YYYY-MM" (اختياري - لاستخدام سعر الشهر)
  * @returns المجموع بالعملة الأساسية
  */
 export async function sumInBaseCurrency(
   items: { amount: number; currency: string }[],
-  baseCurrency: string = DEFAULT_BASE_CURRENCY
+  baseCurrency: string = DEFAULT_BASE_CURRENCY,
+  month?: string
 ): Promise<number> {
   if (items.length === 0) return 0;
 
@@ -131,10 +150,10 @@ export async function sumInBaseCurrency(
     if (item.currency === baseCurrency) {
       total += item.amount;
     } else {
-      const rate = await getExchangeRate(item.currency, baseCurrency);
+      const rate = await getExchangeRate(item.currency, baseCurrency, month);
       if (rate === null) {
         console.error(
-          `[FX] ⚠️ Missing rate for ${item.currency} → ${baseCurrency}. ` +
+          `[FX] ⚠️ Missing rate for ${item.currency} → ${baseCurrency}${month ? ` (month: ${month})` : ''}. ` +
           `Amount ${item.amount} ${item.currency} added without conversion.`
         );
       }

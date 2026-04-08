@@ -33,11 +33,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Find the reset record
-    const normalizedIdentifier = isPhoneInput ? normalizePhone(identifier) : identifier;
+    const normalizedIdentifier = isPhoneInput ? normalizePhone(identifier) : identifier.toLowerCase().trim();
     
     const resetRecord = await prisma.passwordReset.findFirst({
       where: {
-        ...(isEmailInput ? { email: identifier } : { phone: normalizedIdentifier }),
+        ...(isEmailInput ? { email: normalizedIdentifier } : { phone: normalizedIdentifier }),
         used: false,
         expiresAt: {
           gt: new Date(),

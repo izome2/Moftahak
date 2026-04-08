@@ -9,7 +9,6 @@ import {
   Filter,
   Loader2,
   BarChart3,
-  SlidersHorizontal,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
@@ -111,10 +110,6 @@ export default function BookingsPage() {
 
   // Show charts toggle
   const [showCharts, setShowCharts] = useState(true);
-  const [showFilters, setShowFilters] = useState(false);
-
-  // Count active filters
-  const activeFilterCount = [selectedApartment, selectedSource, selectedStatus].filter(Boolean).length;
 
   // --- Fetch apartments ---
   const fetchApartments = useCallback(async () => {
@@ -296,57 +291,59 @@ export default function BookingsPage() {
   );
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-5">
-      {/* Header + Month Selector */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
-            <CalendarCheck size={20} className="text-white" />
+    <div className="flex-1 flex flex-col gap-3">
+      {/* Header + Filters */}
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] p-3 sm:p-4 md:p-5 lg:p-6 space-y-2 sm:space-y-3">
+      {/* Title + Actions */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center shrink-0">
+            <CalendarCheck size={16} className="text-white sm:w-5 sm:h-5" />
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">{t.accounting.bookings.title}</h1>
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">{t.accounting.bookings.title}</h1>
             <p className="text-xs text-secondary font-dubai mt-0.5 hidden sm:block">
               {hideFinancials ? t.accounting.bookings.subtitle : t.accounting.bookings.altSubtitle}
             </p>
           </div>
         </div>
-
-        <MonthSelector month={month} onChange={setMonth} blockPastMonths={hideFinancials} />
-
-        <div className="flex items-center gap-1.5 justify-end">
-          <button
-            onClick={fetchBookings}
-            disabled={isLoading}
-            className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
-            title={t.accounting.common.refresh}
-          >
-            <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
-          </button>
-          {!hideFinancials && (
+        <div className="flex items-center gap-1 shrink-0">
             <button
-              onClick={() => setShowCharts(prev => !prev)}
-              className={`p-2 rounded-xl transition-all ${showCharts ? 'bg-secondary/8 text-secondary' : 'hover:bg-secondary/5 text-secondary/40'}`}
-              title={showCharts ? t.accounting.common.hideCharts : t.accounting.common.showCharts}
+              onClick={fetchBookings}
+              disabled={isLoading}
+              className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
+              title={t.accounting.common.refresh}
             >
-              <BarChart3 size={16} />
+              <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
-          )}
-          {canAdd && (
-            <button
-              onClick={() => { setEditBooking(null); setShowForm(true); }}
-              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl font-dubai text-sm font-bold hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300"
-            >
-              <Plus size={15} />
-              {t.accounting.bookings.addBooking}
-            </button>
-          )}
+            {!hideFinancials && (
+              <button
+                onClick={() => setShowCharts(prev => !prev)}
+                className={`p-1.5 sm:p-2 rounded-xl transition-all ${showCharts ? 'bg-secondary/8 text-secondary' : 'hover:bg-secondary/5 text-secondary/40'}`}
+                title={showCharts ? t.accounting.common.hideCharts : t.accounting.common.showCharts}
+              >
+                <BarChart3 size={15} className="sm:w-4 sm:h-4" />
+              </button>
+            )}
+            {canAdd && (
+              <button
+                onClick={() => { setEditBooking(null); setShowForm(true); }}
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl font-dubai text-xs sm:text-sm font-bold hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300"
+              >
+                <Plus size={14} className="sm:w-[15px] sm:h-[15px]" />
+                {t.accounting.bookings.addBooking}
+              </button>
+            )}
         </div>
       </div>
 
+      {/* Month Selector */}
+      <div className="flex items-center justify-center">
+        <MonthSelector month={month} onChange={setMonth} blockPastMonths={hideFinancials} />
+      </div>
+
       {/* Filters */}
-      <div className="space-y-2.5">
-        <div className="flex items-center gap-2">
-          <div className={`flex-col sm:flex sm:flex-row items-stretch sm:items-center gap-2.5 flex-1 ${showFilters ? 'flex' : 'hidden sm:flex'}`}>
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
               <CustomSelect
                 value={selectedApartment}
                 onChange={setSelectedApartment}
@@ -372,22 +369,7 @@ export default function BookingsPage() {
                 variant="filter"
                 options={STATUS_OPTIONS}
               />
-          </div>
-          <button
-            onClick={() => setShowFilters(prev => !prev)}
-            className={`sm:hidden relative p-2.5 rounded-xl transition-all ${
-              showFilters || activeFilterCount > 0 ? 'bg-secondary text-white shadow-md' : 'border-2 border-primary/20 bg-white text-secondary hover:border-primary/40'
-            }`}
-            aria-label={showFilters ? t.accounting.common.hideFilters : t.accounting.common.showFilters}
-          >
-            <SlidersHorizontal size={16} />
-            {activeFilterCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 bg-primary text-secondary text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
-          <div className="relative flex-1 min-w-[200px] hidden sm:block">
+          <div className="relative col-span-full sm:col-span-1 sm:max-w-xs">
             <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
             <input
               type="text"
@@ -397,20 +379,11 @@ export default function BookingsPage() {
               className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary/40 transition-colors placeholder:text-secondary/40"
             />
           </div>
-        </div>
-
-        {/* Mobile search - only visible on mobile */}
-        <div className="sm:hidden relative">
-          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t.accounting.bookings.searchPlaceholder}
-            className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary/40 transition-colors placeholder:text-secondary/40"
-          />
-        </div>
       </div>
+      </div>
+
+      {/* Content */}
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] flex-1 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-5 overflow-y-auto">
 
       {/* Error */}
       {error && (
@@ -486,6 +459,7 @@ export default function BookingsPage() {
         variant="danger"
         isLoading={isDeleting}
       />
+      </div>
     </div>
   );
 }

@@ -26,10 +26,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user
+    const normalizedEmail = isEmailInput ? identifier.toLowerCase().trim() : identifier;
     let user = null;
     if (isEmailInput) {
       user = await prisma.user.findUnique({
-        where: { email: identifier },
+        where: { email: normalizedEmail },
         select: { id: true, firstName: true, email: true, phone: true },
       });
     } else {
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
       // Create new reset code
       await prisma.passwordReset.create({
         data: {
-          email: identifier,
+          email: normalizedEmail,
           phone: null,
           code,
           expiresAt,

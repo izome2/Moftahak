@@ -9,7 +9,6 @@ import {
   CalendarCheck,
   Building2,
   Percent,
-  Menu,
   RefreshCw,
   ClipboardCheck,
 } from 'lucide-react';
@@ -160,52 +159,52 @@ export default function AccountingDashboardPage() {
   const role = data?.role || 'GENERAL_MANAGER';
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-5">
+    <div className="flex-1 flex flex-col gap-3">
       {/* Header + Month Selector */}
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] p-3 sm:p-4 md:p-5 lg:p-6 space-y-2 sm:space-y-3">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-        className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 will-change-transform"
+        className="space-y-2 sm:space-y-3 will-change-transform"
         style={{ transform: 'translateZ(0)' }}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
-            <LayoutDashboard size={20} className="text-white" />
+        {/* Title + Actions */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center shrink-0">
+              <LayoutDashboard size={16} className="text-white sm:w-5 sm:h-5" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">
+                {t.accounting.dashboard.title}
+              </h1>
+              <p className="text-xs text-secondary/60 font-dubai mt-0.5 hidden sm:block">
+                {t.accounting.dashboard.subtitle}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">
-              {t.accounting.dashboard.title}
-            </h1>
-            <p className="text-xs text-secondary/60 font-dubai mt-0.5 hidden sm:block">
-              {t.accounting.dashboard.subtitle}
-            </p>
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              onClick={() => fetchDashboard(month)}
+              className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-lg transition-all"
+              aria-label={t.accounting.common.refresh}
+              title={t.accounting.common.refresh}
+            >
+              <RefreshCw size={15} className={`text-secondary/40 sm:w-[18px] sm:h-[18px] ${isLoading ? 'animate-spin' : ''}`} />
+            </button>
           </div>
         </div>
 
-        <MonthSelector month={month} onChange={setMonth} />
-
-        <div className="flex items-center gap-1 justify-end">
-          <button
-            onClick={() => fetchDashboard(month)}
-            className="p-2 hover:bg-secondary/5 rounded-lg transition-all"
-            aria-label={t.accounting.common.refresh}
-            title={t.accounting.common.refresh}
-          >
-            <RefreshCw size={18} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
-          </button>
-          <button
-            onClick={() => {
-              const event = new CustomEvent('openAccountingMenu');
-              window.dispatchEvent(event);
-            }}
-            className="lg:hidden p-2 hover:bg-secondary/5 rounded-lg transition-all"
-            aria-label={t.accounting.common.openMenu}
-          >
-            <Menu size={28} className="text-secondary" />
-          </button>
+        {/* Month Selector */}
+        <div className="flex items-center justify-center">
+          <MonthSelector month={month} onChange={setMonth} />
         </div>
       </motion.div>
+      </div>
+
+      {/* Content */}
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] flex-1 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-5 overflow-y-auto">
 
       {/* Error */}
       {error && (
@@ -307,7 +306,7 @@ export default function AccountingDashboardPage() {
       </div>
 
       {/* Charts Row */}
-      <div className={`grid grid-cols-1 gap-4 sm:gap-6 ${
+      <div className={`grid grid-cols-1 gap-3 sm:gap-4 md:gap-6 ${
         role === 'OPS_MANAGER' || role === 'BOOKING_MANAGER' ? '' : 'lg:grid-cols-2'
       }`}>
         {/* Revenue vs Expenses Line Chart - فقط للمدير العام */}
@@ -316,9 +315,9 @@ export default function AccountingDashboardPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.15 }}
-            className="bg-white border border-secondary/[0.08] p-5 rounded-2xl shadow-sm"
+            className="bg-white border border-secondary/[0.08] p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-sm"
           >
-            <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
+            <h3 className="text-base sm:text-lg font-bold text-secondary font-dubai mb-3 sm:mb-4 flex items-center gap-2">
               <TrendingUp size={18} className="text-primary" />
               {t.accounting.dashboard.revenueExpenses12Months}
             </h3>
@@ -335,9 +334,9 @@ export default function AccountingDashboardPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-white border border-secondary/[0.08] p-5 rounded-2xl shadow-sm"
+            className="bg-white border border-secondary/[0.08] p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-sm"
           >
-            <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
+            <h3 className="text-base sm:text-lg font-bold text-secondary font-dubai mb-3 sm:mb-4 flex items-center gap-2">
               <Receipt size={18} className="text-red-400" />
               {t.accounting.dashboard.expensesByCategory}
             </h3>
@@ -355,9 +354,9 @@ export default function AccountingDashboardPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.25 }}
-          className="bg-white border border-secondary/[0.08] p-5 rounded-2xl shadow-sm"
+          className="bg-white border border-secondary/[0.08] p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-sm"
         >
-          <h3 className="text-lg font-bold text-secondary font-dubai mb-4 flex items-center gap-2">
+          <h3 className="text-base sm:text-lg font-bold text-secondary font-dubai mb-3 sm:mb-4 flex items-center gap-2">
             <CalendarCheck size={18} className="text-primary" />
             {t.accounting.dashboard.bookingSources}
           </h3>
@@ -371,10 +370,10 @@ export default function AccountingDashboardPage() {
       )}
 
       {/* Bottom Section: Recent + Alerts */}
-      <div className={`grid grid-cols-1 gap-4 sm:gap-6 ${
-        role === 'OPS_MANAGER' ? 'lg:grid-cols-2' :
-        role === 'BOOKING_MANAGER' ? 'lg:grid-cols-2' :
-        'lg:grid-cols-3'
+      <div className={`grid grid-cols-1 gap-3 sm:gap-4 md:gap-6 ${
+        role === 'OPS_MANAGER' ? 'md:grid-cols-2' :
+        role === 'BOOKING_MANAGER' ? 'md:grid-cols-2' :
+        'md:grid-cols-2 lg:grid-cols-3'
       }`}>
         {/* Recent Bookings - ليس لمدير التشغيل */}
         {role !== 'OPS_MANAGER' && (
@@ -404,6 +403,7 @@ export default function AccountingDashboardPage() {
             isLoading={isLoading}
           />
         </div>
+      </div>
       </div>
     </div>
   );

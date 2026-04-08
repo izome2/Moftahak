@@ -18,6 +18,7 @@ interface OpsManager {
   id: string;
   firstName: string;
   lastName: string;
+  role: string;
 }
 
 interface Apartment {
@@ -58,8 +59,10 @@ const OpsApartmentAssignments: React.FC = () => {
       const [teamJson, aptsJson] = await Promise.all([teamRes.json(), aptsRes.json()]);
 
       if (teamRes.ok && teamJson.users) {
-        const ops = teamJson.users.filter((u: { role: string }) => u.role === 'OPS_MANAGER');
-        setManagers(ops);
+        const assignableUsers = teamJson.users.filter(
+          (u: { role: string }) => u.role === 'OPS_MANAGER' || u.role === 'BOOKING_MANAGER'
+        );
+        setManagers(assignableUsers);
       }
       if (aptsRes.ok && aptsJson.apartments) {
         setApartments(aptsJson.apartments);
@@ -184,7 +187,7 @@ const OpsApartmentAssignments: React.FC = () => {
             emptyMessage={t.accounting.settings.opsAssignments.noManagers}
             options={managers.map((m) => ({
               value: m.id,
-              label: `${m.firstName} ${m.lastName}`,
+              label: `${m.firstName} ${m.lastName} (${m.role === 'OPS_MANAGER' ? t.accounting.roles.OPS_MANAGER : t.accounting.roles.BOOKING_MANAGER})`,
             }))}
           />
 

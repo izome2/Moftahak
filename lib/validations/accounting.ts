@@ -149,6 +149,7 @@ export const updateCurrencyRateSchema = z.object({
   fromCurrency: z.string().min(1).max(5).default('USD'),
   toCurrency: z.string().min(1).max(5).default('EGP'),
   rate: z.number().min(0.001, 'سعر الصرف يجب أن يكون أكبر من 0'),
+  month: z.string().regex(/^\d{4}-\d{2}$/, 'الشهر يجب أن يكون بصيغة YYYY-MM'),
 });
 
 // ============================================================================

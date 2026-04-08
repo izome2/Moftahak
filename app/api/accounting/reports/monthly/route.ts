@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     orderBy: { totalRevenue: 'desc' },
   });
 
-  // حجوزات الشهر (ملخص)
+  // حجوزات الشهر (ملخص - بدون الملغية)
   const bookingStats = await prisma.booking.groupBy({
     by: ['source'],
     _sum: { amount: true, nights: true },
@@ -58,11 +58,12 @@ export async function GET(request: NextRequest) {
     where: {
       checkIn: { gte: startOfMonth, lt: endOfMonth },
       deletedAt: null,
+      status: { not: 'CANCELLED' as const },
       ...(apartmentId ? { apartmentId } : {}),
     },
   });
 
-  // مصروفات الشهر (حسب القسم)
+  // مصروفات الشهر (حسب القسم - المعتمدة فقط)
   const expenseStats = await prisma.expense.groupBy({
     by: ['category'],
     _sum: { amount: true },
@@ -70,6 +71,7 @@ export async function GET(request: NextRequest) {
     where: {
       date: { gte: startOfMonth, lt: endOfMonth },
       deletedAt: null,
+      approvalStatus: 'APPROVED',
       ...(apartmentId ? { apartmentId } : {}),
     },
   });

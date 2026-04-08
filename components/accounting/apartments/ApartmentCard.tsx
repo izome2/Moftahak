@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Building2, CalendarCheck, TrendingUp, ChevronLeft } from 'lucide-react';
+import { Building2, CalendarCheck, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -129,12 +129,7 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
               {apartment._count?.bookings || 0} {t.accounting.common.booking}
             </span>
           </div>
-          <div className="flex items-center gap-1.5 text-secondary/50">
-            <TrendingUp size={13} />
-            <span className="text-xs font-dubai">
-              {apartment._count?.investors || 0} {t.accounting.common.investor}
-            </span>
-          </div>
+
         </div>
       </Link>
     </motion.div>

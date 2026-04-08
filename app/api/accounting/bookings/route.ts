@@ -18,6 +18,7 @@ import { createBookingSchema } from '@/lib/validations/accounting';
 import { refreshMonthlySnapshot, getMonthKey } from '@/lib/accounting/snapshot';
 import { checkMonthLock } from '@/lib/accounting/month-lock';
 import { logAuditEvent, getClientIP, sanitizeForAudit } from '@/lib/accounting/audit';
+import { getAssignedApartmentIds } from '@/lib/accounting/ops-manager';
 
 // GET /api/accounting/bookings?apartmentId=...&month=YYYY-MM&source=...
 export async function GET(request: NextRequest) {
@@ -44,6 +45,14 @@ export async function GET(request: NextRequest) {
   if (apartmentId) where.apartmentId = apartmentId;
   if (source) where.source = source;
   if (status) where.status = status;
+
+  // 🔒 مدير الحجوزات: فقط الشقق المعينة له
+  if (isBookingManager) {
+    const assignedIds = await getAssignedApartmentIds(authResult.userId);
+    if (assignedIds.length > 0 && !apartmentId) {
+      where.apartmentId = { in: assignedIds };
+    }
+  }
 
   if (month) {
     const [year, m] = month.split('-').map(Number);
@@ -106,6 +115,12 @@ export async function POST(request: NextRequest) {
     today.setHours(0, 0, 0, 0);
     if (checkInDate < today) {
       return errorResponse('لا يمكنك إضافة حجز بتاريخ دخول في الماضي', 400);
+    }
+
+    // 🔒 مدير الحجوزات: فقط الشقق المعينة له
+    const assignedIds = await getAssignedApartmentIds(authResult.userId);
+    if (assignedIds.length > 0 && !assignedIds.includes(parsed.data.apartmentId)) {
+      return errorResponse('ليس لديك صلاحية إضافة حجز لهذه الشقة', 403);
     }
   }
 

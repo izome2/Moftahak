@@ -10,6 +10,7 @@ interface MonthSelectorProps {
   onChange: (month: string) => void;
   className?: string;
   blockPastMonths?: boolean;
+  blockFutureMonths?: boolean;
 }
 
 const getCurrentMonth = () => {
@@ -23,12 +24,13 @@ const changeMonth = (month: string, delta: number) => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 };
 
-const MonthSelector: React.FC<MonthSelectorProps> = ({ month, onChange, className = '', blockPastMonths = false }) => {
+const MonthSelector: React.FC<MonthSelectorProps> = ({ month, onChange, className = '', blockPastMonths = false, blockFutureMonths = false }) => {
   const t = useTranslation();
   const { language } = useLanguage();
   const locale = language === 'ar' ? 'ar-EG-u-nu-arab' : 'en-US';
   const isCurrentMonth = month === getCurrentMonth();
   const isPastDisabled = blockPastMonths && isCurrentMonth;
+  const isFutureDisabled = blockFutureMonths && isCurrentMonth;
 
   const formatMonthDisplay = (m: string) => {
     const [year, mm] = m.split('-');
@@ -38,27 +40,27 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({ month, onChange, classNam
   };
 
   return (
-    <div className={`flex items-center justify-center gap-4 ${className}`}>
+    <div className={`flex items-center justify-center gap-2 sm:gap-4 ${className}`}>
       <button
         onClick={() => onChange(changeMonth(month, -1))}
         disabled={isPastDisabled}
-        className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        className="p-1.5 sm:p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label={t.accounting.monthSelector.prevMonth}
       >
-        {language === 'ar' ? <ChevronRight size={20} className="text-secondary" /> : <ChevronLeft size={20} className="text-secondary" />}
+        {language === 'ar' ? <ChevronRight size={18} className="text-secondary sm:w-5 sm:h-5" /> : <ChevronLeft size={18} className="text-secondary sm:w-5 sm:h-5" />}
       </button>
-      <div className="text-center min-w-[160px]">
-        <p className="text-lg font-bold text-secondary font-dubai">
+      <div className="text-center min-w-[100px] sm:min-w-[160px]">
+        <p className="text-sm sm:text-lg font-bold text-secondary font-dubai">
           {formatMonthDisplay(month)}
         </p>
       </div>
       <button
         onClick={() => onChange(changeMonth(month, 1))}
-        disabled={isCurrentMonth}
-        className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        disabled={isFutureDisabled}
+        className="p-1.5 sm:p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label={t.accounting.monthSelector.nextMonth}
       >
-        {language === 'ar' ? <ChevronLeft size={20} className="text-secondary" /> : <ChevronRight size={20} className="text-secondary" />}
+        {language === 'ar' ? <ChevronLeft size={18} className="text-secondary sm:w-5 sm:h-5" /> : <ChevronRight size={18} className="text-secondary sm:w-5 sm:h-5" />}
       </button>
     </div>
   );

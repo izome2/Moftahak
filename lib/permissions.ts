@@ -33,6 +33,31 @@ export function getEffectiveAccountingRole(role: string | undefined | null): Acc
   return null;
 }
 
+/**
+ * إرجاع جميع الأدوار الفعلية لمستخدم (الدور الأساسي + الأدوار الإضافية)
+ * يُستخدم لدعم تعدد الوظائف للمستخدم الواحد
+ */
+export function getAllEffectiveRoles(
+  primaryRole: string | undefined | null,
+  additionalRoles?: string[] | null
+): AccountingRole[] {
+  const roles: AccountingRole[] = [];
+  
+  const primary = getEffectiveAccountingRole(primaryRole);
+  if (primary) roles.push(primary);
+  
+  if (additionalRoles && Array.isArray(additionalRoles)) {
+    for (const role of additionalRoles) {
+      const effective = getEffectiveAccountingRole(role);
+      if (effective && !roles.includes(effective)) {
+        roles.push(effective);
+      }
+    }
+  }
+  
+  return roles;
+}
+
 // ============================================================================
 // تعريف الصلاحيات
 // ============================================================================
@@ -265,37 +290,61 @@ export function getPermissions(role: string | AccountingRole): Permission {
 }
 
 /**
+ * إرجاع الصلاحيات المدمجة من جميع أدوار المستخدم
+ * تُفعّل أي صلاحية موجودة في أي دور من أدوار المستخدم
+ */
+export function getMergedPermissions(
+  primaryRole: string,
+  additionalRoles?: string[] | null
+): Permission {
+  const allRoles = getAllEffectiveRoles(primaryRole, additionalRoles);
+  
+  if (allRoles.length === 0) {
+    return getPermissions('USER');
+  }
+  
+  if (allRoles.length === 1) {
+    return getPermissions(allRoles[0]);
+  }
+  
+  // دمج الصلاحيات من جميع الأدوار (OR logic)
+  const merged = { ...getPermissions(allRoles[0]) };
+  for (let i = 1; i < allRoles.length; i++) {
+    const perms = getPermissions(allRoles[i]);
+    for (const key of Object.keys(perms) as (keyof Permission)[]) {
+      if (perms[key]) {
+        (merged as Record<string, boolean>)[key] = true;
+      }
+    }
+  }
+  
+  return merged;
+}
+
+/**
  * التحقق إذا كان المستخدم يملك صلاحية معينة
- * يُستخدم في كل API route كطبقة حماية ثانية
- * 
- * @example
- * if (!hasPermission(session.user.role, 'canAddExpenses')) {
- *   return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
- * }
+ * يدعم الأدوار المتعددة (يتحقق من الدور الأساسي + الأدوار الإضافية)
  */
 export function hasPermission(
   role: string | undefined | null,
-  permission: keyof Permission
+  permission: keyof Permission,
+  additionalRoles?: string[] | null
 ): boolean {
   if (!role) return false;
-  const perms = getPermissions(role);
+  const perms = getMergedPermissions(role, additionalRoles);
   return perms[permission] ?? false;
 }
 
 /**
  * التحقق إذا كان المستخدم يملك أي صلاحية من قائمة صلاحيات
- * مفيد عندما يكون المسار مشتركاً بين عدة أدوار
- * 
- * @example
- * if (!hasAnyPermission(role, ['canAddBookings', 'canViewAllData'])) {
- *   return 403;
- * }
+ * يدعم الأدوار المتعددة
  */
 export function hasAnyPermission(
   role: string | undefined | null,
-  permissions: (keyof Permission)[]
+  permissions: (keyof Permission)[],
+  additionalRoles?: string[] | null
 ): boolean {
-  return permissions.some(p => hasPermission(role, p));
+  return permissions.some(p => hasPermission(role, p, additionalRoles));
 }
 
 // ============================================================================
@@ -320,10 +369,17 @@ export const PAGE_ROLE_ACCESS: Record<string, AccountingRole[]> = {
 
 /**
  * التحقق إذا كان الدور مسموح له بالوصول لمسار معين
- * يُستخدم في middleware للحماية على مستوى الصفحات
+ * يدعم الأدوار المتعددة
  */
-export function canAccessPath(role: string | undefined | null, pathname: string): boolean {
+export function canAccessPath(
+  role: string | undefined | null,
+  pathname: string,
+  additionalRoles?: string[] | null
+): boolean {
   if (!role) return false;
+
+  // جمع كل الأدوار الفعلية
+  const allRoles = getAllEffectiveRoles(role, additionalRoles);
 
   // ابحث عن أطول مسار مطابق (الأكثر تحديداً)
   let matchedPath = '';
@@ -336,5 +392,5 @@ export function canAccessPath(role: string | undefined | null, pathname: string)
   if (!matchedPath) return false;
 
   const allowedRoles = PAGE_ROLE_ACCESS[matchedPath];
-  return allowedRoles.includes(role as AccountingRole);
+  return allRoles.some(r => allowedRoles.includes(r));
 }

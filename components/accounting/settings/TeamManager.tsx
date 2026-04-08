@@ -23,6 +23,7 @@ interface TeamMember {
   email?: string | null;
   phone?: string | null;
   role: string;
+  additionalRoles?: string[];
   image?: string | null;
   createdAt: string;
 }
@@ -57,6 +58,7 @@ const TeamManager: React.FC = () => {
   const [editRole, setEditRole] = useState('');
   const [editFirstName, setEditFirstName] = useState('');
   const [editLastName, setEditLastName] = useState('');
+  const [editAdditionalRoles, setEditAdditionalRoles] = useState<string[]>([]);
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
@@ -82,6 +84,7 @@ const TeamManager: React.FC = () => {
     setEditRole(m.role);
     setEditFirstName(m.firstName);
     setEditLastName(m.lastName);
+    setEditAdditionalRoles(m.additionalRoles || []);
     setEditError(null);
   };
 
@@ -98,6 +101,7 @@ const TeamManager: React.FC = () => {
           firstName: editFirstName.trim(),
           lastName: editLastName.trim(),
           role: editRole,
+          additionalRoles: editAdditionalRoles.filter(r => r !== editRole),
         }),
       });
       const json = await res.json();
@@ -166,6 +170,11 @@ const TeamManager: React.FC = () => {
                   <span className={`text-[9px] rounded px-1.5 py-0.5 font-bold font-dubai ${ROLE_COLORS[m.role] || 'bg-secondary/10 text-secondary/70'}`}>
                     {ROLE_LABELS[m.role] || m.role}
                   </span>
+                  {m.additionalRoles && m.additionalRoles.length > 0 && m.additionalRoles.map(r => (
+                    <span key={r} className={`text-[9px] rounded px-1.5 py-0.5 font-bold font-dubai ${ROLE_COLORS[r] || 'bg-secondary/10 text-secondary/70'}`}>
+                      +{ROLE_LABELS[r] || r}
+                    </span>
+                  ))}
                 </div>
                 <div className="flex items-center gap-3 text-[10px] text-secondary/50 font-dubai mt-0.5">
                   {m.email && (
@@ -217,7 +226,7 @@ const TeamManager: React.FC = () => {
                 <button onClick={() => setEditMember(null)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/40" /></button>
               </div>
               <div className="p-5 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="flex items-center gap-1.5 mb-2">
                       <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Users size={11} className="text-secondary/50" /></span>
@@ -250,6 +259,39 @@ const TeamManager: React.FC = () => {
                     className="w-full"
                     options={ACCOUNTING_ROLES.map(r => ({ value: r, label: ROLE_LABELS[r] }))}
                   />
+                </div>
+                {/* الأدوار الإضافية */}
+                <div>
+                  <label className="flex items-center gap-1.5 mb-2">
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Shield size={11} className="text-secondary/50" /></span>
+                    <span className="text-[13px] font-bold text-secondary font-dubai">{language === 'ar' ? 'أدوار إضافية' : 'Additional Roles'}</span>
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {ACCOUNTING_ROLES.filter(r => r !== editRole).map(r => {
+                      const isSelected = editAdditionalRoles.includes(r);
+                      return (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => {
+                            setEditAdditionalRoles(prev =>
+                              isSelected ? prev.filter(x => x !== r) : [...prev, r]
+                            );
+                          }}
+                          className={`text-xs px-2.5 py-1.5 rounded-lg font-dubai font-bold border transition-all ${
+                            isSelected
+                              ? 'bg-secondary text-white border-secondary'
+                              : 'bg-white text-secondary/60 border-secondary/[0.08] hover:border-secondary/20'
+                          }`}
+                        >
+                          {ROLE_LABELS[r]}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[10px] text-secondary/40 font-dubai mt-1.5">
+                    {language === 'ar' ? 'اضغط لإضافة أو إزالة دور إضافي' : 'Click to add or remove additional role'}
+                  </p>
                 </div>
                 {editError && <p className="text-sm text-red-500 font-dubai bg-red-50/80 p-2.5 rounded-xl border border-red-100">{editError}</p>}
                 <div className="flex items-center gap-3 pt-1">

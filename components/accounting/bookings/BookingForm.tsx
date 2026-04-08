@@ -100,13 +100,6 @@ const BookingForm: React.FC<BookingFormProps> = ({
     { value: 'OTHER', label: t.accounting.bookingSources.OTHER, color: SOURCE_COLORS.OTHER },
   ], [t]);
 
-  const STATUS_OPTIONS = useMemo(() => [
-    { value: 'CONFIRMED', label: t.accounting.bookingStatuses.CONFIRMED },
-    { value: 'CHECKED_IN', label: t.accounting.bookingStatuses.CHECKED_IN },
-    { value: 'CHECKED_OUT', label: t.accounting.bookingStatuses.CHECKED_OUT },
-    { value: 'CANCELLED', label: t.accounting.bookingStatuses.CANCELLED },
-  ], [t]);
-
   const getToday = () => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -180,6 +173,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
   const validateStep1 = () => {
     if (!formData.apartmentId) { setError(t.accounting.bookingForm.apartmentRequired); return false; }
     if (!formData.clientName.trim()) { setError(t.accounting.bookingForm.clientNameRequired); return false; }
+    if (!formData.clientPhone?.trim()) { setError(t.accounting.bookingForm.contactNumberRequired); return false; }
     setError(null);
     return true;
   };
@@ -193,7 +187,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
     if (!formData.checkIn) { setError(t.accounting.bookingForm.checkInRequired); return; }
     if (!formData.checkOut) { setError(t.accounting.bookingForm.checkOutRequired); return; }
     if (computedNights < 1) { setError(t.accounting.bookingForm.checkOutAfterCheckIn); return; }
-    if (!hideFinancials && formData.amount <= 0) { setError(t.accounting.bookingForm.amountMustBePositive); return; }
+    if (formData.amount <= 0) { setError(t.accounting.bookingForm.amountMustBePositive); return; }
 
     try {
       setIsSubmitting(true);
@@ -248,7 +242,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-lg border border-secondary/[0.08] overflow-hidden max-h-[90vh] flex flex-col"
+            className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-lg border border-secondary/[0.08] overflow-hidden max-h-[95vh] sm:max-h-[90vh] flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06] shrink-0">
@@ -318,7 +312,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                     </FormField>
 
                     {/* Client Name + Phone */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <FormField
                         icon={<User size={11} className="text-secondary/50" />}
                         label={t.accounting.bookingForm.clientName}
@@ -336,6 +330,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                       <FormField
                         icon={<Phone size={11} className="text-secondary/50" />}
                         label={t.accounting.bookingForm.contactNumber}
+                        required
                       >
                         <input
                           type="text"
@@ -344,6 +339,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                           placeholder="+20 xxx xxx xxxx"
                           className={`${inputClass} ltr text-left`}
                           dir="ltr"
+                          required
                         />
                       </FormField>
                     </div>
@@ -426,7 +422,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                     className="p-5 space-y-5"
                   >
                     {/* Check-in / Check-out dates */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <FormField
                         icon={<Calendar size={11} className="text-emerald-500/70" />}
                         label={t.accounting.bookingForm.checkInDate}
@@ -470,23 +466,21 @@ const BookingForm: React.FC<BookingFormProps> = ({
                     </div>
 
                     {/* Amount + Arrival Time */}
-                    <div className={`grid gap-4 ${hideFinancials ? 'grid-cols-1' : 'grid-cols-2'}`}>
-                      {!hideFinancials && (
-                        <FormField
-                          icon={<CreditCard size={11} className="text-emerald-500/70" />}
-                          label={t.accounting.bookingForm.financialValue}
+                    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                      <FormField
+                        icon={<CreditCard size={11} className="text-emerald-500/70" />}
+                        label={t.accounting.bookingForm.financialValue}
+                        required
+                      >
+                        <NumberInput
+                          value={formData.amount || ''}
+                          onChange={(e) => update('amount', parseFloat(e.target.value) || 0)}
+                          placeholder="0"
+                          className={`${inputClass} ltr text-left`}
+                          dir="ltr"
                           required
-                        >
-                          <NumberInput
-                            value={formData.amount || ''}
-                            onChange={(e) => update('amount', parseFloat(e.target.value) || 0)}
-                            placeholder="0"
-                            className={`${inputClass} ltr text-left`}
-                            dir="ltr"
-                            required
-                          />
-                        </FormField>
-                      )}
+                        />
+                      </FormField>
                       <FormField
                         icon={<Clock size={11} className="text-secondary/50" />}
                         label={t.accounting.bookingForm.arrivalTime}
@@ -498,20 +492,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                       </FormField>
                     </div>
 
-                    {/* Status (edit only) */}
-                    {isEdit && (
-                      <FormField
-                        icon={<CalendarCheck size={11} className="text-secondary/50" />}
-                        label={t.accounting.bookingForm.status}
-                      >
-                        <CustomSelect
-                          value={formData.status || 'CONFIRMED'}
-                          onChange={(v) => update('status', v)}
-                          className="w-full"
-                          options={STATUS_OPTIONS.map(s => ({ value: s.value, label: s.label }))}
-                        />
-                      </FormField>
-                    )}
+
 
                     {/* Error */}
                     {error && (

@@ -24,6 +24,7 @@ const updateTeamMemberSchema = z.object({
   email: z.string().email().optional().nullable(),
   phone: z.string().min(6).max(20).optional().nullable(),
   role: z.enum(ACCOUNTING_ROLES).optional(),
+  additionalRoles: z.array(z.enum(ACCOUNTING_ROLES)).optional(),
 });
 
 type Params = { params: Promise<{ userId: string }> };
@@ -72,6 +73,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
       email: true,
       phone: true,
       role: true,
+      additionalRoles: true,
       createdAt: true,
     },
   });

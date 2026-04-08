@@ -222,41 +222,41 @@ export default function InvestorsPage() {
     : investors;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
-            <Users size={20} className="text-white" />
+    <div className="flex-1 flex flex-col gap-3" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] p-3 sm:p-4 md:p-5 lg:p-6 space-y-2 sm:space-y-3">
+      {/* Title + Actions */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
+          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center shrink-0">
+            <Users size={16} className="text-white sm:w-5 sm:h-5" />
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">{t.accounting.investors.title}</h1>
-            <p className="text-xs text-secondary font-dubai mt-0.5">
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">{t.accounting.investors.title}</h1>
+            <p className="text-xs text-secondary font-dubai mt-0.5 hidden sm:block">
               {t.accounting.investors.subtitle}
             </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 shrink-0">
           <button
             onClick={fetchInvestors}
             disabled={isLoading}
-            className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
+            className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
           >
-            <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => setShowAssignModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl font-dubai text-sm font-bold hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300"
+            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl font-dubai text-xs sm:text-sm font-bold hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300"
           >
-            <Plus size={15} />
+            <Plus size={14} className="sm:w-[15px] sm:h-[15px]" />
             {t.accounting.investors.assignInvestor}
           </button>
         </div>
       </div>
 
       {/* Search */}
-      <div className="relative">
+      <div className="relative max-w-xs">
         <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
         <input
           type="text"
@@ -269,7 +269,9 @@ export default function InvestorsPage() {
             placeholder:text-secondary/40"
         />
       </div>
+      </div>
 
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] flex-1 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-5 overflow-y-auto">
       {/* Summary */}
       {!isLoading && investors.length > 0 && (
         <motion.div
@@ -471,6 +473,7 @@ export default function InvestorsPage() {
           </div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 }

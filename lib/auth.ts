@@ -24,9 +24,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         let user;
         
         if (isEmail(identifier)) {
-          // Search by email
+          // Search by email (normalize to lowercase)
           user = await prisma.user.findUnique({
-            where: { email: identifier },
+            where: { email: identifier.toLowerCase().trim() },
           });
         } else if (isPhone(identifier)) {
           // Normalize phone number to match database format
@@ -58,6 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           firstName: user.firstName,
           lastName: user.lastName,
           role: user.role,
+          additionalRoles: user.additionalRoles || [],
           image: user.image,
         };
       },
@@ -70,6 +71,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.additionalRoles = user.additionalRoles || [];
         token.firstName = user.firstName;
         token.lastName = user.lastName;
         token.image = user.image;
@@ -77,11 +79,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.email = user.email; // Store email from user
       }
 
-      // Update session
-      if (trigger === 'update' && session) {
-        token.firstName = session.firstName || token.firstName;
-        token.lastName = session.lastName || token.lastName;
-        token.image = session.image || token.image;
+      // Update session - re-fetch from DB to get latest role and data
+      if (trigger === 'update') {
+        try {
+          const freshUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: {
+              role: true,
+              additionalRoles: true,
+              firstName: true,
+              lastName: true,
+              image: true,
+              phone: true,
+              email: true,
+            },
+          });
+          if (freshUser) {
+            token.role = freshUser.role;
+            token.additionalRoles = freshUser.additionalRoles || [];
+            token.firstName = freshUser.firstName;
+            token.lastName = freshUser.lastName;
+            token.image = freshUser.image;
+            token.phone = freshUser.phone;
+            token.email = freshUser.email;
+          }
+        } catch {
+          // If DB fetch fails, fall back to session params
+          if (session) {
+            token.firstName = session.firstName || token.firstName;
+            token.lastName = session.lastName || token.lastName;
+            token.image = session.image || token.image;
+          }
+        }
       }
 
       return token;
@@ -91,6 +120,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as 'USER' | 'ADMIN' | 'GENERAL_MANAGER' | 'OPS_MANAGER' | 'BOOKING_MANAGER' | 'INVESTOR';
+        session.user.additionalRoles = (token.additionalRoles as string[]) || [];
         session.user.firstName = token.firstName as string;
         session.user.lastName = token.lastName as string;
         session.user.image = token.image as string | null;

@@ -17,7 +17,6 @@ import {
   LogOut,
   ChevronLeft,
   Home,
-  X,
   ShieldCheck,
   ScrollText,
 } from 'lucide-react';
@@ -156,17 +155,6 @@ const AccountingSidebar: React.FC<AccountingSidebarProps> = ({
         {/* هيدر - معلومات المستخدم */}
         {session?.user && (
           <div className="p-6 border-b border-primary/20 bg-linear-to-br from-accent/30 to-transparent">
-            {/* زر إغلاق للموبايل */}
-            {isMobile && (
-              <button
-                onClick={onClose}
-                className="absolute top-4 left-4 p-1.5 rounded-lg hover:bg-primary/10 transition-colors lg:hidden"
-                aria-label={t.accounting.common.closeMenu}
-              >
-                <X size={20} className="text-secondary/60" />
-              </button>
-            )}
-
             <div className="flex items-center gap-3">
               <div className="relative w-12 h-12 rounded-full overflow-hidden bg-primary/10 shrink-0">
                 {session.user.image ? (

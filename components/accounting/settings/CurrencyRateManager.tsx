@@ -9,8 +9,14 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import NumberInput from '@/components/accounting/shared/NumberInput';
+import MonthSelector from '@/components/accounting/apartments/MonthSelector';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
+
+const getCurrentMonth = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+};
 
 const CurrencyRateManager: React.FC = () => {
   const t = useTranslation();
@@ -24,10 +30,12 @@ const CurrencyRateManager: React.FC = () => {
   const [saved, setSaved] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
+  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
+
   const fetchRate = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/accounting/currency-rate?from=USD&to=EGP');
+      const res = await fetch(`/api/accounting/currency-rate?from=USD&to=EGP&month=${selectedMonth}`);
       const json = await res.json();
       if (res.ok && json.rate) {
         setRate(json.rate.rate);
@@ -35,12 +43,13 @@ const CurrencyRateManager: React.FC = () => {
         setLastUpdated(json.rate.updatedAt);
       } else {
         setRate(null);
-        setInputRate('50');
+        setInputRate('');
+        setLastUpdated(null);
       }
     } catch { /* silent */ } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [selectedMonth]);
 
   useEffect(() => { fetchRate(); }, [fetchRate]);
 
@@ -63,6 +72,7 @@ const CurrencyRateManager: React.FC = () => {
           fromCurrency: 'USD',
           toCurrency: 'EGP',
           rate: newRate,
+          month: selectedMonth,
         }),
       });
       const json = await res.json();
@@ -78,7 +88,7 @@ const CurrencyRateManager: React.FC = () => {
     }
   };
 
-  const hasChanged = rate !== null && parseFloat(inputRate) !== rate;
+  const canSave = inputRate.trim() !== '' && parseFloat(inputRate) > 0 && (rate === null || parseFloat(inputRate) !== rate);
 
   return (
     <div className="space-y-4">
@@ -86,6 +96,12 @@ const CurrencyRateManager: React.FC = () => {
         <DollarSign className="w-4 h-4" />
         {t.accounting.settings.exchangeRate.title}
       </h3>
+
+      {/* Month selector */}
+      <MonthSelector
+        month={selectedMonth}
+        onChange={setSelectedMonth}
+      />
 
       {isLoading ? (
         <div className="flex justify-center py-6">
@@ -97,32 +113,36 @@ const CurrencyRateManager: React.FC = () => {
           animate={{ opacity: 1 }}
           className="space-y-3"
         >
-          <div className="bg-secondary/[0.03] rounded-xl p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-secondary/[0.08]">
-                <span className="text-xs font-bold text-secondary font-dubai">1 USD</span>
-                <span className="text-secondary/30">=</span>
-              </div>
-              <div className="flex-1">
-                <NumberInput
-                  value={inputRate}
-                  onChange={e => setInputRate(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-secondary/[0.08] rounded-xl
-                    focus:outline-none focus:border-secondary/20 font-dubai font-bold text-secondary"
-                />
-              </div>
-              <span className="text-xs font-bold text-secondary font-dubai">EGP</span>
+          {/* No rate badge */}
+          {rate === null && (
+            <div className="text-[11px] text-secondary/70 bg-primary/10 border border-primary/25 rounded-lg px-3 py-2 font-dubai">
+              {language === 'ar'
+                ? 'لا يوجد سعر صرف لهذا الشهر - أدخل السعر واحفظه'
+                : 'No exchange rate for this month — enter a rate and save'}
             </div>
+          )}
 
-            {lastUpdated && (
-              <p className="text-[10px] text-secondary/50 font-dubai">
-                {t.accounting.settings.exchangeRate.lastUpdate} {new Date(lastUpdated).toLocaleDateString(locale, {
-                  year: 'numeric', month: 'long', day: 'numeric',
-                  hour: '2-digit', minute: '2-digit',
-                })}
-              </p>
-            )}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-secondary/60 font-dubai shrink-0">1 USD =</span>
+            <div className="flex-1">
+              <NumberInput
+                value={inputRate}
+                onChange={e => setInputRate(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-secondary/[0.12] rounded-lg
+                  focus:outline-none focus:border-primary/50 font-dubai font-bold text-secondary"
+              />
+            </div>
+            <span className="text-xs font-bold text-secondary/60 font-dubai shrink-0">EGP</span>
           </div>
+
+          {lastUpdated && (
+            <p className="text-[10px] text-secondary/40 font-dubai -mt-1">
+              {t.accounting.settings.exchangeRate.lastUpdate} {new Date(lastUpdated).toLocaleDateString(locale, {
+                year: 'numeric', month: 'long', day: 'numeric',
+                hour: '2-digit', minute: '2-digit',
+              })}
+            </p>
+          )}
 
           {error && (
             <p className="text-xs text-red-600 font-dubai">{error}</p>
@@ -131,7 +151,7 @@ const CurrencyRateManager: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleSave}
-              disabled={isSaving || !hasChanged}
+              disabled={isSaving || !canSave}
               className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold
                 bg-secondary text-white rounded-xl hover:bg-secondary/90 transition
                 disabled:opacity-50 font-dubai"

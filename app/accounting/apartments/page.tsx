@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
   Building2,
   Plus,
-  Menu,
   RefreshCw,
   Search,
   Filter,
@@ -177,46 +176,42 @@ export default function ApartmentsPage() {
   }, {});
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-5">
-      {/* Header + Month Selector */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
-            <Building2 size={20} className="text-white" />
+    <div className="flex-1 flex flex-col gap-3">
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] p-3 sm:p-4 md:p-5 lg:p-6 space-y-2 sm:space-y-3">
+      {/* Title + Actions */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center shrink-0">
+            <Building2 size={16} className="text-white sm:w-5 sm:h-5" />
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">{t.accounting.apartments.title}</h1>
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">{t.accounting.apartments.title}</h1>
             <p className="text-xs text-secondary font-dubai mt-0.5 hidden sm:block">{t.accounting.apartments.subtitle}</p>
           </div>
         </div>
-
-        <MonthSelector month={month} onChange={setMonth} />
-
-        <div className="flex items-center gap-1.5 justify-end">
-          {canManage && (
+        <div className="flex items-center gap-1 shrink-0">
+            {canManage && (
+              <button
+                onClick={() => { setEditApartment(null); setShowForm(true); }}
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl font-dubai text-xs sm:text-sm font-bold hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300"
+              >
+                <Plus size={14} className="sm:w-[15px] sm:h-[15px]" />
+                {t.accounting.apartments.addApartment}
+              </button>
+            )}
             <button
-              onClick={() => { setEditApartment(null); setShowForm(true); }}
-              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl font-dubai text-sm font-bold hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300"
+              onClick={() => fetchData()}
+              className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
+              aria-label={t.accounting.common.refresh}
             >
-              <Plus size={15} />
-              <span className="hidden sm:inline">{t.accounting.apartments.addApartment}</span>
+              <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
-          )}
-          <button
-            onClick={() => fetchData()}
-            className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
-            aria-label={t.accounting.common.refresh}
-          >
-            <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
-          </button>
-          <button
-            onClick={() => window.dispatchEvent(new CustomEvent('openAccountingMenu'))}
-            className="lg:hidden p-2 hover:bg-secondary/5 rounded-xl transition-all"
-            aria-label={t.accounting.common.openMenu}
-          >
-            <Menu size={22} className="text-secondary/60" />
-          </button>
         </div>
+      </div>
+
+      {/* Month Selector */}
+      <div className="flex items-center justify-center">
+        <MonthSelector month={month} onChange={setMonth} />
       </div>
 
       {/* Filters */}
@@ -227,7 +222,7 @@ export default function ApartmentsPage() {
         className="flex flex-col sm:flex-row gap-3"
       >
         {/* Search */}
-        <div className="relative flex-1">
+        <div className="relative sm:max-w-xs">
           <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
           <input
             type="text"
@@ -251,7 +246,9 @@ export default function ApartmentsPage() {
           ]}
         />
       </motion.div>
+      </div>
 
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] flex-1 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-5 overflow-y-auto">
       {/* Error */}
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-center">
@@ -336,6 +333,7 @@ export default function ApartmentsPage() {
         } : null}
         projects={projects}
       />
+      </div>
     </div>
   );
 }

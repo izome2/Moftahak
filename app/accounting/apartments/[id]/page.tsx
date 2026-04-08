@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import {
   Building2,
   ArrowRight,
-  Menu,
   RefreshCw,
   Loader2,
 } from 'lucide-react';
@@ -195,67 +194,64 @@ export default function ApartmentDetailPage() {
   const expensesTotal = expenses.reduce((s, e) => s + e.amount, 0);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
-      {/* Header + Month Selector */}
+    <div className="flex-1 flex flex-col gap-3">
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] p-3 sm:p-4 md:p-5 lg:p-6 space-y-2 sm:space-y-3">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="grid grid-cols-[1fr_auto_1fr] items-center gap-3"
+        className="space-y-2 sm:space-y-3"
       >
-        <div className="flex items-center gap-3">
-          {/* Back button */}
-          <button
-            onClick={() => router.push('/accounting/apartments')}
-            className="p-2.5 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors"
-            aria-label={t.accounting.apartments.backToApartments}
-          >
-            <ArrowRight size={20} className="text-secondary" />
-          </button>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai">
-              {apartment.name}
-            </h1>
-            <div className="flex items-center gap-2 mt-0.5">
-              {apartment.project && (
-                <span className="text-sm text-secondary/50 font-dubai">
-                  {apartment.project.name}
-                </span>
-              )}
-              {apartment.floor && (
-                <span className="text-xs text-secondary/40 font-dubai">
-                  • {t.accounting.common.floor} {apartment.floor}
-                </span>
-              )}
-              {apartment.type && (
-                <span className="text-[10px] bg-primary/10 text-secondary/60 px-2 py-0.5 rounded-full font-dubai">
-                  {apartment.type}
-                </span>
-              )}
+        {/* Title + Actions */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <button
+              onClick={() => router.push('/accounting/apartments')}
+              className="p-2 sm:p-2.5 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors shrink-0"
+              aria-label={t.accounting.apartments.backToApartments}
+            >
+              <ArrowRight size={16} className="text-secondary sm:w-5 sm:h-5" />
+            </button>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai truncate">
+                {apartment.name}
+              </h1>
+              <div className="flex items-center gap-2 mt-0.5 hidden sm:flex">
+                {apartment.project && (
+                  <span className="text-sm text-secondary/50 font-dubai">
+                    {apartment.project.name}
+                  </span>
+                )}
+                {apartment.floor && (
+                  <span className="text-xs text-secondary/40 font-dubai">
+                    • {t.accounting.common.floor} {apartment.floor}
+                  </span>
+                )}
+                {apartment.type && (
+                  <span className="text-[10px] bg-primary/10 text-secondary/60 px-2 py-0.5 rounded-full font-dubai">
+                    {apartment.type}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-
-        <MonthSelector month={month} onChange={setMonth} />
-
-        <div className="flex items-center gap-2 justify-end">
           <button
             onClick={() => fetchMonthlyData(month)}
-            className="p-2 hover:bg-primary/10 rounded-lg transition-colors"
+            className="p-1.5 sm:p-2 hover:bg-primary/10 rounded-lg transition-colors shrink-0"
             aria-label={t.accounting.common.refresh}
           >
-            <RefreshCw size={20} className={`text-secondary/60 ${loadingData ? 'animate-spin' : ''}`} />
-          </button>
-          <button
-            onClick={() => window.dispatchEvent(new CustomEvent('openAccountingMenu'))}
-            className="lg:hidden p-2 hover:bg-primary/10 rounded-lg transition-colors"
-            aria-label={t.accounting.common.openMenu}
-          >
-            <Menu size={28} className="text-secondary" />
+            <RefreshCw size={15} className={`text-secondary/60 sm:w-5 sm:h-5 ${loadingData ? 'animate-spin' : ''}`} />
           </button>
         </div>
-      </motion.div>
 
+        {/* Month Selector */}
+        <div className="flex items-center justify-center">
+          <MonthSelector month={month} onChange={setMonth} />
+        </div>
+      </motion.div>
+      </div>
+
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] flex-1 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-5 overflow-y-auto">
       {/* Financial Summary Cards */}
       {canViewRevenue ? (
         <FinancialSummary
@@ -316,6 +312,7 @@ export default function ApartmentDetailPage() {
           isLoading={loadingData}
         />
       )}
+      </div>
     </div>
   );
 }

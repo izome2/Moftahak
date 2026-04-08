@@ -38,7 +38,10 @@ export async function GET(request: NextRequest) {
 
   const users = await prisma.user.findMany({
     where: {
-      role: { in: ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER', 'INVESTOR'] },
+      OR: [
+        { role: { in: ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER', 'INVESTOR'] } },
+        { additionalRoles: { hasSome: ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER', 'INVESTOR'] } },
+      ],
     },
     select: {
       id: true,
@@ -47,6 +50,7 @@ export async function GET(request: NextRequest) {
       email: true,
       phone: true,
       role: true,
+      additionalRoles: true,
       image: true,
       createdAt: true,
     },

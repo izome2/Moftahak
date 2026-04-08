@@ -11,9 +11,10 @@ import {
   Loader2,
   ChevronDown,
   ChevronUp,
+  BarChart3,
+  Target,
 } from 'lucide-react';
 import MonthlySummary from './MonthlySummary';
-import ProgressBar from './ProgressBar';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -37,6 +38,7 @@ interface InvestmentData {
   investorProfit: number;
   totalWithdrawals: number;
   balance: number;
+  occupancyRate?: number;
   monthlyBreakdown: MonthlyBreakdown[];
 }
 
@@ -141,7 +143,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
             </div>
 
             {/* 3 Widgets */}
-            <div className="grid grid-cols-3 gap-2.5 sm:gap-3 px-4 sm:px-5 pb-5 pt-2">
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-3 px-4 sm:px-5 pb-3 pt-2">
               <div className="flex flex-col items-center justify-center text-center
                 bg-white/5 border border-white/8 rounded-xl px-2 py-4 sm:py-5
                 hover:bg-white/8 transition-colors"
@@ -194,6 +196,69 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                 </p>
               </div>
             </div>
+
+            {/* Transparent bar: Occupancy Rate + Annual Target */}
+            <div className="mx-4 sm:mx-5 mb-4 sm:mb-5 bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 space-y-3">
+              {/* Occupancy Rate */}
+              {typeof investment.occupancyRate === 'number' && (
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] sm:text-xs text-white/50 font-dubai flex items-center gap-1.5">
+                    <BarChart3 className="w-3.5 h-3.5" />
+                    {t.accounting.investorPortal.occupancyRate}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 sm:w-28 h-2 bg-white/10 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.min(investment.occupancyRate, 100)}%` }}
+                        transition={{ duration: 0.8, ease: 'easeOut', delay: 0.4 }}
+                        className="h-full rounded-full bg-gradient-to-l from-primary to-primary/70"
+                      />
+                    </div>
+                    <span className="text-xs sm:text-sm font-bold text-primary font-dubai min-w-[2.5rem] text-left">
+                      {investment.occupancyRate}%
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Annual Target */}
+              {investment.investmentTarget > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[11px] sm:text-xs text-white/50 font-dubai flex items-center gap-1.5">
+                      <Target className="w-3.5 h-3.5" />
+                      {t.accounting.investorPortal.yearlyProgress}
+                    </span>
+                    <span className={`text-xs sm:text-sm font-bold font-dubai ${
+                      investment.investorProfit >= investment.investmentTarget ? 'text-[#b5c4a5]' : 'text-primary'
+                    }`}>
+                      {Math.min(Math.round((investment.investorProfit / investment.investmentTarget) * 100), 100)}%
+                    </span>
+                  </div>
+                  <div className="relative h-2 bg-white/10 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min((investment.investorProfit / investment.investmentTarget) * 100, 100)}%` }}
+                      transition={{ duration: 1, ease: 'easeOut', delay: 0.5 }}
+                      className={`absolute inset-y-0 right-0 rounded-full ${
+                        investment.investorProfit >= investment.investmentTarget
+                          ? 'bg-gradient-to-l from-[#8a9a7a] to-[#a8b898]'
+                          : 'bg-gradient-to-l from-primary to-primary/70'
+                      }`}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between mt-1.5">
+                    <span className="text-[10px] text-white/35 font-dubai">
+                      {t.accounting.investorPortal.achieved} <span className="text-white/60">{formatCurrency(investment.investorProfit, currency)}</span>
+                    </span>
+                    <span className="text-[10px] text-white/35 font-dubai">
+                      {t.accounting.investorPortal.target} <span className="text-white/60">{formatCurrency(investment.investmentTarget, currency)}</span>
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* My Share */}
@@ -227,18 +292,8 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
             </div>
           </div>
 
-          {/* Progress bar if target exists */}
-          {investment.investmentTarget > 0 && (
-            <ProgressBar
-              label={t.accounting.investorPortal.yearlyProgress}
-              current={investment.investorProfit}
-              target={investment.investmentTarget}
-              currency={currency}
-            />
-          )}
-
           {/* Monthly breakdown by year */}
-          {years.map((year) => (
+          {years.length > 0 ? years.map((year) => (
             <MonthlySummary
               key={year}
               year={year}
@@ -247,7 +302,12 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
               totalInvestorProfit={yearlyGroups[year].reduce((s, m) => s + m.investorShare, 0)}
               currency={currency}
             />
-          ))}
+          )) : (
+            <div className="text-center py-8">
+              <BarChart3 size={28} className="text-secondary/20 mx-auto mb-2" />
+              <p className="text-sm text-secondary/40 font-dubai">{t.accounting.investorPortal.noDataThisYear}</p>
+            </div>
+          )}
         </motion.div>
       )}
     </motion.div>

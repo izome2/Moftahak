@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
@@ -56,81 +56,54 @@ export default function AccountingSettingsPage() {
   }, [t]);
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      {/* Page Header */}
-      <div className="flex items-center gap-3.5">
-        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
-          <Settings size={20} className="text-white" />
+    <div className="flex-1 flex flex-col gap-3" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] p-3 sm:p-4 md:p-5 lg:p-6 space-y-2 sm:space-y-3">
+      {/* Title */}
+      <div className="flex items-center gap-2 sm:gap-3.5">
+        <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center shrink-0">
+          <Settings size={16} className="text-white sm:w-5 sm:h-5" />
         </div>
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">{t.accounting.settings.title}</h1>
-          <p className="text-xs text-secondary/50 font-dubai mt-0.5">
+        <div className="min-w-0">
+          <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">{t.accounting.settings.title}</h1>
+          <p className="text-xs text-secondary/50 font-dubai mt-0.5 hidden sm:block">
             {t.accounting.settings.subtitle}
           </p>
         </div>
       </div>
 
-      {/* Sidebar + Content Layout */}
-      <div className="flex flex-col lg:flex-row gap-4">
-        {/* Sidebar Navigation */}
-        <motion.nav
-          initial={{ opacity: 0, x: language === 'ar' ? 12 : -12 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.05 }}
-          className="lg:w-52 shrink-0"
-        >
-          {/* Mobile: horizontal scroll */}
-          <div className="flex lg:hidden items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
-            {tabs.map(tab => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 text-[11px] font-bold font-dubai
-                    rounded-xl whitespace-nowrap transition-all duration-200
-                    ${isActive
-                      ? 'bg-secondary text-white shadow-sm'
-                      : 'bg-white border border-secondary/[0.08] text-secondary/50 hover:text-secondary hover:border-secondary/15'
-                    }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
+      {/* Tab Navigation - always horizontal, wrapping */}
+      <motion.nav
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="flex flex-wrap items-center gap-1.5 sm:gap-2"
+      >
+        {tabs.map(tab => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          const isSystem = tab.id === 'system';
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-1.5 px-3 py-2 text-[11px] sm:text-xs font-bold font-dubai
+                rounded-xl transition-all duration-200
+                ${isActive
+                  ? 'bg-secondary text-white shadow-sm'
+                  : isSystem
+                    ? 'bg-white border border-rose-200/60 text-rose-400/70 hover:bg-rose-50/50 hover:text-rose-500'
+                    : 'bg-white border border-secondary/[0.08] text-secondary/50 hover:text-secondary hover:border-secondary/15'
+                }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              {tab.label}
+            </button>
+          );
+        })}
+      </motion.nav>
+      </div>
 
-          {/* Desktop: vertical list */}
-          <div className="hidden lg:flex flex-col gap-0.5 bg-white border border-secondary/[0.08] rounded-2xl p-2 shadow-sm">
-            {tabs.map(tab => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              const isSystem = tab.id === 'system';
-              return (
-                <React.Fragment key={tab.id}>
-                  {isSystem && <div className="border-t border-secondary/[0.06] my-1" />}
-                  <button
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2.5 w-full px-3 py-2.5 text-xs font-bold font-dubai
-                      rounded-xl transition-all duration-200 text-start
-                      ${isActive
-                        ? 'bg-secondary text-white shadow-sm'
-                        : isSystem
-                          ? 'text-rose-400/70 hover:bg-rose-50/50 hover:text-rose-500'
-                          : 'text-secondary/45 hover:bg-secondary/[0.04] hover:text-secondary/70'
-                      }`}
-                  >
-                    <Icon className="w-4 h-4 shrink-0" />
-                    {tab.label}
-                  </button>
-                </React.Fragment>
-              );
-            })}
-          </div>
-        </motion.nav>
-
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] flex-1 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-5 overflow-y-auto">
         {/* Tab Content */}
         <motion.div
           key={activeTab}

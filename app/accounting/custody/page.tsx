@@ -168,51 +168,46 @@ export default function CustodyPage() {
   const totalRemaining = records.reduce((s, r) => s + r.remaining, 0);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
-            <Wallet size={20} className="text-white" />
+    <div className="flex-1 flex flex-col gap-3">
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] p-3 sm:p-4 md:p-5 lg:p-6">
+      {/* Title + Actions */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
+          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center shrink-0">
+            <Wallet size={16} className="text-white sm:w-5 sm:h-5" />
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">{t.accounting.custody.title}</h1>
-            <p className="text-xs text-secondary font-dubai mt-0.5">
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">{t.accounting.custody.title}</h1>
+            <p className="text-xs text-secondary font-dubai mt-0.5 hidden sm:block">
               {isGeneralManager ? t.accounting.custody.subtitleAdmin : t.accounting.custody.subtitleUser}
             </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 shrink-0">
           {isGeneralManager && (
             <button
               onClick={() => setShowCreate(true)}
-              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl font-dubai text-sm font-bold hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl font-dubai text-xs sm:text-sm font-bold hover:shadow-lg hover:shadow-secondary/20 transition-all duration-300"
             >
-              <Plus size={15} />
-              <span className="hidden sm:inline">{t.accounting.custody.newCustody}</span>
+              <Plus size={14} className="sm:w-[15px] sm:h-[15px]" />
+              {t.accounting.custody.newCustody}
             </button>
           )}
           <button
             onClick={fetchRecords}
-            className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
+            className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
             aria-label={t.accounting.common.refresh}
           >
-            <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
-          </button>
-          <button
-            onClick={() => window.dispatchEvent(new CustomEvent('openAccountingMenu'))}
-            className="lg:hidden p-2 hover:bg-secondary/5 rounded-xl transition-all"
-            aria-label={t.accounting.common.openMenu}
-          >
-            <Menu size={22} className="text-secondary/60" />
+            <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
+      </div>
 
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] flex-1 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-5 overflow-y-auto">
       {/* Summary Stats */}
       {records.length > 0 && (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -353,7 +348,7 @@ export default function CustodyPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-              className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-md z-10 overflow-hidden border border-secondary/[0.08]"
+              className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-md z-10 overflow-hidden border border-secondary/[0.08] max-h-[95vh] sm:max-h-[90vh] flex flex-col"
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
                 <div className="flex items-center gap-2.5">
@@ -366,7 +361,7 @@ export default function CustodyPage() {
                   <X size={18} className="text-secondary/40" />
                 </button>
               </div>
-              <form onSubmit={handleCreate} className="p-5 space-y-5" dir="rtl">
+              <form onSubmit={handleCreate} className="p-5 space-y-5 overflow-y-auto" dir="rtl">
                 <div>
                   <label className="flex items-center gap-1.5 mb-2">
                     <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
@@ -409,7 +404,7 @@ export default function CustodyPage() {
                     }))}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="flex items-center gap-1.5 mb-2">
                       <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
@@ -478,6 +473,7 @@ export default function CustodyPage() {
           </div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 }

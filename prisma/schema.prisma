@@ -19,6 +19,7 @@ model User {
   phone         String?   @unique
   password      String
   role          Role      @default(USER)
+  additionalRoles Role[]  @default([]) @map("additional_roles")
   image         String?   @default("/images/default-avatar.svg")
   emailVerified DateTime? @map("email_verified")
   phoneVerified DateTime? @map("phone_verified")
@@ -743,14 +744,17 @@ model Withdrawal {
 }
 
 // CurrencyRate Model - نموذج سعر صرف العملة
+// سعر صرف شهري مستقل لكل شهر
 model CurrencyRate {
   id            String   @id @default(cuid())
   fromCurrency  String   @map("from_currency")      // مثلاً: USD
   toCurrency    String   @map("to_currency")         // مثلاً: EGP
   rate          Float                                 // سعر الصرف
+  month         String                                // "YYYY-MM"
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-  @@unique([fromCurrency, toCurrency])
+  @@unique([fromCurrency, toCurrency, month])
+  @@index([month])
   @@map("currency_rates")
 }
 

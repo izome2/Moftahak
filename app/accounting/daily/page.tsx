@@ -145,15 +145,16 @@ export default function DailyOpsPage() {
   const dateLabel = getDateLabel();
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      {/* Page Header + Date Navigation */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
-            <ClipboardList size={20} className="text-white" />
+    <div className="flex-1 flex flex-col gap-3" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] p-3 sm:p-4 md:p-5 lg:p-6 space-y-2 sm:space-y-3">
+      {/* Title + Actions */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center shrink-0">
+            <ClipboardList size={16} className="text-white sm:w-5 sm:h-5" />
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">
               {t.accounting.daily.title}
             </h1>
             <p className="text-xs text-secondary font-dubai mt-0.5 hidden sm:block">
@@ -161,39 +162,7 @@ export default function DailyOpsPage() {
             </p>
           </div>
         </div>
-
-        {/* Date Nav - centered */}
-        <div className="flex items-center justify-center gap-4">
-          <button
-            onClick={goPrevDay}
-            className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors"
-          >
-            {language === 'ar' ? <ChevronRight size={20} className="text-secondary" /> : <ChevronLeft size={20} className="text-secondary" />}
-          </button>
-          <div className="text-center min-w-[160px]">
-            <p className="text-lg font-bold text-secondary font-dubai">
-              {new Date(dateString).toLocaleDateString(locale, {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-              })}
-            </p>
-            {dateLabel && (
-              <p className="text-[10px] text-secondary/50 font-dubai font-medium -mt-0.5">
-                {dateLabel}
-              </p>
-            )}
-          </div>
-          <button
-            onClick={goNextDay}
-            className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors"
-          >
-            {language === 'ar' ? <ChevronLeft size={20} className="text-secondary" /> : <ChevronRight size={20} className="text-secondary" />}
-          </button>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-1 justify-end">
+        <div className="flex items-center gap-1 shrink-0">
           {!isAuto && (
             <button
               onClick={resetToAuto}
@@ -206,13 +175,45 @@ export default function DailyOpsPage() {
           <button
             onClick={fetchDaily}
             disabled={isLoading}
-            className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
+            className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
           >
-            <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
 
+      {/* Date Nav - centered */}
+      <div className="flex items-center justify-center gap-3 sm:gap-4">
+        <button
+          onClick={goPrevDay}
+          className="p-1.5 sm:p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors"
+        >
+          {language === 'ar' ? <ChevronRight size={18} className="text-secondary sm:w-5 sm:h-5" /> : <ChevronLeft size={18} className="text-secondary sm:w-5 sm:h-5" />}
+        </button>
+        <div className="text-center min-w-[120px] sm:min-w-[160px]">
+          <p className="text-sm sm:text-lg font-bold text-secondary font-dubai">
+            {new Date(dateString).toLocaleDateString(locale, {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric',
+            })}
+          </p>
+          {dateLabel && (
+            <p className="text-[10px] text-secondary/50 font-dubai font-medium -mt-0.5">
+              {dateLabel}
+            </p>
+          )}
+        </div>
+        <button
+          onClick={goNextDay}
+          className="p-1.5 sm:p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors"
+        >
+          {language === 'ar' ? <ChevronLeft size={18} className="text-secondary sm:w-5 sm:h-5" /> : <ChevronRight size={18} className="text-secondary sm:w-5 sm:h-5" />}
+        </button>
+      </div>
+      </div>
+
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] flex-1 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-5 overflow-y-auto">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <motion.div
@@ -315,7 +316,7 @@ export default function DailyOpsPage() {
         />
       )}
 
-
+      </div>
     </div>
   );
 }

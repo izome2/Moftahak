@@ -272,7 +272,7 @@ const ApartmentsManager: React.FC = () => {
                     options={projects.map(p => ({ value: p.id, label: p.name }))}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="flex items-center gap-1.5 mb-2">
                       <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Building2 size={11} className="text-secondary/50" /></span>

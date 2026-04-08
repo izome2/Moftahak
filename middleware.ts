@@ -22,6 +22,25 @@ function getEffectiveRole(role: string | undefined): string | undefined {
   return role === 'ADMIN' ? 'GENERAL_MANAGER' : role;
 }
 
+/** جمع كل الأدوار الفعلية للمستخدم (الأساسي + الإضافية) */
+function getAllEffectiveRoles(token: { role?: unknown; additionalRoles?: unknown }): string[] {
+  const roles: string[] = [];
+  const primaryRole = getEffectiveRole(token.role as string | undefined);
+  if (primaryRole) roles.push(primaryRole);
+  
+  const additional = token.additionalRoles;
+  if (Array.isArray(additional)) {
+    for (const r of additional) {
+      const effective = getEffectiveRole(r as string);
+      if (effective && !roles.includes(effective)) {
+        roles.push(effective);
+      }
+    }
+  }
+  
+  return roles;
+}
+
 /** الأدوار المسموح لها بالوصول لكل مسار حسابات */
 const accountingPageAccess: Record<string, AccountingRole[]> = {
   '/accounting':               ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER'],
@@ -39,8 +58,8 @@ const accountingPageAccess: Record<string, AccountingRole[]> = {
   '/accounting/month-lock':    ['GENERAL_MANAGER'],
 };
 
-function canAccessAccountingPath(role: string | undefined, pathname: string): boolean {
-  if (!role) return false;
+function canAccessAccountingPath(roles: string[], pathname: string): boolean {
+  if (roles.length === 0) return false;
   
   // ابحث عن أطول مسار مطابق (الأكثر تحديداً)
   let matchedPath = '';
@@ -53,7 +72,7 @@ function canAccessAccountingPath(role: string | undefined, pathname: string): bo
   if (!matchedPath) return false;
   
   const allowedRoles = accountingPageAccess[matchedPath];
-  return allowedRoles.includes(role as AccountingRole);
+  return roles.some(role => allowedRoles.includes(role as AccountingRole));
 }
 
 export async function middleware(request: NextRequest) {
@@ -91,17 +110,17 @@ export async function middleware(request: NextRequest) {
   // حماية مسارات نظام الحسابات (صفحات)
   // ════════════════════════════════════════════════════════════════════
   if (isAccountingPath) {
-    const rawRole = token?.role as string | undefined;
-    const role = getEffectiveRole(rawRole);
+    const roles = getAllEffectiveRoles(token as { role?: unknown; additionalRoles?: unknown });
     
     // يجب أن يكون لديه دور حسابات
-    if (!role || !ACCOUNTING_ROLES.includes(role as AccountingRole)) {
+    const hasAccountingRole = roles.some(r => ACCOUNTING_ROLES.includes(r as AccountingRole));
+    if (!hasAccountingRole) {
       const url = new URL('/', request.url);
       return NextResponse.redirect(url);
     }
     
     // التحقق من صلاحية الوصول للمسار المحدد
-    if (!canAccessAccountingPath(role, pathname)) {
+    if (!canAccessAccountingPath(roles, pathname)) {
       const url = new URL('/accounting', request.url);
       return NextResponse.redirect(url);
     }
@@ -111,11 +130,11 @@ export async function middleware(request: NextRequest) {
   // حماية API نظام الحسابات
   // ════════════════════════════════════════════════════════════════════
   if (isAccountingApi) {
-    const rawRole = token?.role as string | undefined;
-    const role = getEffectiveRole(rawRole);
+    const roles = getAllEffectiveRoles(token as { role?: unknown; additionalRoles?: unknown });
     
     // يجب أن يكون لديه دور حسابات
-    if (!role || !ACCOUNTING_ROLES.includes(role as AccountingRole)) {
+    const hasAccountingRole = roles.some(r => ACCOUNTING_ROLES.includes(r as AccountingRole));
+    if (!hasAccountingRole) {
       return NextResponse.json(
         { error: 'ليس لديك صلاحية الوصول لنظام الحسابات' },
         { status: 403 }

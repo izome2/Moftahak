@@ -80,6 +80,13 @@ const Navbar: React.FC = () => {
   // رابط الحسابات المناسب لدور المستثمر
   const accountingHref = session?.user?.role === 'INVESTOR' ? '/accounting/my-investments' : '/accounting';
 
+  // اسم القسم حسب دور المستخدم
+  const accountingLabel = useMemo(() => {
+    const role = session?.user?.role;
+    if (role && t.nav.accountingByRole[role]) return t.nav.accountingByRole[role];
+    return t.nav.accounting;
+  }, [session?.user?.role, t]);
+
   const handleNavClick = (link: NavLink) => {
     if (link.isPage) {
       // الانتقال لصفحة منفصلة
@@ -156,7 +163,7 @@ const Navbar: React.FC = () => {
                   className="font-semibold text-base transition-colors duration-300 relative group text-secondary hover:text-primary flex items-center gap-1.5"
                 >
                   <Calculator size={16} />
-                  {t.nav.accounting}
+                  {accountingLabel}
                   <span className="absolute top-[calc(100%+4px)] end-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
                 </Link>
               )}
@@ -305,7 +312,7 @@ const Navbar: React.FC = () => {
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="w-full text-right font-semibold py-3 px-4 transition-all duration-200 text-secondary hover:text-primary hover:bg-primary/5 rounded-lg flex items-center justify-end gap-2"
                   >
-                    {t.nav.accounting}
+                    {accountingLabel}
                     <Calculator size={18} />
                   </Link>
                 )}

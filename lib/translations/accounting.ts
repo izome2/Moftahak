@@ -417,7 +417,7 @@ const accountingTranslations = {
         checkInDate: 'تاريخ الدخول',
         checkOutDate: 'تاريخ الخروج',
         nightsCount: 'عدد الليالي',
-        financialValue: 'القيمة المالية',
+        financialValue: 'سعر الحجز',
         arrivalTime: 'وقت الوصول',
         status: 'الحالة',
         notes: 'ملاحظات',
@@ -432,6 +432,7 @@ const accountingTranslations = {
         // Validation
         apartmentRequired: 'يجب اختيار الشقة',
         clientNameRequired: 'اسم العميل مطلوب',
+        contactNumberRequired: 'رقم التواصل مطلوب',
         checkInRequired: 'تاريخ الدخول مطلوب',
         checkOutRequired: 'تاريخ الخروج مطلوب',
         checkOutAfterCheckIn: 'تاريخ الخروج يجب أن يكون بعد تاريخ الدخول',
@@ -689,6 +690,7 @@ const accountingTranslations = {
         yearlyProgress: 'التقدم السنوي',
         achieved: 'المحقق:',
         target: 'الهدف:',
+        occupancyRate: 'نسبة الإشغال',
 
         // Balance card
         finalBalance: 'الرصيد النهائي',
@@ -1593,7 +1595,7 @@ const accountingTranslations = {
         checkInDate: 'Check-in Date',
         checkOutDate: 'Check-out Date',
         nightsCount: 'Number of Nights',
-        financialValue: 'Financial Value',
+        financialValue: 'Booking Price',
         arrivalTime: 'Arrival Time',
         status: 'Status',
         notes: 'Notes',
@@ -1607,6 +1609,7 @@ const accountingTranslations = {
 
         apartmentRequired: 'Apartment is required',
         clientNameRequired: 'Client name is required',
+        contactNumberRequired: 'Contact number is required',
         checkInRequired: 'Check-in date is required',
         checkOutRequired: 'Check-out date is required',
         checkOutAfterCheckIn: 'Check-out must be after check-in',
@@ -1825,6 +1828,7 @@ const accountingTranslations = {
         yearlyProgress: 'Yearly Progress',
         achieved: 'Achieved:',
         target: 'Target:',
+        occupancyRate: 'Occupancy Rate',
 
         finalBalance: 'Final Balance',
         accountSummary: 'Total Account Summary',

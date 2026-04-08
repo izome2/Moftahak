@@ -39,6 +39,7 @@ interface InvestmentData {
   investorProfit: number;
   totalWithdrawals: number;
   balance: number;
+  occupancyRate?: number;
   monthlyBreakdown: MonthlyBreakdown[];
 }
 
@@ -138,15 +139,16 @@ export default function MyInvestmentsPage() {
     : '';
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-5" dir="rtl">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center">
-            <Wallet size={20} className="text-white" />
+    <div className="flex-1 flex flex-col gap-3" dir="rtl">
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] p-3 sm:p-4 md:p-5 lg:p-6">
+      {/* Title + Actions */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
+          <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 shadow-lg flex items-center justify-center shrink-0">
+            <Wallet size={16} className="text-white sm:w-5 sm:h-5" />
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-secondary font-dubai tracking-tight">
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">
               {t.accounting.myInvestments.title}
               {investorName && (
                 <span className="text-sm font-normal text-secondary/40 mr-2">
@@ -154,21 +156,22 @@ export default function MyInvestmentsPage() {
                 </span>
               )}
             </h1>
-            <p className="text-xs text-secondary/60 font-dubai mt-0.5">
+            <p className="text-xs text-secondary/60 font-dubai mt-0.5 hidden sm:block">
               {t.accounting.myInvestments.subtitle}
             </p>
           </div>
         </div>
-
         <button
           onClick={fetchData}
           disabled={isLoading}
-          className="p-2 hover:bg-secondary/5 rounded-xl transition-all"
+          className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all shrink-0"
         >
-          <RefreshCw size={16} className={`text-secondary/40 ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
         </button>
       </div>
+      </div>
 
+      <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] flex-1 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-5 overflow-y-auto">
       {/* Loading */}
       {isLoading && (
         <div className="py-16 flex flex-col items-center gap-3 text-secondary/40">
@@ -205,7 +208,7 @@ export default function MyInvestmentsPage() {
           />
 
           {/* Stats Widgets */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             <AccountingStatsCard
               icon={DollarSign}
               label={t.accounting.dashboard.totalRevenue}
@@ -282,6 +285,7 @@ export default function MyInvestmentsPage() {
           )}
         </>
       )}
+      </div>
     </div>
   );
 }

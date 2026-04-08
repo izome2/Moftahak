@@ -129,7 +129,7 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-md border border-secondary/[0.08] overflow-hidden"
+            className="relative bg-white rounded-2xl shadow-[0_25px_60px_-12px_rgba(0,0,0,0.25)] w-full max-w-md border border-secondary/[0.08] overflow-hidden max-h-[95vh] sm:max-h-[90vh] flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-secondary/[0.06]">
@@ -150,7 +150,7 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="p-5 space-y-5">
+            <form onSubmit={handleSubmit} className="p-5 space-y-5 overflow-y-auto">
               <FormField
                 icon={<Building2 size={11} className="text-secondary/50" />}
                 label={t.accounting.apartmentForm.project}
@@ -182,7 +182,7 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
                 />
               </FormField>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField
                   icon={<Layers size={11} className="text-secondary/50" />}
                   label={t.accounting.apartmentForm.floorNumber}

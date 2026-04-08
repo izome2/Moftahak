@@ -32,14 +32,14 @@ export async function POST(request: NextRequest) {
 
     // Check if identifier is email or phone
     const isEmailInput = identifier.includes('@');
-    const normalizedIdentifier = isEmailInput ? identifier : normalizePhone(identifier);
+    const normalizedIdentifier = isEmailInput ? identifier.toLowerCase().trim() : normalizePhone(identifier);
 
     // Find the reset record
     // For phone, we look for PHONE_PENDING code (Firebase verified)
     // For email, we match the actual OTP code
     const resetRecord = await prisma.passwordReset.findFirst({
       where: {
-        ...(isEmailInput ? { email: identifier } : { phone: normalizedIdentifier }),
+        ...(isEmailInput ? { email: normalizedIdentifier } : { phone: normalizedIdentifier }),
         ...(isEmailInput ? { code } : { code: 'PHONE_PENDING' }),
         used: false,
         expiresAt: { gt: new Date() },
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     // Find user
     const user = await prisma.user.findUnique({
-      where: isEmailInput ? { email: identifier } : { phone: normalizedIdentifier },
+      where: isEmailInput ? { email: normalizedIdentifier } : { phone: normalizedIdentifier },
     });
 
     if (!user) {

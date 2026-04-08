@@ -37,13 +37,24 @@ export async function POST(request: NextRequest) {
     const isUsingEmail = !!validatedData.email;
     const isUsingPhone = !!validatedData.phone;
 
-    // Check if email already exists
+    // Check if email already exists (normalize to lowercase)
     if (isUsingEmail && validatedData.email) {
       const existingUserByEmail = await prisma.user.findUnique({
-        where: { email: validatedData.email },
+        where: { email: validatedData.email.toLowerCase().trim() },
       });
 
       if (existingUserByEmail) {
+        // إذا كان هناك كود دعوة، ننصح المستخدم بتسجيل الدخول بدلاً من إنشاء حساب جديد
+        if (validatedData.inviteCode) {
+          return NextResponse.json(
+            { 
+              success: false, 
+              message: 'لديك حساب بالفعل! قم بتسجيل الدخول لقبول الدعوة',
+              error: 'USE_EXISTING_ACCOUNT'
+            },
+            { status: 409 }
+          );
+        }
         return NextResponse.json(
           { 
             success: false, 
@@ -65,6 +76,17 @@ export async function POST(request: NextRequest) {
       });
 
       if (existingUserByPhone) {
+        // إذا كان هناك كود دعوة، ننصح المستخدم بتسجيل الدخول بدلاً من إنشاء حساب جديد
+        if (validatedData.inviteCode) {
+          return NextResponse.json(
+            { 
+              success: false, 
+              message: 'لديك حساب بالفعل! قم بتسجيل الدخول لقبول الدعوة',
+              error: 'USE_EXISTING_ACCOUNT'
+            },
+            { status: 409 }
+          );
+        }
         return NextResponse.json(
           { 
             success: false, 
@@ -155,7 +177,7 @@ export async function POST(request: NextRequest) {
     };
 
     if (isUsingEmail && validatedData.email) {
-      userData.email = validatedData.email;
+      userData.email = validatedData.email.toLowerCase().trim();
     }
 
     if (isUsingPhone && validatedData.phone) {

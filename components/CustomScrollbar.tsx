@@ -43,8 +43,8 @@ export default function CustomScrollbar() {
     };
   }, []);
 
-  // إخفاء الشريط في صفحات الأدمن، صفحات الدراسة، أو على الموبايل
-  if (pathname?.startsWith('/admin') || pathname?.startsWith('/study/') || !isDesktop) {
+  // إخفاء الشريط في صفحات غير الهبوط أو على الموبايل
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/study/') || pathname?.startsWith('/accounting') || pathname?.startsWith('/courses') || pathname?.startsWith('/feasibility') || !isDesktop) {
     return null;
   }
 

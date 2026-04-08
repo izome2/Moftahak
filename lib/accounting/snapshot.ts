@@ -30,7 +30,7 @@ export async function refreshMonthlySnapshot(
   try {
     // ⚡ كل الحسابات تتم على مستوى DB (لا .reduce في JavaScript)
     const [revenueAgg, expenseAgg, bookingsBySource, expensesByCategory, nightsAgg] = await Promise.all([
-      // 1. إجمالي الإيرادات + عدد الحجوزات
+      // 1. إجمالي الإيرادات + عدد الحجوزات (بدون الملغية)
       prisma.booking.aggregate({
         _sum: { amount: true },
         _count: true,
@@ -38,6 +38,7 @@ export async function refreshMonthlySnapshot(
           apartmentId,
           checkIn: { gte: startOfMonth, lt: endOfMonth },
           deletedAt: null,
+          status: { not: 'CANCELLED' },
         },
       }),
 
@@ -52,7 +53,7 @@ export async function refreshMonthlySnapshot(
         },
       }),
 
-      // 3. تقسيم الإيرادات حسب مصدر الحجز
+      // 3. تقسيم الإيرادات حسب مصدر الحجز (بدون الملغية)
       prisma.booking.groupBy({
         by: ['source'],
         _sum: { amount: true },
@@ -60,6 +61,7 @@ export async function refreshMonthlySnapshot(
           apartmentId,
           checkIn: { gte: startOfMonth, lt: endOfMonth },
           deletedAt: null,
+          status: { not: 'CANCELLED' },
         },
       }),
 
