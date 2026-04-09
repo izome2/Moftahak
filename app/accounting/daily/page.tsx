@@ -220,7 +220,7 @@ export default function DailyOpsPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.05 }}
-          className="relative overflow-hidden bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 rounded-2xl border border-emerald-500/15
+          className="relative overflow-hidden bg-emerald-500/10 rounded-2xl border border-emerald-500/15
             px-5 py-4 flex items-center gap-3 group hover:shadow-md transition-shadow duration-300"
         >
           <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
@@ -242,7 +242,7 @@ export default function DailyOpsPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.1 }}
-          className="relative overflow-hidden bg-gradient-to-br from-rose-500/10 to-rose-500/5 rounded-2xl border border-rose-500/15
+          className="relative overflow-hidden bg-rose-500/10 rounded-2xl border border-rose-500/15
             px-5 py-4 flex items-center gap-3 group hover:shadow-md transition-shadow duration-300"
         >
           <div className="w-10 h-10 rounded-xl bg-rose-500/15 flex items-center justify-center">

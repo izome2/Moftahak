@@ -11,6 +11,11 @@ import {
   Cell,
   Tooltip,
   Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
 } from 'recharts';
 import { CATEGORY_COLORS } from './CategoryBadge';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -179,6 +184,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.35 }}
         className="bg-white rounded-2xl border border-secondary/[0.08] shadow-sm p-4"
+        onMouseMove={onMouseMove}
       >
         <h3 className="text-sm font-bold text-secondary font-dubai mb-4 text-center">
           {t.accounting.expenses.apartmentComparison}
@@ -188,34 +194,70 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
             {t.accounting.common.noData}
           </div>
         ) : (
-          <div className="space-y-2.5 px-1">
-            {apartmentData!.map((apt, index) => {
-              const maxExpense = Math.max(...apartmentData!.map(a => a.expense));
-              const pct = maxExpense > 0 ? (apt.expense / maxExpense) * 100 : 0;
-              const color = BAR_COLORS[index % BAR_COLORS.length];
-              return (
-                <div key={index}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-secondary font-dubai truncate max-w-[55%]">
-                      {apt.name}
-                    </span>
-                    <span className="text-xs font-bold font-dubai" style={{ color }}>
-                      {formatCurrency(apt.expense)}
-                    </span>
-                  </div>
-                  <div className="w-full h-5 bg-secondary/[0.04] rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.max(pct, 2)}%` }}
-                      transition={{ duration: 0.8, delay: 0.1 * index, ease: [0.25, 0.1, 0.25, 1] }}
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: color }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <ResponsiveContainer width="100%" height={340}>
+            <BarChart
+              data={apartmentData!.map((apt, index) => ({
+                name: apt.name.length > 12 ? apt.name.slice(0, 12) + '\u2026' : apt.name,
+                fullName: apt.name,
+                expense: apt.expense,
+                fill: BAR_COLORS[index % BAR_COLORS.length],
+              }))}
+              margin={{ top: 15, right: 10, left: 10, bottom: 10 }}
+            >
+              <defs>
+                <marker id="arrowExpX" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#10302b" opacity="0.3" />
+                </marker>
+                <marker id="arrowExpY" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#10302b" opacity="0.3" />
+                </marker>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(16,48,43,0.06)" vertical={false} />
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: 10, fontFamily: 'var(--font-dubai)', fill: '#10302b', fontWeight: 600 }}
+                axisLine={{ stroke: '#10302b', strokeOpacity: 0.3, markerEnd: 'url(#arrowExpX)' }}
+                tickLine={false}
+                interval={0}
+                angle={-25}
+                textAnchor="end"
+                height={55}
+              />
+              <YAxis
+                tick={{ fontSize: 10, fontFamily: 'var(--font-dubai)', fill: '#10302b80' }}
+                axisLine={{ stroke: '#10302b', strokeOpacity: 0.3, markerEnd: 'url(#arrowExpY)' }}
+                tickLine={false}
+                tickFormatter={(v: number) => new Intl.NumberFormat(locale, { notation: 'compact' }).format(v)}
+                width={50}
+              />
+              <Tooltip
+                cursor={{ fill: 'rgba(16,48,43,0.04)', radius: 6 }}
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null;
+                  const d = payload[0].payload;
+                  return (
+                    <div className="bg-white border border-secondary/[0.06] rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
+                      <span className="font-bold text-secondary block mb-1">{d.fullName}</span>
+                      <span className="text-secondary/70">{formatCurrency(d.expense)}</span>
+                    </div>
+                  );
+                }}
+                wrapperStyle={wrapperStyle}
+                isAnimationActive={false}
+                allowEscapeViewBox={{ x: true, y: true }}
+              />
+              <Bar
+                dataKey="expense"
+                radius={[6, 6, 0, 0]}
+                maxBarSize={40}
+                animationDuration={800}
+              >
+                {apartmentData!.map((_, index) => (
+                  <Cell key={index} fill={BAR_COLORS[index % BAR_COLORS.length]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         )}
       </motion.div>
     </div>

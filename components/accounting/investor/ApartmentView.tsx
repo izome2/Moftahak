@@ -142,8 +142,10 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
               </div>
             </div>
 
-            {/* 3 Widgets */}
-            <div className="grid grid-cols-3 gap-2.5 sm:gap-3 px-4 sm:px-5 pb-3 pt-2">
+            {/* Widgets */}
+            <div className={`grid gap-2.5 sm:gap-3 px-4 sm:px-5 pb-3 pt-2 ${
+              typeof investment.occupancyRate === 'number' ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'
+            }`}>
               <div className="flex flex-col items-center justify-center text-center
                 bg-white/5 border border-white/8 rounded-xl px-2 py-4 sm:py-5
                 hover:bg-white/8 transition-colors"
@@ -195,35 +197,28 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                   {formatCurrency(investment.profit, currency)}
                 </p>
               </div>
-            </div>
 
-            {/* Transparent bar: Occupancy Rate + Annual Target */}
-            <div className="mx-4 sm:mx-5 mb-4 sm:mb-5 bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 space-y-3">
-              {/* Occupancy Rate */}
               {typeof investment.occupancyRate === 'number' && (
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] sm:text-xs text-white/80 font-dubai flex items-center gap-1.5">
-                    <BarChart3 className="w-3.5 h-3.5" />
-                    {t.accounting.investorPortal.occupancyRate}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 sm:w-28 h-2 bg-white/10 rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(investment.occupancyRate, 100)}%` }}
-                        transition={{ duration: 0.8, ease: 'easeOut', delay: 0.4 }}
-                        className="h-full rounded-full bg-gradient-to-l from-primary to-primary/70"
-                      />
-                    </div>
-                    <span className="text-xs sm:text-sm font-bold text-primary font-dubai min-w-[2.5rem] text-left">
-                      {investment.occupancyRate}%
-                    </span>
+                <div className="flex flex-col items-center justify-center text-center
+                  bg-white/5 border border-white/8 rounded-xl px-2 py-4 sm:py-5
+                  hover:bg-white/8 transition-colors"
+                >
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-primary/15 border border-primary/20
+                    flex items-center justify-center mb-2.5"
+                  >
+                    <BarChart3 className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-primary" />
                   </div>
+                  <p className="text-[11px] sm:text-xs text-white/80 font-dubai mb-1">{t.accounting.investorPortal.occupancyRate}</p>
+                  <p className="text-[15px] sm:text-lg font-bold text-primary font-dubai leading-tight">
+                    {new Intl.NumberFormat(locale).format(investment.occupancyRate)}%
+                  </p>
                 </div>
               )}
+            </div>
 
-              {/* Annual Target */}
-              {investment.investmentTarget > 0 && (
+            {/* Transparent bar: Annual Target */}
+            {investment.investmentTarget > 0 && (
+              <div className="mx-4 sm:mx-5 mb-4 sm:mb-5 bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3">
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-[11px] sm:text-xs text-white/80 font-dubai flex items-center gap-1.5">
@@ -257,8 +252,8 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                     </span>
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* My Share */}
