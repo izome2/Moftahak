@@ -122,7 +122,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
           animate={{ opacity: 1 }}
           className="text-center"
         >
-          <Loader2 className="w-10 h-10 animate-spin text-secondary/30 mx-auto mb-3" />
+          <Loader2 className="w-10 h-10 animate-spin text-secondary/60 mx-auto mb-3" />
           <p className="text-secondary font-dubai font-bold">{t.accounting.backup.loading}</p>
         </motion.div>
       </div>
@@ -142,7 +142,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
             <AlertTriangle className="w-8 h-8 text-rose-400" />
           </div>
           <h2 className="text-xl font-bold text-secondary font-dubai">{t.accounting.backup.error}</h2>
-          <p className="text-secondary/60 font-dubai text-sm">{error || t.accounting.backup.notFound}</p>
+          <p className="text-secondary/80 font-dubai text-sm">{error || t.accounting.backup.notFound}</p>
           <button
             onClick={() => window.close()}
             className="px-6 py-2.5 rounded-xl bg-secondary text-white font-dubai font-bold text-sm hover:bg-secondary/90 transition-colors"
@@ -172,7 +172,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
             </div>
             <div>
               <h1 className="text-lg font-bold text-secondary font-dubai">{backup.name}</h1>
-              <div className="flex items-center gap-3 text-xs text-secondary/50 font-dubai">
+              <div className="flex items-center gap-3 text-xs text-secondary/75 font-dubai">
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   {new Date(backup.createdAt).toLocaleDateString(locale, {
@@ -215,7 +215,7 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
               className="bg-white rounded-xl border border-secondary/[0.08] p-3 text-center"
             >
               <p className="text-2xl font-bold text-secondary font-dubai">{value as number}</p>
-              <p className="text-xs text-secondary/50 font-dubai">{(t.accounting.backup.sections as any)[key] || key}</p>
+              <p className="text-xs text-secondary/75 font-dubai">{(t.accounting.backup.sections as any)[key] || key}</p>
             </div>
           ))}
         </motion.div>
@@ -246,12 +246,12 @@ export default function BackupViewerPage({ params }: { params: Promise<{ id: str
                     </div>
                     <div className={language === 'ar' ? 'text-right' : 'text-left'}>
                       <h3 className="font-bold text-secondary font-dubai text-sm">{t.accounting.backup.sections[section.sectionKey]}</h3>
-                      <p className="text-xs text-secondary/40 font-dubai">{items.length} {t.accounting.common.item}</p>
+                      <p className="text-xs text-secondary/70 font-dubai">{items.length} {t.accounting.common.item}</p>
                     </div>
                   </div>
                   {isExpanded
-                    ? <ChevronUp className="w-5 h-5 text-secondary/40" />
-                    : <ChevronDown className="w-5 h-5 text-secondary/40" />
+                    ? <ChevronUp className="w-5 h-5 text-secondary/70" />
+                    : <ChevronDown className="w-5 h-5 text-secondary/70" />
                   }
                 </button>
 
@@ -292,9 +292,9 @@ function DataTable({ items, section, t, locale, language }: { items: any[]; sect
     <table className="w-full text-sm font-dubai">
       <thead>
         <tr className="border-b border-secondary/[0.06]">
-          <th className={`${language === 'ar' ? 'text-right' : 'text-left'} py-2 px-3 text-xs font-bold text-secondary/50`}>#</th>
+          <th className={`${language === 'ar' ? 'text-right' : 'text-left'} py-2 px-3 text-xs font-bold text-secondary/75`}>#</th>
           {columns.map(col => (
-            <th key={col.key} className={`${language === 'ar' ? 'text-right' : 'text-left'} py-2 px-3 text-xs font-bold text-secondary/50 whitespace-nowrap`}>
+            <th key={col.key} className={`${language === 'ar' ? 'text-right' : 'text-left'} py-2 px-3 text-xs font-bold text-secondary/75 whitespace-nowrap`}>
               {col.label}
             </th>
           ))}
@@ -303,7 +303,7 @@ function DataTable({ items, section, t, locale, language }: { items: any[]; sect
       <tbody>
         {items.slice(0, 100).map((item, i) => (
           <tr key={item.id || i} className="border-b border-primary/5 hover:bg-primary/5 transition-colors">
-            <td className="py-2 px-3 text-xs text-secondary/40">{i + 1}</td>
+            <td className="py-2 px-3 text-xs text-secondary/70">{i + 1}</td>
             {columns.map(col => (
               <td key={col.key} className="py-2 px-3 text-xs text-secondary/80 whitespace-nowrap">
                 {col.render ? col.render(item[col.key], item) : formatValue(item[col.key])}
@@ -315,7 +315,7 @@ function DataTable({ items, section, t, locale, language }: { items: any[]; sect
       {items.length > 100 && (
         <tfoot>
           <tr>
-            <td colSpan={columns.length + 1} className="py-3 text-center text-xs text-secondary/40 font-dubai">
+            <td colSpan={columns.length + 1} className="py-3 text-center text-xs text-secondary/70 font-dubai">
               {t.accounting.common.showing100of(items.length)}
             </td>
           </tr>

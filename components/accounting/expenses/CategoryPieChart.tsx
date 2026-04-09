@@ -101,10 +101,10 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-white rounded-2xl border border-secondary/[0.08] p-6 h-[360px] flex items-center justify-center">
-          <Loader2 className="w-6 h-6 text-secondary/30 animate-spin" />
+          <Loader2 className="w-6 h-6 text-secondary/60 animate-spin" />
         </div>
         <div className="bg-white rounded-2xl border border-secondary/[0.08] p-6 h-[360px] flex items-center justify-center">
-          <Loader2 className="w-6 h-6 text-secondary/30 animate-spin" />
+          <Loader2 className="w-6 h-6 text-secondary/60 animate-spin" />
         </div>
       </div>
     );
@@ -133,7 +133,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
           {t.accounting.expenses.categoryDistribution}
         </h3>
         {pieData.length === 0 ? (
-          <div className="h-[280px] flex items-center justify-center text-secondary/40 font-dubai text-sm">
+          <div className="h-[280px] flex items-center justify-center text-secondary/70 font-dubai text-sm">
             {t.accounting.common.noData}
           </div>
         ) : (
@@ -184,7 +184,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
           {t.accounting.expenses.apartmentComparison}
         </h3>
         {!hasBarData ? (
-          <div className="h-[280px] flex items-center justify-center text-secondary/40 font-dubai text-sm">
+          <div className="h-[280px] flex items-center justify-center text-secondary/70 font-dubai text-sm">
             {t.accounting.common.noData}
           </div>
         ) : (

@@ -53,7 +53,7 @@ const FormField: React.FC<{
   </div>
 );
 
-const inputClass = "w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25";
+const inputClass = "w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60";
 
 const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
   isOpen,
@@ -152,14 +152,14 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               </div>
               <div>
                 <h2 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.withdrawalForm.title}</h2>
-                <p className="text-[11px] text-secondary/40 font-dubai">{investorName}</p>
+                <p className="text-[11px] text-secondary/70 font-dubai">{investorName}</p>
               </div>
             </div>
             <button
               onClick={onClose}
               className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"
             >
-              <X size={18} className="text-secondary/40" />
+              <X size={18} className="text-secondary/70" />
             </button>
           </div>
 
@@ -169,7 +169,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             <div className="bg-secondary/[0.03] rounded-xl px-3.5 py-2.5 text-xs text-secondary font-dubai space-y-1.5 border border-secondary/[0.06]">
               {investments.map(inv => (
                 <div key={inv.id} className="flex items-center gap-1.5">
-                  <Building2 size={12} className="text-secondary/40 shrink-0" />
+                  <Building2 size={12} className="text-secondary/70 shrink-0" />
                   <span>{inv.apartment.name} — {t.accounting.withdrawalForm.percentage} {new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(inv.percentage * 100)}%</span>
                 </div>
               ))}
@@ -193,7 +193,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
                 />
               </FormField>
               <FormField
-                icon={<DollarSign size={11} className="text-secondary/50" />}
+                icon={<DollarSign size={11} className="text-secondary/75" />}
                 label={t.accounting.withdrawalForm.currency}
                 className="w-24"
               >
@@ -211,7 +211,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
             {/* Date */}
             <FormField
-              icon={<Calendar size={11} className="text-secondary/50" />}
+              icon={<Calendar size={11} className="text-secondary/75" />}
               label={t.accounting.withdrawalForm.withdrawalDate}
               required
             >
@@ -224,7 +224,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
 
             {/* Comments */}
             <FormField
-              icon={<MessageSquare size={11} className="text-secondary/50" />}
+              icon={<MessageSquare size={11} className="text-secondary/75" />}
               label={t.accounting.withdrawalForm.notes}
             >
               <textarea
@@ -250,7 +250,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
               >
                 {t.accounting.common.cancel}
               </button>

@@ -135,13 +135,13 @@ export default function InvestorDetailPage() {
               <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">
                 {t.accounting.investorDetail.financialDetails}
                 {data && (
-                  <span className="text-sm font-normal text-secondary/40 mr-2">
+                  <span className="text-sm font-normal text-secondary/70 mr-2">
                     — {data.investor.firstName} {data.investor.lastName}
                   </span>
                 )}
               </h1>
               {data?.investor.email && (
-                <p className="text-xs text-secondary/60 font-dubai mt-0.5 hidden sm:flex items-center gap-1">
+                <p className="text-xs text-secondary/80 font-dubai mt-0.5 hidden sm:flex items-center gap-1">
                   <Mail className="w-3 h-3" />
                   {data.investor.email}
                 </p>
@@ -153,7 +153,7 @@ export default function InvestorDetailPage() {
             disabled={isLoading}
             className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all shrink-0"
           >
-            <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={15} className={`text-secondary/70 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
@@ -162,7 +162,7 @@ export default function InvestorDetailPage() {
       <div className="bg-white/95 rounded-2xl shadow-sm border border-secondary/[0.08] flex-1 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4 sm:space-y-5 overflow-y-auto">
         {/* Loading State */}
         {isLoading && (
-          <div className="py-16 flex flex-col items-center gap-3 text-secondary/40">
+          <div className="py-16 flex flex-col items-center gap-3 text-secondary/70">
             <Loader2 className="w-8 h-8 animate-spin" />
             <p className="text-sm font-dubai">{t.accounting.investorDetail.loadingData}</p>
           </div>
@@ -213,14 +213,14 @@ export default function InvestorDetailPage() {
                     {data.investor.firstName} {data.investor.lastName}
                   </h2>
                   {data.investor.email && (
-                    <p className="flex items-center gap-1 text-sm text-white/50 font-dubai mt-0.5">
+                    <p className="flex items-center gap-1 text-sm text-white/80 font-dubai mt-0.5">
                       <Mail className="w-3.5 h-3.5" />
                       <span className="truncate">{data.investor.email}</span>
                     </p>
                   )}
                 </div>
                 <div className="text-center shrink-0 bg-white/5 border border-white/8 rounded-xl px-4 py-3">
-                  <p className="text-[11px] text-white/50 font-dubai">{t.accounting.investorDetail.investmentsCount}</p>
+                  <p className="text-[11px] text-white/80 font-dubai">{t.accounting.investorDetail.investmentsCount}</p>
                   <p className="text-2xl font-bold text-primary font-dubai">
                     {data.investments.length}
                   </p>
@@ -243,9 +243,9 @@ export default function InvestorDetailPage() {
               className="bg-white/60 rounded-2xl border border-secondary/[0.06] p-10 text-center"
             >
               <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-secondary/25" />
+                <Building2 className="w-6 h-6 text-secondary/60" />
               </div>
-              <p className="text-sm text-secondary/40 font-dubai">{t.accounting.investorDetail.noInvestments}</p>
+              <p className="text-sm text-secondary/70 font-dubai">{t.accounting.investorDetail.noInvestments}</p>
             </motion.div>
           ) : (
             <div className="space-y-4">
@@ -253,7 +253,7 @@ export default function InvestorDetailPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.25 }}
-                className="flex items-center gap-2 text-xs text-secondary/60 font-dubai"
+                className="flex items-center gap-2 text-xs text-secondary/80 font-dubai"
               >
                 <Building2 className="w-3.5 h-3.5" />
                 <span>{t.accounting.investorDetail.investments(data.investments.length)}</span>

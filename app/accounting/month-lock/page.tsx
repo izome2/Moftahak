@@ -146,7 +146,7 @@ export default function MonthLockPage() {
           </div>
           <div className="min-w-0">
             <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">{t.accounting.monthLock.title}</h1>
-            <p className="text-xs text-secondary/60 font-dubai mt-0.5 hidden sm:block">
+            <p className="text-xs text-secondary/80 font-dubai mt-0.5 hidden sm:block">
               {t.accounting.monthLock.subtitle}
             </p>
           </div>
@@ -154,12 +154,12 @@ export default function MonthLockPage() {
         <div className="flex items-center gap-2 shrink-0">
           <div className="hidden sm:flex items-center gap-2 text-sm font-dubai">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-secondary/[0.06] rounded-lg border border-secondary/[0.08]">
-              <Lock size={12} className="text-secondary/60" />
+              <Lock size={12} className="text-secondary/80" />
               <span className="font-bold text-secondary/70 text-xs">{new Intl.NumberFormat(locale).format(totalLocked)}</span>
             </span>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-primary/10 rounded-lg border border-primary/15">
               <Unlock size={12} className="text-primary/70" />
-              <span className="font-bold text-secondary/60 text-xs">{new Intl.NumberFormat(locale).format(totalUnlocked)}</span>
+              <span className="font-bold text-secondary/80 text-xs">{new Intl.NumberFormat(locale).format(totalUnlocked)}</span>
             </span>
           </div>
           <button
@@ -167,7 +167,7 @@ export default function MonthLockPage() {
             disabled={loading}
             className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
           >
-            <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={15} className={`text-secondary/70 sm:w-4 sm:h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
@@ -186,7 +186,7 @@ export default function MonthLockPage() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between bg-primary/5 border border-primary/15 rounded-xl px-4 py-2.5"
         >
-          <p className="text-xs text-secondary/50 font-dubai">
+          <p className="text-xs text-secondary/75 font-dubai">
             {t.accounting.monthLock.snapshotNote}
           </p>
           <button
@@ -213,12 +213,12 @@ export default function MonthLockPage() {
       >
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-5 h-5 text-secondary/30 animate-spin" />
+            <Loader2 className="w-5 h-5 text-secondary/60 animate-spin" />
           </div>
         ) : apartments.length === 0 ? (
-          <div className="text-center py-20 text-secondary/40 font-dubai">
+          <div className="text-center py-20 text-secondary/70 font-dubai">
             <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
-              <Building2 size={22} className="text-secondary/25" />
+              <Building2 size={22} className="text-secondary/60" />
             </div>
             <p className="text-lg font-bold">{t.accounting.monthLock.noApartments}</p>
             <p className="text-sm mt-1">{t.accounting.monthLock.addApartmentsNote}</p>
@@ -228,11 +228,11 @@ export default function MonthLockPage() {
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10">
                 <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
-                  <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Building2 size={12} />{t.accounting.monthLock.apartment}</span></th>
-                  <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><ShieldCheck size={12} />{t.accounting.monthLock.status}</span></th>
-                  <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.monthLock.profit}</span></th>
-                  <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Calendar size={12} />{t.accounting.monthLock.lockDate}</span></th>
-                  <th className="text-center px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Settings size={12} />{t.accounting.monthLock.action}</span></th>
+                  <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Building2 size={12} />{t.accounting.monthLock.apartment}</span></th>
+                  <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><ShieldCheck size={12} />{t.accounting.monthLock.status}</span></th>
+                  <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.monthLock.profit}</span></th>
+                  <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Calendar size={12} />{t.accounting.monthLock.lockDate}</span></th>
+                  <th className="text-center px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Settings size={12} />{t.accounting.monthLock.action}</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -270,7 +270,7 @@ export default function MonthLockPage() {
                           {formatCurrency(apt.profit, locale)} $
                         </span>
                       </td>
-                      <td className="px-4 py-3.5 font-dubai text-secondary/50 text-xs">
+                      <td className="px-4 py-3.5 font-dubai text-secondary/75 text-xs">
                         {formatLockDate(apt.lockedAt)}
                       </td>
                       <td className="px-4 py-3.5 text-center">

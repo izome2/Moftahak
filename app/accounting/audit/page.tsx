@@ -494,7 +494,7 @@ export default function AuditLogPage() {
             {[...changedKeys].map(key => (
               <div key={key} className="grid grid-cols-3 px-3 sm:px-4 py-2 border-t border-secondary/5 text-[11px] sm:text-xs">
                 <span className="text-xs font-bold text-secondary font-dubai"><FieldLabel fieldKey={key} fieldLabels={fieldLabels} /></span>
-                <span className="text-xs text-secondary/50 font-dubai" style={{ textDecoration: 'line-through', textDecorationColor: 'rgba(16,48,43,0.25)', textUnderlineOffset: '0px' }}>
+                <span className="text-xs text-secondary/75 font-dubai" style={{ textDecoration: 'line-through', textDecorationColor: 'rgba(16,48,43,0.25)', textUnderlineOffset: '0px' }}>
                   {formatValue(key, log.before?.[key], ctx)}
                 </span>
                 <span className="text-xs text-secondary font-bold font-dubai">
@@ -579,7 +579,7 @@ export default function AuditLogPage() {
           disabled={loading}
           className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all shrink-0"
         >
-          <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw size={15} className={`text-secondary/70 sm:w-4 sm:h-4 ${loading ? 'animate-spin' : ''}`} />
         </button>
       </motion.div>
 
@@ -590,7 +590,7 @@ export default function AuditLogPage() {
         transition={{ delay: 0.05 }}
         className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3 bg-white border-2 border-primary/20 rounded-2xl p-3 sm:p-4 shadow-[0_4px_20px_rgba(237,191,140,0.12)]"
       >
-        <Filter size={18} className="text-secondary/40 hidden sm:block" />
+        <Filter size={18} className="text-secondary/70 hidden sm:block" />
 
         {/* Entity Filter */}
         <CustomSelect
@@ -618,7 +618,7 @@ export default function AuditLogPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={audit.searchPlaceholder}
-            className="w-full pr-10 pl-4 py-2.5 bg-white border-2 border-primary/20 rounded-xl text-sm font-dubai text-secondary placeholder:text-secondary/40 focus:outline-none focus:border-primary/40 transition-colors"
+            className="w-full pr-10 pl-4 py-2.5 bg-white border-2 border-primary/20 rounded-xl text-sm font-dubai text-secondary placeholder:text-secondary/70 focus:outline-none focus:border-primary/40 transition-colors"
           />
         </div>
 
@@ -642,7 +642,7 @@ export default function AuditLogPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary/30" />
           </div>
         ) : filteredLogs.length === 0 ? (
-          <div className="text-center py-20 text-secondary/40 font-dubai">
+          <div className="text-center py-20 text-secondary/70 font-dubai">
             <ScrollText size={48} className="mx-auto mb-3 opacity-30" />
             <p className="text-lg font-bold">{audit.noRecords}</p>
             <p className="text-sm mt-1">{audit.noRecordsHint}</p>
@@ -652,22 +652,22 @@ export default function AuditLogPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
-                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/45 whitespace-nowrap">
+                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/70 whitespace-nowrap">
                     <div className="flex items-center gap-1"><Calendar size={14} /> {audit.time}</div>
                   </th>
-                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/45 whitespace-nowrap">
+                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/70 whitespace-nowrap">
                     <div className="flex items-center gap-1"><User size={14} /> {audit.user}</div>
                   </th>
-                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/45 whitespace-nowrap">
+                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/70 whitespace-nowrap">
                     <div className="flex items-center gap-1"><ArrowUpDown size={14} /> {audit.operation}</div>
                   </th>
-                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/45 whitespace-nowrap">
+                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/70 whitespace-nowrap">
                     <div className="flex items-center gap-1"><Tag size={14} /> {audit.entity}</div>
                   </th>
-                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/45 whitespace-nowrap">
+                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/70 whitespace-nowrap">
                     <div className="flex items-center gap-1"><Bookmark size={14} /> {audit.identifier}</div>
                   </th>
-                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/45 whitespace-nowrap">
+                  <th className="text-right px-4 py-3 font-dubai font-medium text-secondary/70 whitespace-nowrap">
                     <div className="flex items-center gap-1"><FileText size={14} /> {audit.details}</div>
                   </th>
                 </tr>
@@ -718,7 +718,7 @@ export default function AuditLogPage() {
                                 {isExpanded ? audit.hideDetails : audit.showDetails}
                               </span>
                             ) : (
-                              <span className="text-xs text-secondary/30">—</span>
+                              <span className="text-xs text-secondary/60">—</span>
                             )}
                           </td>
                         </motion.tr>
@@ -739,7 +739,7 @@ export default function AuditLogPage() {
                                 <div className="border-t border-secondary/[0.06] bg-secondary/[0.02] px-4 py-4 sm:px-6 sm:py-5">
                                   {renderUnifiedDetails(log)}
                                   {log.ipAddress && (
-                                    <p className="mt-3 text-[10px] text-secondary/30 font-dubai">
+                                    <p className="mt-3 text-[10px] text-secondary/60 font-dubai">
                                       {audit.ipAddress} {log.ipAddress}
                                     </p>
                                   )}
@@ -762,11 +762,11 @@ export default function AuditLogPage() {
       {loadingMore && (
         <div className="flex items-center justify-center py-4">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-secondary/30" />
-          <span className="mr-3 text-sm font-dubai text-secondary/50">{audit.loadingMore}</span>
+          <span className="mr-3 text-sm font-dubai text-secondary/75">{audit.loadingMore}</span>
         </div>
       )}
       {!hasMore && allLogs.length > 0 && (
-        <p className="text-center text-xs text-secondary/30 font-dubai py-2">
+        <p className="text-center text-xs text-secondary/60 font-dubai py-2">
           {audit.allRecordsShown}
         </p>
       )}

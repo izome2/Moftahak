@@ -339,8 +339,8 @@ const DatePicker: React.FC<DatePickerProps> = ({
         } ${className}`}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        <Calendar size={15} className="text-secondary/40 flex-shrink-0" />
-        <span className={`flex-1 text-right ${!value ? 'text-secondary/35' : ''}`}>
+        <Calendar size={15} className="text-secondary/70 flex-shrink-0" />
+        <span className={`flex-1 text-right ${!value ? 'text-secondary/65' : ''}`}>
           {displayValue || placeholder || (isRTL ? 'اختر التاريخ' : 'Select date')}
         </span>
       </button>
@@ -487,8 +487,8 @@ export const MonthPicker: React.FC<MonthPickerProps> = ({
         } ${className}`}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        <Calendar size={15} className="text-secondary/40 flex-shrink-0" />
-        <span className={`flex-1 text-right ${!value ? 'text-secondary/35' : ''}`}>
+        <Calendar size={15} className="text-secondary/70 flex-shrink-0" />
+        <span className={`flex-1 text-right ${!value ? 'text-secondary/65' : ''}`}>
           {displayValue || placeholder || ''}
         </span>
       </button>
@@ -654,8 +654,8 @@ export const TimePicker: React.FC<TimePickerProps> = ({
         } ${className}`}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        <Clock size={15} className="text-secondary/40 flex-shrink-0" />
-        <span className={`flex-1 text-right ${!value ? 'text-secondary/35' : ''}`}>
+        <Clock size={15} className="text-secondary/70 flex-shrink-0" />
+        <span className={`flex-1 text-right ${!value ? 'text-secondary/65' : ''}`}>
           {displayValue || placeholder || (isRTL ? 'اختر الوقت' : 'Select time')}
         </span>
       </button>

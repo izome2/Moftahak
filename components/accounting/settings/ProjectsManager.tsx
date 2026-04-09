@@ -144,7 +144,7 @@ const ProjectsManager: React.FC = () => {
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
         </div>
       ) : projects.length === 0 ? (
-        <p className="text-xs text-secondary/50 font-dubai text-center py-4">{t.accounting.settings.projects.noProjects}</p>
+        <p className="text-xs text-secondary/75 font-dubai text-center py-4">{t.accounting.settings.projects.noProjects}</p>
       ) : (
         <div className="space-y-2">
           {projects.map(p => (
@@ -156,7 +156,7 @@ const ProjectsManager: React.FC = () => {
             >
               <div>
                 <p className="text-sm font-bold text-secondary font-dubai">{p.name}</p>
-                <div className="flex items-center gap-2 text-[10px] text-secondary/50 font-dubai mt-0.5">
+                <div className="flex items-center gap-2 text-[10px] text-secondary/75 font-dubai mt-0.5">
                   <span className="flex items-center gap-0.5">
                     <Building2 className="w-3 h-3" /> {p._count.apartments} {t.accounting.settings.projects.apartmentUnit}
                   </span>
@@ -165,7 +165,7 @@ const ProjectsManager: React.FC = () => {
               </div>
               <div className="flex items-center gap-1">
                 <button onClick={() => openEdit(p)} className="p-1.5 hover:bg-white rounded-lg transition">
-                  <Pencil className="w-3 h-3 text-secondary/40" />
+                  <Pencil className="w-3 h-3 text-secondary/70" />
                 </button>
                 <button onClick={() => setDeleteTarget(p)} className="p-1.5 hover:bg-red-50 rounded-lg transition">
                   <Trash2 className="w-3 h-3 text-red-400" />
@@ -199,36 +199,36 @@ const ProjectsManager: React.FC = () => {
                     {editId ? t.accounting.settings.projects.editProject : t.accounting.settings.projects.newProject}
                   </h4>
                 </div>
-                <button onClick={() => setShowForm(false)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/40" /></button>
+                <button onClick={() => setShowForm(false)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/70" /></button>
               </div>
               <form onSubmit={handleSubmit} className="p-5 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                 <div>
                   <label className="flex items-center gap-1.5 mb-2">
-                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><FolderKanban size={11} className="text-secondary/50" /></span>
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><FolderKanban size={11} className="text-secondary/75" /></span>
                     <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.projects.projectName}</span>
                     <span className="text-red-400 text-xs">*</span>
                   </label>
                   <input
                     value={name} onChange={e => setName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60"
                     required
                   />
                 </div>
                 <div>
                   <label className="flex items-center gap-1.5 mb-2">
-                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><FolderKanban size={11} className="text-secondary/50" /></span>
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><FolderKanban size={11} className="text-secondary/75" /></span>
                     <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.projects.description}</span>
                   </label>
                   <input
                     value={description} onChange={e => setDescription(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60"
                   />
                 </div>
                 {formError && <p className="text-sm text-red-500 font-dubai bg-red-50/80 p-2.5 rounded-xl border border-red-100">{formError}</p>}
                 <div className="flex items-center gap-3 pt-1">
                   <button
                     type="button" onClick={() => setShowForm(false)}
-                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                   >{t.accounting.common.cancel}</button>
                   <button
                     type="submit" disabled={isSaving}
@@ -274,7 +274,7 @@ const ProjectsManager: React.FC = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setDeleteTarget(null)}
-                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                   >{t.accounting.common.cancel}</button>
                   <button
                     onClick={handleDelete} disabled={isDeleting || deleteTarget._count.apartments > 0}

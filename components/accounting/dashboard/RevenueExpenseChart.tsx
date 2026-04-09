@@ -76,7 +76,7 @@ const RevenueExpenseChart: React.FC<RevenueExpenseChartProps> = ({ data, isLoadi
 
   if (!data.length) {
     return (
-      <div className="h-[300px] flex items-center justify-center text-secondary/50 font-dubai">
+      <div className="h-[300px] flex items-center justify-center text-secondary/75 font-dubai">
         {t.accounting.dashboard.noDataToShow}
       </div>
     );

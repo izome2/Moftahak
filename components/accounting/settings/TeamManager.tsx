@@ -152,7 +152,7 @@ const TeamManager: React.FC = () => {
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
         </div>
       ) : members.length === 0 ? (
-        <p className="text-xs text-secondary/50 font-dubai text-center py-4">{t.accounting.settings.team.noMembers}</p>
+        <p className="text-xs text-secondary/75 font-dubai text-center py-4">{t.accounting.settings.team.noMembers}</p>
       ) : (
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
           {members.map(m => (
@@ -176,7 +176,7 @@ const TeamManager: React.FC = () => {
                     </span>
                   ))}
                 </div>
-                <div className="flex items-center gap-3 text-[10px] text-secondary/50 font-dubai mt-0.5">
+                <div className="flex items-center gap-3 text-[10px] text-secondary/75 font-dubai mt-0.5">
                   {m.email && (
                     <span className="flex items-center gap-0.5">
                       <Mail className="w-2.5 h-2.5" /> {m.email}
@@ -191,7 +191,7 @@ const TeamManager: React.FC = () => {
               </div>
               <div className="flex items-center gap-1 shrink-0">
                 <button onClick={() => openEdit(m)} className="p-1.5 hover:bg-white rounded-lg transition">
-                  <Pencil className="w-3 h-3 text-secondary/40" />
+                  <Pencil className="w-3 h-3 text-secondary/70" />
                 </button>
                 <button onClick={() => setDeleteTarget(m)} className="p-1.5 hover:bg-red-50 rounded-lg transition">
                   <Trash2 className="w-3 h-3 text-red-400" />
@@ -223,34 +223,34 @@ const TeamManager: React.FC = () => {
                   </div>
                   <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.settings.team.editMember}</h4>
                 </div>
-                <button onClick={() => setEditMember(null)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/40" /></button>
+                <button onClick={() => setEditMember(null)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/70" /></button>
               </div>
               <div className="p-5 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="flex items-center gap-1.5 mb-2">
-                      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Users size={11} className="text-secondary/50" /></span>
+                      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Users size={11} className="text-secondary/75" /></span>
                       <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.team.firstName}</span>
                     </label>
                     <input
                       value={editFirstName} onChange={e => setEditFirstName(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60"
                     />
                   </div>
                   <div>
                     <label className="flex items-center gap-1.5 mb-2">
-                      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Users size={11} className="text-secondary/50" /></span>
+                      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Users size={11} className="text-secondary/75" /></span>
                       <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.team.lastName}</span>
                     </label>
                     <input
                       value={editLastName} onChange={e => setEditLastName(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60"
                     />
                   </div>
                 </div>
                 <div>
                   <label className="flex items-center gap-1.5 mb-2">
-                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Shield size={11} className="text-secondary/50" /></span>
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Shield size={11} className="text-secondary/75" /></span>
                     <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.team.role}</span>
                   </label>
                   <CustomSelect
@@ -263,7 +263,7 @@ const TeamManager: React.FC = () => {
                 {/* الأدوار الإضافية */}
                 <div>
                   <label className="flex items-center gap-1.5 mb-2">
-                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Shield size={11} className="text-secondary/50" /></span>
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Shield size={11} className="text-secondary/75" /></span>
                     <span className="text-[13px] font-bold text-secondary font-dubai">{language === 'ar' ? 'أدوار إضافية' : 'Additional Roles'}</span>
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -281,7 +281,7 @@ const TeamManager: React.FC = () => {
                           className={`text-xs px-2.5 py-1.5 rounded-lg font-dubai font-bold border transition-all ${
                             isSelected
                               ? 'bg-secondary text-white border-secondary'
-                              : 'bg-white text-secondary/60 border-secondary/[0.08] hover:border-secondary/20'
+                              : 'bg-white text-secondary/80 border-secondary/[0.08] hover:border-secondary/20'
                           }`}
                         >
                           {ROLE_LABELS[r]}
@@ -289,7 +289,7 @@ const TeamManager: React.FC = () => {
                       );
                     })}
                   </div>
-                  <p className="text-[10px] text-secondary/40 font-dubai mt-1.5">
+                  <p className="text-[10px] text-secondary/70 font-dubai mt-1.5">
                     {language === 'ar' ? 'اضغط لإضافة أو إزالة دور إضافي' : 'Click to add or remove additional role'}
                   </p>
                 </div>
@@ -297,7 +297,7 @@ const TeamManager: React.FC = () => {
                 <div className="flex items-center gap-3 pt-1">
                   <button
                     type="button" onClick={() => setEditMember(null)}
-                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                   >{t.accounting.common.cancel}</button>
                   <button
                     onClick={handleEditSave}
@@ -342,7 +342,7 @@ const TeamManager: React.FC = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setDeleteTarget(null)}
-                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                   >{t.accounting.common.cancel}</button>
                   <button
                     onClick={handleDelete} disabled={isDeleting}

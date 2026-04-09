@@ -49,7 +49,7 @@ const BalanceCard: React.FC<BalanceCardProps> = ({
         </div>
         <div>
           <h3 className="text-base font-bold text-white font-dubai">{t.accounting.investorPortal.finalBalance}</h3>
-          <p className="text-[11px] text-white/35 font-dubai">{t.accounting.investorPortal.accountSummary}</p>
+          <p className="text-[11px] text-white/75 font-dubai">{t.accounting.investorPortal.accountSummary}</p>
         </div>
       </div>
 
@@ -65,7 +65,7 @@ const BalanceCard: React.FC<BalanceCardProps> = ({
           >
             <TrendingUp className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#b5c4a5]" />
           </div>
-          <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.investorPortal.totalProfits}</p>
+          <p className="text-[11px] sm:text-xs text-white/80 font-dubai mb-1">{t.accounting.investorPortal.totalProfits}</p>
           <p className="text-sm sm:text-[15px] font-bold text-[#b5c4a5] font-dubai leading-tight">
             {formatCurrency(totalProfit, currency)}
           </p>
@@ -81,7 +81,7 @@ const BalanceCard: React.FC<BalanceCardProps> = ({
           >
             <TrendingDown className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#d4b0a0]" />
           </div>
-          <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.investorPortal.totalWithdrawals}</p>
+          <p className="text-[11px] sm:text-xs text-white/80 font-dubai mb-1">{t.accounting.investorPortal.totalWithdrawals}</p>
           <p className="text-sm sm:text-[15px] font-bold text-[#d4b0a0] font-dubai leading-tight">
             {formatCurrency(totalWithdrawals, currency)}
           </p>
@@ -101,18 +101,18 @@ const BalanceCard: React.FC<BalanceCardProps> = ({
                 : 'bg-[#c09080]/15 border-[#c09080]/20'
           }`}>
             {isZero ? (
-              <Minus className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-white/40" />
+              <Minus className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-white/75" />
             ) : isPositive ? (
               <Wallet className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#b5c4a5]" />
             ) : (
               <Wallet className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#d4b0a0]" />
             )}
           </div>
-          <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">
+          <p className="text-[11px] sm:text-xs text-white/80 font-dubai mb-1">
             {balance < 0 ? t.accounting.investorPortal.advanceBalance : t.accounting.investorPortal.remainingBalance}
           </p>
           <p className={`text-[15px] sm:text-lg font-bold font-dubai leading-tight ${
-            isPositive ? 'text-[#b5c4a5]' : isZero ? 'text-white/40' : 'text-[#d4b0a0]'
+            isPositive ? 'text-[#b5c4a5]' : isZero ? 'text-white/75' : 'text-[#d4b0a0]'
           }`}>
             {formatCurrency(balance, currency)}
           </p>

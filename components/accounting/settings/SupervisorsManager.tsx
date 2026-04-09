@@ -112,7 +112,7 @@ const SupervisorsManager: React.FC = () => {
               onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addSupervisor())}
               placeholder={t.accounting.settings.supervisors.newSupervisorPlaceholder}
               className="flex-1 px-3 py-2 text-sm border border-secondary/[0.08] rounded-xl
-                focus:outline-none focus:border-secondary/20 font-dubai placeholder:text-secondary/30"
+                focus:outline-none focus:border-secondary/20 font-dubai placeholder:text-secondary/60"
             />
             <button
               onClick={addSupervisor}
@@ -126,7 +126,7 @@ const SupervisorsManager: React.FC = () => {
 
           {/* List */}
           {supervisors.length === 0 ? (
-            <p className="text-xs text-secondary/50 font-dubai text-center py-4">{t.accounting.settings.supervisors.noSupervisors}</p>
+            <p className="text-xs text-secondary/75 font-dubai text-center py-4">{t.accounting.settings.supervisors.noSupervisors}</p>
           ) : (
             <div className="flex flex-wrap gap-2">
               {supervisors.map(name => (

@@ -55,7 +55,7 @@ const FormField: React.FC<{
   </div>
 );
 
-const inputClass = "w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25";
+const inputClass = "w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60";
 
 const ExpenseForm: React.FC<ExpenseFormProps> = ({
   isOpen,
@@ -197,7 +197,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   <h2 className="text-base font-bold text-secondary font-dubai tracking-tight">
                     {isEdit ? t.accounting.expenseForm.editTitle : t.accounting.expenseForm.addTitle}
                   </h2>
-                  <p className="text-[11px] text-secondary/40 font-dubai">
+                  <p className="text-[11px] text-secondary/70 font-dubai">
                     {step === 1 ? t.accounting.expenseForm.stepExpenseInfo : t.accounting.expenseForm.stepAmountDate}
                   </p>
                 </div>
@@ -206,7 +206,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 onClick={onClose}
                 className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"
               >
-                <X size={18} className="text-secondary/40" />
+                <X size={18} className="text-secondary/70" />
               </button>
             </div>
 
@@ -236,7 +236,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   >
                     {/* Apartment */}
                     <FormField
-                      icon={<Building2 size={11} className="text-secondary/50" />}
+                      icon={<Building2 size={11} className="text-secondary/75" />}
                       label={t.accounting.expenseForm.apartment}
                       required
                     >
@@ -256,7 +256,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
                     {/* Description */}
                     <FormField
-                      icon={<FileText size={11} className="text-secondary/50" />}
+                      icon={<FileText size={11} className="text-secondary/75" />}
                       label={t.accounting.expenseForm.description}
                       required
                     >
@@ -272,7 +272,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
                     {/* Category Picker */}
                     <FormField
-                      icon={<SelectedIcon size={11} className="text-secondary/50" />}
+                      icon={<SelectedIcon size={11} className="text-secondary/75" />}
                       label={t.accounting.expenseForm.category}
                       required
                     >
@@ -288,7 +288,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                           <SelectedIcon size={14} />
                         </span>
                         <span className="text-secondary">{expenseCats[formData.category] || formData.category}</span>
-                        <span className="mr-auto text-secondary/30 text-xs">▼</span>
+                        <span className="mr-auto text-secondary/60 text-xs">▼</span>
                       </button>
 
                       {/* Category grid */}
@@ -316,7 +316,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                                     className={`flex items-center gap-1.5 px-2 py-2 rounded-lg text-xs font-dubai font-bold transition-all ${
                                       isSelected
                                         ? `${opt.className} ring-2 ring-current/30 scale-[1.02]`
-                                        : 'bg-white text-secondary/60 hover:bg-white/80'
+                                        : 'bg-white text-secondary/80 hover:bg-white/80'
                                     }`}
                                   >
                                     <Icon size={13} />
@@ -342,7 +342,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                       <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                        className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                       >
                         {t.accounting.common.cancel}
                       </button>
@@ -381,7 +381,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                         />
                       </FormField>
                       <FormField
-                        icon={<Calendar size={11} className="text-secondary/50" />}
+                        icon={<Calendar size={11} className="text-secondary/75" />}
                         label={t.accounting.expenseForm.date}
                         required
                       >
@@ -395,7 +395,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
                     {/* Notes */}
                     <FormField
-                      icon={<FileText size={11} className="text-secondary/50" />}
+                      icon={<FileText size={11} className="text-secondary/75" />}
                       label={t.accounting.expenseForm.notes}
                     >
                       <textarea
@@ -419,7 +419,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                       <button
                         type="button"
                         onClick={() => { setStep(1); setError(null); }}
-                        className="py-2.5 px-4 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors flex items-center gap-1"
+                        className="py-2.5 px-4 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors flex items-center gap-1"
                       >
                         <BackArrow size={14} />
                         {t.accounting.expenseForm.back}

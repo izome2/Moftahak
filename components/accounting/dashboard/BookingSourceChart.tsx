@@ -104,19 +104,15 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({ data, isLoading
 
   if (!data.length) {
     return (
-      <div className="h-[300px] flex items-center justify-center text-secondary/50 font-dubai">
+      <div className="h-[300px] flex items-center justify-center text-secondary/75 font-dubai">
         {t.accounting.dashboard.noBookingsThisMonth}
       </div>
     );
   }
 
-  const totalAmount = data.reduce((sum, d) => sum + d.amount, 0);
-  const totalCount = data.reduce((sum, d) => sum + d.count, 0);
-  const useCount = totalAmount === 0 && totalCount > 0;
-
   const chartData = data.map(d => ({
     name: SOURCE_LABELS[d.source] || d.source,
-    value: useCount ? d.count : d.amount,
+    value: d.count,
     amount: d.amount,
     count: d.count,
     sourceKey: d.source,

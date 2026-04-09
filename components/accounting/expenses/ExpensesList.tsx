@@ -93,7 +93,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
           <div>
             <h3 className="text-sm font-bold text-secondary font-dubai tracking-tight">{t.accounting.expenses.expensesList}</h3>
             {totalCount !== undefined && (
-              <p className="text-[11px] text-secondary/40 font-dubai">{new Intl.NumberFormat(locale).format(totalCount!)} {t.accounting.common.expense}</p>
+              <p className="text-[11px] text-secondary/70 font-dubai">{new Intl.NumberFormat(locale).format(totalCount!)} {t.accounting.common.expense}</p>
             )}
           </div>
         </div>
@@ -109,14 +109,14 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
       {/* Content */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-5 h-5 text-secondary/30 animate-spin" />
+          <Loader2 className="w-5 h-5 text-secondary/60 animate-spin" />
         </div>
       ) : expenses.length === 0 ? (
         <div className="text-center py-16">
           <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
-            <Receipt size={22} className="text-secondary/25" />
+            <Receipt size={22} className="text-secondary/60" />
           </div>
-          <p className="text-secondary/40 font-dubai text-sm">{t.accounting.expenses.noExpensesFilter}</p>
+          <p className="text-secondary/70 font-dubai text-sm">{t.accounting.expenses.noExpensesFilter}</p>
         </div>
       ) : (
         <>
@@ -131,7 +131,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                   <div className="min-w-0 flex-1">
                     <p className="font-bold text-secondary font-dubai text-[13px] truncate">{expense.description}</p>
                     {showApartment && expense.apartment?.name && (
-                      <span className="text-[10px] bg-secondary/[0.04] text-secondary/50 px-2 py-0.5 rounded-md font-medium inline-block mt-1">
+                      <span className="text-[10px] bg-secondary/[0.04] text-secondary/75 px-2 py-0.5 rounded-md font-medium inline-block mt-1">
                         {expense.apartment.name}
                       </span>
                     )}
@@ -145,7 +145,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                   <div className="flex items-center gap-2">
                     <CategoryBadge category={expense.category} size="sm" showIcon={false} />
                     <ApprovalBadge status={expense.approvalStatus} rejectionReason={expense.rejectionReason} t={t} />
-                    <span className="text-[11px] text-secondary/60 font-dubai">{formatDate(expense.date)}</span>
+                    <span className="text-[11px] text-secondary/80 font-dubai">{formatDate(expense.date)}</span>
                   </div>
                   <div className="flex items-center gap-0.5">
                     {canApprove && expense.approvalStatus === 'PENDING' && onApprove && onReject && (
@@ -160,12 +160,12 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                     )}
                     {canEdit && onEdit && (
                       <button onClick={() => onEdit(expense)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors">
-                        <Pencil size={13} className="text-secondary/40" />
+                        <Pencil size={13} className="text-secondary/70" />
                       </button>
                     )}
                     {canDelete && onDelete && (
                       <button onClick={() => onDelete(expense)} className="p-1.5 hover:bg-red-50 rounded-lg transition-colors">
-                        <Trash2 size={13} className="text-secondary/35" />
+                        <Trash2 size={13} className="text-secondary/65" />
                       </button>
                     )}
                   </div>
@@ -180,15 +180,15 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
               <thead className="sticky top-0 z-10">
                 <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
                   {showApartment && (
-                    <th className="px-4 py-3 text-right text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Building2 size={12} />{t.accounting.expenses.apartment}</span></th>
+                    <th className="px-4 py-3 text-right text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Building2 size={12} />{t.accounting.expenses.apartment}</span></th>
                   )}
-                  <th className="px-4 py-3 text-right text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><FileText size={12} />{t.accounting.expenses.description}</span></th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Tag size={12} />{t.accounting.expenses.category}</span></th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai hidden sm:table-cell"><span className="inline-flex items-center gap-1"><Calendar size={12} />{t.accounting.expenses.date}</span></th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.expenses.amount}</span></th>
-                  <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><CircleDot size={12} />{t.accounting.expenses.status}</span></th>
+                  <th className="px-4 py-3 text-right text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><FileText size={12} />{t.accounting.expenses.description}</span></th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Tag size={12} />{t.accounting.expenses.category}</span></th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai hidden sm:table-cell"><span className="inline-flex items-center gap-1"><Calendar size={12} />{t.accounting.expenses.date}</span></th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.expenses.amount}</span></th>
+                  <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><CircleDot size={12} />{t.accounting.expenses.status}</span></th>
                   {hasActions && (
-                    <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai w-24"><span className="inline-flex items-center gap-1"><Settings size={12} />{t.accounting.expenses.actions}</span></th>
+                    <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai w-24"><span className="inline-flex items-center gap-1"><Settings size={12} />{t.accounting.expenses.actions}</span></th>
                   )}
                 </tr>
               </thead>
@@ -200,7 +200,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                   >
                     {showApartment && (
                       <td className="px-4 py-3.5 font-dubai">
-                        <span className="text-[11px] bg-secondary/[0.04] text-secondary/50 px-2 py-0.5 rounded-md font-medium">
+                        <span className="text-[11px] bg-secondary/[0.04] text-secondary/75 px-2 py-0.5 rounded-md font-medium">
                           {expense.apartment?.name || '—'}
                         </span>
                       </td>
@@ -208,7 +208,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                     <td className="px-4 py-3.5 font-dubai">
                       <p className="font-semibold text-secondary text-[13px]">{expense.description}</p>
                       {expense.notes && (
-                        <span className="text-[10px] text-secondary/55 flex items-center gap-0.5 mt-0.5" title={expense.notes}>
+                        <span className="text-[10px] text-secondary/80 flex items-center gap-0.5 mt-0.5" title={expense.notes}>
                           <FileText size={9} />
                           <span className="truncate max-w-[150px]">{expense.notes}</span>
                         </span>
@@ -217,7 +217,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                     <td className="px-4 py-3.5 text-center">
                       <CategoryBadge category={expense.category} size="sm" showIcon={false} />
                     </td>
-                    <td className="px-4 py-3.5 text-center text-secondary/50 font-dubai text-[12px] hidden sm:table-cell">
+                    <td className="px-4 py-3.5 text-center text-secondary/75 font-dubai text-[12px] hidden sm:table-cell">
                       {formatDate(expense.date)}
                     </td>
                     <td className="px-4 py-3.5 text-center font-bold text-secondary font-dubai text-[13px]">
@@ -253,7 +253,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                               className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"
                               title={t.accounting.common.edit}
                             >
-                              <Pencil size={13} className="text-secondary/40" />
+                              <Pencil size={13} className="text-secondary/70" />
                             </button>
                           )}
                           {canDelete && onDelete && (
@@ -262,7 +262,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
                               className="p-1.5 hover:bg-red-50 rounded-lg transition-colors"
                               title={t.accounting.common.delete}
                             >
-                              <Trash2 size={13} className="text-secondary/35" />
+                              <Trash2 size={13} className="text-secondary/65" />
                             </button>
                           )}
                         </div>

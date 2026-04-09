@@ -198,7 +198,7 @@ export default function CustodyPage() {
             className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
             aria-label={t.accounting.common.refresh}
           >
-            <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={15} className={`text-secondary/70 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
@@ -214,7 +214,7 @@ export default function CustodyPage() {
             transition={{ duration: 0.35 }}
             className="relative overflow-hidden bg-gradient-to-br from-blue-500/10 to-blue-500/5 rounded-2xl border border-blue-500/15 p-4 group hover:shadow-md transition-shadow duration-300"
           >
-            <span className="text-[11px] text-secondary/50 font-dubai font-medium">{t.accounting.custody.totalCustody}</span>
+            <span className="text-[11px] text-secondary/75 font-dubai font-medium">{t.accounting.custody.totalCustody}</span>
             <p className="text-lg font-bold text-secondary font-dubai mt-1 tracking-tight">{formatCurrency(totalAmount)}</p>
           </motion.div>
           <motion.div
@@ -223,7 +223,7 @@ export default function CustodyPage() {
             transition={{ duration: 0.35, delay: 0.05 }}
             className="relative overflow-hidden bg-gradient-to-br from-rose-500/10 to-rose-500/5 rounded-2xl border border-rose-500/15 p-4 group hover:shadow-md transition-shadow duration-300"
           >
-            <span className="text-[11px] text-secondary/50 font-dubai font-medium">{t.accounting.custody.spent}</span>
+            <span className="text-[11px] text-secondary/75 font-dubai font-medium">{t.accounting.custody.spent}</span>
             <p className="text-lg font-bold text-rose-700 font-dubai mt-1 tracking-tight">{formatCurrency(totalSpent)}</p>
           </motion.div>
           <motion.div
@@ -232,7 +232,7 @@ export default function CustodyPage() {
             transition={{ duration: 0.35, delay: 0.1 }}
             className="relative overflow-hidden bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 rounded-2xl border border-emerald-500/15 p-4 group hover:shadow-md transition-shadow duration-300"
           >
-            <span className="text-[11px] text-secondary/50 font-dubai font-medium">{t.accounting.custody.remaining}</span>
+            <span className="text-[11px] text-secondary/75 font-dubai font-medium">{t.accounting.custody.remaining}</span>
             <p className="text-lg font-bold text-emerald-700 font-dubai mt-1 tracking-tight">{formatCurrency(totalRemaining)}</p>
           </motion.div>
         </div>
@@ -255,14 +255,14 @@ export default function CustodyPage() {
       {/* Records */}
       {isLoading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-5 h-5 text-secondary/30 animate-spin" />
+          <Loader2 className="w-5 h-5 text-secondary/60 animate-spin" />
         </div>
       ) : records.length === 0 ? (
         <div className="text-center py-16">
           <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
-            <Wallet size={22} className="text-secondary/25" />
+            <Wallet size={22} className="text-secondary/60" />
           </div>
-          <p className="text-secondary/40 font-dubai text-sm">{t.accounting.custody.noCustody}</p>
+          <p className="text-secondary/70 font-dubai text-sm">{t.accounting.custody.noCustody}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -284,7 +284,7 @@ export default function CustodyPage() {
                       {rec.apartment.name}
                     </h3>
                     {isGeneralManager && (
-                      <p className="text-xs text-secondary/50 font-dubai mt-0.5">
+                      <p className="text-xs text-secondary/75 font-dubai mt-0.5">
                         {rec.manager.firstName} {rec.manager.lastName}
                       </p>
                     )}
@@ -309,7 +309,7 @@ export default function CustodyPage() {
               {/* Amounts */}
               <div className="grid grid-cols-3 gap-3">
                 <div className="bg-blue-500/8 rounded-xl p-2.5 text-center">
-                  <p className="text-[10px] text-secondary/50 font-dubai mb-0.5">{t.accounting.custody.custodyLabel}</p>
+                  <p className="text-[10px] text-secondary/75 font-dubai mb-0.5">{t.accounting.custody.custodyLabel}</p>
                   <p className="text-sm font-bold text-secondary font-dubai">{formatCurrency(rec.amount)}</p>
                 </div>
                 <div className="bg-rose-500/8 rounded-xl p-2.5 text-center">
@@ -323,7 +323,7 @@ export default function CustodyPage() {
               </div>
 
               {rec.notes && (
-                <p className="text-xs text-secondary/40 font-dubai mt-2 bg-secondary/[0.03] rounded-lg px-3 py-1.5">
+                <p className="text-xs text-secondary/70 font-dubai mt-2 bg-secondary/[0.03] rounded-lg px-3 py-1.5">
                   {rec.notes}
                 </p>
               )}
@@ -358,14 +358,14 @@ export default function CustodyPage() {
                   <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.custody.newCustodyTitle}</h4>
                 </div>
                 <button onClick={() => setShowCreate(false)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors">
-                  <X size={18} className="text-secondary/40" />
+                  <X size={18} className="text-secondary/70" />
                 </button>
               </div>
               <form onSubmit={handleCreate} className="p-5 space-y-5 overflow-y-auto" dir="rtl">
                 <div>
                   <label className="flex items-center gap-1.5 mb-2">
                     <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
-                      <Menu size={11} className="text-secondary/50" />
+                      <Menu size={11} className="text-secondary/75" />
                     </span>
                     <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.custody.opsManager}</span>
                     <span className="text-red-400 text-xs">*</span>
@@ -387,7 +387,7 @@ export default function CustodyPage() {
                 <div>
                   <label className="flex items-center gap-1.5 mb-2">
                     <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
-                      <Building2 size={11} className="text-secondary/50" />
+                      <Building2 size={11} className="text-secondary/75" />
                     </span>
                     <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.custody.apartmentLabel}</span>
                     <span className="text-red-400 text-xs">*</span>
@@ -417,7 +417,7 @@ export default function CustodyPage() {
                     <NumberInput
                       value={formAmount}
                       onChange={(e) => setFormAmount(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60"
                       required
                       dir="ltr"
                     />
@@ -425,7 +425,7 @@ export default function CustodyPage() {
                   <div>
                     <label className="flex items-center gap-1.5 mb-2">
                       <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
-                        <Check size={11} className="text-secondary/50" />
+                        <Check size={11} className="text-secondary/75" />
                       </span>
                       <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.custody.monthLabel}</span>
                       <span className="text-red-400 text-xs">*</span>
@@ -440,14 +440,14 @@ export default function CustodyPage() {
                 <div>
                   <label className="flex items-center gap-1.5 mb-2">
                     <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
-                      <Menu size={11} className="text-secondary/50" />
+                      <Menu size={11} className="text-secondary/75" />
                     </span>
                     <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.custody.notesLabel}</span>
                   </label>
                   <textarea
                     value={formNotes}
                     onChange={(e) => setFormNotes(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25 resize-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60 resize-none"
                     rows={2}
                   />
                 </div>
@@ -456,7 +456,7 @@ export default function CustodyPage() {
                   <button
                     type="button"
                     onClick={() => setShowCreate(false)}
-                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                   >
                     {t.accounting.common.cancel}
                   </button>

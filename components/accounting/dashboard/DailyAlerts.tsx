@@ -67,7 +67,7 @@ const DailyAlerts: React.FC<DailyAlertsProps> = ({ checkIns, checkOuts, isLoadin
         ) : total === 0 ? (
           <div className="text-center py-8">
             <AlertTriangle size={40} className="text-secondary/20 mx-auto mb-2" />
-            <p className="text-secondary/50 font-dubai text-sm">{t.accounting.dashboard.noEventsToday}</p>
+            <p className="text-secondary/75 font-dubai text-sm">{t.accounting.dashboard.noEventsToday}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -93,7 +93,7 @@ const DailyAlerts: React.FC<DailyAlertsProps> = ({ checkIns, checkOuts, isLoadin
                         <p className="font-semibold text-secondary font-dubai text-sm truncate">
                           {item.clientName}
                         </p>
-                        <p className="text-xs text-secondary/50 font-dubai truncate">
+                        <p className="text-xs text-secondary/75 font-dubai truncate">
                           {item.apartment}
                         </p>
                       </div>
@@ -115,8 +115,8 @@ const DailyAlerts: React.FC<DailyAlertsProps> = ({ checkIns, checkOuts, isLoadin
             {checkOuts.length > 0 && (
               <div>
                 <div className="flex items-center gap-1.5 mb-2">
-                  <LogOut size={14} className="text-secondary/60" />
-                  <span className="text-xs font-bold text-secondary/60 font-dubai">
+                  <LogOut size={14} className="text-secondary/80" />
+                  <span className="text-xs font-bold text-secondary/80 font-dubai">
                     {t.accounting.dashboard.checkOut} ({checkOuts.length})
                   </span>
                 </div>
@@ -127,13 +127,13 @@ const DailyAlerts: React.FC<DailyAlertsProps> = ({ checkIns, checkOuts, isLoadin
                       className="flex items-center gap-3 p-2.5 bg-secondary/5 rounded-xl border border-secondary/10"
                     >
                       <div className="p-1.5 rounded-lg bg-secondary/10">
-                        <LogOut size={14} className="text-secondary/60" />
+                        <LogOut size={14} className="text-secondary/80" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-secondary font-dubai text-sm truncate">
                           {item.clientName}
                         </p>
-                        <p className="text-xs text-secondary/50 font-dubai truncate">
+                        <p className="text-xs text-secondary/75 font-dubai truncate">
                           {item.apartment}
                         </p>
                       </div>

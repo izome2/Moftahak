@@ -92,7 +92,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
             <div className={`p-1.5 rounded-lg ${card.bgColor}`}>
               <card.icon size={16} className={card.iconColor} />
             </div>
-            <span className="text-xs text-secondary/60 font-dubai">{card.label}</span>
+            <span className="text-xs text-secondary/80 font-dubai">{card.label}</span>
           </div>
           {isLoading ? (
             <div className="h-7 bg-primary/10 rounded-lg w-20 animate-pulse" />

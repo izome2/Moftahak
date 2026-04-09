@@ -325,11 +325,11 @@ export default function ExpensesPage() {
               className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
               title={t.accounting.common.refresh}
             >
-              <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw size={15} className={`text-secondary/70 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
             <button
               onClick={() => setShowCharts(prev => !prev)}
-              className={`p-1.5 sm:p-2 rounded-xl transition-all ${showCharts ? 'bg-secondary/8 text-secondary' : 'hover:bg-secondary/5 text-secondary/40'}`}
+              className={`p-1.5 sm:p-2 rounded-xl transition-all ${showCharts ? 'bg-secondary/8 text-secondary' : 'hover:bg-secondary/5 text-secondary/70'}`}
               aria-label={showCharts ? t.accounting.common.hideCharts : t.accounting.common.showCharts}
             >
               <BarChart3 size={15} className="sm:w-4 sm:h-4" />
@@ -357,7 +357,7 @@ export default function ExpensesPage() {
                 value={selectedApartment}
                 onChange={setSelectedApartment}
                 variant="filter"
-                icon={<Filter size={13} className="text-secondary/25" />}
+                icon={<Filter size={13} className="text-secondary/60" />}
                 options={[
                   { value: '', label: t.accounting.expenses.allApartments },
                   ...apartments.map(apt => ({
@@ -398,7 +398,7 @@ export default function ExpensesPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t.accounting.expenses.searchPlaceholder}
-              className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary/40 transition-colors placeholder:text-secondary/40"
+              className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary/40 transition-colors placeholder:text-secondary/70"
             />
           </div>
       </div>
@@ -509,14 +509,14 @@ export default function ExpensesPage() {
               </div>
               <div>
                 <h3 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.expenses.rejectionReasonTitle}</h3>
-                <p className="text-[11px] text-secondary/40 font-dubai">{rejectTarget.description}</p>
+                <p className="text-[11px] text-secondary/70 font-dubai">{rejectTarget.description}</p>
               </div>
             </div>
             <div className="p-5 space-y-5">
               <div>
                 <label className="flex items-center gap-1.5 mb-2">
                   <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
-                    <MessageSquare size={11} className="text-secondary/50" />
+                    <MessageSquare size={11} className="text-secondary/75" />
                   </span>
                   <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.expenses.rejectionReasonTitle}</span>
                   <span className="text-red-400 text-xs">*</span>
@@ -525,7 +525,7 @@ export default function ExpensesPage() {
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
                   placeholder={t.accounting.expenses.rejectionReasonPlaceholder}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/25 resize-none h-24"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60 resize-none h-24"
                   dir="rtl"
                 />
               </div>
@@ -536,7 +536,7 @@ export default function ExpensesPage() {
                 <button
                   onClick={() => { setRejectTarget(null); setRejectionReason(''); }}
                   disabled={isApproving}
-                  className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                  className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                 >
                   {t.accounting.common.cancel}
                 </button>

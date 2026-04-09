@@ -107,7 +107,7 @@ export default function ConfirmDialog({
                   onClick={onClose}
                   className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"
                 >
-                  <X size={18} className="text-secondary/40" />
+                  <X size={18} className="text-secondary/70" />
                 </button>
               </div>
 
@@ -136,7 +136,7 @@ export default function ConfirmDialog({
                   <button
                     onClick={onClose}
                     disabled={isLoading}
-                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/50 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors disabled:opacity-50"
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors disabled:opacity-50"
                   >
                     {displayCancel}
                   </button>

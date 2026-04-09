@@ -61,7 +61,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       </div>
 
       {/* Labels */}
-      <div className="flex items-center justify-between text-xs text-secondary/40 font-dubai">
+      <div className="flex items-center justify-between text-xs text-secondary/70 font-dubai">
         <span>{t.accounting.investorPortal.achieved} <span className="text-secondary/70 font-medium">{formatCurrency(current, currency)}</span></span>
         <span>{t.accounting.investorPortal.target} <span className="text-secondary/70 font-medium">{formatCurrency(target, currency)}</span></span>
       </div>

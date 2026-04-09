@@ -73,7 +73,7 @@ const OccupancyChart: React.FC<OccupancyChartProps> = ({
 
   if (!data.length) {
     return (
-      <div className="h-[320px] flex items-center justify-center text-secondary/50 font-dubai">
+      <div className="h-[320px] flex items-center justify-center text-secondary/75 font-dubai">
         {t.accounting.reports.noOccupancyData}
       </div>
     );
@@ -131,7 +131,7 @@ const OccupancyChart: React.FC<OccupancyChartProps> = ({
         {chartData.map((d, i) => (
           <div
             key={i}
-            className="flex items-center gap-1.5 text-[10px] font-dubai text-secondary/60"
+            className="flex items-center gap-1.5 text-[10px] font-dubai text-secondary/80"
           >
             <span
               className="w-2 h-2 rounded-full"

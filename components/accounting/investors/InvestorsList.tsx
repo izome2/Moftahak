@@ -65,7 +65,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
   if (isLoading) {
     return (
       <div className="bg-white rounded-2xl border border-secondary/[0.08] shadow-sm p-8">
-        <div className="flex items-center justify-center gap-2 text-secondary/40">
+        <div className="flex items-center justify-center gap-2 text-secondary/70">
           <Loader2 className="w-5 h-5 animate-spin" />
           <span className="text-sm font-dubai">{t.accounting.investors.loadingInvestors}</span>
         </div>
@@ -77,10 +77,10 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
     return (
       <div className="text-center py-16">
         <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
-          <Users className="w-6 h-6 text-secondary/25" />
+          <Users className="w-6 h-6 text-secondary/60" />
         </div>
-        <p className="text-secondary/40 font-dubai text-sm">{t.accounting.investors.noInvestors}</p>
-        <p className="text-secondary/50 font-dubai text-xs mt-1">
+        <p className="text-secondary/70 font-dubai text-sm">{t.accounting.investors.noInvestors}</p>
+        <p className="text-secondary/75 font-dubai text-xs mt-1">
           {t.accounting.investors.addInvestorHint}
         </p>
       </div>
@@ -120,13 +120,13 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                 <h3 className="text-sm font-bold text-secondary font-dubai">{fullName}</h3>
                 <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                   {investor.email && (
-                    <span className="flex items-center gap-1 text-xs text-secondary/60">
+                    <span className="flex items-center gap-1 text-xs text-secondary/80">
                       <Mail className="w-3 h-3" />
                       {investor.email}
                     </span>
                   )}
                   {investor.phone && (
-                    <span className="flex items-center gap-1 text-xs text-secondary/60">
+                    <span className="flex items-center gap-1 text-xs text-secondary/80">
                       <Phone className="w-3 h-3" />
                       <span dir="ltr">{investor.phone}</span>
                     </span>
@@ -143,9 +143,9 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                   {totalApartments} {t.accounting.investors.apartmentUnit}
                 </span>
                 {isExpanded ? (
-                  <ChevronUp className="w-4 h-4 text-secondary/55" />
+                  <ChevronUp className="w-4 h-4 text-secondary/80" />
                 ) : (
-                  <ChevronDown className="w-4 h-4 text-secondary/55" />
+                  <ChevronDown className="w-4 h-4 text-secondary/80" />
                 )}
               </div>
             </button>
@@ -180,7 +180,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
 
                 {/* Investments table */}
                 {investor.investments.length === 0 ? (
-                  <div className="py-6 text-center text-secondary/40 text-xs font-dubai">
+                  <div className="py-6 text-center text-secondary/70 text-xs font-dubai">
                     {t.accounting.investors.noLinkedInvestments}
                   </div>
                 ) : (
@@ -188,11 +188,11 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Building2 size={12} />{t.accounting.common.apartment}</span></th>
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Percent size={12} />{t.accounting.investors.percentageLabel}</span></th>
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Target size={12} />{t.accounting.investors.yearlyTargetHeader}</span></th>
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><ArrowDownCircle size={12} />{t.accounting.investors.withdrawalsHeader}</span></th>
-                          <th className="text-right px-4 py-3 text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Settings size={12} />{t.accounting.investors.actionsHeader}</span></th>
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Building2 size={12} />{t.accounting.common.apartment}</span></th>
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Percent size={12} />{t.accounting.investors.percentageLabel}</span></th>
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Target size={12} />{t.accounting.investors.yearlyTargetHeader}</span></th>
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><ArrowDownCircle size={12} />{t.accounting.investors.withdrawalsHeader}</span></th>
+                          <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Settings size={12} />{t.accounting.investors.actionsHeader}</span></th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-secondary/[0.04]">
@@ -200,7 +200,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                           <tr key={inv.id} className="hover:bg-secondary/[0.02] transition-colors">
                             <td className="px-4 py-2.5">
                               <span className="flex items-center gap-1.5 font-medium text-secondary font-dubai text-xs">
-                                <Building2 className="w-3 h-3 text-secondary/55" />
+                                <Building2 className="w-3 h-3 text-secondary/80" />
                                 {inv.apartment.name}
                               </span>
                             </td>
@@ -212,7 +212,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                               </span>
                             </td>
                             <td className="px-4 py-2.5">
-                              <span className="text-secondary/60 text-xs font-dubai">
+                              <span className="text-secondary/80 text-xs font-dubai">
                                 {inv.investmentTarget > 0
                                   ? `$${new Intl.NumberFormat('en-US').format(inv.investmentTarget)}`
                                   : '—'
@@ -220,7 +220,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                               </span>
                             </td>
                             <td className="px-4 py-2.5">
-                              <span className="text-secondary/65 text-xs font-dubai">
+                              <span className="text-secondary/85 text-xs font-dubai">
                                 {inv._count.withdrawals} {t.accounting.common.operation}
                               </span>
                             </td>
@@ -228,7 +228,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                               <div className="flex items-center gap-1">
                                 <button
                                   onClick={() => onEditInvestment?.(inv.id, investor)}
-                                  className="p-1.5 rounded-lg hover:bg-secondary/5 text-secondary/40
+                                  className="p-1.5 rounded-lg hover:bg-secondary/5 text-secondary/70
                                     hover:text-secondary transition-colors"
                                   title={t.accounting.investors.editPercentageAction}
                                 >
@@ -236,7 +236,7 @@ const InvestorsList: React.FC<InvestorsListProps> = ({
                                 </button>
                                 <button
                                   onClick={() => onDeleteInvestment?.(inv.id, investor)}
-                                  className="p-1.5 rounded-lg hover:bg-red-50 text-secondary/50
+                                  className="p-1.5 rounded-lg hover:bg-red-50 text-secondary/75
                                     hover:text-red-500 transition-colors"
                                   title={t.accounting.investors.removeFromApartment}
                                 >

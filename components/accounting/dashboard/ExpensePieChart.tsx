@@ -88,7 +88,7 @@ const ExpensePieChart: React.FC<ExpensePieChartProps> = ({ data, isLoading }) =>
 
   if (!data.length) {
     return (
-      <div className="h-[300px] flex items-center justify-center text-secondary/50 font-dubai">
+      <div className="h-[300px] flex items-center justify-center text-secondary/75 font-dubai">
         {t.accounting.dashboard.noExpensesThisMonth}
       </div>
     );

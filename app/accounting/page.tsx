@@ -179,7 +179,7 @@ export default function AccountingDashboardPage() {
               <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">
                 {t.accounting.dashboard.title}
               </h1>
-              <p className="text-xs text-secondary/60 font-dubai mt-0.5 hidden sm:block">
+              <p className="text-xs text-secondary/80 font-dubai mt-0.5 hidden sm:block">
                 {t.accounting.dashboard.subtitle}
               </p>
             </div>
@@ -191,7 +191,7 @@ export default function AccountingDashboardPage() {
               aria-label={t.accounting.common.refresh}
               title={t.accounting.common.refresh}
             >
-              <RefreshCw size={15} className={`text-secondary/40 sm:w-[18px] sm:h-[18px] ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw size={15} className={`text-secondary/70 sm:w-[18px] sm:h-[18px] ${isLoading ? 'animate-spin' : ''}`} />
             </button>
           </div>
         </div>

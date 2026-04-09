@@ -314,12 +314,12 @@ export default function BookingsPage() {
               className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
               title={t.accounting.common.refresh}
             >
-              <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw size={15} className={`text-secondary/70 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
             {!hideFinancials && (
               <button
                 onClick={() => setShowCharts(prev => !prev)}
-                className={`p-1.5 sm:p-2 rounded-xl transition-all ${showCharts ? 'bg-secondary/8 text-secondary' : 'hover:bg-secondary/5 text-secondary/40'}`}
+                className={`p-1.5 sm:p-2 rounded-xl transition-all ${showCharts ? 'bg-secondary/8 text-secondary' : 'hover:bg-secondary/5 text-secondary/70'}`}
                 title={showCharts ? t.accounting.common.hideCharts : t.accounting.common.showCharts}
               >
                 <BarChart3 size={15} className="sm:w-4 sm:h-4" />
@@ -348,7 +348,7 @@ export default function BookingsPage() {
                 value={selectedApartment}
                 onChange={setSelectedApartment}
                 variant="filter"
-                icon={<Filter size={13} className="text-secondary/25" />}
+                icon={<Filter size={13} className="text-secondary/60" />}
                 options={[
                   { value: '', label: t.accounting.bookings.allApartments },
                   ...apartments.map(apt => ({
@@ -376,7 +376,7 @@ export default function BookingsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t.accounting.bookings.searchPlaceholder}
-              className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary/40 transition-colors placeholder:text-secondary/40"
+              className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary/40 transition-colors placeholder:text-secondary/70"
             />
           </div>
       </div>

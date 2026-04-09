@@ -204,7 +204,7 @@ export default function ApartmentsPage() {
               className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
               aria-label={t.accounting.common.refresh}
             >
-              <RefreshCw size={15} className={`text-secondary/40 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw size={15} className={`text-secondary/70 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
         </div>
       </div>
@@ -229,7 +229,7 @@ export default function ApartmentsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t.accounting.apartments.searchPlaceholder}
-            className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary/40 transition-colors placeholder:text-secondary/40"
+            className="w-full pr-10 pl-4 py-2.5 rounded-xl border-2 border-primary/20 bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-primary/40 transition-colors placeholder:text-secondary/70"
           />
         </div>
 
@@ -239,7 +239,7 @@ export default function ApartmentsPage() {
           onChange={setSelectedProject}
           variant="filter"
           className="min-w-[160px]"
-          icon={<Filter size={16} className="text-secondary/40" />}
+          icon={<Filter size={16} className="text-secondary/70" />}
           options={[
             { value: 'all', label: t.accounting.apartments.allProjects },
             ...projects.map(p => ({ value: p.id, label: p.name })),
@@ -267,7 +267,7 @@ export default function ApartmentsPage() {
       ) : filteredApartments.length === 0 ? (
         <div className="text-center py-16">
           <Building2 size={48} className="text-secondary/20 mx-auto mb-3" />
-          <p className="text-secondary/50 font-dubai">
+          <p className="text-secondary/75 font-dubai">
             {search || selectedProject !== 'all' ? t.accounting.apartments.noApartmentsFilter : t.accounting.apartments.noApartments}
           </p>
           {canManage && !search && selectedProject === 'all' && (

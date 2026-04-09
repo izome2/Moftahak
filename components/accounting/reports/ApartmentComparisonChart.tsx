@@ -72,7 +72,7 @@ const ApartmentComparisonChart: React.FC<ApartmentComparisonChartProps> = ({
 
   if (!data.length) {
     return (
-      <div className="h-[320px] flex items-center justify-center text-secondary/50 font-dubai">
+      <div className="h-[320px] flex items-center justify-center text-secondary/75 font-dubai">
         {t.accounting.reports.noComparisonData}
       </div>
     );

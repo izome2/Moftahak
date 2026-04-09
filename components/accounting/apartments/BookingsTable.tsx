@@ -37,7 +37,7 @@ const STATUS_CLASSES: Record<string, string> = {
   CONFIRMED: 'bg-primary/15 text-secondary',
   CHECKED_IN: 'bg-primary/25 text-secondary',
   CHECKED_OUT: 'bg-secondary/10 text-secondary/70',
-  CANCELLED: 'bg-secondary/10 text-secondary/50',
+  CANCELLED: 'bg-secondary/10 text-secondary/75',
 };
 
 const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, isLoading, hideAmounts }) => {
@@ -89,22 +89,22 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, is
       ) : bookings.length === 0 ? (
         <div className="text-center py-14">
           <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
-            <CalendarCheck size={22} className="text-secondary/35" />
+            <CalendarCheck size={22} className="text-secondary/65" />
           </div>
-          <p className="text-secondary/55 font-dubai text-sm">{t.accounting.apartments.noBookingsThisMonth}</p>
+          <p className="text-secondary/80 font-dubai text-sm">{t.accounting.apartments.noBookingsThisMonth}</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
-                <th className="px-4 py-3 text-right text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><User size={12} />{t.accounting.apartments.client}</span></th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai hidden sm:table-cell"><span className="inline-flex items-center gap-1"><LogIn size={12} />{t.accounting.apartments.checkInDate}</span></th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai hidden sm:table-cell"><span className="inline-flex items-center gap-1"><LogOut size={12} />{t.accounting.apartments.checkOutDate}</span></th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Moon size={12} />{t.accounting.apartments.nights}</span></th>
-                {!hideAmounts && <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.apartments.amountHeader}</span></th>}
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Globe size={12} />{t.accounting.apartments.source}</span></th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/45 font-medium font-dubai hidden md:table-cell"><span className="inline-flex items-center gap-1"><CircleDot size={12} />{t.accounting.apartments.status}</span></th>
+                <th className="px-4 py-3 text-right text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><User size={12} />{t.accounting.apartments.client}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai hidden sm:table-cell"><span className="inline-flex items-center gap-1"><LogIn size={12} />{t.accounting.apartments.checkInDate}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai hidden sm:table-cell"><span className="inline-flex items-center gap-1"><LogOut size={12} />{t.accounting.apartments.checkOutDate}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Moon size={12} />{t.accounting.apartments.nights}</span></th>
+                {!hideAmounts && <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.apartments.amountHeader}</span></th>}
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Globe size={12} />{t.accounting.apartments.source}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai hidden md:table-cell"><span className="inline-flex items-center gap-1"><CircleDot size={12} />{t.accounting.apartments.status}</span></th>
               </tr>
             </thead>
             <tbody>
@@ -124,7 +124,7 @@ const BookingsTable: React.FC<BookingsTableProps> = ({ bookings, totalAmount, is
                     <td className="px-4 py-3.5 font-dubai">
                       <p className="font-semibold text-secondary text-[13px]">{booking.clientName}</p>
                       {booking.clientPhone && (
-                        <p className="text-[10px] text-secondary/55 mt-0.5 ltr">{booking.clientPhone}</p>
+                        <p className="text-[10px] text-secondary/80 mt-0.5 ltr">{booking.clientPhone}</p>
                       )}
                     </td>
                     <td className="px-4 py-3.5 text-center text-secondary/70 font-dubai text-[12px] hidden sm:table-cell">

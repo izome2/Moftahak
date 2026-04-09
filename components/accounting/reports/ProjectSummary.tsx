@@ -82,7 +82,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
           </div>
           <div>
             <h3 className="text-base font-bold text-white font-dubai">{t.accounting.reports.aggregateSummary}</h3>
-            <p className="text-[11px] text-white/35 font-dubai">{t.accounting.reports.allApartmentsTotal}</p>
+            <p className="text-[11px] text-white/75 font-dubai">{t.accounting.reports.allApartmentsTotal}</p>
           </div>
         </div>
 
@@ -98,7 +98,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
             >
               <DollarSign className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#b5c4a5]" />
             </div>
-            <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.dashboard.revenue}</p>
+            <p className="text-[11px] sm:text-xs text-white/80 font-dubai mb-1">{t.accounting.dashboard.revenue}</p>
             <p className="text-sm sm:text-[15px] font-bold text-[#b5c4a5] font-dubai leading-tight">
               {formatCurrency(totals.totalRevenue)}
             </p>
@@ -114,7 +114,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
             >
               <TrendingDown className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#d4b0a0]" />
             </div>
-            <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.dashboard.expensesLabel}</p>
+            <p className="text-[11px] sm:text-xs text-white/80 font-dubai mb-1">{t.accounting.dashboard.expensesLabel}</p>
             <p className="text-sm sm:text-[15px] font-bold text-[#d4b0a0] font-dubai leading-tight">
               {formatCurrency(totals.totalExpenses)}
             </p>
@@ -135,7 +135,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
                 totals.profit >= 0 ? 'text-[#b5c4a5]' : 'text-[#d4b0a0]'
               }`} />
             </div>
-            <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.dashboard.netProfit}</p>
+            <p className="text-[11px] sm:text-xs text-white/80 font-dubai mb-1">{t.accounting.dashboard.netProfit}</p>
             <p className={`text-[15px] sm:text-lg font-bold font-dubai leading-tight ${
               totals.profit >= 0 ? 'text-[#b5c4a5]' : 'text-[#d4b0a0]'
             }`}>
@@ -153,7 +153,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
             >
               <Building2 className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-primary" />
             </div>
-            <p className="text-[11px] sm:text-xs text-white/50 font-dubai mb-1">{t.accounting.reports.apartments}</p>
+            <p className="text-[11px] sm:text-xs text-white/80 font-dubai mb-1">{t.accounting.reports.apartments}</p>
             <p className="text-[15px] sm:text-lg font-bold text-white font-dubai leading-tight">
               {totals.apartmentsCount}
             </p>
@@ -163,7 +163,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
 
       {/* Per-apartment cards */}
       {apartments.length === 0 ? (
-        <div className="text-center py-10 text-secondary/40 font-dubai text-sm">
+        <div className="text-center py-10 text-secondary/70 font-dubai text-sm">
           {t.accounting.reports.noDataToShow}
         </div>
       ) : (
@@ -190,12 +190,12 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
                     <div>
                       <h4 className="text-sm font-bold text-secondary font-dubai">{apt.name}</h4>
                       {apt.project && (
-                        <p className="text-[10px] text-secondary/50 font-dubai">{apt.project}</p>
+                        <p className="text-[10px] text-secondary/75 font-dubai">{apt.project}</p>
                       )}
                     </div>
                   </div>
                   <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full font-dubai
-                    ${apt.profit >= 0 ? 'bg-primary/15 text-secondary' : 'bg-secondary/10 text-secondary/60'}`}
+                    ${apt.profit >= 0 ? 'bg-primary/15 text-secondary' : 'bg-secondary/10 text-secondary/80'}`}
                   >
                     {profitMargin}% {t.accounting.reports.margin}
                   </div>
@@ -203,28 +203,28 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs font-dubai">
-                    <span className="text-secondary/50">{t.accounting.dashboard.revenue}</span>
+                    <span className="text-secondary/75">{t.accounting.dashboard.revenue}</span>
                     <span className="font-bold text-secondary">{formatCurrency(apt.revenue)}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs font-dubai">
-                    <span className="text-secondary/50">{t.accounting.dashboard.expensesLabel}</span>
+                    <span className="text-secondary/75">{t.accounting.dashboard.expensesLabel}</span>
                     <span className="font-bold text-secondary/70">{formatCurrency(apt.expenses)}</span>
                   </div>
                   <div className="h-px bg-secondary/[0.06]" />
                   <div className="flex items-center justify-between text-xs font-dubai">
-                    <span className="text-secondary/60 font-bold">{t.accounting.dashboard.netProfit}</span>
-                    <span className={`font-bold ${apt.profit >= 0 ? 'text-secondary' : 'text-secondary/50'}`}>
+                    <span className="text-secondary/80 font-bold">{t.accounting.dashboard.netProfit}</span>
+                    <span className={`font-bold ${apt.profit >= 0 ? 'text-secondary' : 'text-secondary/75'}`}>
                       {formatCurrency(apt.profit)}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 mt-3 pt-3 border-t border-primary/10">
-                  <div className="flex items-center gap-1 text-[10px] text-secondary/50 font-dubai">
+                  <div className="flex items-center gap-1 text-[10px] text-secondary/75 font-dubai">
                     <CalendarDays className="w-3 h-3" />
                     {new Intl.NumberFormat(locale).format(apt.bookings)} {t.accounting.common.booking}
                   </div>
-                  <div className="flex items-center gap-1 text-[10px] text-secondary/50 font-dubai">
+                  <div className="flex items-center gap-1 text-[10px] text-secondary/75 font-dubai">
                     <Moon className="w-3 h-3" />
                     {new Intl.NumberFormat(locale).format(apt.nights)} {t.accounting.common.night}
                   </div>

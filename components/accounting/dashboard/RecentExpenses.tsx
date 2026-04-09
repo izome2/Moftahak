@@ -74,7 +74,7 @@ const RecentExpenses: React.FC<RecentExpensesProps> = ({ expenses, isLoading }) 
         ) : expenses.length === 0 ? (
           <div className="text-center py-8">
             <Receipt size={40} className="text-secondary/20 mx-auto mb-2" />
-            <p className="text-secondary/50 font-dubai text-sm">{t.accounting.dashboard.noExpensesYet}</p>
+            <p className="text-secondary/75 font-dubai text-sm">{t.accounting.dashboard.noExpensesYet}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -92,14 +92,14 @@ const RecentExpenses: React.FC<RecentExpensesProps> = ({ expenses, isLoading }) 
                     <p className="font-semibold text-secondary font-dubai text-sm truncate">
                       {expense.description}
                     </p>
-                    <p className="text-xs text-secondary/50 font-dubai truncate">
+                    <p className="text-xs text-secondary/75 font-dubai truncate">
                       {expense.apartment}
                     </p>
                   </div>
 
                   {/* Date */}
                   <div className="text-center flex-shrink-0 hidden sm:block">
-                    <p className="text-xs text-secondary/60 font-dubai">
+                    <p className="text-xs text-secondary/80 font-dubai">
                       {formatDate(expense.date)}
                     </p>
                   </div>

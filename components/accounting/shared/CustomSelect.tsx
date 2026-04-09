@@ -80,6 +80,15 @@ export default function CustomSelect({
   const text = selectedOption?.label ?? placeholder ?? '';
   const showPlaceholder = !selectedOption && !!placeholder;
 
+  /* ---- auto-detect image mode ---- */
+  const hasImages = useMemo(() => {
+    for (const item of options) {
+      if (isGroup(item)) { if (item.options.some(o => o.image !== undefined)) return true; }
+      else if ((item as SelectOption).image !== undefined) return true;
+    }
+    return false;
+  }, [options]);
+
   /* ---- dropdown position (fixed, portal-safe) ---- */
   const calc = useCallback(() => {
     const el = btnRef.current;
@@ -119,8 +128,8 @@ export default function CustomSelect({
 
   /* ---- variant styles ---- */
   const btnCls = variant === 'filter'
-    ? 'ps-1 pe-2 h-[42px] rounded-xl border-2 border-primary/20 bg-white hover:border-primary/40'
-    : 'ps-1 pe-2 h-[46px] rounded-xl border-2 border-primary/20 bg-accent/20 hover:border-primary/40';
+    ? `${hasImages ? 'ps-1 pe-2' : 'px-3'} h-[42px] rounded-xl border-2 border-primary/20 bg-white hover:border-primary/40`
+    : `${hasImages ? 'ps-1 pe-2' : 'px-3'} h-[42px] rounded-xl border-2 border-primary/20 bg-accent/20 hover:border-primary/40`;
 
   /* ---- avatar helper ---- */
   const Avatar = ({ src, name, size = 40 }: { src?: string | null; name: string; size?: number }) => {
@@ -136,7 +145,7 @@ export default function CustomSelect({
       />
     ) : (
       <span
-        className="rounded-lg bg-primary/15 text-secondary/60 flex items-center justify-center shrink-0 font-dubai font-bold border border-primary/15"
+        className="rounded-lg bg-primary/15 text-secondary/80 flex items-center justify-center shrink-0 font-dubai font-bold border border-primary/15"
         style={{ width: size, height: size, fontSize: size * 0.4 }}
       >{initials}</span>
     );
@@ -150,7 +159,7 @@ export default function CustomSelect({
       onClick={() => pick(o.value)}
       className={`w-full flex items-center justify-between gap-2 text-sm font-dubai text-right
         transition-all duration-150 rounded-xl
-        ${indent ? 'ps-1.5 pe-2.5 h-[44px]' : 'ps-1 pe-2 h-[44px]'}
+        ${hasImages ? (indent ? 'ps-1.5 pe-2.5' : 'ps-1 pe-2') : (indent ? 'px-3.5' : 'px-3')} h-[42px]
         ${o.value === value
           ? 'bg-primary/12 text-secondary font-medium'
           : 'text-secondary/70 hover:bg-primary/[0.06] hover:text-secondary'}`}
@@ -182,13 +191,13 @@ export default function CustomSelect({
           {selectedOption?.image !== undefined && selectedOption?.image !== null && (
             <Avatar src={selectedOption.image} name={selectedOption.label} size={36} />
           )}
-          <span className={showPlaceholder ? 'text-secondary/40' : ''}>
+          <span className={showPlaceholder ? 'text-secondary/70' : ''}>
             {text}
           </span>
         </span>
         <ChevronDown
           size={14}
-          className={`text-secondary/40 shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+          className={`text-secondary/70 shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
         />
       </button>
 
@@ -232,14 +241,14 @@ export default function CustomSelect({
           >
             <div className="overflow-y-auto p-1.5" style={{ maxHeight: 'inherit' }}>
               {options.length === 0 && emptyMessage ? (
-                <div className="px-3 py-4 text-center text-sm text-secondary/40 font-dubai">
+                <div className="px-3 py-4 text-center text-sm text-secondary/70 font-dubai">
                   {emptyMessage}
                 </div>
               ) : options.map((item, i) =>
                 isGroup(item) ? (
                   <div key={`grp-${i}`}>
                     {i > 0 && <div className="mx-2 my-1.5 border-t border-primary/8" />}
-                    <div className="px-3 py-1.5 text-[10px] font-bold text-secondary/35 font-dubai uppercase tracking-wider">
+                    <div className="px-3 py-1.5 text-[10px] font-bold text-secondary/65 font-dubai uppercase tracking-wider">
                       {item.label}
                     </div>
                     {item.options.map(o => optBtn(o, true))}
