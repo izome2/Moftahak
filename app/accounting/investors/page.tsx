@@ -243,7 +243,7 @@ export default function InvestorsPage() {
             disabled={isLoading}
             className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
           >
-            <RefreshCw size={15} className={`text-secondary/70 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={15} className={`text-secondary/90 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => setShowAssignModal(true)}
@@ -266,7 +266,7 @@ export default function InvestorsPage() {
           className="w-full pr-10 pl-4 py-2.5 text-sm border-2 border-primary/20 rounded-xl
             bg-white text-secondary font-dubai
             focus:outline-none focus:border-primary/40 transition-colors
-            placeholder:text-secondary/70"
+            placeholder:text-secondary/90"
         />
       </div>
       </div>
@@ -364,14 +364,14 @@ export default function InvestorsPage() {
                   <h2 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.investors.editPercentage}</h2>
                 </div>
                 <button onClick={() => setEditInvestment(null)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors">
-                  <X size={18} className="text-secondary/70" />
+                  <X size={18} className="text-secondary/90" />
                 </button>
               </div>
               <form onSubmit={handleEditSubmit} className="p-5 space-y-5" dir="rtl">
                 <div>
                   <label className="flex items-center gap-1.5 mb-2">
                     <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
-                      <Percent size={11} className="text-secondary/75" />
+                      <Percent size={11} className="text-secondary/90" />
                     </span>
                     <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.investors.percentageLabel}</span>
                     <span className="text-red-400 text-xs">*</span>
@@ -379,21 +379,21 @@ export default function InvestorsPage() {
                   <NumberInput
                     value={editPercentage}
                     onChange={(e) => setEditPercentage(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/80"
                     required
                   />
                 </div>
                 <div>
                   <label className="flex items-center gap-1.5 mb-2">
                     <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
-                      <Target size={11} className="text-secondary/75" />
+                      <Target size={11} className="text-secondary/90" />
                     </span>
                     <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.investors.yearlyTarget}</span>
                   </label>
                   <NumberInput
                     value={editTarget}
                     onChange={(e) => setEditTarget(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/80"
                   />
                 </div>
                 {editError && (
@@ -403,7 +403,7 @@ export default function InvestorsPage() {
                   <button
                     type="button"
                     onClick={() => setEditInvestment(null)}
-                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/90 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                   >
                     {t.accounting.common.cancel}
                   </button>
@@ -455,7 +455,7 @@ export default function InvestorsPage() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setDeleteConfirm(null)}
-                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/90 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                   >
                     {t.accounting.common.cancel}
                   </button>

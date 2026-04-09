@@ -49,7 +49,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
       value: formatCurrency(totalExpenses),
       icon: Receipt,
       bgColor: 'bg-secondary/10',
-      iconColor: 'text-secondary/70',
+      iconColor: 'text-secondary/90',
       valueColor: 'text-secondary',
     }] : []),
     ...(!hideProfit ? [{
@@ -92,7 +92,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
             <div className={`p-1.5 rounded-lg ${card.bgColor}`}>
               <card.icon size={16} className={card.iconColor} />
             </div>
-            <span className="text-xs text-secondary/80 font-dubai">{card.label}</span>
+            <span className="text-xs text-secondary/90 font-dubai">{card.label}</span>
           </div>
           {isLoading ? (
             <div className="h-7 bg-primary/10 rounded-lg w-20 animate-pulse" />

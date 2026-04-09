@@ -47,7 +47,7 @@ const FormField: React.FC<{
   </div>
 );
 
-const inputClass = "w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60";
+const inputClass = "w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/80";
 
 const ApartmentForm: React.FC<ApartmentFormProps> = ({
   isOpen,
@@ -145,14 +145,14 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
                 onClick={onClose}
                 className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"
               >
-                <X size={18} className="text-secondary/70" />
+                <X size={18} className="text-secondary/90" />
               </button>
             </div>
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="p-5 space-y-5 overflow-y-auto">
               <FormField
-                icon={<Building2 size={11} className="text-secondary/75" />}
+                icon={<Building2 size={11} className="text-secondary/90" />}
                 label={t.accounting.apartmentForm.project}
                 required
               >
@@ -168,7 +168,7 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
               </FormField>
 
               <FormField
-                icon={<FileText size={11} className="text-secondary/75" />}
+                icon={<FileText size={11} className="text-secondary/90" />}
                 label={t.accounting.apartmentForm.apartmentName}
                 required
               >
@@ -184,7 +184,7 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField
-                  icon={<Layers size={11} className="text-secondary/75" />}
+                  icon={<Layers size={11} className="text-secondary/90" />}
                   label={t.accounting.apartmentForm.floorNumber}
                 >
                   <input
@@ -196,7 +196,7 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
                   />
                 </FormField>
                 <FormField
-                  icon={<Building2 size={11} className="text-secondary/75" />}
+                  icon={<Building2 size={11} className="text-secondary/90" />}
                   label={t.accounting.apartmentForm.apartmentType}
                 >
                   <input
@@ -219,7 +219,7 @@ const ApartmentForm: React.FC<ApartmentFormProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                  className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/90 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                 >
                   {t.accounting.common.cancel}
                 </button>

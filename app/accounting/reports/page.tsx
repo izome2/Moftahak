@@ -236,7 +236,7 @@ export default function ReportsPage() {
           </div>
           <div className="min-w-0">
             <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">{t.accounting.reports.title}</h1>
-            <p className="text-xs text-secondary/75 font-dubai mt-0.5 hidden sm:block">
+            <p className="text-xs text-secondary/90 font-dubai mt-0.5 hidden sm:block">
               {mode === 'monthly' ? t.accounting.reports.monthlySubtitle : t.accounting.reports.yearlySubtitle}
             </p>
           </div>
@@ -251,7 +251,7 @@ export default function ReportsPage() {
             disabled={isLoading}
             className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
           >
-            <RefreshCw size={15} className={`text-secondary/70 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={15} className={`text-secondary/90 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
@@ -264,7 +264,7 @@ export default function ReportsPage() {
             className={`px-4 py-2 text-sm font-bold font-dubai rounded-lg transition-all duration-200 flex items-center gap-1.5
               ${mode === 'monthly'
                 ? 'bg-secondary text-white shadow-sm'
-                : 'text-secondary/75 hover:text-secondary'
+                : 'text-secondary/90 hover:text-secondary'
               }`}
           >
             <Calendar size={14} />
@@ -275,7 +275,7 @@ export default function ReportsPage() {
             className={`px-4 py-2 text-sm font-bold font-dubai rounded-lg transition-all duration-200 flex items-center gap-1.5
               ${mode === 'annual'
                 ? 'bg-secondary text-white shadow-sm'
-                : 'text-secondary/75 hover:text-secondary'
+                : 'text-secondary/90 hover:text-secondary'
               }`}
           >
             <BarChart3 size={14} />

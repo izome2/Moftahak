@@ -75,7 +75,7 @@ const FormField: React.FC<{
   </div>
 );
 
-const inputClass = "w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60";
+const inputClass = "w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/80";
 
 const BookingForm: React.FC<BookingFormProps> = ({
   isOpen,
@@ -254,7 +254,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                   <h2 className="text-base font-bold text-secondary font-dubai tracking-tight">
                     {isEdit ? t.accounting.bookingForm.editTitle : t.accounting.bookingForm.addTitle}
                   </h2>
-                  <p className="text-[11px] text-secondary/70 font-dubai">
+                  <p className="text-[11px] text-secondary/90 font-dubai">
                     {step === 1 ? t.accounting.bookingForm.stepBookingInfo : t.accounting.bookingForm.stepDetails}
                   </p>
                 </div>
@@ -263,7 +263,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                 onClick={onClose}
                 className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"
               >
-                <X size={18} className="text-secondary/70" />
+                <X size={18} className="text-secondary/90" />
               </button>
             </div>
 
@@ -293,7 +293,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                   >
                     {/* Apartment */}
                     <FormField
-                      icon={<Building2 size={11} className="text-secondary/75" />}
+                      icon={<Building2 size={11} className="text-secondary/90" />}
                       label={t.accounting.bookingForm.apartment}
                       required
                     >
@@ -314,7 +314,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                     {/* Client Name + Phone */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <FormField
-                        icon={<User size={11} className="text-secondary/75" />}
+                        icon={<User size={11} className="text-secondary/90" />}
                         label={t.accounting.bookingForm.clientName}
                         required
                       >
@@ -328,7 +328,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                         />
                       </FormField>
                       <FormField
-                        icon={<Phone size={11} className="text-secondary/75" />}
+                        icon={<Phone size={11} className="text-secondary/90" />}
                         label={t.accounting.bookingForm.contactNumber}
                         required
                       >
@@ -346,7 +346,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
 
                     {/* Source */}
                     <FormField
-                      icon={<CreditCard size={11} className="text-secondary/75" />}
+                      icon={<CreditCard size={11} className="text-secondary/90" />}
                       label={t.accounting.bookingForm.bookingSource}
                       required
                     >
@@ -359,7 +359,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                             className={`px-3.5 py-2 rounded-xl text-xs font-dubai font-bold transition-all border ${
                               formData.source === src.value
                                 ? 'border-current shadow-sm scale-[1.02]'
-                                : 'border-secondary/[0.06] bg-secondary/[0.015] text-secondary/70 hover:bg-secondary/[0.04]'
+                                : 'border-secondary/[0.06] bg-secondary/[0.015] text-secondary/90 hover:bg-secondary/[0.04]'
                             }`}
                             style={
                               formData.source === src.value
@@ -375,7 +375,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
 
                     {/* Notes */}
                     <FormField
-                      icon={<FileText size={11} className="text-secondary/75" />}
+                      icon={<FileText size={11} className="text-secondary/90" />}
                       label={t.accounting.bookingForm.notes}
                     >
                       <textarea
@@ -399,7 +399,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                       <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                        className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/90 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                       >
                         {t.accounting.common.cancel}
                       </button>
@@ -460,7 +460,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                             {new Intl.NumberFormat(locale).format(computedNights)} {t.accounting.common.night}
                           </span>
                         ) : (
-                          <span className="text-sm text-secondary/60 font-dubai">{t.accounting.common.autoCalculated}</span>
+                          <span className="text-sm text-secondary/80 font-dubai">{t.accounting.common.autoCalculated}</span>
                         )}
                       </div>
                     </div>
@@ -482,7 +482,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                         />
                       </FormField>
                       <FormField
-                        icon={<Clock size={11} className="text-secondary/75" />}
+                        icon={<Clock size={11} className="text-secondary/90" />}
                         label={t.accounting.bookingForm.arrivalTime}
                       >
                         <TimePicker
@@ -506,7 +506,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                       <button
                         type="button"
                         onClick={() => { setStep(1); setError(null); }}
-                        className="py-2.5 px-4 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors flex items-center gap-1"
+                        className="py-2.5 px-4 rounded-xl border border-secondary/[0.08] text-secondary/90 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors flex items-center gap-1"
                       >
                         <BackArrow size={14} />
                         {t.accounting.bookingForm.back}

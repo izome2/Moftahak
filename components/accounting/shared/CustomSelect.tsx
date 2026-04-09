@@ -145,7 +145,7 @@ export default function CustomSelect({
       />
     ) : (
       <span
-        className="rounded-lg bg-primary/15 text-secondary/80 flex items-center justify-center shrink-0 font-dubai font-bold border border-primary/15"
+        className="rounded-lg bg-primary/15 text-secondary/90 flex items-center justify-center shrink-0 font-dubai font-bold border border-primary/15"
         style={{ width: size, height: size, fontSize: size * 0.4 }}
       >{initials}</span>
     );
@@ -162,7 +162,7 @@ export default function CustomSelect({
         ${hasImages ? (indent ? 'ps-1.5 pe-2.5' : 'ps-1 pe-2') : (indent ? 'px-3.5' : 'px-3')} h-[42px]
         ${o.value === value
           ? 'bg-primary/12 text-secondary font-medium'
-          : 'text-secondary/70 hover:bg-primary/[0.06] hover:text-secondary'}`}
+          : 'text-secondary/90 hover:bg-primary/[0.06] hover:text-secondary'}`}
     >
       <span className="flex items-center gap-1.5 truncate">
         {o.image !== undefined && <Avatar src={o.image} name={o.label} />}
@@ -191,13 +191,13 @@ export default function CustomSelect({
           {selectedOption?.image !== undefined && selectedOption?.image !== null && (
             <Avatar src={selectedOption.image} name={selectedOption.label} size={36} />
           )}
-          <span className={showPlaceholder ? 'text-secondary/70' : ''}>
+          <span className={showPlaceholder ? 'text-secondary/90' : ''}>
             {text}
           </span>
         </span>
         <ChevronDown
           size={14}
-          className={`text-secondary/70 shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+          className={`text-secondary/90 shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
         />
       </button>
 
@@ -241,14 +241,14 @@ export default function CustomSelect({
           >
             <div className="overflow-y-auto p-1.5" style={{ maxHeight: 'inherit' }}>
               {options.length === 0 && emptyMessage ? (
-                <div className="px-3 py-4 text-center text-sm text-secondary/70 font-dubai">
+                <div className="px-3 py-4 text-center text-sm text-secondary/90 font-dubai">
                   {emptyMessage}
                 </div>
               ) : options.map((item, i) =>
                 isGroup(item) ? (
                   <div key={`grp-${i}`}>
                     {i > 0 && <div className="mx-2 my-1.5 border-t border-primary/8" />}
-                    <div className="px-3 py-1.5 text-[10px] font-bold text-secondary/65 font-dubai uppercase tracking-wider">
+                    <div className="px-3 py-1.5 text-[10px] font-bold text-secondary/80 font-dubai uppercase tracking-wider">
                       {item.label}
                     </div>
                     {item.options.map(o => optBtn(o, true))}

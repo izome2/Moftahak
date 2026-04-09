@@ -162,7 +162,7 @@ const OpsApartmentAssignments: React.FC = () => {
         </h3>
       </div>
 
-      <p className="text-xs text-secondary/75 font-dubai">
+      <p className="text-xs text-secondary/90 font-dubai">
         {t.accounting.settings.opsAssignments.subtitle}
       </p>
 
@@ -174,7 +174,7 @@ const OpsApartmentAssignments: React.FC = () => {
       )}
 
       {managers.length === 0 ? (
-        <p className="text-xs text-secondary/70 font-dubai text-center py-4">
+        <p className="text-xs text-secondary/90 font-dubai text-center py-4">
           {t.accounting.settings.opsAssignments.noOpsManagers}
         </p>
       ) : (
@@ -201,7 +201,7 @@ const OpsApartmentAssignments: React.FC = () => {
                   <Loader2 className="w-4 h-4 animate-spin text-primary" />
                 </div>
               ) : assignments.length === 0 ? (
-                <p className="text-xs text-secondary/70 font-dubai text-center py-4">
+                <p className="text-xs text-secondary/90 font-dubai text-center py-4">
                   {t.accounting.settings.opsAssignments.noAssignments}
                 </p>
               ) : (
@@ -219,7 +219,7 @@ const OpsApartmentAssignments: React.FC = () => {
                           {a.apartment.name}
                         </span>
                         {a.apartment.project && (
-                          <span className="text-[10px] text-secondary/70 font-dubai">
+                          <span className="text-[10px] text-secondary/90 font-dubai">
                             ({a.apartment.project.name})
                           </span>
                         )}
@@ -277,12 +277,12 @@ const OpsApartmentAssignments: React.FC = () => {
                   <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.settings.opsAssignments.addApartment}</h4>
                 </div>
                 <button onClick={() => setShowAdd(false)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors">
-                  <X size={18} className="text-secondary/70" />
+                  <X size={18} className="text-secondary/90" />
                 </button>
               </div>
               <div className="p-5 space-y-2 max-h-[300px] overflow-y-auto" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                 {unassignedApartments.length === 0 ? (
-                  <p className="text-xs text-secondary/70 font-dubai text-center py-4">{t.accounting.settings.opsAssignments.allAssigned}</p>
+                  <p className="text-xs text-secondary/90 font-dubai text-center py-4">{t.accounting.settings.opsAssignments.allAssigned}</p>
                 ) : (
                   unassignedApartments.map((apt) => (
                     <button
@@ -291,11 +291,11 @@ const OpsApartmentAssignments: React.FC = () => {
                       disabled={isSaving}
                       className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-secondary/[0.04] transition text-right disabled:opacity-50"
                     >
-                      <Building2 size={16} className="text-secondary/75 shrink-0" />
+                      <Building2 size={16} className="text-secondary/90 shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm font-medium text-secondary font-dubai">{apt.name}</p>
                         {apt.project && (
-                          <p className="text-[10px] text-secondary/70 font-dubai">{apt.project.name}</p>
+                          <p className="text-[10px] text-secondary/90 font-dubai">{apt.project.name}</p>
                         )}
                       </div>
                     </button>

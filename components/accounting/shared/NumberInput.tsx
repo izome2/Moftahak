@@ -41,7 +41,7 @@ export default function NumberInput({ onChange, currency, suffix, className, ...
           className={`${className} ${currency || suffix ? 'pe-12' : ''}`}
         />
         {(currency || suffix) && (
-          <span className="absolute end-3 text-xs text-secondary/70 font-dubai pointer-events-none">
+          <span className="absolute end-3 text-xs text-secondary/90 font-dubai pointer-events-none">
             {currency || suffix}
           </span>
         )}

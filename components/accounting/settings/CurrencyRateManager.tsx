@@ -115,7 +115,7 @@ const CurrencyRateManager: React.FC = () => {
         >
           {/* No rate badge */}
           {rate === null && (
-            <div className="text-[11px] text-secondary/70 bg-primary/10 border border-primary/25 rounded-lg px-3 py-2 font-dubai">
+            <div className="text-[11px] text-secondary/90 bg-primary/10 border border-primary/25 rounded-lg px-3 py-2 font-dubai">
               {language === 'ar'
                 ? 'لا يوجد سعر صرف لهذا الشهر - أدخل السعر واحفظه'
                 : 'No exchange rate for this month — enter a rate and save'}
@@ -123,7 +123,7 @@ const CurrencyRateManager: React.FC = () => {
           )}
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-secondary/80 font-dubai shrink-0">1 USD =</span>
+            <span className="text-xs font-bold text-secondary/90 font-dubai shrink-0">1 USD =</span>
             <div className="flex-1">
               <NumberInput
                 value={inputRate}
@@ -132,11 +132,11 @@ const CurrencyRateManager: React.FC = () => {
                   focus:outline-none focus:border-primary/50 font-dubai font-bold text-secondary"
               />
             </div>
-            <span className="text-xs font-bold text-secondary/80 font-dubai shrink-0">EGP</span>
+            <span className="text-xs font-bold text-secondary/90 font-dubai shrink-0">EGP</span>
           </div>
 
           {lastUpdated && (
-            <p className="text-[10px] text-secondary/70 font-dubai -mt-1">
+            <p className="text-[10px] text-secondary/90 font-dubai -mt-1">
               {t.accounting.settings.exchangeRate.lastUpdate} {new Date(lastUpdated).toLocaleDateString(locale, {
                 year: 'numeric', month: 'long', day: 'numeric',
                 hour: '2-digit', minute: '2-digit',
@@ -166,7 +166,7 @@ const CurrencyRateManager: React.FC = () => {
             <button
               onClick={fetchRate}
               disabled={isLoading}
-              className="p-2 text-secondary/70 hover:text-secondary transition rounded-lg hover:bg-secondary/5"
+              className="p-2 text-secondary/90 hover:text-secondary transition rounded-lg hover:bg-secondary/5"
             >
               <RefreshCw className="w-3.5 h-3.5" />
             </button>

@@ -27,13 +27,13 @@ const SOURCE_CLASSES: Record<string, string> = {
   BOOKING_COM: 'bg-primary/10 text-secondary',
   EXTERNAL: 'bg-secondary/10 text-secondary',
   DIRECT: 'bg-primary/20 text-secondary',
-  OTHER: 'bg-secondary/10 text-secondary/70',
+  OTHER: 'bg-secondary/10 text-secondary/90',
 };
 
 const STATUS_CLASSES: Record<string, string> = {
   CONFIRMED: 'bg-primary/15 text-secondary',
-  PENDING: 'bg-primary/10 text-secondary/70',
-  CANCELLED: 'bg-secondary/10 text-secondary/75',
+  PENDING: 'bg-primary/10 text-secondary/90',
+  CANCELLED: 'bg-secondary/10 text-secondary/90',
   COMPLETED: 'bg-primary/25 text-secondary',
 };
 
@@ -81,7 +81,7 @@ const RecentBookings: React.FC<RecentBookingsProps> = ({ bookings, isLoading }) 
         ) : bookings.length === 0 ? (
           <div className="text-center py-8">
             <CalendarCheck size={40} className="text-secondary/20 mx-auto mb-2" />
-            <p className="text-secondary/75 font-dubai text-sm">{t.accounting.dashboard.noBookingsYet}</p>
+            <p className="text-secondary/90 font-dubai text-sm">{t.accounting.dashboard.noBookingsYet}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -101,14 +101,14 @@ const RecentBookings: React.FC<RecentBookingsProps> = ({ bookings, isLoading }) 
                     <p className="font-semibold text-secondary font-dubai text-sm truncate">
                       {booking.clientName}
                     </p>
-                    <p className="text-xs text-secondary/75 font-dubai truncate">
+                    <p className="text-xs text-secondary/90 font-dubai truncate">
                       {booking.apartment}
                     </p>
                   </div>
 
                   {/* Dates */}
                   <div className="text-center flex-shrink-0 hidden sm:block">
-                    <p className="text-xs text-secondary/80 font-dubai">
+                    <p className="text-xs text-secondary/90 font-dubai">
                       {formatDate(booking.checkIn)} → {formatDate(booking.checkOut)}
                     </p>
                   </div>

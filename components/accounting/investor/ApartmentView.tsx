@@ -97,7 +97,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
             {investment.apartment.name}
           </h3>
           <div className="flex items-center gap-3 mt-0.5">
-            <span className="flex items-center gap-1 text-xs text-secondary/80 font-dubai">
+            <span className="flex items-center gap-1 text-xs text-secondary/90 font-dubai">
               <Percent className="w-3 h-3" />
               {t.accounting.investorPortal.myPercentage} {new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(investment.percentage * 100)}%
             </span>
@@ -111,9 +111,9 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
         </div>
 
         {expanded ? (
-          <ChevronUp className="w-4 h-4 text-secondary/80" />
+          <ChevronUp className="w-4 h-4 text-secondary/90" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-secondary/80" />
+          <ChevronDown className="w-4 h-4 text-secondary/90" />
         )}
       </button>
 
@@ -138,7 +138,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
               </div>
               <div>
                 <h4 className="text-base font-bold text-white font-dubai">{t.accounting.investorPortal.financialSummary}</h4>
-                <p className="text-[11px] text-white/75 font-dubai">{investment.apartment.name}</p>
+                <p className="text-[11px] text-white/90 font-dubai">{investment.apartment.name}</p>
               </div>
             </div>
 
@@ -155,7 +155,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                 >
                   <TrendingUp className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#b5c4a5]" />
                 </div>
-                <p className="text-[11px] sm:text-xs text-white/80 font-dubai mb-1">{t.accounting.investorPortal.totalRevenue}</p>
+                <p className="text-[11px] sm:text-xs text-white/90 font-dubai mb-1">{t.accounting.investorPortal.totalRevenue}</p>
                 <p className="text-sm sm:text-[15px] font-bold text-[#b5c4a5] font-dubai leading-tight">
                   {formatCurrency(investment.totalRevenue, currency)}
                 </p>
@@ -170,7 +170,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                 >
                   <TrendingDown className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-[#d4b0a0]" />
                 </div>
-                <p className="text-[11px] sm:text-xs text-white/80 font-dubai mb-1">{t.accounting.investorPortal.totalExpenses}</p>
+                <p className="text-[11px] sm:text-xs text-white/90 font-dubai mb-1">{t.accounting.investorPortal.totalExpenses}</p>
                 <p className="text-sm sm:text-[15px] font-bold text-[#d4b0a0] font-dubai leading-tight">
                   {formatCurrency(investment.totalExpenses, currency)}
                 </p>
@@ -190,7 +190,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                     investment.profit >= 0 ? 'text-[#b5c4a5]' : 'text-[#d4b0a0]'
                   }`} />
                 </div>
-                <p className="text-[11px] sm:text-xs text-white/80 font-dubai mb-1">{t.accounting.investorPortal.netProfit}</p>
+                <p className="text-[11px] sm:text-xs text-white/90 font-dubai mb-1">{t.accounting.investorPortal.netProfit}</p>
                 <p className={`text-[15px] sm:text-lg font-bold font-dubai leading-tight ${
                   investment.profit >= 0 ? 'text-[#b5c4a5]' : 'text-[#d4b0a0]'
                 }`}>
@@ -208,7 +208,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                   >
                     <BarChart3 className="w-5.5 h-5.5 sm:w-6 sm:h-6 text-primary" />
                   </div>
-                  <p className="text-[11px] sm:text-xs text-white/80 font-dubai mb-1">{t.accounting.investorPortal.occupancyRate}</p>
+                  <p className="text-[11px] sm:text-xs text-white/90 font-dubai mb-1">{t.accounting.investorPortal.occupancyRate}</p>
                   <p className="text-[15px] sm:text-lg font-bold text-primary font-dubai leading-tight">
                     {new Intl.NumberFormat(locale).format(investment.occupancyRate)}%
                   </p>
@@ -221,7 +221,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
               <div className="mx-4 sm:mx-5 mb-4 sm:mb-5 bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3">
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[11px] sm:text-xs text-white/80 font-dubai flex items-center gap-1.5">
+                    <span className="text-[11px] sm:text-xs text-white/90 font-dubai flex items-center gap-1.5">
                       <Target className="w-3.5 h-3.5" />
                       {t.accounting.investorPortal.yearlyProgress}
                     </span>
@@ -244,10 +244,10 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
                     />
                   </div>
                   <div className="flex items-center justify-between mt-1.5">
-                    <span className="text-[10px] text-white/75 font-dubai">
+                    <span className="text-[10px] text-white/90 font-dubai">
                       {t.accounting.investorPortal.achieved} <span className="text-white/90">{formatCurrency(investment.investorProfit, currency)}</span>
                     </span>
-                    <span className="text-[10px] text-white/75 font-dubai">
+                    <span className="text-[10px] text-white/90 font-dubai">
                       {t.accounting.investorPortal.target} <span className="text-white/90">{formatCurrency(investment.investmentTarget, currency)}</span>
                     </span>
                   </div>
@@ -263,8 +263,8 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
-                    <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Percent size={12} />{t.accounting.investors.percentageLabel}</span></th>
-                    <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.investorPortal.profit}</span></th>
+                    <th className="text-right px-4 py-3 text-[11px] text-secondary/90 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Percent size={12} />{t.accounting.investors.percentageLabel}</span></th>
+                    <th className="text-right px-4 py-3 text-[11px] text-secondary/90 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.investorPortal.profit}</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -300,7 +300,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
           )) : (
             <div className="text-center py-8">
               <BarChart3 size={28} className="text-secondary/20 mx-auto mb-2" />
-              <p className="text-sm text-secondary/70 font-dubai">{t.accounting.investorPortal.noDataThisYear}</p>
+              <p className="text-sm text-secondary/90 font-dubai">{t.accounting.investorPortal.noDataThisYear}</p>
             </div>
           )}
         </motion.div>

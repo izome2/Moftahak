@@ -37,7 +37,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   return (
     <div className={`space-y-2 ${className}`}>
       <div className="flex items-center justify-between text-sm font-dubai">
-        <span className="text-secondary/70 font-medium">{label}</span>
+        <span className="text-secondary/90 font-medium">{label}</span>
         <div className="flex items-center gap-1.5">
           <span className={`font-bold ${isComplete ? 'text-[#8a9a7a]' : 'text-secondary'}`}>
             {new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(percentage)}%
@@ -61,9 +61,9 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       </div>
 
       {/* Labels */}
-      <div className="flex items-center justify-between text-xs text-secondary/70 font-dubai">
-        <span>{t.accounting.investorPortal.achieved} <span className="text-secondary/70 font-medium">{formatCurrency(current, currency)}</span></span>
-        <span>{t.accounting.investorPortal.target} <span className="text-secondary/70 font-medium">{formatCurrency(target, currency)}</span></span>
+      <div className="flex items-center justify-between text-xs text-secondary/90 font-dubai">
+        <span>{t.accounting.investorPortal.achieved} <span className="text-secondary/90 font-medium">{formatCurrency(current, currency)}</span></span>
+        <span>{t.accounting.investorPortal.target} <span className="text-secondary/90 font-medium">{formatCurrency(target, currency)}</span></span>
       </div>
     </div>
   );

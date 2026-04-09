@@ -210,8 +210,8 @@ const InvitationManager: React.FC = () => {
       ) : invitations.length === 0 ? (
         <div className="text-center py-8">
           <Link2 className="w-8 h-8 text-secondary/20 mx-auto mb-2" />
-          <p className="text-xs text-secondary/75 font-dubai">{t.accounting.settings.invitations.noInvitations}</p>
-          <p className="text-[10px] text-secondary/60 font-dubai mt-1">{t.accounting.settings.invitations.createHint}</p>
+          <p className="text-xs text-secondary/90 font-dubai">{t.accounting.settings.invitations.noInvitations}</p>
+          <p className="text-[10px] text-secondary/80 font-dubai mt-1">{t.accounting.settings.invitations.createHint}</p>
         </div>
       ) : (
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
@@ -228,14 +228,14 @@ const InvitationManager: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`text-[9px] rounded px-1.5 py-0.5 font-bold font-dubai ${ROLE_COLORS[invite.role] || 'bg-secondary/10 text-secondary/70'}`}>
+                      <span className={`text-[9px] rounded px-1.5 py-0.5 font-bold font-dubai ${ROLE_COLORS[invite.role] || 'bg-secondary/10 text-secondary/90'}`}>
                         {ROLE_LABELS[invite.role] || invite.role}
                       </span>
                       <span className={`text-[9px] rounded px-1.5 py-0.5 font-bold font-dubai ${status.color}`}>
                         {status.label}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 text-[10px] text-secondary/75 font-dubai mt-1">
+                    <div className="flex items-center gap-3 text-[10px] text-secondary/90 font-dubai mt-1">
                       <span className="flex items-center gap-0.5">
                         <Clock className="w-2.5 h-2.5" />
                         {isActive ? `${t.accounting.settings.invitations.remaining}: ${getRemainingTime(invite.expiresAt)}` : getRemainingTime(invite.expiresAt)}
@@ -250,14 +250,14 @@ const InvitationManager: React.FC = () => {
                           className="p-1.5 hover:bg-white rounded-lg transition"
                           title={t.accounting.settings.invitations.copyLink}
                         >
-                          {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3 text-secondary/70" />}
+                          {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3 text-secondary/90" />}
                         </button>
                         <button
                           onClick={() => handleShowQR(invite)}
                           className="p-1.5 hover:bg-white rounded-lg transition"
                           title={t.accounting.settings.invitations.showQR}
                         >
-                          <QrCode className="w-3 h-3 text-secondary/70" />
+                          <QrCode className="w-3 h-3 text-secondary/90" />
                         </button>
                       </>
                     )}
@@ -297,12 +297,12 @@ const InvitationManager: React.FC = () => {
                   </div>
                   <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.settings.invitations.newInvitation}</h4>
                 </div>
-                <button onClick={() => setShowCreate(false)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/70" /></button>
+                <button onClick={() => setShowCreate(false)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/90" /></button>
               </div>
               <div className="p-5 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                 <div>
                   <label className="flex items-center gap-1.5 mb-2">
-                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Shield size={11} className="text-secondary/75" /></span>
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Shield size={11} className="text-secondary/90" /></span>
                     <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.invitations.selectRole}</span>
                     <span className="text-red-400 text-xs">*</span>
                   </label>
@@ -326,7 +326,7 @@ const InvitationManager: React.FC = () => {
                 <div className="flex items-center gap-3 pt-1">
                   <button
                     type="button" onClick={() => setShowCreate(false)}
-                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/90 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                   >{t.accounting.common.cancel}</button>
                   <button
                     onClick={handleCreate}
@@ -364,14 +364,14 @@ const InvitationManager: React.FC = () => {
                   </div>
                   <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.settings.invitations.invitationCreated}</h4>
                 </div>
-                <button onClick={() => setCreatedInvite(null)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/70" /></button>
+                <button onClick={() => setCreatedInvite(null)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/90" /></button>
               </div>
               <div className="p-5 space-y-4 flex flex-col items-center" dir="rtl">
                 <div className="flex items-center gap-2">
                   <span className={`text-xs rounded px-2 py-1 font-bold font-dubai ${ROLE_COLORS[createdInvite.role]}`}>
                     {ROLE_LABELS[createdInvite.role]}
                   </span>
-                  <span className="text-[10px] text-secondary/75 font-dubai flex items-center gap-1">
+                  <span className="text-[10px] text-secondary/90 font-dubai flex items-center gap-1">
                     <Clock size={12} /> {t.accounting.settings.invitations.validFor}
                   </span>
                 </div>
@@ -399,7 +399,7 @@ const InvitationManager: React.FC = () => {
                   )}
                 </button>
 
-                <p className="text-[10px] text-secondary/70 font-dubai text-center">
+                <p className="text-[10px] text-secondary/90 font-dubai text-center">
                   {t.accounting.settings.invitations.shareNote}
                 </p>
               </div>
@@ -429,7 +429,7 @@ const InvitationManager: React.FC = () => {
                   </div>
                   <h4 className="text-base font-bold text-secondary font-dubai tracking-tight">{t.accounting.settings.invitations.qrCode}</h4>
                 </div>
-                <button onClick={() => setQrInvite(null)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/70" /></button>
+                <button onClick={() => setQrInvite(null)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/90" /></button>
               </div>
               <div className="p-5 flex flex-col items-center space-y-4">
                 <span className={`text-xs rounded px-2 py-1 font-bold font-dubai ${ROLE_COLORS[qrInvite.role]}`}>
@@ -479,7 +479,7 @@ const InvitationManager: React.FC = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setDeleteTarget(null)}
-                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/90 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                   >
                     {t.accounting.common.cancel}
                   </button>

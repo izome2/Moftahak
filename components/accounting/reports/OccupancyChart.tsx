@@ -40,15 +40,15 @@ const CustomTooltip = ({ active, payload, label, labels }: any) => {
     <div className="bg-white border border-secondary/[0.08] rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
       <p className="text-secondary font-bold mb-1.5">{label}</p>
       <div className="flex items-center gap-2 py-0.5">
-        <span className="text-secondary/70">{labels.busyNights}</span>
+        <span className="text-secondary/90">{labels.busyNights}</span>
         <span className="font-bold text-secondary">{entry.value} {labels.night}</span>
       </div>
       <div className="flex items-center gap-2 py-0.5">
-        <span className="text-secondary/70">{labels.occupancyRate}</span>
+        <span className="text-secondary/90">{labels.occupancyRate}</span>
         <span className="font-bold text-secondary">{entry.payload?.occupancyPct}%</span>
       </div>
       <div className="flex items-center gap-2 py-0.5">
-        <span className="text-secondary/70">{labels.occupancyCount}</span>
+        <span className="text-secondary/90">{labels.occupancyCount}</span>
         <span className="font-bold text-secondary">{entry.payload?.bookings}</span>
       </div>
     </div>
@@ -73,7 +73,7 @@ const OccupancyChart: React.FC<OccupancyChartProps> = ({
 
   if (!data.length) {
     return (
-      <div className="h-[320px] flex items-center justify-center text-secondary/75 font-dubai">
+      <div className="h-[320px] flex items-center justify-center text-secondary/90 font-dubai">
         {t.accounting.reports.noOccupancyData}
       </div>
     );
@@ -131,7 +131,7 @@ const OccupancyChart: React.FC<OccupancyChartProps> = ({
         {chartData.map((d, i) => (
           <div
             key={i}
-            className="flex items-center gap-1.5 text-[10px] font-dubai text-secondary/80"
+            className="flex items-center gap-1.5 text-[10px] font-dubai text-secondary/90"
           >
             <span
               className="w-2 h-2 rounded-full"

@@ -178,7 +178,7 @@ export default function ApartmentDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Building2 size={48} className="text-secondary/20" />
-        <p className="text-secondary/75 font-dubai">{error || t.accounting.apartments.apartmentNotFound}</p>
+        <p className="text-secondary/90 font-dubai">{error || t.accounting.apartments.apartmentNotFound}</p>
         <button
           onClick={() => router.push('/accounting/apartments')}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary text-white font-dubai text-sm hover:bg-secondary/90 transition-colors"
@@ -218,17 +218,17 @@ export default function ApartmentDetailPage() {
               </h1>
               <div className="flex items-center gap-2 mt-0.5 hidden sm:flex">
                 {apartment.project && (
-                  <span className="text-sm text-secondary/75 font-dubai">
+                  <span className="text-sm text-secondary/90 font-dubai">
                     {apartment.project.name}
                   </span>
                 )}
                 {apartment.floor && (
-                  <span className="text-xs text-secondary/70 font-dubai">
+                  <span className="text-xs text-secondary/90 font-dubai">
                     • {t.accounting.common.floor} {apartment.floor}
                   </span>
                 )}
                 {apartment.type && (
-                  <span className="text-[10px] bg-primary/10 text-secondary/80 px-2 py-0.5 rounded-full font-dubai">
+                  <span className="text-[10px] bg-primary/10 text-secondary/90 px-2 py-0.5 rounded-full font-dubai">
                     {apartment.type}
                   </span>
                 )}
@@ -240,7 +240,7 @@ export default function ApartmentDetailPage() {
             className="p-1.5 sm:p-2 hover:bg-primary/10 rounded-lg transition-colors shrink-0"
             aria-label={t.accounting.common.refresh}
           >
-            <RefreshCw size={15} className={`text-secondary/80 sm:w-5 sm:h-5 ${loadingData ? 'animate-spin' : ''}`} />
+            <RefreshCw size={15} className={`text-secondary/90 sm:w-5 sm:h-5 ${loadingData ? 'animate-spin' : ''}`} />
           </button>
         </div>
 

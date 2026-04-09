@@ -91,11 +91,11 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.payload.fill }} />
           <span className="font-bold text-secondary">{entry.name}</span>
         </div>
-        <p className="text-secondary/70">
+        <p className="text-secondary/90">
           {t.accounting.expenses.amountLabel} <span className="font-bold text-[#c09080]">{formatCurrency(entry.value)}</span>
         </p>
         {entry.payload.count !== undefined && (
-          <p className="text-secondary/70">
+          <p className="text-secondary/90">
             {t.accounting.expenses.countLabel} <span className="font-bold text-secondary">{new Intl.NumberFormat(locale).format(entry.payload.count)}</span>
           </p>
         )}
@@ -106,10 +106,10 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-white rounded-2xl border border-secondary/[0.08] p-6 h-[360px] flex items-center justify-center">
-          <Loader2 className="w-6 h-6 text-secondary/60 animate-spin" />
+          <Loader2 className="w-6 h-6 text-secondary/80 animate-spin" />
         </div>
         <div className="bg-white rounded-2xl border border-secondary/[0.08] p-6 h-[360px] flex items-center justify-center">
-          <Loader2 className="w-6 h-6 text-secondary/60 animate-spin" />
+          <Loader2 className="w-6 h-6 text-secondary/80 animate-spin" />
         </div>
       </div>
     );
@@ -138,7 +138,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
           {t.accounting.expenses.categoryDistribution}
         </h3>
         {pieData.length === 0 ? (
-          <div className="h-[280px] flex items-center justify-center text-secondary/70 font-dubai text-sm">
+          <div className="h-[280px] flex items-center justify-center text-secondary/90 font-dubai text-sm">
             {t.accounting.common.noData}
           </div>
         ) : (
@@ -190,7 +190,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
           {t.accounting.expenses.apartmentComparison}
         </h3>
         {!hasBarData ? (
-          <div className="h-[280px] flex items-center justify-center text-secondary/70 font-dubai text-sm">
+          <div className="h-[280px] flex items-center justify-center text-secondary/90 font-dubai text-sm">
             {t.accounting.common.noData}
           </div>
         ) : (
@@ -238,7 +238,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
                   return (
                     <div className="bg-white border border-secondary/[0.06] rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
                       <span className="font-bold text-secondary block mb-1">{d.fullName}</span>
-                      <span className="text-secondary/70">{formatCurrency(d.expense)}</span>
+                      <span className="text-secondary/90">{formatCurrency(d.expense)}</span>
                     </div>
                   );
                 }}

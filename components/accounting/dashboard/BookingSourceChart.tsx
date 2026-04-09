@@ -82,11 +82,11 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({ data, isLoading
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.fill }} />
           <span className="font-bold text-secondary">{d.name}</span>
         </div>
-        <p className="text-secondary/70">
+        <p className="text-secondary/90">
           {t.accounting.dashboard.amount} <span className="font-bold text-secondary">{new Intl.NumberFormat(locale).format(d.amount)} {currency}</span>
         </p>
         {d.count !== undefined && (
-          <p className="text-secondary/70">
+          <p className="text-secondary/90">
             {t.accounting.dashboard.bookingsLabel} <span className="font-bold text-secondary">{d.count}</span>
           </p>
         )}
@@ -104,7 +104,7 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({ data, isLoading
 
   if (!data.length) {
     return (
-      <div className="h-[300px] flex items-center justify-center text-secondary/75 font-dubai">
+      <div className="h-[300px] flex items-center justify-center text-secondary/90 font-dubai">
         {t.accounting.dashboard.noBookingsThisMonth}
       </div>
     );

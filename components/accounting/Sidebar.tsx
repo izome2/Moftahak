@@ -178,7 +178,7 @@ const AccountingSidebar: React.FC<AccountingSidebarProps> = ({
                 <p className="font-semibold text-secondary font-dubai truncate">
                   {session.user.firstName} {session.user.lastName}
                 </p>
-                <p className="text-xs text-secondary/80 font-dubai">
+                <p className="text-xs text-secondary/90 font-dubai">
                   {t.accounting.roles[userRole as keyof typeof t.accounting.roles] || t.accounting.roles[effectiveRole as keyof typeof t.accounting.roles] || userRole}
                 </p>
               </div>

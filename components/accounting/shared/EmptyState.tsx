@@ -67,7 +67,7 @@ export default function EmptyState({
       <h3 className="text-lg font-bold text-secondary font-dubai mb-1.5">
         {displayTitle}
       </h3>
-      <p className="text-sm text-secondary/75 font-dubai max-w-xs mb-4">
+      <p className="text-sm text-secondary/90 font-dubai max-w-xs mb-4">
         {displayDesc}
       </p>
       {action && (

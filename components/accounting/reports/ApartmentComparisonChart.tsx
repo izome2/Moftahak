@@ -43,7 +43,7 @@ const CustomTooltip = ({ active, payload, label, currencyLabel, locale }: any) =
       {payload.map((entry: { name: string; value: number; color: string }, i: number) => (
         <div key={i} className="flex items-center gap-2 py-0.5">
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
-          <span className="text-secondary/70">{entry.name}:</span>
+          <span className="text-secondary/90">{entry.name}:</span>
           <span className="font-bold text-secondary">
             {new Intl.NumberFormat(locale).format(entry.value)} {currencyLabel}
           </span>
@@ -72,7 +72,7 @@ const ApartmentComparisonChart: React.FC<ApartmentComparisonChartProps> = ({
 
   if (!data.length) {
     return (
-      <div className="h-[320px] flex items-center justify-center text-secondary/75 font-dubai">
+      <div className="h-[320px] flex items-center justify-center text-secondary/90 font-dubai">
         {t.accounting.reports.noComparisonData}
       </div>
     );

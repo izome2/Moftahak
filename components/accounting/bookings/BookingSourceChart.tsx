@@ -107,11 +107,11 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.fill }} />
           <span className="font-bold text-secondary">{d.name}</span>
         </div>
-        <p className="text-secondary/70">
+        <p className="text-secondary/90">
           {t.accounting.bookings.amount}: <span className="font-bold text-secondary">{formatCurrency(d.amount)}</span>
         </p>
         {d.count !== undefined && (
-          <p className="text-secondary/70">
+          <p className="text-secondary/90">
             {t.accounting.bookings.bookingsList}: <span className="font-bold text-secondary">{d.count}</span>
           </p>
         )}
@@ -160,7 +160,7 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({
           </h3>
         </div>
         {pieData.length === 0 ? (
-          <div className="h-[280px] flex items-center justify-center text-secondary/60 font-dubai text-sm">
+          <div className="h-[280px] flex items-center justify-center text-secondary/80 font-dubai text-sm">
             {t.accounting.common.noData}
           </div>
         ) : (
@@ -217,7 +217,7 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({
           </h3>
         </div>
         {!hasBarData ? (
-          <div className="h-[280px] flex items-center justify-center text-secondary/60 font-dubai text-sm">
+          <div className="h-[280px] flex items-center justify-center text-secondary/80 font-dubai text-sm">
             {t.accounting.common.noData}
           </div>
         ) : (
@@ -265,7 +265,7 @@ const BookingSourceChart: React.FC<BookingSourceChartProps> = ({
                   return (
                     <div className="bg-white border border-secondary/[0.06] rounded-xl p-3 shadow-lg font-dubai text-sm" dir="rtl">
                       <span className="font-bold text-secondary block mb-1">{d.fullName}</span>
-                      <span className="text-secondary/70">{formatCurrency(d.revenue)}</span>
+                      <span className="text-secondary/90">{formatCurrency(d.revenue)}</span>
                     </div>
                   );
                 }}

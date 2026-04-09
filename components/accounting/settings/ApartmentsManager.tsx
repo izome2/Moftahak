@@ -175,7 +175,7 @@ const ApartmentsManager: React.FC = () => {
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
         </div>
       ) : apartments.length === 0 ? (
-        <p className="text-xs text-secondary/75 font-dubai text-center py-4">{t.accounting.settings.apartments.noApartments}</p>
+        <p className="text-xs text-secondary/90 font-dubai text-center py-4">{t.accounting.settings.apartments.noApartments}</p>
       ) : (
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
           {apartments.map(a => (
@@ -193,7 +193,7 @@ const ApartmentsManager: React.FC = () => {
                     <span className="text-[9px] bg-red-100 text-red-600 rounded px-1.5 py-0.5 font-dubai">{t.accounting.common.disabled}</span>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-[10px] text-secondary/75 font-dubai mt-0.5">
+                <div className="flex items-center gap-2 text-[10px] text-secondary/90 font-dubai mt-0.5">
                   <span>{a.project.name}</span>
                   {a.floor && <span>• {t.accounting.settings.apartments.floorLabel} {a.floor}</span>}
                   {a.type && <span>• {a.type}</span>}
@@ -201,7 +201,7 @@ const ApartmentsManager: React.FC = () => {
               </div>
               <div className="flex items-center gap-1 shrink-0">
                 <button onClick={() => openEdit(a)} className="p-1.5 hover:bg-white rounded-lg transition">
-                  <Pencil className="w-3 h-3 text-secondary/70" />
+                  <Pencil className="w-3 h-3 text-secondary/90" />
                 </button>
                 <button
                   onClick={() => setToggleTarget(a)}
@@ -241,24 +241,24 @@ const ApartmentsManager: React.FC = () => {
                     {editId ? t.accounting.settings.apartments.editApartment : t.accounting.settings.apartments.newApartment}
                   </h4>
                 </div>
-                <button onClick={() => setShowForm(false)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/70" /></button>
+                <button onClick={() => setShowForm(false)} className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"><X size={18} className="text-secondary/90" /></button>
               </div>
               <form onSubmit={handleSubmit} className="p-5 space-y-5" dir={language === 'ar' ? 'rtl' : 'ltr'}>
                 <div>
                   <label className="flex items-center gap-1.5 mb-2">
-                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Building2 size={11} className="text-secondary/75" /></span>
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Building2 size={11} className="text-secondary/90" /></span>
                     <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.apartments.apartmentNameRequired}</span>
                     <span className="text-red-400 text-xs">*</span>
                   </label>
                   <input
                     value={name} onChange={e => setName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/80"
                     required
                   />
                 </div>
                 <div>
                   <label className="flex items-center gap-1.5 mb-2">
-                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Building2 size={11} className="text-secondary/75" /></span>
+                    <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Building2 size={11} className="text-secondary/90" /></span>
                     <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.apartments.projectRequired}</span>
                     <span className="text-red-400 text-xs">*</span>
                   </label>
@@ -275,22 +275,22 @@ const ApartmentsManager: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="flex items-center gap-1.5 mb-2">
-                      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Building2 size={11} className="text-secondary/75" /></span>
+                      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Building2 size={11} className="text-secondary/90" /></span>
                       <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.apartments.floorNumber}</span>
                     </label>
                     <input
                       value={floor} onChange={e => setFloor(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/80"
                     />
                   </div>
                   <div>
                     <label className="flex items-center gap-1.5 mb-2">
-                      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Building2 size={11} className="text-secondary/75" /></span>
+                      <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0"><Building2 size={11} className="text-secondary/90" /></span>
                       <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.settings.apartments.type}</span>
                     </label>
                     <input
                       value={type} onChange={e => setType(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/80"
                     />
                   </div>
                 </div>
@@ -298,7 +298,7 @@ const ApartmentsManager: React.FC = () => {
                 <div className="flex items-center gap-3 pt-1">
                   <button
                     type="button" onClick={() => setShowForm(false)}
-                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/90 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                   >{t.accounting.common.cancel}</button>
                   <button
                     type="submit" disabled={isSaving}
@@ -343,7 +343,7 @@ const ApartmentsManager: React.FC = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setToggleTarget(null)}
-                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                    className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/90 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
                   >{t.accounting.common.cancel}</button>
                   <button
                     onClick={handleToggleActive} disabled={isToggling}

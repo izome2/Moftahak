@@ -60,7 +60,7 @@ const MonthlySummary: React.FC<MonthlySummaryProps> = ({
           <h3 className="text-base font-bold text-secondary font-dubai">
             {t.accounting.investorPortal.monthlyProfit}
           </h3>
-          <span className="text-xs text-secondary/80 font-dubai">
+          <span className="text-xs text-secondary/90 font-dubai">
             {apartmentName}
           </span>
         </div>
@@ -73,7 +73,7 @@ const MonthlySummary: React.FC<MonthlySummaryProps> = ({
       </div>
 
       {months.length === 0 ? (
-        <div className="py-10 text-center text-secondary/80">
+        <div className="py-10 text-center text-secondary/90">
           <BarChart3 className="w-8 h-8 mx-auto mb-2 opacity-40" />
           <p className="text-sm font-dubai">{t.accounting.investorPortal.noDataThisYear}</p>
         </div>
@@ -82,11 +82,11 @@ const MonthlySummary: React.FC<MonthlySummaryProps> = ({
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Calendar size={12} />{t.accounting.investorPortal.month}</span></th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><TrendingUp size={12} />{t.accounting.investorPortal.revenue}</span></th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><TrendingDown size={12} />{t.accounting.investorPortal.expenses}</span></th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.investorPortal.profit}</span></th>
-                <th className="text-right px-4 py-3 text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Wallet size={12} />{t.accounting.investorPortal.myShare}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/90 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Calendar size={12} />{t.accounting.investorPortal.month}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/90 font-medium font-dubai"><span className="inline-flex items-center gap-1"><TrendingUp size={12} />{t.accounting.investorPortal.revenue}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/90 font-medium font-dubai"><span className="inline-flex items-center gap-1"><TrendingDown size={12} />{t.accounting.investorPortal.expenses}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/90 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.investorPortal.profit}</span></th>
+                <th className="text-right px-4 py-3 text-[11px] text-secondary/90 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Wallet size={12} />{t.accounting.investorPortal.myShare}</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-primary/5">
@@ -132,7 +132,7 @@ const MonthlySummary: React.FC<MonthlySummaryProps> = ({
             {/* Total row */}
             <tfoot>
               <tr className="bg-secondary/[0.03] border-t border-secondary/[0.06]">
-                <td className="px-4 py-3 text-xs text-secondary/80 font-bold font-dubai">{t.accounting.investorPortal.total}</td>
+                <td className="px-4 py-3 text-xs text-secondary/90 font-bold font-dubai">{t.accounting.investorPortal.total}</td>
                 <td className="px-4 py-3">
                   <span className="text-[#8a9a7a] text-xs font-bold font-dubai">
                     {formatCurrency(months.reduce((s, m) => s + m.revenue, 0), currency)}

@@ -145,7 +145,7 @@ const SupervisorSelect: React.FC<SupervisorSelectProps> = ({
           border transition-all duration-200 min-w-[120px] justify-between
           ${current
             ? 'bg-secondary/[0.04] border-secondary/[0.08] text-secondary hover:bg-secondary/[0.06]'
-            : 'bg-secondary/[0.03] border-secondary/[0.06] text-secondary/80 hover:bg-secondary/[0.05] hover:text-secondary/70'
+            : 'bg-secondary/[0.03] border-secondary/[0.06] text-secondary/90 hover:bg-secondary/[0.05] hover:text-secondary/90'
           }
           ${isOpen ? 'border-secondary/20 shadow-[0_0_0_3px_rgba(16,48,43,0.06)]' : ''}
           ${saving ? 'opacity-60 cursor-wait' : 'cursor-pointer'}
@@ -197,7 +197,7 @@ const SupervisorSelect: React.FC<SupervisorSelectProps> = ({
                     transition-all duration-150 text-right rounded-xl
                     ${name === current
                       ? 'bg-primary/12 text-secondary font-medium'
-                      : 'text-secondary/70 hover:bg-primary/[0.06] hover:text-secondary'
+                      : 'text-secondary/90 hover:bg-primary/[0.06] hover:text-secondary'
                     }
                   `}
                 >
@@ -216,7 +216,7 @@ const SupervisorSelect: React.FC<SupervisorSelectProps> = ({
                 placeholder={t.accounting.daily.customName}
                 className="w-full px-2.5 py-1.5 text-sm border border-secondary/[0.08] rounded-xl
                   focus:outline-none focus:border-secondary/20
-                  placeholder:text-secondary/60 text-right"
+                  placeholder:text-secondary/80 text-right"
                 dir="rtl"
               />
             </form>

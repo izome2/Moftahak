@@ -134,7 +134,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                   onClick={() => removeToast(toast.id)}
                   className="flex-shrink-0 p-0.5 rounded-md hover:bg-black/5 transition-colors"
                 >
-                  <X className="w-4 h-4 text-secondary/70" />
+                  <X className="w-4 h-4 text-secondary/90" />
                 </button>
               </motion.div>
             );

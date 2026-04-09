@@ -65,24 +65,24 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
               </h3>
               <div className="flex items-center gap-2 mt-0.5">
                 {apartment.project && (
-                  <span className="text-xs text-secondary/75 font-dubai">
+                  <span className="text-xs text-secondary/90 font-dubai">
                     {apartment.project.name}
                   </span>
                 )}
                 {apartment.floor && (
-                  <span className="text-xs text-secondary/70 font-dubai">
+                  <span className="text-xs text-secondary/90 font-dubai">
                     • {t.accounting.common.floor} {apartment.floor}
                   </span>
                 )}
                 {apartment.type && (
-                  <span className="text-[10px] bg-primary/10 text-secondary/80 px-2 py-0.5 rounded-full font-dubai">
+                  <span className="text-[10px] bg-primary/10 text-secondary/90 px-2 py-0.5 rounded-full font-dubai">
                     {apartment.type}
                   </span>
                 )}
               </div>
             </div>
           </div>
-          <ChevronLeft size={18} className="text-secondary/60 group-hover:text-primary transition-colors mt-1" />
+          <ChevronLeft size={18} className="text-secondary/80 group-hover:text-primary transition-colors mt-1" />
         </div>
 
         {/* Stats */}
@@ -112,7 +112,7 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
             )}
             {!hideRevenue && (
               <div className={`${summary.profit >= 0 ? 'bg-primary/10' : 'bg-[#c09080]/8'} rounded-xl p-2.5 text-center`}>
-                <p className="text-[10px] text-secondary/75 font-dubai mb-0.5">{t.accounting.apartments.netProfit}</p>
+                <p className="text-[10px] text-secondary/90 font-dubai mb-0.5">{t.accounting.apartments.netProfit}</p>
                 <p className={`text-sm font-bold font-dubai ${summary.profit >= 0 ? 'text-secondary' : 'text-[#c09080]'}`}>
                   {formatCurrency(summary.profit)}
                 </p>
@@ -123,7 +123,7 @@ const ApartmentCard: React.FC<ApartmentCardProps> = ({
 
         {/* Footer */}
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary/10">
-          <div className="flex items-center gap-1.5 text-secondary/75">
+          <div className="flex items-center gap-1.5 text-secondary/90">
             <CalendarCheck size={13} />
             <span className="text-xs font-dubai">
               {apartment._count?.bookings || 0} {t.accounting.common.booking}

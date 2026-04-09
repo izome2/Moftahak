@@ -50,11 +50,11 @@ const InvestorsTable: React.FC<InvestorsTableProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-secondary/[0.06]">
         <div className="flex items-center gap-2">
-          <Users size={18} className="text-secondary/80" />
+          <Users size={18} className="text-secondary/90" />
           <h3 className="text-base font-bold text-secondary font-dubai">{t.accounting.apartments.investorsTable}</h3>
         </div>
         {!isLoading && investors.length > 0 && (
-          <span className="text-xs text-secondary/75 font-dubai">
+          <span className="text-xs text-secondary/90 font-dubai">
             {t.accounting.apartments.totalPercentages} {formatPercentage(investors.reduce((s, inv) => s + inv.percentage, 0))}
           </span>
         )}
@@ -67,17 +67,17 @@ const InvestorsTable: React.FC<InvestorsTableProps> = ({
         </div>
       ) : investors.length === 0 ? (
         <div className="text-center py-10">
-          <Users size={36} className="text-secondary/65 mx-auto mb-2" />
-          <p className="text-secondary/80 font-dubai text-sm">{t.accounting.apartments.noInvestors}</p>
+          <Users size={36} className="text-secondary/80 mx-auto mb-2" />
+          <p className="text-secondary/90 font-dubai text-sm">{t.accounting.apartments.noInvestors}</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
-                <th className="px-4 py-3 text-right text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><User size={12} />{t.accounting.apartments.name}</span></th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Percent size={12} />{t.accounting.apartments.percentage}</span></th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.apartments.profitHeader}</span></th>
+                <th className="px-4 py-3 text-right text-[11px] text-secondary/90 font-medium font-dubai"><span className="inline-flex items-center gap-1"><User size={12} />{t.accounting.apartments.name}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/90 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Percent size={12} />{t.accounting.apartments.percentage}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/90 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.apartments.profitHeader}</span></th>
               </tr>
             </thead>
             <tbody>
@@ -96,11 +96,11 @@ const InvestorsTable: React.FC<InvestorsTableProps> = ({
                         {investor.user.firstName} {investor.user.lastName}
                       </p>
                       {investor.user.email && (
-                        <p className="text-xs text-secondary/80 mt-0.5 ltr">{investor.user.email}</p>
+                        <p className="text-xs text-secondary/90 mt-0.5 ltr">{investor.user.email}</p>
                       )}
                     </td>
                     <td className="p-3 text-center">
-                      <span className="bg-secondary/8 text-secondary/70 text-xs px-2.5 py-1 rounded-full font-dubai font-bold">
+                      <span className="bg-secondary/8 text-secondary/90 text-xs px-2.5 py-1 rounded-full font-dubai font-bold">
                         {formatPercentage(investor.percentage)}
                       </span>
                     </td>

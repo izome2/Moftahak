@@ -69,7 +69,7 @@ const ExpensePieChart: React.FC<ExpensePieChartProps> = ({ data, isLoading }) =>
       <div className="bg-white border border-secondary/[0.08] rounded-xl p-3 shadow-lg font-dubai text-sm" dir={language === 'ar' ? 'rtl' : 'ltr'}>
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.payload.fill }} />
-          <span className="text-secondary/70">{entry.name}:</span>
+          <span className="text-secondary/90">{entry.name}:</span>
           <span className="font-bold text-secondary">
             {new Intl.NumberFormat(locale).format(entry.value)} {currency}
           </span>
@@ -88,7 +88,7 @@ const ExpensePieChart: React.FC<ExpensePieChartProps> = ({ data, isLoading }) =>
 
   if (!data.length) {
     return (
-      <div className="h-[300px] flex items-center justify-center text-secondary/75 font-dubai">
+      <div className="h-[300px] flex items-center justify-center text-secondary/90 font-dubai">
         {t.accounting.dashboard.noExpensesThisMonth}
       </div>
     );

@@ -190,7 +190,7 @@ export default function SystemManager() {
         </div>
         <div>
           <h2 className="text-base font-bold font-dubai text-secondary">{t.accounting.settings.system.title}</h2>
-          <p className="text-[11px] text-secondary/75 font-dubai">{t.accounting.settings.system.subtitle}</p>
+          <p className="text-[11px] text-secondary/90 font-dubai">{t.accounting.settings.system.subtitle}</p>
         </div>
       </div>
 
@@ -230,10 +230,10 @@ export default function SystemManager() {
             </div>
             <div>
               <h3 className="text-sm font-bold text-secondary font-dubai">{t.accounting.settings.system.resetSystem}</h3>
-              <p className="text-[11px] text-secondary/75 font-dubai">{t.accounting.settings.system.resetDescription}</p>
+              <p className="text-[11px] text-secondary/90 font-dubai">{t.accounting.settings.system.resetDescription}</p>
             </div>
           </div>
-          <p className="text-[11px] text-secondary/75 font-dubai leading-relaxed mb-3">
+          <p className="text-[11px] text-secondary/90 font-dubai leading-relaxed mb-3">
             {t.accounting.settings.system.resetWarning}
           </p>
           <button
@@ -263,7 +263,7 @@ export default function SystemManager() {
             </div>
             <div className="flex-1">
               <h3 className="text-sm font-bold text-secondary font-dubai">{t.accounting.settings.system.backupHistory}</h3>
-              <p className="text-[11px] text-secondary/75 font-dubai">
+              <p className="text-[11px] text-secondary/90 font-dubai">
                 {backups.length > 0 ? `${backups.length} ${t.accounting.settings.system.savedBackup}` : t.accounting.settings.system.noBackups}
               </p>
             </div>
@@ -276,7 +276,7 @@ export default function SystemManager() {
           ) : backups.length === 0 ? (
             <div className="text-center py-6">
               <Archive className="w-8 h-8 text-secondary/15 mx-auto mb-1.5" />
-              <p className="text-xs text-secondary/65 font-dubai">{t.accounting.settings.system.noBackupsSaved}</p>
+              <p className="text-xs text-secondary/80 font-dubai">{t.accounting.settings.system.noBackupsSaved}</p>
             </div>
           ) : (
             <div className="space-y-1.5 max-h-[280px] overflow-y-auto scrollbar-none">
@@ -297,7 +297,7 @@ export default function SystemManager() {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-secondary font-dubai">{backup.name}</p>
-                      <div className="flex items-center gap-2 text-[10px] text-secondary/70 font-dubai">
+                      <div className="flex items-center gap-2 text-[10px] text-secondary/90 font-dubai">
                         <span className="flex items-center gap-0.5">
                           <Clock className="w-2.5 h-2.5" />
                           {new Date(backup.createdAt).toLocaleDateString(locale, {
@@ -309,7 +309,7 @@ export default function SystemManager() {
                           })}
                         </span>
                         {backup.stats && (
-                          <span className="text-secondary/60">
+                          <span className="text-secondary/80">
                             • {backup.stats.bookings || 0} {t.accounting.common.booking}
                           </span>
                         )}
@@ -319,14 +319,14 @@ export default function SystemManager() {
                   <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={(e) => { e.stopPropagation(); handleOpenBackup(backup); }}
-                      className="p-1.5 hover:bg-white rounded-lg transition text-secondary/70 hover:text-primary"
+                      className="p-1.5 hover:bg-white rounded-lg transition text-secondary/90 hover:text-primary"
                       title={t.accounting.common.open}
                     >
                       <ExternalLink className="w-3 h-3" />
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDeleteBackup(backup); }}
-                      className="p-1.5 hover:bg-rose-50 rounded-lg transition text-secondary/70 hover:text-rose-400"
+                      className="p-1.5 hover:bg-rose-50 rounded-lg transition text-secondary/90 hover:text-rose-400"
                       title={t.accounting.common.delete}
                     >
                       <Trash2 className="w-3 h-3" />
@@ -351,7 +351,7 @@ export default function SystemManager() {
               </div>
               <h3 className="font-bold text-lg text-secondary font-dubai">{t.accounting.settings.system.backupPromptTitle}</h3>
             </div>
-            <p className="text-sm text-secondary/70 font-dubai mb-5">
+            <p className="text-sm text-secondary/90 font-dubai mb-5">
               {t.accounting.settings.system.backupPromptMessage}
             </p>
             <div className="flex gap-2">
@@ -387,7 +387,7 @@ export default function SystemManager() {
               </div>
               <h3 className="font-bold text-lg text-secondary font-dubai">{t.accounting.settings.system.backupNameTitle}</h3>
             </div>
-            <p className="text-sm text-secondary/80 font-dubai mb-3">
+            <p className="text-sm text-secondary/90 font-dubai mb-3">
               {t.accounting.settings.system.backupNameDesc}
             </p>
             <input
@@ -397,7 +397,7 @@ export default function SystemManager() {
               placeholder={t.accounting.settings.system.backupNameExample}
               autoFocus
               className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm
-                focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] focus:outline-none transition-all placeholder:text-secondary/60"
+                focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] focus:outline-none transition-all placeholder:text-secondary/80"
               dir={language === 'ar' ? 'rtl' : 'ltr'}
               onKeyDown={(e) => e.key === 'Enter' && backupName.trim() && handleCreateBackup()}
             />
@@ -437,7 +437,7 @@ export default function SystemManager() {
               </div>
               <h3 className="font-bold text-lg text-secondary font-dubai">{t.accounting.settings.system.confirmResetTitle}</h3>
             </div>
-            <p className="text-sm text-secondary/70 font-dubai mb-2">
+            <p className="text-sm text-secondary/90 font-dubai mb-2">
               ⛔ {t.accounting.settings.system.confirmResetMessage}
             </p>
             <p className="text-xs text-rose-600 font-dubai bg-rose-50/80 border border-rose-200/60 rounded-lg p-3 mb-4">
@@ -476,7 +476,7 @@ export default function SystemManager() {
             </div>
             <div className="bg-secondary/[0.03] rounded-xl p-4 mb-4 space-y-2">
               <p className="text-sm font-bold text-secondary font-dubai">{selectedBackup.name}</p>
-              <p className="text-xs text-secondary/75 font-dubai flex items-center gap-1">
+              <p className="text-xs text-secondary/90 font-dubai flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 {new Date(selectedBackup.createdAt).toLocaleDateString(locale, {
                   year: 'numeric',
@@ -489,14 +489,14 @@ export default function SystemManager() {
               {selectedBackup.stats && (
                 <div className="flex flex-wrap gap-2 pt-1">
                   {Object.entries(selectedBackup.stats).filter(([, v]) => (v as number) > 0).map(([k, v]) => (
-                    <span key={k} className="text-[10px] bg-white rounded-md px-2 py-0.5 text-secondary/80 font-dubai border border-primary/15">
+                    <span key={k} className="text-[10px] bg-white rounded-md px-2 py-0.5 text-secondary/90 font-dubai border border-primary/15">
                       {t.accounting.settings.system.statsLabel(k)}: {v as number}
                     </span>
                   ))}
                 </div>
               )}
             </div>
-            <p className="text-xs text-secondary/75 font-dubai mb-4">
+            <p className="text-xs text-secondary/90 font-dubai mb-4">
               {t.accounting.settings.system.openBackupReadOnly}
             </p>
             <div className="flex gap-2">
@@ -530,7 +530,7 @@ export default function SystemManager() {
               </div>
               <h3 className="font-bold text-lg text-secondary font-dubai">{t.accounting.settings.system.deleteBackupTitle}</h3>
             </div>
-            <p className="text-sm text-secondary/70 font-dubai mb-4">
+            <p className="text-sm text-secondary/90 font-dubai mb-4">
               {t.accounting.settings.system.confirmDeleteBackup(selectedBackup.name)}
               {' '}{t.accounting.settings.system.cannotUndo}
             </p>

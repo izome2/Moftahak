@@ -38,7 +38,7 @@ const CATEGORY_CLASSES: Record<string, string> = {
   TOWELS: 'bg-primary/10 text-secondary',
   KITCHEN_SUPPLIES: 'bg-primary/10 text-secondary',
   AIR_CONDITIONING: 'bg-primary/10 text-secondary',
-  OTHER: 'bg-secondary/8 text-secondary/80',
+  OTHER: 'bg-secondary/8 text-secondary/90',
 };
 
 const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, totalAmount, isLoading }) => {
@@ -84,19 +84,19 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, totalAmount, is
       ) : expenses.length === 0 ? (
         <div className="text-center py-14">
           <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
-            <Receipt size={22} className="text-secondary/65" />
+            <Receipt size={22} className="text-secondary/80" />
           </div>
-          <p className="text-secondary/80 font-dubai text-sm">{t.accounting.apartments.noExpensesThisMonth}</p>
+          <p className="text-secondary/90 font-dubai text-sm">{t.accounting.apartments.noExpensesThisMonth}</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-secondary/[0.02] border-b border-secondary/[0.06]">
-                <th className="px-4 py-3 text-right text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><FileText size={12} />{t.accounting.apartments.description}</span></th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Tag size={12} />{t.accounting.apartments.category}</span></th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai hidden sm:table-cell"><span className="inline-flex items-center gap-1"><Calendar size={12} />{t.accounting.apartments.date}</span></th>
-                <th className="px-4 py-3 text-center text-[11px] text-secondary/70 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.apartments.amountHeader}</span></th>
+                <th className="px-4 py-3 text-right text-[11px] text-secondary/90 font-medium font-dubai"><span className="inline-flex items-center gap-1"><FileText size={12} />{t.accounting.apartments.description}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/90 font-medium font-dubai"><span className="inline-flex items-center gap-1"><Tag size={12} />{t.accounting.apartments.category}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/90 font-medium font-dubai hidden sm:table-cell"><span className="inline-flex items-center gap-1"><Calendar size={12} />{t.accounting.apartments.date}</span></th>
+                <th className="px-4 py-3 text-center text-[11px] text-secondary/90 font-medium font-dubai"><span className="inline-flex items-center gap-1"><DollarSign size={12} />{t.accounting.apartments.amountHeader}</span></th>
               </tr>
             </thead>
             <tbody>
@@ -114,7 +114,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, totalAmount, is
                     <td className="px-4 py-3.5 font-dubai">
                       <p className="font-semibold text-secondary text-[13px]">{expense.description}</p>
                       {expense.notes && (
-                        <p className="text-[10px] text-secondary/80 mt-0.5 truncate max-w-[200px]">
+                        <p className="text-[10px] text-secondary/90 mt-0.5 truncate max-w-[200px]">
                           {expense.notes}
                         </p>
                       )}
@@ -124,7 +124,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, totalAmount, is
                         {catLabel}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 text-center text-secondary/70 font-dubai text-[12px] hidden sm:table-cell">
+                    <td className="px-4 py-3.5 text-center text-secondary/90 font-dubai text-[12px] hidden sm:table-cell">
                       {formatDate(expense.date)}
                     </td>
                     <td className="px-4 py-3.5 text-center font-bold text-secondary font-dubai text-[13px]">

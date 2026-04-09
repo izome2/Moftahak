@@ -118,7 +118,7 @@ const AccountingStatsCard: React.FC<StatsCardProps> = ({
           >
             <Icon size={22} className="text-white" strokeWidth={2} />
           </motion.div>
-          <p className="text-secondary/80 font-dubai text-xs sm:text-sm leading-tight">
+          <p className="text-secondary/90 font-dubai text-xs sm:text-sm leading-tight">
             {label}
           </p>
         </div>
@@ -139,7 +139,7 @@ const AccountingStatsCard: React.FC<StatsCardProps> = ({
 
         {/* Subtitle */}
         {subtitle && (
-          <p className="text-xs text-secondary/75 font-dubai mt-1">{subtitle}</p>
+          <p className="text-xs text-secondary/90 font-dubai mt-1">{subtitle}</p>
         )}
       </div>
 

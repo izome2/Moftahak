@@ -83,7 +83,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
       icon: Building2,
       gradient: 'from-secondary/10 to-secondary/5',
       iconBg: 'bg-secondary/10',
-      iconColor: 'text-secondary/70',
+      iconColor: 'text-secondary/90',
       valueColor: 'text-secondary',
       accent: 'border-secondary/10',
     }] : []),
@@ -100,7 +100,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
           className={`relative overflow-hidden bg-gradient-to-br ${card.gradient} rounded-2xl border ${card.accent} p-4 group hover:shadow-md transition-shadow duration-300`}
         >
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] text-secondary/75 font-dubai font-medium">{card.label}</span>
+            <span className="text-[11px] text-secondary/90 font-dubai font-medium">{card.label}</span>
             <div className={`w-8 h-8 rounded-xl ${card.iconBg} flex items-center justify-center`}>
               <card.icon size={15} className={card.iconColor} />
             </div>

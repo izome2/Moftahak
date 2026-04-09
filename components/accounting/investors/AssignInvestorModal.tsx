@@ -169,7 +169,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
               onClick={onClose}
               className="p-1.5 hover:bg-secondary/5 rounded-lg transition-colors"
             >
-              <X size={18} className="text-secondary/70" />
+              <X size={18} className="text-secondary/90" />
             </button>
           </div>
 
@@ -179,7 +179,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
             <div>
               <label className="flex items-center gap-1.5 mb-2">
                 <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
-                  <Building2 size={11} className="text-secondary/75" />
+                  <Building2 size={11} className="text-secondary/90" />
                 </span>
                 <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.assignInvestorModal.apartment}</span>
                 <span className="text-red-400 text-xs">*</span>
@@ -202,13 +202,13 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
             <div>
               <label className="flex items-center gap-1.5 mb-2">
                 <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
-                  <Users size={11} className="text-secondary/75" />
+                  <Users size={11} className="text-secondary/90" />
                 </span>
                 <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.assignInvestorModal.investor}</span>
                 <span className="text-red-400 text-xs">*</span>
               </label>
               {isLoadingUsers ? (
-                <div className="flex items-center gap-2 py-2.5 text-secondary/70 text-xs">
+                <div className="flex items-center gap-2 py-2.5 text-secondary/90 text-xs">
                   <Loader2 size={14} className="animate-spin" />
                   <span className="font-dubai">{t.accounting.assignInvestorModal.loadingInvestors}</span>
                 </div>
@@ -233,7 +233,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
             <div>
               <label className="flex items-center gap-1.5 mb-2">
                 <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
-                  <Percent size={11} className="text-secondary/75" />
+                  <Percent size={11} className="text-secondary/90" />
                 </span>
                 <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.assignInvestorModal.percentage}</span>
                 <span className="text-red-400 text-xs">*</span>
@@ -242,7 +242,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
                 value={percentage}
                 onChange={(e) => setPercentage(e.target.value)}
                 placeholder={t.accounting.assignInvestorModal.percentagePlaceholder}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/80"
                 required
               />
             </div>
@@ -251,7 +251,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
             <div>
               <label className="flex items-center gap-1.5 mb-2">
                 <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
-                  <Target size={11} className="text-secondary/75" />
+                  <Target size={11} className="text-secondary/90" />
                 </span>
                 <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.assignInvestorModal.yearlyTarget}</span>
               </label>
@@ -259,7 +259,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
                 value={investmentTarget}
                 onChange={(e) => setInvestmentTarget(e.target.value)}
                 placeholder={t.accounting.assignInvestorModal.yearlyTargetPlaceholder}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/60"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-secondary/[0.08] bg-white text-secondary font-dubai text-sm focus:outline-none focus:border-secondary/20 focus:ring-[3px] focus:ring-secondary/[0.04] transition-all placeholder:text-secondary/80"
               />
             </div>
 
@@ -276,7 +276,7 @@ const AssignInvestorModal: React.FC<AssignInvestorModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/75 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-secondary/[0.08] text-secondary/90 font-dubai text-sm font-bold hover:bg-secondary/[0.02] transition-colors"
               >
                 {t.accounting.common.cancel}
               </button>

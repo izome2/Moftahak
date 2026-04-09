@@ -166,7 +166,7 @@ export default function DailyOpsPage() {
           {!isAuto && (
             <button
               onClick={resetToAuto}
-              className="p-1.5 rounded-lg hover:bg-secondary/5 transition-all text-secondary/70 hover:text-secondary"
+              className="p-1.5 rounded-lg hover:bg-secondary/5 transition-all text-secondary/90 hover:text-secondary"
               title={t.accounting.daily.backToAutoDate}
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -177,7 +177,7 @@ export default function DailyOpsPage() {
             disabled={isLoading}
             className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
           >
-            <RefreshCw size={15} className={`text-secondary/70 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw size={15} className={`text-secondary/90 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
@@ -199,7 +199,7 @@ export default function DailyOpsPage() {
             })}
           </p>
           {dateLabel && (
-            <p className="text-[10px] text-secondary/75 font-dubai font-medium -mt-0.5">
+            <p className="text-[10px] text-secondary/90 font-dubai font-medium -mt-0.5">
               {dateLabel}
             </p>
           )}
@@ -227,10 +227,10 @@ export default function DailyOpsPage() {
             <LogIn className="w-5 h-5 text-emerald-600" />
           </div>
           <div>
-            <p className="text-[11px] text-secondary/75 font-dubai font-medium">{t.accounting.daily.checkInsTitle}</p>
+            <p className="text-[11px] text-secondary/90 font-dubai font-medium">{t.accounting.daily.checkInsTitle}</p>
             <p className="text-xl font-bold text-secondary font-dubai tracking-tight">
               {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin text-secondary/60" />
+                <Loader2 className="w-5 h-5 animate-spin text-secondary/80" />
               ) : (
                 summary.totalCheckIns
               )}
@@ -249,10 +249,10 @@ export default function DailyOpsPage() {
             <LogOut className="w-5 h-5 text-rose-600" />
           </div>
           <div>
-            <p className="text-[11px] text-secondary/75 font-dubai font-medium">{t.accounting.daily.checkOutsTitle}</p>
+            <p className="text-[11px] text-secondary/90 font-dubai font-medium">{t.accounting.daily.checkOutsTitle}</p>
             <p className="text-xl font-bold text-secondary font-dubai tracking-tight">
               {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin text-secondary/60" />
+                <Loader2 className="w-5 h-5 animate-spin text-secondary/80" />
               ) : (
                 summary.totalCheckOuts
               )}
@@ -289,9 +289,9 @@ export default function DailyOpsPage() {
       {!isLoading && !error && checkIns.length === 0 && checkOuts.length === 0 && (
         <div className="text-center py-16">
           <div className="w-12 h-12 rounded-2xl bg-secondary/[0.03] mx-auto mb-3 flex items-center justify-center">
-            <ClipboardList className="w-6 h-6 text-secondary/60" />
+            <ClipboardList className="w-6 h-6 text-secondary/80" />
           </div>
-          <p className="text-secondary/70 font-dubai text-sm">
+          <p className="text-secondary/90 font-dubai text-sm">
             {t.accounting.daily.noActivity}
           </p>
         </div>

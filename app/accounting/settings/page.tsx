@@ -65,7 +65,7 @@ export default function AccountingSettingsPage() {
         </div>
         <div className="min-w-0">
           <h1 className="text-base sm:text-xl md:text-2xl font-bold text-secondary font-dubai tracking-tight truncate">{t.accounting.settings.title}</h1>
-          <p className="text-xs text-secondary/75 font-dubai mt-0.5 hidden sm:block">
+          <p className="text-xs text-secondary/90 font-dubai mt-0.5 hidden sm:block">
             {t.accounting.settings.subtitle}
           </p>
         </div>
@@ -92,7 +92,7 @@ export default function AccountingSettingsPage() {
                   ? 'bg-secondary text-white shadow-sm'
                   : isSystem
                     ? 'bg-white border border-rose-200/60 text-rose-400/70 hover:bg-rose-50/50 hover:text-rose-500'
-                    : 'bg-white border border-secondary/[0.08] text-secondary/75 hover:text-secondary hover:border-secondary/15'
+                    : 'bg-white border border-secondary/[0.08] text-secondary/90 hover:text-secondary hover:border-secondary/15'
                 }`}
             >
               <Icon className="w-3.5 h-3.5" />
