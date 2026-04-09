@@ -66,7 +66,7 @@ export default function CustodyPage() {
 
   // Create form state
   const [showCreate, setShowCreate] = useState(false);
-  const [managers, setManagers] = useState<{ id: string; firstName: string; lastName: string }[]>([]);
+  const [managers, setManagers] = useState<{ id: string; firstName: string; lastName: string; image?: string | null }[]>([]);
   const [apartments, setApartments] = useState<{ id: string; name: string }[]>([]);
   const [formManagerId, setFormManagerId] = useState('');
   const [formApartmentId, setFormApartmentId] = useState('');
@@ -380,6 +380,7 @@ export default function CustodyPage() {
                     options={managers.map((m) => ({
                       value: m.id,
                       label: `${m.firstName} ${m.lastName}`,
+                      image: m.image,
                     }))}
                   />
                 </div>

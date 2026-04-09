@@ -119,11 +119,11 @@ export default function CustomSelect({
 
   /* ---- variant styles ---- */
   const btnCls = variant === 'filter'
-    ? 'py-2.5 px-3 rounded-xl border-2 border-primary/20 bg-white hover:border-primary/40'
-    : 'p-3 rounded-xl border-2 border-primary/20 bg-accent/20 hover:border-primary/40';
+    ? 'ps-1 pe-2 h-[42px] rounded-xl border-2 border-primary/20 bg-white hover:border-primary/40'
+    : 'ps-1 pe-2 h-[46px] rounded-xl border-2 border-primary/20 bg-accent/20 hover:border-primary/40';
 
   /* ---- avatar helper ---- */
-  const Avatar = ({ src, name, size = 24 }: { src?: string | null; name: string; size?: number }) => {
+  const Avatar = ({ src, name, size = 40 }: { src?: string | null; name: string; size?: number }) => {
     const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
     return src ? (
       <img
@@ -131,12 +131,12 @@ export default function CustomSelect({
         alt={name}
         width={size}
         height={size}
-        className="rounded-full object-cover shrink-0 border border-primary/15"
+        className="rounded-lg object-cover shrink-0 border border-primary/15"
         style={{ width: size, height: size }}
       />
     ) : (
       <span
-        className="rounded-full bg-primary/15 text-secondary/60 flex items-center justify-center shrink-0 font-dubai font-bold border border-primary/15"
+        className="rounded-lg bg-primary/15 text-secondary/60 flex items-center justify-center shrink-0 font-dubai font-bold border border-primary/15"
         style={{ width: size, height: size, fontSize: size * 0.4 }}
       >{initials}</span>
     );
@@ -150,12 +150,12 @@ export default function CustomSelect({
       onClick={() => pick(o.value)}
       className={`w-full flex items-center justify-between gap-2 text-sm font-dubai text-right
         transition-all duration-150 rounded-xl
-        ${indent ? 'px-3.5 py-2.5' : 'px-3 py-2.5'}
+        ${indent ? 'ps-1.5 pe-2.5 h-[44px]' : 'ps-1 pe-2 h-[44px]'}
         ${o.value === value
           ? 'bg-primary/12 text-secondary font-medium'
           : 'text-secondary/70 hover:bg-primary/[0.06] hover:text-secondary'}`}
     >
-      <span className="flex items-center gap-2.5 truncate">
+      <span className="flex items-center gap-1.5 truncate">
         {o.image !== undefined && <Avatar src={o.image} name={o.label} />}
         <span className="truncate">{o.label}</span>
       </span>
@@ -180,7 +180,7 @@ export default function CustomSelect({
         <span className="flex items-center gap-2 truncate">
           {icon}
           {selectedOption?.image !== undefined && selectedOption?.image !== null && (
-            <Avatar src={selectedOption.image} name={selectedOption.label} size={22} />
+            <Avatar src={selectedOption.image} name={selectedOption.label} size={36} />
           )}
           <span className={showPlaceholder ? 'text-secondary/40' : ''}>
             {text}
