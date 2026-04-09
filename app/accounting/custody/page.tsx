@@ -313,11 +313,11 @@ export default function CustodyPage() {
                   <p className="text-sm font-bold text-secondary font-dubai">{formatCurrency(rec.amount)}</p>
                 </div>
                 <div className="bg-rose-500/8 rounded-xl p-2.5 text-center">
-                  <p className="text-[10px] text-rose-600/70 font-dubai mb-0.5">{t.accounting.custody.spent}</p>
+                  <p className="text-[10px] text-rose-600/90 font-dubai mb-0.5">{t.accounting.custody.spent}</p>
                   <p className="text-sm font-bold text-rose-700 font-dubai">{formatCurrency(rec.spent)}</p>
                 </div>
                 <div className="bg-emerald-500/8 rounded-xl p-2.5 text-center">
-                  <p className="text-[10px] text-emerald-600/70 font-dubai mb-0.5">{t.accounting.custody.remaining}</p>
+                  <p className="text-[10px] text-emerald-600/90 font-dubai mb-0.5">{t.accounting.custody.remaining}</p>
                   <p className="text-sm font-bold text-emerald-700 font-dubai">{formatCurrency(rec.remaining)}</p>
                 </div>
               </div>
@@ -409,7 +409,7 @@ export default function CustodyPage() {
                   <div>
                     <label className="flex items-center gap-1.5 mb-2">
                       <span className="w-5 h-5 rounded-md bg-secondary/[0.06] flex items-center justify-center shrink-0">
-                        <Wallet size={11} className="text-emerald-500/70" />
+                        <Wallet size={11} className="text-emerald-500/90" />
                       </span>
                       <span className="text-[13px] font-bold text-secondary font-dubai">{t.accounting.custody.amountLabel(t.accounting.common.currency)}</span>
                       <span className="text-red-400 text-xs">*</span>

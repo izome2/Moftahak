@@ -209,7 +209,7 @@ const InvitationManager: React.FC = () => {
         </div>
       ) : invitations.length === 0 ? (
         <div className="text-center py-8">
-          <Link2 className="w-8 h-8 text-secondary/20 mx-auto mb-2" />
+          <Link2 className="w-8 h-8 text-secondary/90 mx-auto mb-2" />
           <p className="text-xs text-secondary/90 font-dubai">{t.accounting.settings.invitations.noInvitations}</p>
           <p className="text-[10px] text-secondary/80 font-dubai mt-1">{t.accounting.settings.invitations.createHint}</p>
         </div>

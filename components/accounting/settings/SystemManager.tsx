@@ -275,7 +275,7 @@ export default function SystemManager() {
             </div>
           ) : backups.length === 0 ? (
             <div className="text-center py-6">
-              <Archive className="w-8 h-8 text-secondary/15 mx-auto mb-1.5" />
+              <Archive className="w-8 h-8 text-secondary/90 mx-auto mb-1.5" />
               <p className="text-xs text-secondary/80 font-dubai">{t.accounting.settings.system.noBackupsSaved}</p>
             </div>
           ) : (

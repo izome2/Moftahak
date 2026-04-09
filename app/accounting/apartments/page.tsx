@@ -223,7 +223,7 @@ export default function ApartmentsPage() {
       >
         {/* Search */}
         <div className="relative sm:max-w-xs">
-          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
+          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/90" />
           <input
             type="text"
             value={search}
@@ -266,7 +266,7 @@ export default function ApartmentsPage() {
         </div>
       ) : filteredApartments.length === 0 ? (
         <div className="text-center py-16">
-          <Building2 size={48} className="text-secondary/20 mx-auto mb-3" />
+          <Building2 size={48} className="text-secondary/90 mx-auto mb-3" />
           <p className="text-secondary/90 font-dubai">
             {search || selectedProject !== 'all' ? t.accounting.apartments.noApartmentsFilter : t.accounting.apartments.noApartments}
           </p>

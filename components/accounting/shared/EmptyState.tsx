@@ -62,7 +62,7 @@ export default function EmptyState({
       )}
     >
       <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-        <Icon className="w-8 h-8 text-primary/60" />
+        <Icon className="w-8 h-8 text-primary/90" />
       </div>
       <h3 className="text-lg font-bold text-secondary font-dubai mb-1.5">
         {displayTitle}

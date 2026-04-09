@@ -66,7 +66,7 @@ const DailyAlerts: React.FC<DailyAlertsProps> = ({ checkIns, checkOuts, isLoadin
           </div>
         ) : total === 0 ? (
           <div className="text-center py-8">
-            <AlertTriangle size={40} className="text-secondary/20 mx-auto mb-2" />
+            <AlertTriangle size={40} className="text-secondary/90 mx-auto mb-2" />
             <p className="text-secondary/90 font-dubai text-sm">{t.accounting.dashboard.noEventsToday}</p>
           </div>
         ) : (

@@ -91,7 +91,7 @@ export default function AccountingSettingsPage() {
                 ${isActive
                   ? 'bg-secondary text-white shadow-sm'
                   : isSystem
-                    ? 'bg-white border border-rose-200/60 text-rose-400/70 hover:bg-rose-50/50 hover:text-rose-500'
+                    ? 'bg-white border border-rose-200/60 text-rose-400/90 hover:bg-rose-50/50 hover:text-rose-500'
                     : 'bg-white border border-secondary/[0.08] text-secondary/90 hover:text-secondary hover:border-secondary/15'
                 }`}
             >

@@ -257,7 +257,7 @@ export default function InvestorsPage() {
 
       {/* Search */}
       <div className="relative max-w-xs">
-        <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
+        <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/90" />
         <input
           type="text"
           value={search}

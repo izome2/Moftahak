@@ -612,7 +612,7 @@ export default function AuditLogPage() {
 
         {/* Search */}
         <div className="relative col-span-full sm:col-span-1 sm:max-w-xs">
-          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
+          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/90" />
           <input
             type="text"
             value={searchQuery}

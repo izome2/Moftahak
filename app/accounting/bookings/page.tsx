@@ -22,6 +22,7 @@ import BookingSummary from '@/components/accounting/bookings/BookingSummary';
 import BookingSourceChart from '@/components/accounting/bookings/BookingSourceChart';
 import ConfirmDialog from '@/components/accounting/shared/ConfirmDialog';
 import { useToast } from '@/components/accounting/shared/Toast';
+import { useChartsVisibility } from '@/hooks/useChartsVisibility';
 
 // --- Types ---
 interface Apartment {
@@ -109,7 +110,7 @@ export default function BookingsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Show charts toggle
-  const [showCharts, setShowCharts] = useState(true);
+  const { showCharts, toggleCharts } = useChartsVisibility();
 
   // --- Fetch apartments ---
   const fetchApartments = useCallback(async () => {
@@ -311,15 +312,15 @@ export default function BookingsPage() {
             <button
               onClick={fetchBookings}
               disabled={isLoading}
-              className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
+              className="p-2 sm:p-2.5 hover:bg-secondary/5 rounded-xl transition-all"
               title={t.accounting.common.refresh}
             >
               <RefreshCw size={15} className={`text-secondary/90 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
             {!hideFinancials && (
               <button
-                onClick={() => setShowCharts(prev => !prev)}
-                className={`p-1.5 sm:p-2 rounded-xl transition-all ${showCharts ? 'bg-secondary/8 text-secondary' : 'hover:bg-secondary/5 text-secondary/90'}`}
+                onClick={toggleCharts}
+                className={`p-2 sm:p-2.5 rounded-xl transition-all ${showCharts ? 'bg-secondary/8 text-secondary' : 'hover:bg-secondary/5 text-secondary/90'}`}
                 title={showCharts ? t.accounting.common.hideCharts : t.accounting.common.showCharts}
               >
                 <BarChart3 size={15} className="sm:w-4 sm:h-4" />
@@ -370,7 +371,7 @@ export default function BookingsPage() {
                 options={STATUS_OPTIONS}
               />
           <div className="relative col-span-full sm:col-span-1 sm:max-w-xs">
-            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
+            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/90" />
             <input
               type="text"
               value={search}

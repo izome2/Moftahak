@@ -299,7 +299,7 @@ const ApartmentView: React.FC<ApartmentViewProps> = ({
             />
           )) : (
             <div className="text-center py-8">
-              <BarChart3 size={28} className="text-secondary/20 mx-auto mb-2" />
+              <BarChart3 size={28} className="text-secondary/90 mx-auto mb-2" />
               <p className="text-sm text-secondary/90 font-dubai">{t.accounting.investorPortal.noDataThisYear}</p>
             </div>
           )}

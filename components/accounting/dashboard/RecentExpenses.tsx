@@ -73,7 +73,7 @@ const RecentExpenses: React.FC<RecentExpensesProps> = ({ expenses, isLoading }) 
           </div>
         ) : expenses.length === 0 ? (
           <div className="text-center py-8">
-            <Receipt size={40} className="text-secondary/20 mx-auto mb-2" />
+            <Receipt size={40} className="text-secondary/90 mx-auto mb-2" />
             <p className="text-secondary/90 font-dubai text-sm">{t.accounting.dashboard.noExpensesYet}</p>
           </div>
         ) : (

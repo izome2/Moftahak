@@ -424,7 +424,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                     {/* Check-in / Check-out dates */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <FormField
-                        icon={<Calendar size={11} className="text-emerald-500/70" />}
+                        icon={<Calendar size={11} className="text-emerald-500/90" />}
                         label={t.accounting.bookingForm.checkInDate}
                         required
                       >
@@ -437,7 +437,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                         />
                       </FormField>
                       <FormField
-                        icon={<Calendar size={11} className="text-rose-400/70" />}
+                        icon={<Calendar size={11} className="text-rose-400/90" />}
                         label={t.accounting.bookingForm.checkOutDate}
                         required
                       >
@@ -468,7 +468,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                     {/* Amount + Arrival Time */}
                     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                       <FormField
-                        icon={<CreditCard size={11} className="text-emerald-500/70" />}
+                        icon={<CreditCard size={11} className="text-emerald-500/90" />}
                         label={t.accounting.bookingForm.financialValue}
                         required
                       >

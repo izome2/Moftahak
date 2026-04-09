@@ -178,7 +178,7 @@ const WithdrawalForm: React.FC<WithdrawalFormProps> = ({
             {/* Amount + Currency */}
             <div className="flex gap-4">
               <FormField
-                icon={<DollarSign size={11} className="text-emerald-500/70" />}
+                icon={<DollarSign size={11} className="text-emerald-500/90" />}
                 label={t.accounting.withdrawalForm.amount}
                 required
                 className="flex-1"

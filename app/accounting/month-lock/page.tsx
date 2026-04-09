@@ -158,7 +158,7 @@ export default function MonthLockPage() {
               <span className="font-bold text-secondary/90 text-xs">{new Intl.NumberFormat(locale).format(totalLocked)}</span>
             </span>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-primary/10 rounded-lg border border-primary/15">
-              <Unlock size={12} className="text-primary/70" />
+              <Unlock size={12} className="text-primary/90" />
               <span className="font-bold text-secondary/90 text-xs">{new Intl.NumberFormat(locale).format(totalUnlocked)}</span>
             </span>
           </div>
@@ -248,7 +248,7 @@ export default function MonthLockPage() {
                     >
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2">
-                          <Building2 size={16} className="text-primary/60" />
+                          <Building2 size={16} className="text-primary/90" />
                           <span className="font-dubai font-semibold text-secondary">{apt.name}</span>
                         </div>
                       </td>

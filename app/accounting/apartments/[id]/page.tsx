@@ -177,7 +177,7 @@ export default function ApartmentDetailPage() {
   if (error || !apartment) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Building2 size={48} className="text-secondary/20" />
+        <Building2 size={48} className="text-secondary/90" />
         <p className="text-secondary/90 font-dubai">{error || t.accounting.apartments.apartmentNotFound}</p>
         <button
           onClick={() => router.push('/accounting/apartments')}

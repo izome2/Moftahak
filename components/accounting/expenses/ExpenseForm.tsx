@@ -367,7 +367,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
                     {/* Amount + Date */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <FormField
-                        icon={<CreditCard size={11} className="text-emerald-500/70" />}
+                        icon={<CreditCard size={11} className="text-emerald-500/90" />}
                         label={t.accounting.expenseForm.amount}
                         required
                       >

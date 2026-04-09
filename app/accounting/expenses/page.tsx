@@ -25,6 +25,7 @@ import ConfirmDialog from '@/components/accounting/shared/ConfirmDialog';
 import { useToast } from '@/components/accounting/shared/Toast';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useChartsVisibility } from '@/hooks/useChartsVisibility';
 
 // --- Types ---
 interface Apartment {
@@ -97,7 +98,7 @@ export default function ExpensesPage() {
   const [isApproving, setIsApproving] = useState(false);
 
   // Show charts toggle
-  const [showCharts, setShowCharts] = useState(true);
+  const { showCharts, toggleCharts } = useChartsVisibility();
 
   // --- Fetch apartments ---
   const fetchApartments = useCallback(async () => {
@@ -322,14 +323,14 @@ export default function ExpensesPage() {
             <button
               onClick={fetchExpenses}
               disabled={isLoading}
-              className="p-1.5 sm:p-2 hover:bg-secondary/5 rounded-xl transition-all"
+              className="p-2 sm:p-2.5 hover:bg-secondary/5 rounded-xl transition-all"
               title={t.accounting.common.refresh}
             >
               <RefreshCw size={15} className={`text-secondary/90 sm:w-4 sm:h-4 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
             <button
-              onClick={() => setShowCharts(prev => !prev)}
-              className={`p-1.5 sm:p-2 rounded-xl transition-all ${showCharts ? 'bg-secondary/8 text-secondary' : 'hover:bg-secondary/5 text-secondary/90'}`}
+              onClick={toggleCharts}
+              className={`p-2 sm:p-2.5 rounded-xl transition-all ${showCharts ? 'bg-secondary/8 text-secondary' : 'hover:bg-secondary/5 text-secondary/90'}`}
               aria-label={showCharts ? t.accounting.common.hideCharts : t.accounting.common.showCharts}
             >
               <BarChart3 size={15} className="sm:w-4 sm:h-4" />
@@ -392,7 +393,7 @@ export default function ExpensesPage() {
                 />
               )}
           <div className="relative col-span-full sm:col-span-1 sm:max-w-xs">
-            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/50" />
+            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/90" />
             <input
               type="text"
               value={search}
