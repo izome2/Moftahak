@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Upload, X, Loader2, Film, ImageIcon, CheckCircle } from 'lucide-react';
+import { X, Loader2, Film, ImageIcon, CheckCircle } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { isValidVideoFile, isValidImageFile } from '@/lib/courses/utils';
 
@@ -34,6 +35,75 @@ export default function VideoUploadZone({
   const isVideo = type === 'video';
   const accept = isVideo ? 'video/mp4,video/webm,video/ogg,video/quicktime' : 'image/jpeg,image/png,image/webp';
 
+  const buildUploadPath = (file: File) => {
+    const timestamp = Date.now();
+    const extension = file.name.split('.').pop() || (isVideo ? 'mp4' : 'jpg');
+    const sanitizedName = file.name
+      .replace(/\.[^/.]+$/, '')
+      .replace(/[^a-zA-Z0-9-_]/g, '_')
+      .substring(0, 50);
+    const safeCourseId = courseId?.replace(/[^a-zA-Z0-9-_]/g, '_').substring(0, 80);
+    const folder = isVideo ? 'courses/videos' : 'courses/images';
+    const prefix = safeCourseId ? `${safeCourseId}/` : '';
+
+    return `${folder}/${prefix}${sanitizedName}-${timestamp}.${extension}`;
+  };
+
+  const uploadViaApiRoute = (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', type);
+    if (courseId) formData.append('courseId', courseId);
+
+    const xhr = new XMLHttpRequest();
+
+    return new Promise<{ url: string }>((resolve, reject) => {
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          setProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      });
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            resolve(JSON.parse(xhr.responseText));
+          } catch {
+            reject(new Error('Invalid response'));
+          }
+        } else {
+          try {
+            const err = JSON.parse(xhr.responseText);
+            reject(new Error(err.error || 'Upload failed'));
+          } catch {
+            reject(new Error('Upload failed'));
+          }
+        }
+      });
+
+      xhr.addEventListener('error', () => reject(new Error('Network error')));
+
+      xhr.open('POST', '/api/admin/courses/upload');
+      xhr.send(formData);
+    });
+  };
+
+  const uploadDirectToBlob = async (file: File) => {
+    const { upload } = await import('@vercel/blob/client');
+    const result = await upload(buildUploadPath(file), file, {
+      access: 'public',
+      handleUploadUrl: '/api/admin/courses/upload/client',
+      clientPayload: JSON.stringify({ type, courseId }),
+      contentType: file.type,
+      multipart: true,
+      onUploadProgress: ({ percentage }) => {
+        setProgress(Math.round(percentage));
+      },
+    });
+
+    return { url: result.url };
+  };
+
   const handleFile = async (file: File) => {
     setError(null);
 
@@ -48,48 +118,31 @@ export default function VideoUploadZone({
     setProgress(0);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', type);
-      if (courseId) formData.append('courseId', courseId);
+      let result: { url: string };
 
-      // استخدام XMLHttpRequest لتتبع التقدم
-      const xhr = new XMLHttpRequest();
-      
-      const uploadPromise = new Promise<{ url: string }>((resolve, reject) => {
-        xhr.upload.addEventListener('progress', (e) => {
-          if (e.lengthComputable) {
-            setProgress(Math.round((e.loaded / e.total) * 100));
-          }
-        });
+      if (isVideo) {
+        try {
+          result = await uploadDirectToBlob(file);
+        } catch (err) {
+          const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+          if (!isLocalhost) throw err;
 
-        xhr.addEventListener('load', () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              resolve(JSON.parse(xhr.responseText));
-            } catch {
-              reject(new Error('Invalid response'));
-            }
-          } else {
-            try {
-              const err = JSON.parse(xhr.responseText);
-              reject(new Error(err.error || 'Upload failed'));
-            } catch {
-              reject(new Error('Upload failed'));
-            }
-          }
-        });
+          setProgress(0);
+          result = await uploadViaApiRoute(file);
+        }
+      } else {
+        result = await uploadViaApiRoute(file);
+      }
 
-        xhr.addEventListener('error', () => reject(new Error('Network error')));
-
-        xhr.open('POST', '/api/admin/courses/upload');
-        xhr.send(formData);
-      });
-
-      const result = await uploadPromise;
       onUploadComplete(result.url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ أثناء الرفع');
+      const message =
+        err instanceof Error && err.message.includes('client token')
+          ? 'تعذر بدء رفع الفيديو. تأكد من إعداد BLOB_READ_WRITE_TOKEN على السيرفر.'
+          : err instanceof Error
+            ? err.message
+            : 'حدث خطأ أثناء الرفع';
+      setError(message);
     } finally {
       setUploading(false);
       setProgress(0);
@@ -130,7 +183,13 @@ export default function VideoUploadZone({
             </div>
           ) : (
             <div className="aspect-video relative">
-              <img src={currentUrl} alt="" className="object-cover w-full h-full" />
+              <Image
+                src={currentUrl}
+                alt=""
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+              />
             </div>
           )}
           <div className="absolute top-2 left-2 right-2 flex justify-between">
