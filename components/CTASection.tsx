@@ -503,6 +503,12 @@ const CTASection: React.FC = () => {
                       {t.cta.privacyPolicy}
                     </Link>
                     <Link 
+                      href="/refund" 
+                      className="text-white/60 hover:text-primary text-xs transition-colors duration-300"
+                    >
+                      {t.cta.refundPolicy}
+                    </Link>
+                    <Link 
                       href="/terms" 
                       className="text-white/60 hover:text-primary text-xs transition-colors duration-300"
                     >

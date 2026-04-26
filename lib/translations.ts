@@ -202,6 +202,7 @@ const translations = {
       location: 'القاهرة، مصر',
       copyright: (year: number) => `© ${year} عبد الله الخضر - مفتاحك. جميع الحقوق محفوظة`,
       privacyPolicy: 'سياسة الخصوصية',
+      refundPolicy: 'سياسة الاسترداد',
       terms: 'الشروط والأحكام',
     },
 
@@ -991,6 +992,7 @@ const translations = {
       location: 'Cairo, Egypt',
       copyright: (year: number) => `© ${year} Abdullah El-Khedr - Moftahak. All rights reserved`,
       privacyPolicy: 'Privacy Policy',
+      refundPolicy: 'Refund Policy',
       terms: 'Terms & Conditions',
     },
 
