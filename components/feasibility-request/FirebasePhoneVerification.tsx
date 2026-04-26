@@ -447,6 +447,7 @@ export default function FirebasePhoneVerification({
         animate={{ opacity: 1, scale: 1 }}
         className="p-3 md:p-4 rounded-xl bg-primary/10 border-2 border-primary/30"
       >
+        <div id="recaptcha-container" ref={recaptchaContainerRef} className="hidden"></div>
         <div className="flex items-center gap-2 md:gap-3">
           <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/20 flex items-center justify-center">
             <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-secondary" />

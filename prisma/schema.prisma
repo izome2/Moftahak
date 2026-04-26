@@ -32,6 +32,7 @@ model User {
   // علاقات نظام الدورات
   adminCourses      Course[]             @relation("AdminCourses")
   enrollments       CourseEnrollment[]   @relation("UserEnrollments")
+  coursePayments    CoursePayment[]      @relation("UserCoursePayments")
   lessonProgress    LessonProgress[]     @relation("UserProgress")
   lessonComments    LessonComment[]      @relation("UserComments")
   lessonLikes       LessonLike[]         @relation("UserLikes")
@@ -117,6 +118,19 @@ enum EnrollmentStatus {
   CONFIRMED     // تم التأكيد - نشط
   EXPIRED       // منتهي الصلاحية
   REFUNDED      // مسترد
+}
+
+// حالة الدفع الإلكتروني
+enum PaymentStatus {
+  PENDING       // في انتظار نتيجة Paymob
+  PAID          // تم الدفع بنجاح
+  FAILED        // فشل الدفع
+  CANCELLED     // تم الإلغاء أو العكس
+}
+
+// مزود الدفع
+enum PaymentProvider {
+  PAYMOB
 }
 
 // Consultation Model - نموذج طلب الاستشارة
@@ -338,6 +352,7 @@ model Course {
   // العلاقات
   sections         CourseSection[]
   enrollments      CourseEnrollment[]
+  payments         CoursePayment[]
   reviews          CourseReview[]
 
   // الأدمن المنشئ
@@ -408,6 +423,9 @@ model CourseEnrollment {
   course           Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId          String           @map("course_id")
 
+  payment          CoursePayment?    @relation(fields: [paymentId], references: [id])
+  paymentId        String?           @unique @map("payment_id")
+
   // بيانات الدفع
   phone            String                                         // رقم الهاتف
   phoneVerified    Boolean          @default(false) @map("phone_verified")
@@ -426,6 +444,42 @@ model CourseEnrollment {
   @@index([courseId])
   @@index([paymentCode])
   @@map("course_enrollments")
+}
+
+// CoursePayment Model - محاولات دفع الدورات عبر Paymob
+model CoursePayment {
+  id                    String          @id @default(cuid())
+  status                PaymentStatus   @default(PENDING)
+  provider              PaymentProvider @default(PAYMOB)
+
+  user                  User            @relation("UserCoursePayments", fields: [userId], references: [id], onDelete: Cascade)
+  userId                String          @map("user_id")
+
+  course                Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId              String          @map("course_id")
+
+  enrollment            CourseEnrollment?
+
+  amount                Float
+  currency              String          @default("EGP")
+  phone                 String
+  billingName           String          @map("billing_name")
+  billingEmail          String          @map("billing_email")
+
+  providerOrderId       String?         @map("provider_order_id")
+  providerTransactionId String?         @unique @map("provider_transaction_id")
+  checkoutUrl           String?         @db.Text @map("checkout_url")
+  clientSecret          String?         @db.Text @map("client_secret")
+  metadata              Json?
+
+  createdAt             DateTime        @default(now()) @map("created_at")
+  updatedAt             DateTime        @updatedAt @map("updated_at")
+
+  @@index([userId, courseId])
+  @@index([courseId])
+  @@index([status])
+  @@index([providerOrderId])
+  @@map("course_payments")
 }
 
 // LessonProgress Model - تقدم مشاهدة الدروس
