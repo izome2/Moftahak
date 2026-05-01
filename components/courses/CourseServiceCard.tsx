@@ -9,7 +9,7 @@ import Badge from '@/components/ui/Badge';
 import UserIcon from '@/components/ui/UserIcon';
 import CourseDefaultThumbnail from './CourseDefaultThumbnail';
 import { formatDuration, formatDurationEn } from '@/lib/courses/utils';
-import { getAirbnbCourseLandingHref } from '@/lib/courses/airbnb-landing';
+
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -120,7 +120,7 @@ const CourseServiceCard: React.FC<CourseServiceCardProps> = ({ course, index, gy
   const durationText = language === 'ar'
     ? formatDuration(course.totalDuration)
     : formatDurationEn(course.totalDuration);
-  const courseHref = getAirbnbCourseLandingHref(course);
+  const courseHref = '/courses/airbnb/landing';
 
   const cardVariant = {
     hidden: { opacity: 0, y: 40 },
