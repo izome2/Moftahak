@@ -223,6 +223,44 @@ img[loading="eager"] {
   }
 }
 
+@keyframes course-enroll-button-shine {
+  0% {
+    opacity: 0;
+    transform: translateX(0) skewX(-16deg);
+  }
+  18% {
+    opacity: 0.28;
+  }
+  48% {
+    opacity: 0.34;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-430%) skewX(-16deg);
+  }
+}
+
+.course-enroll-shine {
+  position: absolute;
+  inset-block: -45%;
+  right: -62%;
+  width: 46%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(237, 191, 140, 0.06) 30%,
+    rgba(237, 191, 140, 0.24) 47%,
+    rgba(255, 255, 255, 0.11) 52%,
+    rgba(237, 191, 140, 0.16) 62%,
+    transparent 100%
+  );
+  filter: blur(0.5px);
+  mix-blend-mode: screen;
+  animation: course-enroll-button-shine 3.15s ease-in-out infinite;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
 /* Custom Animations */
 @keyframes fade-in {
   from {
