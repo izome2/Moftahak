@@ -4,6 +4,7 @@ import React, { useEffect, useState, use } from 'react';
 import { Loader2, AlertCircle, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import CourseDetailHero from '@/components/courses/CourseDetailHero';
 import CourseOverviewTab from '@/components/courses/CourseOverviewTab';
@@ -12,6 +13,7 @@ import CourseReviewsTab from '@/components/courses/CourseReviewsTab';
 import CourseEnrollCard from '@/components/courses/CourseEnrollCard';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { AIRBNB_LANDING_ENTRY_SOURCE, AIRBNB_LANDING_ROUTE, isAirbnbCourse } from '@/lib/courses/airbnb-landing';
 import type { CourseLevel } from '@/types/courses';
 
 interface Lesson {
@@ -54,32 +56,63 @@ interface CourseData {
 
 export default function CourseDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
+  const router = useRouter();
   const t = useTranslation();
   const { isRTL } = useLanguage();
   const ct = t.courses;
 
   const [course, setCourse] = useState<CourseData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [redirecting, setRedirecting] = useState(false);
+  const [entrySource, setEntrySource] = useState<string | null>(null);
+  const [entrySourceReady, setEntrySourceReady] = useState(false);
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    setEntrySource(new URLSearchParams(window.location.search).get('from'));
+    setEntrySourceReady(true);
+  }, [slug]);
+
+  useEffect(() => {
+    if (!entrySourceReady) return;
+
+    let cancelled = false;
+
     (async () => {
       try {
         const decodedSlug = decodeURIComponent(slug);
         const res = await fetch(`/api/courses/${encodeURIComponent(decodedSlug)}`);
         if (!res.ok) throw new Error();
         const data = await res.json();
-        setCourse(data.course);
+
+        if (isAirbnbCourse(data.course) && entrySource !== AIRBNB_LANDING_ENTRY_SOURCE) {
+          const accessRes = await fetch(`/api/courses/${encodeURIComponent(decodedSlug)}/access`);
+          const accessData = accessRes.ok ? await accessRes.json() : { enrolled: false };
+
+          if (!accessData.enrolled) {
+            if (!cancelled) {
+              setRedirecting(true);
+              router.replace(AIRBNB_LANDING_ROUTE);
+            }
+            return;
+          }
+        }
+
+        if (!cancelled) setCourse(data.course);
       } catch {
-        setError(true);
+        if (!cancelled) setError(true);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
-  }, [slug]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [entrySource, entrySourceReady, router, slug]);
 
   // Loading
-  if (loading) {
+  if (!entrySourceReady || loading || redirecting) {
     return (
       <div className="min-h-screen bg-[#faf7f2]">
         <Navbar />

@@ -4,12 +4,12 @@ import React, { useEffect, useState, useCallback, use } from 'react';
 import { Loader2, AlertCircle, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { WatchPageLayout } from '@/components/courses/player';
 import Navbar from '@/components/Navbar';
+import { AIRBNB_LANDING_ROUTE, isAirbnbCourse } from '@/lib/courses/airbnb-landing';
 
 interface LessonData {
   course: { id: string; title: string; slug: string; instructor?: { firstName: string; lastName: string; image: string | null } };
@@ -45,7 +45,6 @@ export default function WatchPage({ params }: { params: Promise<{ slug: string }
   const { slug: rawSlug } = use(params);
   const slug = decodeURIComponent(rawSlug);
   const { data: session, status: sessionStatus } = useSession();
-  const router = useRouter();
   const t = useTranslation();
   const { isRTL } = useLanguage();
   const ct = t.courses;
@@ -149,6 +148,10 @@ export default function WatchPage({ params }: { params: Promise<{ slug: string }
   }
 
   if (error === 'no-enrollment') {
+    const enrollmentHref = isAirbnbCourse({ title: '', slug })
+      ? AIRBNB_LANDING_ROUTE
+      : `/courses/${encodeURIComponent(slug)}/enroll`;
+
     return (
       <div className="min-h-screen bg-[#faf7f2]">
         <Navbar />
@@ -159,7 +162,7 @@ export default function WatchPage({ params }: { params: Promise<{ slug: string }
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2 font-dubai">{pt.enrollmentRequired}</h2>
           <Link
-            href={`/courses/${slug}/enroll`}
+            href={enrollmentHref}
             className="inline-flex items-center gap-2 mt-4 px-6 py-2.5 rounded-xl bg-primary text-secondary text-sm font-bold hover:bg-primary/90 transition-colors"
           >
             {pt.enrollNow}

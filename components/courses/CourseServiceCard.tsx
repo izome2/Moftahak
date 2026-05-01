@@ -9,6 +9,7 @@ import Badge from '@/components/ui/Badge';
 import UserIcon from '@/components/ui/UserIcon';
 import CourseDefaultThumbnail from './CourseDefaultThumbnail';
 import { formatDuration, formatDurationEn } from '@/lib/courses/utils';
+import { getAirbnbCourseLandingHref } from '@/lib/courses/airbnb-landing';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -119,6 +120,7 @@ const CourseServiceCard: React.FC<CourseServiceCardProps> = ({ course, index, gy
   const durationText = language === 'ar'
     ? formatDuration(course.totalDuration)
     : formatDurationEn(course.totalDuration);
+  const courseHref = getAirbnbCourseLandingHref(course);
 
   const cardVariant = {
     hidden: { opacity: 0, y: 40 },
@@ -286,7 +288,7 @@ const CourseServiceCard: React.FC<CourseServiceCardProps> = ({ course, index, gy
           <span className="text-2xl font-bold text-secondary font-bristone">
             {formattedPrice}
           </span>
-          <Link href={`/courses/${course.slug}`}>
+          <Link href={courseHref}>
             <motion.span
               className="shrink-0 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-secondary bg-linear-to-tl from-[#e5b483] to-[#edc49f] rounded-lg shadow-[0_0_15px_rgba(180,130,80,0.25)] relative overflow-hidden cursor-pointer"
               whileHover={{
