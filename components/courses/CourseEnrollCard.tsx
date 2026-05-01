@@ -85,7 +85,7 @@ export default function CourseEnrollCard({
         {/* Price & Action */}
         <motion.div
           animate={{ y: [0, -4, 0] }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
           className="mt-4 hidden overflow-hidden rounded-2xl border-2 border-[#ead3b9]/60 bg-[#fdf6ee]/55 shadow-[0_18px_50px_rgba(73,48,28,0.13)] backdrop-blur-xl md:block"
         >
           <div className="px-6 py-5">
@@ -122,7 +122,7 @@ export default function CourseEnrollCard({
       >
         <motion.div
           animate={{ y: [0, -3, 0] }}
-          transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: 3.8, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
           className="rounded-2xl border-2 border-[#ead3b9]/60 bg-[#fdf6ee]/75 p-3 shadow-[0_16px_42px_rgba(16,48,43,0.22)] backdrop-blur-xl"
           style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
         >
