@@ -36,7 +36,7 @@ export default async function AirbnbLandingRoute() {
 
   return (
     <div className="min-h-screen bg-[#faf7f2]" dir="rtl">
-      <Navbar />
+      <Navbar variant="airbnbLanding" />
       <AirbnbCourseLandingPage courseSlug={courseSlug} />
     </div>
   );

@@ -51,3 +51,18 @@ export const dubai = localFont({
   fallback: ['Tahoma', 'Arial', 'sans-serif'],
   adjustFontFallback: 'Arial',
 });
+
+// Arabic display font for premium landing-page headlines
+export const airbnbArabicDisplay = localFont({
+  src: [
+    {
+      path: '../public/fonts/ghaithsans/GHAITHSANS-BOLD.woff',
+      weight: '700',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-airbnb-arabic-display',
+  display: 'swap',
+  preload: true,
+  fallback: ['Tahoma', 'Arial', 'sans-serif'],
+});

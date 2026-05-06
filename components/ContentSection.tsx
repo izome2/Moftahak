@@ -259,12 +259,23 @@ const ContentSection: React.FC = () => {
   const [hasAnimated, setHasAnimated] = useState(false);
   const [showEmojis, setShowEmojis] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInView = useScrollAnimation(containerRef as React.RefObject<Element>, { threshold: 0.2, once: true });
   const isHeaderInView = useScrollAnimation(headerRef as React.RefObject<Element>, { threshold: 0.5, once: false });
   const t = useTranslation();
+
+  React.useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 1023px)');
+    const updateViewport = () => setIsMobileViewport(mediaQuery.matches);
+
+    updateViewport();
+    mediaQuery.addEventListener('change', updateViewport);
+
+    return () => mediaQuery.removeEventListener('change', updateViewport);
+  }, []);
 
   React.useEffect(() => {
     if (isInView) {
@@ -309,24 +320,14 @@ const ContentSection: React.FC = () => {
     { icon: Flame, colors: ['#FA7E1E', '#FEDA75', '#D4A574', '#D4A574'] },
   ], []);
 
-  const getEmojiPosition = useCallback((index: number) => {
-    
-    const baseAngles = [
-      -Math.PI / 2,      
-      0,                 
-      Math.PI / 2,       
-      Math.PI,           
-      -Math.PI / 4,      
-      Math.PI / 4,       
-    ];
-    
-    
-    const angle = baseAngles[index] + (Math.random() - 0.5) * 0.3;
-    const distance = 100 + Math.random() * 60; 
-    const x = Math.cos(angle) * distance;
-    const y = Math.sin(angle) * distance;
-    return { x, y };
-  }, []);
+  const emojiEffects = useMemo(() => [
+    { x: -10, y: -132, rotate: -220 },
+    { x: 132, y: -8, rotate: 260 },
+    { x: 16, y: 128, rotate: -150 },
+    { x: -132, y: 10, rotate: 180 },
+    { x: 92, y: -92, rotate: 310 },
+    { x: 104, y: 88, rotate: -285 },
+  ], []);
 
   const handlePrev = useCallback(() => {
     if (isTransitioning) return;
@@ -406,7 +407,7 @@ const ContentSection: React.FC = () => {
     const maxVisible = isMobile ? 1 : 2;
     
     const spacing = isMobile ? 200 : 240;
-    let translateX = position * spacing;
+    const translateX = position * spacing;
     let scale = 1;
     let opacity = 1;
     let zIndex = 10;
@@ -462,60 +463,6 @@ const ContentSection: React.FC = () => {
     }
   };
 
-  
-  const getVisibleVideos = () => {
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
-    const positions = isMobile ? [-1, 0, 1] : [-2, -1, 0, 1, 2];
-    return positions.map((offset) => {
-      const index = (currentIndex + offset + allVideos.length) % allVideos.length;
-      return {
-        ...allVideos[index],
-        offset,
-      };
-    });
-  };
-
-  const getVideoStyles = (offset: number) => {
-    switch (offset) {
-      case 0: 
-        return {
-          transform: `translateX(-50%) scale(1.1)`,
-          opacity: 1,
-          zIndex: 5,
-        };
-      case -1: 
-        return {
-          transform: `translateX(calc(-50% - 240px)) scale(1.05)`,
-          opacity: 0.75,
-          zIndex: 4,
-        };
-      case 1: 
-        return {
-          transform: `translateX(calc(-50% + 240px)) scale(1.05)`,
-          opacity: 0.75,
-          zIndex: 4,
-        };
-      case -2: 
-        return {
-          transform: `translateX(calc(-50% - 450px)) scale(1)`,
-          opacity: 0.5,
-          zIndex: 3,
-        };
-      case 2: 
-        return {
-          transform: `translateX(calc(-50% + 450px)) scale(1)`,
-          opacity: 0.5,
-          zIndex: 3,
-        };
-      default:
-        return {
-          transform: `translateX(-50%) scale(0.5)`,
-          opacity: 0,
-          zIndex: 0,
-        };
-    }
-  };
-
   return (
     <section className="py-20 bg-white overflow-hidden" id="content">
       <Container>
@@ -529,12 +476,11 @@ const ContentSection: React.FC = () => {
             {}
             <AnimatePresence>
               {showEmojis && emojis.map((emoji, index) => {
-                const pos = getEmojiPosition(index);
-                const randomRotation = Math.random() * 720 - 360; 
+                const pos = emojiEffects[index % emojiEffects.length];
                 const IconComponent = emoji.icon;
                 return (
                   <motion.div
-                    key={`emoji-${index}-${Date.now()}`}
+                    key={`emoji-${index}`}
                     className="absolute top-1/2 left-1/2 pointer-events-none"
                     initial={{ 
                       x: '-50%', 
@@ -548,7 +494,7 @@ const ContentSection: React.FC = () => {
                       y: `calc(-50% + ${pos.y}px)`,
                       scale: [0, 1.3, 1.1, 0.9, 0],
                       opacity: [0, 1, 1, 0.8, 0],
-                      rotate: randomRotation
+                      rotate: pos.rotate
                     }}
                     exit={{ 
                       scale: 0,
@@ -644,8 +590,7 @@ const ContentSection: React.FC = () => {
               onTouchEnd={handleTouchEnd}
             >
               {allVideos.map((video, index) => {
-                const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
-                const styles = getPositionStyles(index, isMobile) as React.CSSProperties;
+                const styles = getPositionStyles(index, isMobileViewport) as React.CSSProperties;
                 const normalizedCurrent = ((currentIndex % allVideos.length) + allVideos.length) % allVideos.length;
                 const isCenter = index === normalizedCurrent;
                 
@@ -658,7 +603,7 @@ const ContentSection: React.FC = () => {
                 }
                 
                 // إخفاء الفيديوهات البعيدة على الشاشات الصغيرة لتحسين الأداء
-                if (isMobile && Math.abs(position) > 1) {
+                if (isMobileViewport && Math.abs(position) > 1) {
                   return null;
                 }
                 
@@ -681,7 +626,7 @@ const ContentSection: React.FC = () => {
                     animate={isInView ? {
                       opacity: styles.opacity,
                       y: 0,
-                      x: position === 0 ? '-50%' : `calc(-50% + ${position * (isMobile ? 200 : 240)}px)`,
+                      x: position === 0 ? '-50%' : `calc(-50% + ${position * (isMobileViewport ? 200 : 240)}px)`,
                       scale: styles.transform ? parseFloat(styles.transform.toString().match(/scale\(([^)]+)\)/)?.[1] || '1') : 1,
                     } : {
                       opacity: 0,

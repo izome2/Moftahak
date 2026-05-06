@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { bristone, dubai } from "./fonts";
+import { airbnbArabicDisplay, bristone, dubai } from "./fonts";
 import "./globals.css";
 import CustomScrollbar from "@/components/CustomScrollbar";
 import Providers from "@/components/Providers";
@@ -157,7 +157,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://i.pravatar.cc" crossOrigin="anonymous" />
       </head>
       <body
-        className={`${dubai.variable} ${bristone.variable} antialiased font-dubai`}
+        className={`${dubai.variable} ${bristone.variable} ${airbnbArabicDisplay.variable} antialiased font-dubai`}
       >
         <Providers>
           {children}

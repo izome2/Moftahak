@@ -1,16 +1,21 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Menu, X, Phone, User, ShoppingCart, Calculator } from 'lucide-react';
+import { Menu, X, Phone, User, Calculator, Clock } from 'lucide-react';
 import Button from './ui/Button';
 import AuthModal from './auth/AuthModal';
 import UserDropdown from './user/UserDropdown';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import {
+  airbnbLandingContent,
+  getDiscountCountdownParts,
+  type DiscountCountdownParts,
+} from '@/lib/courses/airbnb-landing';
 
 // الأدوار المسموح لها بالوصول لنظام الحسابات
 const ACCOUNTING_ROLES = ['GENERAL_MANAGER', 'OPS_MANAGER', 'BOOKING_MANAGER', 'INVESTOR'];
@@ -21,14 +26,68 @@ interface NavLink {
   isPage?: boolean; // true إذا كان الرابط لصفحة منفصلة وليس قسم في الصفحة الرئيسية
 }
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  variant?: 'default' | 'airbnbLanding';
+}
+
+function AirbnbCountdownUnit({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="min-w-[42px] text-center sm:min-w-[50px] xl:min-w-[58px]">
+      <p className="font-bristone text-[1.35rem] font-bold leading-none text-secondary sm:text-2xl xl:text-[1.65rem]">
+        {String(value).padStart(2, '0')}
+      </p>
+      <p className="mt-1 text-[11px] font-bold leading-none text-secondary/68 sm:text-xs">{label}</p>
+    </div>
+  );
+}
+
+function AirbnbNavbarCountdown({ parts }: { parts: DiscountCountdownParts }) {
+  return (
+    <div dir="rtl" className="border-t border-secondary/10 px-3 pb-3 pt-2 sm:px-5 xl:px-6 xl:pb-3.5 xl:pt-2.5">
+      <div className="flex items-center justify-between gap-3 text-secondary xl:justify-center xl:gap-7">
+        <div className="flex shrink-0 items-center gap-2 text-start">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary/8 text-secondary xl:h-9 xl:w-9">
+            <Clock className="h-4 w-4 xl:h-5 xl:w-5" />
+          </span>
+          <div>
+            <p className="text-base font-black leading-tight text-secondary sm:text-lg xl:text-xl">
+              تبقّى على نهاية الخصم
+            </p>
+            <p className="text-xs font-bold leading-tight text-secondary/58 sm:text-sm">
+              العرض ينتهي قريبًا
+            </p>
+          </div>
+        </div>
+        <div
+          className="flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-3 xl:flex-none xl:justify-center xl:gap-4"
+          aria-label="تبقى على نهاية الخصم"
+        >
+          <AirbnbCountdownUnit value={parts.seconds} label="ثانية" />
+          <AirbnbCountdownUnit value={parts.minutes} label="دقيقة" />
+          <AirbnbCountdownUnit value={parts.hours} label="ساعة" />
+          <AirbnbCountdownUnit value={parts.days} label="يوم" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const Navbar: React.FC<NavbarProps> = ({ variant = 'default' }) => {
   const { data: session } = useSession();
   const router = useRouter();
   const { language, toggleLanguage } = useLanguage();
   const t = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [airbnbCountdown, setAirbnbCountdown] = useState<{ now: Date; endsAt: Date } | null>(null);
+  const lastScrollYRef = useRef(0);
+  const isAirbnbLanding = variant === 'airbnbLanding';
+  const shouldHideNav = isAirbnbLanding && isHidden && !isMobileMenuOpen;
+  const airbnbCountdownParts = airbnbCountdown
+    ? getDiscountCountdownParts(airbnbCountdown.now, airbnbCountdown.endsAt)
+    : { days: 0, hours: 0, minutes: 0, seconds: 0 };
 
   // Listen for custom event to open auth modal from other components
   useEffect(() => {
@@ -39,13 +98,40 @@ const Navbar: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      const currentScrollY = Math.max(window.scrollY, 0);
+      const scrollDelta = currentScrollY - lastScrollYRef.current;
+
+      setIsScrolled(currentScrollY > 20);
+
+      if (isAirbnbLanding) {
+        if (currentScrollY < 24 || isMobileMenuOpen) {
+          setIsHidden(false);
+        } else if (Math.abs(scrollDelta) > 8) {
+          setIsHidden(scrollDelta > 0);
+        }
+      }
+
+      lastScrollYRef.current = currentScrollY;
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll(); // Initial check
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isAirbnbLanding, isMobileMenuOpen]);
+
+  useEffect(() => {
+    if (!isAirbnbLanding) return;
+
+    const endDate = new Date(Date.now() + airbnbLandingContent.discountDurationMs);
+    const updateCountdown = () => {
+      setAirbnbCountdown({ now: new Date(), endsAt: endDate });
+    };
+
+    updateCountdown();
+    const interval = window.setInterval(updateCountdown, 1000);
+
+    return () => window.clearInterval(interval);
+  }, [isAirbnbLanding]);
 
   // Close mobile menu when clicking outside
   useEffect(() => {
@@ -70,6 +156,7 @@ const Navbar: React.FC = () => {
     { label: t.nav.content, href: '#content' },
     { label: t.nav.contact, href: '#contact' },
   ];
+  const mobileNavLinks = navLinks.filter((link) => link.href !== '#contact');
 
   // إضافة رابط الحسابات إذا كان المستخدم لديه صلاحية
   const hasAccountingAccess = useMemo(() => {
@@ -118,7 +205,11 @@ const Navbar: React.FC = () => {
       <header
         dir="ltr"
         className={`hidden xl:block fixed z-50 transition-all duration-500 top-3 left-[10%] right-[10%] rounded-2xl ${
-          isScrolled
+          shouldHideNav ? '-translate-y-[calc(100%+1.5rem)] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+        } ${
+          isAirbnbLanding
+            ? 'bg-[#fdf6ee]/95 backdrop-blur-md shadow-[0_0_25px_rgba(180,130,80,0.30)]'
+            : isScrolled
             ? 'bg-[#fdf6ee]/88 backdrop-blur-md shadow-[0_0_25px_rgba(180,130,80,0.30)]'
             : 'bg-transparent shadow-none'
         }`}
@@ -178,12 +269,6 @@ const Navbar: React.FC = () => {
               >
                 {language === 'ar' ? 'EN' : 'AR'}
               </button>
-              <button
-                className="p-2 text-secondary hover:text-primary transition-colors duration-300"
-                aria-label={t.nav.cart}
-              >
-                <ShoppingCart size={22} />
-              </button>
               {session ? (
                 <UserDropdown />
               ) : (
@@ -206,6 +291,7 @@ const Navbar: React.FC = () => {
               </Button>
             </div>
           </nav>
+          {isAirbnbLanding && <AirbnbNavbarCountdown parts={airbnbCountdownParts} />}
         </div>
       </header>
 
@@ -213,6 +299,8 @@ const Navbar: React.FC = () => {
       <header
         dir="ltr"
         className={`xl:hidden fixed z-50 w-full transition-all duration-300 ${
+          shouldHideNav ? '-translate-y-[calc(100%+1.25rem)] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+        } ${
           isScrolled
             ? 'top-3 px-3'
             : 'top-0 px-0'
@@ -220,7 +308,9 @@ const Navbar: React.FC = () => {
       >
         <nav
           className={`transition-all duration-300 ${
-            isScrolled
+            isAirbnbLanding
+              ? `bg-[#fdf6ee]/95 backdrop-blur-md shadow-[0_0_20px_rgba(180,130,80,0.25)] ${isScrolled ? 'rounded-2xl' : ''}`
+              : isScrolled
               ? 'bg-[#fdf6ee]/95 backdrop-blur-md shadow-[0_0_20px_rgba(180,130,80,0.25)] rounded-2xl'
               : 'bg-[#fdf6ee]/70 backdrop-blur-sm shadow-sm'
           }`}
@@ -245,38 +335,6 @@ const Navbar: React.FC = () => {
             {/* Mobile Actions */}
             <div className="flex items-center gap-2 z-10">
               <button
-                onClick={(e) => { e.stopPropagation(); toggleLanguage(); }}
-                className="px-2 py-1 text-xs font-bold text-secondary hover:text-primary transition-colors rounded-lg hover:bg-primary/10 border border-secondary/20"
-                aria-label="Switch language"
-              >
-                {language === 'ar' ? 'EN' : 'AR'}
-              </button>
-              <button
-                className="p-2 text-secondary hover:text-primary transition-colors rounded-lg hover:bg-primary/10"
-                aria-label={t.nav.cart}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <ShoppingCart size={22} />
-              </button>
-              
-              {session ? (
-                <div onClick={(e) => e.stopPropagation()}>
-                  <UserDropdown />
-                </div>
-              ) : (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsAuthModalOpen(true);
-                  }}
-                  className="p-2 text-secondary hover:text-primary transition-colors rounded-lg hover:bg-primary/10"
-                  aria-label={t.nav.login}
-                >
-                  <User size={22} />
-                </button>
-              )}
-
-              <button
                 className="p-2 text-secondary hover:text-primary transition-colors rounded-lg hover:bg-primary/10"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -288,6 +346,7 @@ const Navbar: React.FC = () => {
               </button>
             </div>
           </div>
+          {isAirbnbLanding && <AirbnbNavbarCountdown parts={airbnbCountdownParts} />}
 
           {/* Mobile Menu Dropdown */}
           {isMobileMenuOpen && (
@@ -296,7 +355,7 @@ const Navbar: React.FC = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="px-4 md:px-6 py-4 space-y-1">
-                {navLinks.map((link) => (
+                {mobileNavLinks.map((link) => (
                   <button
                     key={link.href}
                     onClick={() => handleNavClick(link)}
@@ -318,15 +377,49 @@ const Navbar: React.FC = () => {
                 )}
 
                 <div className="pt-3 mt-3 border-t border-accent/30">
-                  <Button
-                    variant="primary"
-                    size="md"
-                    leftIcon={<Phone size={18} />}
-                    onClick={() => scrollToSection('#contact')}
-                    className="w-full justify-center"
-                  >
-                    {t.nav.contactMe}
-                  </Button>
+                  <div dir="rtl" className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2">
+                    <Button
+                      variant="primary"
+                      size="md"
+                      leftIcon={<Phone size={18} />}
+                      onClick={() => scrollToSection('#contact')}
+                      className="w-full justify-center"
+                    >
+                      {t.nav.contactMe}
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleLanguage();
+                      }}
+                      className="flex h-11 min-w-12 items-center justify-center rounded-xl border border-secondary/20 bg-white/55 px-3 text-sm font-bold text-secondary transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
+                      aria-label="Switch language"
+                    >
+                      {language === 'ar' ? 'EN' : 'AR'}
+                    </button>
+                    {session ? (
+                      <div
+                        className="flex h-11 min-w-12 items-center justify-center rounded-xl border border-secondary/20 bg-white/55 px-1 text-secondary transition-colors hover:border-primary/40 hover:bg-primary/10"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <UserDropdown />
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsMobileMenuOpen(false);
+                          setIsAuthModalOpen(true);
+                        }}
+                        className="flex h-11 min-w-12 items-center justify-center rounded-xl border border-secondary/20 bg-white/55 px-3 text-secondary transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
+                        aria-label={t.nav.login}
+                      >
+                        <User size={20} />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

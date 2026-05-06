@@ -92,6 +92,15 @@ button:active {
   font-family: var(--font-dubai), sans-serif;
 }
 
+.airbnb-display-title {
+  font-family: var(--font-airbnb-arabic-display), var(--font-dubai), Tahoma, Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-wrap: balance;
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: geometricPrecision;
+}
+
 /* Smooth Scrolling */
 html {
   scroll-behavior: smooth;
