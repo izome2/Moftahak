@@ -43,8 +43,13 @@ function AirbnbCountdownUnit({ value, label }: { value: number; label: string })
 
 function AirbnbNavbarCountdown({ parts }: { parts: DiscountCountdownParts }) {
   return (
-    <div dir="rtl" className="border-t border-secondary/10 px-3 pb-3 pt-2 sm:px-5 xl:px-6 xl:pb-3.5 xl:pt-2.5">
-      <div className="flex items-center justify-between gap-3 text-secondary xl:justify-center xl:gap-7">
+    <div
+      dir="rtl"
+      className="airbnb-countdown-strip relative isolate overflow-hidden border-t border-secondary/10 px-3 pb-3 pt-2 sm:px-5 xl:px-6 xl:pb-3.5 xl:pt-2.5"
+    >
+      <span aria-hidden="true" className="airbnb-countdown-glow airbnb-countdown-glow-orange" />
+      <span aria-hidden="true" className="airbnb-countdown-glow airbnb-countdown-glow-green" />
+      <div className="relative z-10 flex items-center justify-between gap-3 text-secondary xl:justify-center xl:gap-7">
         <div className="flex shrink-0 items-center gap-2 text-start">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary/8 text-secondary xl:h-9 xl:w-9">
             <Clock className="h-4 w-4 xl:h-5 xl:w-5" />

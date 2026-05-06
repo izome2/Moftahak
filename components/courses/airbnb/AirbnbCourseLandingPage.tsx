@@ -46,6 +46,16 @@ type BadgeIconName = keyof typeof badgeIcons;
 type BadgeVariant = 'green' | 'beige';
 type RevealDirection = 'up' | 'down' | 'left' | 'right' | 'none';
 
+function AirbnbProfitSubtitle({ withExclamation = false }: { withExclamation?: boolean }) {
+  return (
+    <>
+      تعلم مجال الإستضافة الفندقية في وقت قياسي و ابدأ
+      <span className="hidden sm:inline"> </span>
+      <span className="block sm:inline">في استلام أرباحك{withExclamation ? '!' : ''}</span>
+    </>
+  );
+}
+
 const smoothEase: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const mediaSwitchTransition = {
   opacity: { duration: 1.18, ease: smoothEase },
@@ -145,29 +155,119 @@ function StartNowButton({
   fullWidth?: boolean;
   inverted?: boolean;
 }) {
+  const linkRef = useRef<HTMLAnchorElement>(null);
+  const revealFrameRef = useRef<number | null>(null);
+  const revealTimeoutsRef = useRef<number[]>([]);
+  const [revealPhase, setRevealPhase] = useState<'idle' | 'preparing' | 'filled' | 'shrinking'>('idle');
   const buttonPalette = inverted
     ? 'border border-white/18 bg-[#1c3933] text-white shadow-[0_14px_34px_rgba(0,0,0,0.16),inset_0_1px_0_rgba(255,255,255,0.14)] hover:text-white hover:shadow-[0_18px_42px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.18)] active:text-white'
     : 'bg-linear-to-tl from-[#edbf8c] to-[#f8d9ae] text-secondary shadow-[0_16px_36px_rgba(16,48,43,0.18),0_0_24px_rgba(237,191,140,0.28)] hover:text-white hover:shadow-[0_20px_46px_rgba(16,48,43,0.24),0_0_34px_rgba(237,191,140,0.38)] active:text-white';
   const circlePalette = inverted ? 'bg-primary' : 'bg-secondary';
   const arrowPalette = inverted ? 'text-secondary' : 'text-primary';
   const labelPalette = 'group-hover:text-white group-active:text-white';
+  const revealButtonClass =
+    revealPhase === 'preparing'
+      ? 'airbnb-start-button-preparing'
+      : revealPhase === 'filled'
+      ? 'airbnb-start-button-filled'
+      : revealPhase === 'shrinking'
+        ? 'airbnb-start-button-shrinking'
+        : '';
+
+  useEffect(() => {
+    const link = linkRef.current;
+    if (!link || typeof IntersectionObserver === 'undefined') return;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const clearRevealTimers = () => {
+      if (revealFrameRef.current !== null) {
+        window.cancelAnimationFrame(revealFrameRef.current);
+        revealFrameRef.current = null;
+      }
+
+      revealTimeoutsRef.current.forEach((timerId) => window.clearTimeout(timerId));
+      revealTimeoutsRef.current = [];
+    };
+
+    const playViewportReveal = () => {
+      if (prefersReducedMotion) return;
+
+      clearRevealTimers();
+      setRevealPhase('filled');
+
+      revealFrameRef.current = window.requestAnimationFrame(() => {
+        revealTimeoutsRef.current = [
+          window.setTimeout(() => setRevealPhase('shrinking'), 140),
+          window.setTimeout(() => setRevealPhase('idle'), 980),
+        ];
+      });
+    };
+
+    const prepareNextViewportReveal = () => {
+      if (prefersReducedMotion) return;
+
+      clearRevealTimers();
+      setRevealPhase('preparing');
+      revealTimeoutsRef.current = [
+        window.setTimeout(() => setRevealPhase('filled'), 780),
+      ];
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return;
+
+        if (!entry.isIntersecting) {
+          prepareNextViewportReveal();
+          return;
+        }
+
+        if (entry.intersectionRatio < 0.58) return;
+
+        playViewportReveal();
+      },
+      { threshold: [0, 0.58], rootMargin: '0px 0px -8% 0px' }
+    );
+
+    observer.observe(link);
+
+    return () => {
+      clearRevealTimers();
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <Link
+      ref={linkRef}
       href={href}
-      className={`group relative inline-flex min-h-14 items-center justify-center overflow-hidden rounded-full py-2.5 pl-5 pr-14 font-bold transition duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] sm:min-h-[60px] sm:pl-6 sm:pr-16 ${buttonPalette} ${
+      className={`airbnb-start-button group relative inline-flex min-h-14 items-center justify-center overflow-hidden rounded-full py-2.5 pl-5 pr-14 font-bold transition duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] sm:min-h-[60px] sm:pl-6 sm:pr-16 ${buttonPalette} ${revealButtonClass} ${
         fullWidth ? 'w-full' : ''
       } ${className}`}
+      style={{
+        '--airbnb-start-label-color': inverted ? '#ffffff' : '#10302b',
+        '--airbnb-start-arrow-color': inverted ? '#10302b' : '#edbf8c',
+        '--airbnb-start-button-shadow': inverted
+          ? '0 14px 34px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.14)'
+          : '0 16px 36px rgba(16,48,43,0.18), 0 0 24px rgba(237,191,140,0.28)',
+        '--airbnb-start-button-hover-shadow': inverted
+          ? '0 18px 42px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.18)'
+          : '0 20px 46px rgba(16,48,43,0.24), 0 0 34px rgba(237,191,140,0.38)',
+      } as React.CSSProperties}
     >
       <span
         aria-hidden="true"
-        className={`absolute right-1 top-1/2 z-0 h-10 w-10 -translate-y-1/2 rounded-full shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_8px_18px_rgba(16,48,43,0.18)] transition-[width,height,right] ease-out group-hover:right-[-1px] group-hover:h-[calc(100%+2px)] group-hover:w-[calc(100%+2px)] group-active:right-[-1px] group-active:h-[calc(100%+2px)] group-active:w-[calc(100%+2px)] sm:h-11 sm:w-11 ${circlePalette}`}
+        className={`airbnb-start-circle absolute right-1 top-1/2 z-0 h-10 w-10 -translate-y-1/2 rounded-full shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_8px_18px_rgba(16,48,43,0.18)] transition-[width,height,right] ease-out group-hover:right-[-1px] group-hover:h-[calc(100%+2px)] group-hover:w-[calc(100%+2px)] group-active:right-[-1px] group-active:h-[calc(100%+2px)] group-active:w-[calc(100%+2px)] sm:h-11 sm:w-11 ${circlePalette}`}
         style={{ transitionDuration: '500ms,760ms,680ms' }}
       />
-      <span className={`pointer-events-none absolute right-1 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center transition duration-300 group-hover:-translate-x-1 group-hover:scale-105 group-hover:text-white group-active:text-white sm:h-11 sm:w-11 ${arrowPalette}`}>
-        <ArrowLeft className="h-[22px] w-[22px] transition-transform duration-300 group-hover:scale-110 sm:h-6 sm:w-6" />
+      <span
+        className={`airbnb-start-arrow pointer-events-none absolute right-1 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center transition duration-300 group-hover:-translate-x-1 group-hover:scale-105 group-hover:text-white group-active:text-white sm:h-11 sm:w-11 ${arrowPalette}`}
+      >
+        <ArrowLeft className="airbnb-start-icon h-[22px] w-[22px] transition-transform duration-300 group-hover:scale-110 sm:h-6 sm:w-6" />
       </span>
-      <span className={`relative z-20 min-w-[124px] translate-x-3 px-2 text-center text-[1.55rem] leading-none transition duration-300 group-hover:translate-x-3.5 group-hover:scale-[1.03] sm:min-w-[148px] sm:text-[1.85rem] ${labelPalette}`}>
+      <span
+        className={`airbnb-start-label relative z-20 min-w-[124px] translate-x-3 px-2 text-center text-[1.55rem] leading-none transition duration-300 group-hover:translate-x-3.5 group-hover:scale-[1.03] sm:min-w-[148px] sm:text-[1.85rem] ${labelPalette}`}
+      >
         ابــــدأ الآن
       </span>
     </Link>
@@ -183,7 +283,7 @@ function SectionHeader({
 }: {
   badge?: { label: string; icon: BadgeIconName; variant: BadgeVariant };
   title: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   light?: boolean;
   titleClassName?: string;
 }) {
@@ -350,7 +450,7 @@ function HeroSection({ ctaHref }: { ctaHref: string }) {
             {airbnbLandingContent.heroTitle}
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/72 sm:text-lg">
-            {airbnbLandingContent.heroDescription}
+            <AirbnbProfitSubtitle withExclamation />
           </p>
         </Reveal>
 
@@ -501,7 +601,7 @@ function AudienceTabsSection({ ctaHref }: { ctaHref: string }) {
           />
         </Reveal>
 
-        <Reveal delay={0.08} className="mx-auto mt-7 flex w-full max-w-3xl gap-2 overflow-x-auto scroll-smooth rounded-full border border-[#ead3b9]/70 bg-[#faf7f2] p-2 scrollbar-hide">
+        <Reveal delay={0.08} className="mx-auto mt-7 flex w-full max-w-3xl gap-2 overflow-x-auto scroll-smooth rounded-full border border-[#ead3b9]/70 bg-[#faf7f2] p-2 scrollbar-hide lg:grid lg:max-w-5xl lg:grid-cols-[repeat(4,minmax(0,1fr))] lg:overflow-visible xl:max-w-6xl">
           {audienceTabs.map((tab) => {
             const isActive = tab.id === activeId;
             return (
@@ -510,7 +610,7 @@ function AudienceTabsSection({ ctaHref }: { ctaHref: string }) {
                 type="button"
                 onClick={() => setActiveId(tab.id)}
                 aria-pressed={isActive}
-                className={`min-h-11 shrink-0 rounded-full px-5 py-2.5 text-center text-sm font-bold leading-tight transition ${
+                className={`min-h-11 shrink-0 rounded-full px-5 py-2.5 text-center text-sm font-bold leading-tight transition lg:min-w-0 lg:shrink lg:px-4 xl:px-6 ${
                   isActive
                     ? 'bg-secondary text-primary shadow-[0_10px_24px_rgba(16,48,43,0.16)]'
                     : 'text-secondary/62 hover:bg-white hover:text-secondary'
@@ -549,7 +649,7 @@ function AudienceTabsSection({ ctaHref }: { ctaHref: string }) {
           </div>
 
           <div className="px-2 pb-4 text-center md:px-5 md:pb-0 md:text-start">
-            <div className="relative min-h-[410px] overflow-hidden sm:min-h-[330px] md:min-h-[350px] lg:min-h-[310px]">
+            <div className="grid overflow-hidden">
               {audienceTabs.map((tab) => (
                 <motion.div
                   key={tab.id}
@@ -557,7 +657,7 @@ function AudienceTabsSection({ ctaHref }: { ctaHref: string }) {
                   animate={tab.id === activeId ? { opacity: 1, filter: 'blur(0px)' } : { opacity: 0, filter: 'blur(18px)' }}
                   transition={audienceSwitchTransition}
                   style={{ ...stableMotionStyle, willChange: 'opacity, filter' }}
-                  className="pointer-events-none absolute inset-x-0 top-0"
+                  className="pointer-events-none col-start-1 row-start-1"
                 >
                   <h3 className="text-2xl font-bold leading-snug text-secondary">{tab.title}</h3>
                   <p className="mt-3 text-base leading-relaxed text-secondary/68">{tab.text}</p>
@@ -754,7 +854,7 @@ function InstructorSection() {
   ];
 
   return (
-    <section id="instructor" className={`${sectionClass} bg-white`}>
+    <section id="instructor" className={`${sectionClass} bg-white`} style={{ overflowAnchor: 'none' }}>
       <div className={`${sectionInnerClass} grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center`}>
         <Reveal direction="right">
           <InstructorPortraitStack />
@@ -801,9 +901,10 @@ function InstructorSection() {
 
 function FaqSection({ ctaHref }: { ctaHref: string }) {
   const [openFaq, setOpenFaq] = useState(0);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   return (
-    <section id="faq" className={`${sectionClass} bg-[#faf7f2]`}>
+    <section id="faq" className={`${sectionClass} bg-[#faf7f2]`} style={{ overflowAnchor: 'none' }}>
       <div className={sectionInnerClass}>
         <Reveal className="mb-5 flex justify-center">
           <BadgePill badge={airbnbLandingContent.badges.questions} />
@@ -827,7 +928,10 @@ function FaqSection({ ctaHref }: { ctaHref: string }) {
                 >
                   <button
                     type="button"
-                    onClick={() => setOpenFaq(isOpen ? -1 : index)}
+                    onClick={() => {
+                      setHasInteracted(true);
+                      setOpenFaq(isOpen ? -1 : index);
+                    }}
                     className="flex w-full items-center justify-between gap-4 px-4 py-4 text-start transition hover:bg-[#faf7f2]"
                   >
                     <span className="text-sm font-bold text-secondary sm:text-base">{faq.question}</span>
@@ -838,10 +942,12 @@ function FaqSection({ ctaHref }: { ctaHref: string }) {
                   <AnimatePresence initial={false}>
                     {isOpen && (
                       <motion.div
-                        initial={{ height: 0, opacity: 0 }}
+                        // Keep the default open answer stable on first paint; click animations still run after the first interaction.
+                        initial={hasInteracted ? { height: 0, opacity: 0 } : false}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.28, ease: smoothEase }}
+                        style={{ overflowAnchor: 'none' }}
                         className="overflow-hidden"
                       >
                         <p className="px-4 pb-4 text-sm leading-relaxed text-secondary/64">{faq.answer}</p>
@@ -925,7 +1031,7 @@ function FinalCtaSection({ ctaHref }: { ctaHref: string }) {
               <SectionHeader
                 light
                 title={airbnbLandingContent.heroTitle}
-                subtitle="تعلم مجال الإستضافة الفندقية في وقت قياسي و ابدأ في استلام أرباحك"
+                subtitle={<AirbnbProfitSubtitle />}
                 titleClassName="airbnb-display-title mx-auto max-w-4xl text-[2rem] leading-[1.3] sm:text-[2.75rem] lg:text-[3.25rem]"
               />
             </div>
